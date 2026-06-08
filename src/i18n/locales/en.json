@@ -1,0 +1,126 @@
+{
+  "brand": {
+    "name": "Andes Inc.",
+    "markLabel": "Andes Inc. home"
+  },
+  "navigation": {
+    "menuLabel": "Open menu"
+  },
+  "home": {
+    "hero": {
+      "label": "Andes Inc. home hero",
+      "title": {
+        "line1": "Making",
+        "line2": "Global Commerce",
+        "line3": "Autonomous."
+      },
+      "sub": {
+        "lead": "Commerce where AI transacts, not people.",
+        "body": "Andes unifies payments, logistics, and compliance to bring Agentic Commerce to Latin America."
+      },
+      "features": {
+        "aiAgents": {
+          "label": "AI Agents",
+          "description": "AI agents autonomously handle discovery, comparison, recommendations, and purchasing."
+        },
+        "payments": {
+          "label": "Payments",
+          "description": "A seamless, secure payment foundation across countries and currencies."
+        },
+        "logistics": {
+          "label": "Logistics",
+          "description": "A smart logistics network covering markets across Latin America."
+        },
+        "compliance": {
+          "label": "Compliance",
+          "description": "An integrated compliance engine for local regulation, tax, and legal requirements."
+        }
+      }
+    },
+    "product": {
+      "label": "OUR PRODUCT",
+      "title": "AI-connected commerce, built for a new buying experience.",
+      "lead": "People search, compare, pay, and track delivery by hand. Andes turns that chain into a conversational experience an AI agent can execute end to end.",
+      "market": {
+        "title": "Latin America today",
+        "sourceLabel": "Sources",
+        "items": {
+          "population": {
+            "value": "660M",
+            "label": "Latin America population",
+            "source": "World Bank"
+          },
+          "commerce": {
+            "value": "US$769B",
+            "label": "Latin America e-commerce market",
+            "source": "PCMI"
+          },
+          "pix": {
+            "value": "170M",
+            "label": "PIX users",
+            "source": "Brazil Central Bank"
+          }
+        }
+      },
+      "assistant": {
+        "title": "AI Shopping Assistant",
+        "request": "I want a Japanese-quality white T-shirt delivered to São Paulo in 5 to 7 days.",
+        "suggestion": "I found a matching product. Payment and delivery can be handled in one flow.",
+        "buy": "Looks good. Buy it.",
+        "confirmed": "Order Confirmed",
+        "confirmedDetail": "Payment, import handling, and delivery orchestration have started.",
+        "product": {
+          "name": "White Essential Tee",
+          "price": "¥3,480",
+          "destination": "São Paulo",
+          "eta": "5–7 days"
+        }
+      },
+      "detail": {
+        "title": "Commerce orchestration",
+        "body": "Recommendations, payments, logistics, and compliance stay connected as one transaction experience.",
+        "tags": {
+          "payment": "Payment ready",
+          "logistics": "Logistics queued",
+          "compliance": "Compliance checked"
+        }
+      }
+    },
+    "howItWorks": {
+      "label": "HOW IT WORKS",
+      "title": "How Agentic Commerce works",
+      "lead": "AI agents connect decisions and execution from discovery to delivery, turning cross-border purchasing into one continuous flow.",
+      "steps": {
+        "discover": {
+          "number": "1",
+          "title": "Discover",
+          "description": "Understand intent and constraints from natural conversation."
+        },
+        "suggest": {
+          "number": "2",
+          "title": "Suggest",
+          "description": "Compare price, timing, and regulatory conditions to present the best option."
+        },
+        "purchase": {
+          "number": "3",
+          "title": "Purchase",
+          "description": "Confirm payment, currency, and order conditions together."
+        },
+        "process": {
+          "number": "4",
+          "title": "Process",
+          "description": "Move import, tax, and legal checks through the same transaction flow."
+        },
+        "deliver": {
+          "number": "5",
+          "title": "Deliver",
+          "description": "Connect to local logistics and track the order through arrival."
+        }
+      },
+      "summary": {
+        "body": "Cross-border commerce, made ordinary for AI.",
+        "emphasis": "Agentic Commerce."
+      }
+    }
+  }
+}

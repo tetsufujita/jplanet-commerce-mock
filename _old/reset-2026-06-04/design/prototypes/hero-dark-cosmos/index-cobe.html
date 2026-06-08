@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Andes — Hero prototype (cobe / dark cosmos)</title>
+<style>
+  :root{ --bg:#07070A; --ink:#F2F1EC; --muted:#8A8A93; --crimson:#C8102E; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--bg);color:var(--ink);}
+  body{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,monospace;}
+  #runway{height:280vh;}
+  #stage{position:fixed;inset:0;overflow:hidden;}
+  #stars{position:absolute;inset:0;z-index:0;width:100%;height:100%;}
+  #globeBox{position:absolute;z-index:1;}
+  #cobe,#ovl{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  #ovl{z-index:2;pointer-events:none;}
+  #stage::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
+    background:radial-gradient(130% 100% at 62% 50%, transparent 52%, rgba(0,0,0,.6) 100%);}
+  .copy{position:absolute;z-index:4;left:7vw;top:50%;transform:translateY(-54%);max-width:30ch;}
+  .eyebrow{font-size:12px;letter-spacing:.22em;color:var(--muted);display:flex;align-items:center;gap:10px;}
+  .eyebrow .dot{width:5px;height:5px;border-radius:50%;background:var(--crimson);box-shadow:0 0 8px var(--crimson);}
+  h1{font-size:clamp(30px,4.6vw,56px);line-height:1.1;letter-spacing:-0.025em;font-weight:800;margin-top:20px;}
+  h1 .line{display:block;overflow:hidden;}
+  h1 .line > span{display:block;transform:translateY(110%);animation:rise .95s cubic-bezier(.16,1,.3,1) forwards;}
+  h1 .line:nth-child(2) > span{animation-delay:.12s;}
+  @keyframes rise{to{transform:translateY(0);}}
+  .sub{margin-top:22px;font-size:clamp(14px,1.5vw,17px);color:var(--muted);line-height:1.6;opacity:0;transition:opacity .6s ease;}
+  #coord{position:absolute;z-index:2;font-size:11px;letter-spacing:.08em;color:rgba(242,241,236,.78);white-space:nowrap;opacity:0;pointer-events:none;}
+  #coord .tick{color:var(--crimson);}
+  #coord small{display:block;font-size:9px;letter-spacing:.18em;color:var(--muted);margin-top:3px;}
+  #hint{position:absolute;z-index:4;left:50%;bottom:26px;transform:translateX(-50%);font-size:10px;letter-spacing:.3em;color:var(--muted);opacity:.7;}
+  #hint::after{content:"";display:block;width:1px;height:26px;margin:10px auto 0;background:linear-gradient(var(--muted),transparent);}
+  @media (max-width:760px){
+    .copy{left:0;right:0;top:auto;bottom:11vh;transform:none;max-width:none;padding:0 24px;}
+    h1{font-size:30px;}
+  }
+  @media (prefers-reduced-motion:reduce){ h1 .line > span{animation:none;transform:none;} }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="stars"></canvas>
+  <div id="globeBox">
+    <canvas id="cobe"></canvas>
+    <canvas id="ovl"></canvas>
+    <div id="coord" class="mono">-23.56, -46.65<small>SÃO PAULO · AV. PAULISTA</small></div>
+  </div>
+  <div class="copy">
+    <div class="eyebrow"><span class="dot"></span><span class="mono">TOKYO &nbsp;⇄&nbsp; SÃO PAULO</span></div>
+    <h1><span class="line"><span>中南米に、新しい</span></span><span class="line"><span>経済の基盤を建てる。</span></span></h1>
+    <p class="sub" id="sub">その現場へ、静かに降りていく。</p>
+  </div>
+  <div id="hint" class="mono">SCROLL</div>
+</div>
+<div id="runway"></div>
+
+<script src="./cobe-global.js"></script>
+<script>
+const TAU=Math.PI*2, D2R=Math.PI/180;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const smooth=(e0,e1,x)=>{const t=clamp((x-e0)/(e1-e0),0,1);return t*t*(3-2*t);};
+
+const params=new URLSearchParams(location.search);
+const forcedP=params.has('p')?clamp(parseFloat(params.get('p')),0,1):null;
+
+const stars=document.getElementById('stars'), sctx=stars.getContext('2d');
+const box=document.getElementById('globeBox');
+const cobeC=document.getElementById('cobe');
+const ovl=document.getElementById('ovl'), octx=ovl.getContext('2d');
+const coord=document.getElementById('coord'), sub=document.getElementById('sub'), hint=document.getElementById('hint');
+if(forcedP!==null) hint.style.display='none';
+
+const SP=[-23.56,-46.65], TK=[35.68,139.69];
+// front-center longitude = -PI/2 - phi  =>  phi_front(L) = -PI/2 - L
+const phiTK = -Math.PI/2 - TK[1]*D2R;   // Tokyo front
+const phiSP = -Math.PI/2 - SP[1]*D2R;   // São Paulo front
+const thetaA=-0.10, thetaB=0.26;
+
+// cobe projection replicated (U + O), scale=1, offset=[0,0], r=ee+markerElevation=0.85
+function U([lat,lng]){const r=lat*D2R, a=lng*D2R-Math.PI, o=Math.cos(r);return [-o*Math.cos(a), Math.sin(r), o*Math.sin(a)];}
+function project(loc, f, l){
+  const v=U(loc), r=0.85, t0=v[0]*r, t1=v[1]*r, t2=v[2]*r;
+  const rr=Math.cos(l), a=Math.cos(f), o=Math.sin(l), i=Math.sin(f);
+  const c=a*t0+i*t2, s=i*o*t0+rr*t1-a*o*t2;
+  const front=(-i*rr*t0+o*t1+a*rr*t2);
+  return { x:(c+1)/2, y:(-s+1)/2, front };  // x,y as fraction of square box
+}
+
+// São Paulo city-light cluster (procedural, simplified Black Marble)
+const CITY=[];
+(function(){let s=42;const rnd=()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;};
+  for(let i=0;i<36;i++) CITY.push({loc:[SP[0]+(rnd()-0.5)*7.5, SP[1]+(rnd()-0.5)*9], b:0.4+rnd()*0.6});})();
+
+let starField=[];
+function drawStars(W,H){
+  sctx.clearRect(0,0,W,H);
+  if(!starField.length){let s=7;const rnd=()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;};
+    for(let i=0;i<200;i++) starField.push({x:rnd(),y:rnd(),a:0.05+rnd()*0.35,r:rnd()<0.06?1.4:0.8,c:rnd()<0.04});}
+  for(const st of starField){sctx.beginPath();sctx.arc(st.x*W,st.y*H,st.r,0,TAU);
+    sctx.fillStyle=st.c?`rgba(200,16,46,${st.a*0.8})`:`rgba(214,220,235,${st.a})`;sctx.fill();}
+}
+
+let W,H,DPR,G,globe;
+function layout(){
+  DPR=Math.min(window.devicePixelRatio||1,2);
+  W=window.innerWidth; H=window.innerHeight;
+  stars.width=W*DPR; stars.height=H*DPR; sctx.setTransform(DPR,0,0,DPR,0,0);
+  const mobile=W<760;
+  G = mobile ? Math.min(W*0.96, H*0.52) : Math.min(H*0.94, W*0.54);
+  const left = mobile ? (W-G)/2 : (W-G-W*0.04);
+  const top  = mobile ? H*0.075 : (H-G)/2;
+  box.style.left=left+'px'; box.style.top=top+'px'; box.style.width=G+'px'; box.style.height=G+'px';
+  ovl.width=G*DPR; ovl.height=G*DPR; octx.setTransform(DPR,0,0,DPR,0,0);
+  drawStars(W,H);
+  if(globe){ globe.destroy(); globe=null; }
+  globe = createGlobe(cobeC, {
+    devicePixelRatio:DPR, width:G, height:G, phi:phiTK, theta:thetaA,
+    dark:1, diffuse:1.1, mapSamples:16000, mapBrightness:3.4, mapBaseBrightness:0,
+    baseColor:[0.16,0.17,0.24], glowColor:[0.06,0.07,0.12], markerColor:[0.85,0.10,0.18],
+    opacity:1, scale:1, offset:[0,0],
+    markers:[{location:TK,size:0.05},{location:SP,size:0.05}],
+  });
+}
+
+function frame(){
+  let p = forcedP!==null ? forcedP
+        : clamp(window.scrollY/Math.max(1, document.getElementById('runway').offsetHeight-H),0,1);
+  const f=lerp(phiTK,phiSP,p), l=lerp(thetaA,thetaB,p);
+  const spB=smooth(0.34,0.92,p);     // São Paulo brightens
+  const reveal=smooth(0.42,0.82,p);
+  sub.style.opacity=reveal*0.9;
+
+  if(globe) globe.update({ phi:f, theta:l,
+    markers:[{location:TK,size:0.05},{location:SP,size:0.045+spB*0.05}] });
+
+  // overlay (≈ +20% presence vs procedural version)
+  octx.clearRect(0,0,G,G);
+  const sp=project(SP,f,l);
+  if(sp.front>=-0.02 && spB>0.02){
+    const sx=sp.x*G, sy=sp.y*G;
+    octx.globalCompositeOperation='lighter';
+    // São Paulo glow
+    const gr=G*(0.05+spB*0.065);
+    const g=octx.createRadialGradient(sx,sy,0,sx,sy,gr);
+    g.addColorStop(0,`rgba(200,16,46,${0.66*spB})`);
+    g.addColorStop(0.4,`rgba(200,16,46,${0.22*spB})`);
+    g.addColorStop(1,'rgba(200,16,46,0)');
+    octx.fillStyle=g; octx.beginPath(); octx.arc(sx,sy,gr,0,TAU); octx.fill();
+    // city-light cluster
+    for(const c of CITY){const q=project(c.loc,f,l); if(q.front<0) continue;
+      const al=spB*c.b*0.66; const qx=q.x*G, qy=q.y*G;
+      octx.fillStyle = c.b>0.78?`rgba(200,16,46,${al})`:`rgba(224,212,212,${al*0.9})`;
+      octx.fillRect(qx-0.7,qy-0.7,1.4,1.4);}
+    // Av. Paulista hairline
+    const len=G*0.085, ang=-0.62;
+    octx.strokeStyle=`rgba(200,16,46,${reveal*0.62})`; octx.lineWidth=1.1;
+    octx.beginPath(); octx.moveTo(sx-Math.cos(ang)*len,sy-Math.sin(ang)*len);
+    octx.lineTo(sx+Math.cos(ang)*len,sy+Math.sin(ang)*len); octx.stroke();
+    octx.globalCompositeOperation='source-over';
+    // coordinate
+    coord.style.opacity=reveal*0.95;
+    coord.style.left=(sx+G*0.03)+'px'; coord.style.top=(sy+G*0.05)+'px';
+  } else { coord.style.opacity=0; }
+
+  requestAnimationFrame(frame);
+}
+
+window.addEventListener('resize', layout, {passive:true});
+layout();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

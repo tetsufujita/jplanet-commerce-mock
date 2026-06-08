@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Andes — Hero prototype (dark cosmos)</title>
+<style>
+  :root{
+    --bg:#07070A;        /* deep space */
+    --ink:#F2F1EC;       /* warm white */
+    --muted:#8A8A93;
+    --crimson:#C8102E;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--bg);color:var(--ink);}
+  body{
+    font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,monospace;}
+
+  /* scroll runway */
+  #runway{height:280vh;}
+
+  /* fixed stage */
+  #stage{position:fixed;inset:0;overflow:hidden;}
+  canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  #stars{z-index:0;}
+  #globe{z-index:1;}
+
+  /* vignette */
+  #stage::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+    background:radial-gradient(120% 90% at 60% 50%, transparent 55%, rgba(0,0,0,.55) 100%);}
+
+  /* copy */
+  .copy{position:absolute;z-index:3;left:7vw;top:50%;transform:translateY(-54%);max-width:30ch;}
+  .eyebrow{font-size:12px;letter-spacing:.22em;color:var(--muted);display:flex;align-items:center;gap:10px;}
+  .eyebrow .dot{width:5px;height:5px;border-radius:50%;background:var(--crimson);box-shadow:0 0 8px var(--crimson);}
+  h1{font-size:clamp(30px,4.6vw,56px);line-height:1.1;letter-spacing:-0.025em;font-weight:800;margin-top:20px;}
+  h1 .line{display:block;overflow:hidden;}
+  h1 .line > span{display:block;transform:translateY(110%);animation:rise .95s cubic-bezier(.16,1,.3,1) forwards;}
+  h1 .line:nth-child(2) > span{animation-delay:.12s;}
+  @keyframes rise{to{transform:translateY(0);}}
+  .sub{margin-top:22px;font-size:clamp(14px,1.5vw,17px);color:var(--muted);line-height:1.6;
+    opacity:0;transition:opacity .6s ease;}
+
+  /* São Paulo coordinate label (JS-positioned) */
+  #coord{position:absolute;z-index:3;font-size:11px;letter-spacing:.08em;color:rgba(242,241,236,.72);
+    white-space:nowrap;opacity:0;pointer-events:none;transform:translate(-50%,-50%);}
+  #coord .tick{color:var(--crimson);}
+  #coord small{display:block;font-size:9px;letter-spacing:.18em;color:var(--muted);margin-top:3px;}
+
+  /* scroll hint */
+  #hint{position:absolute;z-index:3;left:50%;bottom:26px;transform:translateX(-50%);
+    font-size:10px;letter-spacing:.3em;color:var(--muted);opacity:.7;}
+  #hint::after{content:"";display:block;width:1px;height:26px;margin:10px auto 0;
+    background:linear-gradient(var(--muted),transparent);}
+
+  @media (max-width:760px){
+    .copy{left:0;right:0;top:auto;bottom:13vh;transform:none;max-width:none;padding:0 24px;text-align:left;}
+    h1{font-size:30px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    h1 .line > span{animation:none;transform:none;}
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="stars"></canvas>
+  <canvas id="globe"></canvas>
+  <div class="copy">
+    <div class="eyebrow"><span class="dot"></span><span class="mono">TOKYO &nbsp;⇄&nbsp; SÃO PAULO</span></div>
+    <h1><span class="line"><span>中南米に、新しい</span></span><span class="line"><span>経済の基盤を建てる。</span></span></h1>
+    <p class="sub" id="sub">その現場へ、静かに降りていく。</p>
+  </div>
+  <div id="coord" class="mono">-23.56, -46.65<small>SÃO PAULO · AV. PAULISTA</small></div>
+  <div id="hint" class="mono">SCROLL</div>
+</div>
+<div id="runway"></div>
+
+<script>
+(() => {
+  const TAU = Math.PI*2, D2R = Math.PI/180;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  const smooth=(e0,e1,x)=>{const t=clamp((x-e0)/(e1-e0),0,1);return t*t*(3-2*t);};
+
+  const stars = document.getElementById('stars');
+  const globe = document.getElementById('globe');
+  const sctx = stars.getContext('2d');
+  const gctx = globe.getContext('2d');
+  const coord = document.getElementById('coord');
+  const sub = document.getElementById('sub');
+  const hint = document.getElementById('hint');
+
+  const params = new URLSearchParams(location.search);
+  const forcedP = params.has('p') ? clamp(parseFloat(params.get('p')),0,1) : null;
+  if (forcedP!==null) hint.style.display='none';
+
+  let W=0,H=0,DPR=1,cx=0,cy=0,baseR=0;
+  let starField=[];
+
+  // ---- geometry helpers ----
+  function llToVec(latDeg, lonDeg){
+    const lat=latDeg*D2R, lon=lonDeg*D2R;
+    return {x:Math.cos(lat)*Math.sin(lon), y:Math.sin(lat), z:Math.cos(lat)*Math.cos(lon)};
+  }
+  function rot(v, a, t){
+    // spin around Y
+    const x = v.x*Math.cos(a)+v.z*Math.sin(a);
+    const z =-v.x*Math.sin(a)+v.z*Math.cos(a);
+    const y = v.y;
+    // tilt around X
+    return {x, y: y*Math.cos(t)-z*Math.sin(t), z: y*Math.sin(t)+z*Math.cos(t)};
+  }
+
+  // dotted sphere (fibonacci)
+  const SPHERE=[];
+  (function(){
+    const N=2600, off=2/N, inc=Math.PI*(3-Math.sqrt(5));
+    for(let i=0;i<N;i++){
+      const y=i*off-1+off/2, r=Math.sqrt(1-y*y), phi=i*inc;
+      SPHERE.push({x:Math.cos(phi)*r, y, z:Math.sin(phi)*r});
+    }
+  })();
+
+  // São Paulo city-light cluster (small scatter around SP)
+  const SP=[-23.56,-46.65], TK=[35.68,139.69];
+  const CITY=[];
+  (function(){
+    let seed=42; const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};
+    for(let i=0;i<34;i++){
+      const dl=(rnd()-0.5)*7.5, dg=(rnd()-0.5)*9;
+      CITY.push({v:llToVec(SP[0]+dl, SP[1]+dg), b:0.4+rnd()*0.6});
+    }
+  })();
+
+  const aStart=-TK[1]*D2R, aEnd=-SP[1]*D2R;   // spin so TKfront(p0) -> SPfront(p1)
+  const tStart=-0.18, tEnd=0.30;
+
+  function resize(){
+    DPR=Math.min(window.devicePixelRatio||1, 2);
+    W=window.innerWidth; H=window.innerHeight;
+    for(const c of [stars,globe]){ c.width=W*DPR; c.height=H*DPR; }
+    sctx.setTransform(DPR,0,0,DPR,0,0);
+    gctx.setTransform(DPR,0,0,DPR,0,0);
+    const mobile = W<760;
+    cx = mobile ? W*0.5 : W*0.62;
+    cy = mobile ? H*0.40 : H*0.52;
+    baseR = mobile ? Math.min(W*0.42, H*0.26) : Math.min(H*0.40, W*0.30);
+    drawStars();
+  }
+
+  function drawStars(){
+    sctx.clearRect(0,0,W,H);
+    if(!starField.length){
+      let seed=7; const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};
+      for(let i=0;i<200;i++) starField.push({x:rnd(),y:rnd(),a:0.05+rnd()*0.35,r:rnd()<0.06?1.4:0.8,c:rnd()<0.04});
+    }
+    for(const s of starField){
+      sctx.beginPath();
+      sctx.arc(s.x*W, s.y*H, s.r, 0, TAU);
+      sctx.fillStyle = s.c ? `rgba(200,16,46,${s.a*0.8})` : `rgba(214,220,235,${s.a})`;
+      sctx.fill();
+    }
+  }
+
+  function drawMarker(vec,a,t,R,intensity,glowR){
+    const v=rot(vec,a,t);
+    if(v.z<=0.02) return null;
+    const sx=cx+v.x*R, sy=cy-v.y*R;
+    gctx.globalCompositeOperation='lighter';
+    const g=gctx.createRadialGradient(sx,sy,0,sx,sy,glowR*intensity);
+    g.addColorStop(0,`rgba(200,16,46,${0.55*intensity})`);
+    g.addColorStop(0.4,`rgba(200,16,46,${0.18*intensity})`);
+    g.addColorStop(1,'rgba(200,16,46,0)');
+    gctx.fillStyle=g; gctx.beginPath(); gctx.arc(sx,sy,glowR*intensity,0,TAU); gctx.fill();
+    gctx.beginPath(); gctx.arc(sx,sy,2.1+1.4*intensity,0,TAU);
+    gctx.fillStyle=`rgba(244,150,165,${0.9*intensity+0.1})`; gctx.fill();
+    gctx.globalCompositeOperation='source-over';
+    return {sx,sy};
+  }
+
+  function render(){
+    let p;
+    if(forcedP!==null){ p=forcedP; }
+    else {
+      const max=document.getElementById('runway').offsetHeight - H;
+      p=clamp(window.scrollY/Math.max(1,max),0,1);
+    }
+    const a=lerp(aStart,aEnd,p), t=lerp(tStart,tEnd,p), R=baseR*(1+0.12*p);
+    const spBright=smooth(0.34,0.92,p);   // São Paulo quietly brightens
+    const reveal=smooth(0.42,0.82,p);     // coordinate / hairline / sub
+    sub.style.opacity = reveal*0.9;
+
+    gctx.clearRect(0,0,W,H);
+
+    // soft atmosphere behind globe
+    const atm=gctx.createRadialGradient(cx,cy,R*0.3,cx,cy,R*1.55);
+    atm.addColorStop(0,'rgba(34,42,64,0.45)');
+    atm.addColorStop(0.7,'rgba(18,22,36,0.18)');
+    atm.addColorStop(1,'rgba(7,7,10,0)');
+    gctx.fillStyle=atm; gctx.beginPath(); gctx.arc(cx,cy,R*1.55,0,TAU); gctx.fill();
+
+    // planet body (silhouette so the sphere reads)
+    const body=gctx.createRadialGradient(cx-R*0.3,cy-R*0.3,R*0.1,cx,cy,R);
+    body.addColorStop(0,'rgba(20,24,36,0.92)');
+    body.addColorStop(1,'rgba(9,11,18,0.96)');
+    gctx.fillStyle=body; gctx.beginPath(); gctx.arc(cx,cy,R,0,TAU); gctx.fill();
+
+    // dotted sphere (front hemisphere)
+    for(const v0 of SPHERE){
+      const v=rot(v0,a,t);
+      if(v.z<=0) continue;
+      const sx=cx+v.x*R, sy=cy-v.y*R, d=v.z;
+      const al=0.10+d*0.46, sz=0.7+d*1.25;
+      gctx.fillStyle=`rgba(172,186,216,${al})`;
+      gctx.fillRect(sx-sz/2, sy-sz/2, sz, sz);
+    }
+    // limb
+    gctx.strokeStyle='rgba(130,150,190,0.12)'; gctx.lineWidth=1;
+    gctx.beginPath(); gctx.arc(cx,cy,R,0,TAU); gctx.stroke();
+
+    // Tokyo — steady Crimson
+    drawMarker(llToVec(TK[0],TK[1]), a,t,R, 0.82, 34);
+    // São Paulo — brightens with descent
+    const sp = drawMarker(llToVec(SP[0],SP[1]), a,t,R, 0.16+spBright*0.84, 30+spBright*22);
+
+    // São Paulo region: city-light cluster + Av. Paulista hairline + coordinate
+    if(sp && spBright>0.02){
+      gctx.globalCompositeOperation='lighter';
+      for(const c of CITY){
+        const v=rot(c.v,a,t); if(v.z<=0) continue;
+        const sx=cx+v.x*R, sy=cy-v.y*R;
+        const al=spBright*c.b*0.55;
+        gctx.fillStyle = c.b>0.78 ? `rgba(200,16,46,${al})` : `rgba(222,210,210,${al*0.9})`;
+        gctx.fillRect(sx-0.6,sy-0.6,1.2,1.2);
+      }
+      // Av. Paulista — a single faint hairline through SP
+      const len=R*0.11, ang=-0.62;
+      gctx.strokeStyle=`rgba(200,16,46,${reveal*0.5})`;
+      gctx.lineWidth=1;
+      gctx.beginPath();
+      gctx.moveTo(sp.sx-Math.cos(ang)*len, sp.sy-Math.sin(ang)*len);
+      gctx.lineTo(sp.sx+Math.cos(ang)*len, sp.sy+Math.sin(ang)*len);
+      gctx.stroke();
+      gctx.globalCompositeOperation='source-over';
+
+      // coordinate label
+      coord.style.opacity = reveal*0.95;
+      coord.style.left = (sp.sx + 16) + 'px';
+      coord.style.top  = (sp.sy + 30) + 'px';
+      coord.style.transform = 'translate(0,-50%)';
+    } else {
+      coord.style.opacity = 0;
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  window.addEventListener('resize', resize, {passive:true});
+  resize();
+  requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>

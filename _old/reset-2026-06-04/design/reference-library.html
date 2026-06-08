@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>デザイン参考ライブラリ — Andes 学習ノート</title>
+<style>
+  :root{
+    --bg:#FAF9F6;          /* warm off-white */
+    --surface:#FFFFFF;
+    --ink:#17150F;         /* near-black */
+    --muted:#6E6A60;       /* warm gray */
+    --line:#E7E3DA;        /* hairline */
+    --crimson:#C8102E;     /* pin-point accent — used sparingly */
+    --maxw:940px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:system-ui,-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+    line-height:1.7;-webkit-font-smoothing:antialiased;letter-spacing:.01em;
+  }
+  /* pin-point accent: a single 2px crimson rule at the very top */
+  .topbar{height:2px;background:var(--crimson);}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+  a{color:inherit;text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s;}
+  a:hover{border-color:var(--crimson);}
+
+  /* HERO — declarative, restrained */
+  header.hero{padding:120px 0 72px;}
+  .eyebrow{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+  .eyebrow .dot{color:var(--crimson);}
+  h1{font-size:clamp(38px,6vw,68px);line-height:1.04;letter-spacing:-0.025em;font-weight:800;margin:22px 0 0;}
+  .lede{font-size:clamp(17px,2.2vw,21px);color:var(--muted);max-width:60ch;margin:26px 0 0;line-height:1.65;}
+  .manifesto{margin-top:40px;font-size:15px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 18px;}
+  .manifesto b{color:var(--ink);font-weight:600;}
+
+  /* SECTION scaffolding */
+  section{padding:64px 0;border-top:1px solid var(--line);}
+  .sec-eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--crimson);font-weight:700;}
+  h2{font-size:clamp(26px,3.4vw,38px);letter-spacing:-0.02em;font-weight:800;margin:10px 0 6px;}
+  .sec-note{color:var(--muted);font-size:15px;max-width:62ch;margin:0 0 28px;}
+
+  /* 9 LAWS */
+  .law-group{margin-top:34px;}
+  .law-group h3{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 14px;}
+  .laws{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .law{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 20px;}
+  .law .n{font-variant-numeric:tabular-nums;font-size:13px;font-weight:800;color:var(--crimson);letter-spacing:.04em;}
+  .law p{margin:8px 0 0;font-size:15.5px;line-height:1.62;}
+  .law p b{font-weight:700;}
+
+  /* SITE CARDS */
+  .lens{margin-top:30px;}
+  .lens h3{font-size:15px;font-weight:800;letter-spacing:-0.01em;margin:0 0 4px;}
+  .lens .lens-sub{color:var(--muted);font-size:14px;margin:0 0 18px;}
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px;}
+  .card .name{font-size:16px;font-weight:800;letter-spacing:-0.01em;display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+  .card .name .url{font-size:12px;color:var(--muted);font-weight:500;}
+  .card .good{font-size:14.5px;line-height:1.6;}
+  .card .learn{font-size:14px;line-height:1.6;color:#3b3830;border-left:2px solid var(--crimson);padding-left:12px;}
+  .card .learn .k{font-weight:700;color:var(--ink);}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;}
+  .tag{font-size:11.5px;color:var(--muted);background:#F2EFE8;border:1px solid var(--line);border-radius:999px;padding:3px 10px;}
+  .tag.warn{color:#8a5a00;background:#FBF3E2;border-color:#F0E2C2;}
+  .tag.star{color:var(--crimson);background:#FBE9EC;border-color:#F3CBD3;}
+
+  /* COPY EXAMPLES */
+  .quotes{display:grid;gap:16px;margin-top:24px;}
+  .q{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 24px;}
+  .q .src{font-size:13px;font-weight:800;}
+  .q .src .url{font-weight:500;color:var(--muted);font-size:12px;margin-left:8px;}
+  .q .type{font-size:13px;color:var(--crimson);font-weight:700;margin:2px 0 12px;letter-spacing:.02em;}
+  .q blockquote{margin:0;font-size:18px;line-height:1.5;letter-spacing:-0.01em;font-weight:600;}
+  .q .tr{color:var(--muted);font-size:14.5px;margin-top:6px;line-height:1.55;}
+  .q .apply{font-size:14px;margin-top:14px;border-top:1px solid var(--line);padding-top:12px;}
+  .q .apply b{color:var(--crimson);font-weight:700;}
+
+  footer{padding:54px 0 90px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px;line-height:1.7;}
+
+  /* restrained motion — fade in, honoring reduced-motion */
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease;}
+  .reveal.in{opacity:1;transform:none;}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none;}}
+
+  @media (max-width:760px){
+    .laws{grid-template-columns:1fr;}
+    .cards{grid-template-columns:1fr;}
+    header.hero{padding:84px 0 52px;}
+  }
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Andes <span class="dot">·</span> デザイン学習ノート</div>
+    <h1>一流から、<br>盗める作法だけ。</h1>
+    <p class="lede">「綺麗」で終わらせない。Stripe・Anthropic・Apple・MercadoLibre—— 一流サイトを「何が優れ → Andes に転用できる学び」で分解した、育てていく参考ライブラリ。</p>
+    <div class="manifesto">
+      <span>Stripe 骨格</span><span>×</span><span>Anthropic 声</span><span>×</span><span>Sierra motion</span>
+      <span>·</span><span><b>宣言型 hero</b></span><span>·</span><span><b>Crimson は pin-point</b></span><span>·</span><span><b>restrained premium</b></span>
+    </div>
+  </div>
+</header>
+
+<!-- 9 LAWS -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">The Core</div>
+    <h2>まず頭に入れる 9 法則</h2>
+    <p class="sec-note">サイトを真似る前に、これを内面化する。配色・没入・語りの 3 系統、各 3 法則。</p>
+
+    <div class="law-group reveal">
+      <h3>配色・質感</h3>
+      <div class="laws">
+        <div class="law"><div class="n">01</div><p><b>accent は「面積」で殺す。</b>一流ほど brand color を CTA と強調語だけに限定。色は足すほど安い。＝ Crimson pin-point が正解。</p></div>
+        <div class="law"><div class="n">02</div><p><b>premium は色でなく type と余白で。</b>size・weight・余白の差だけで上質を作る。装飾（紫グラデ）に逃げない＝引き算。</p></div>
+        <div class="law"><div class="n">03</div><p><b>dark は色でなくコントラストと陰影で。</b>vibrant 色を足さず overlay と soft shadow で奥行き（Retool / Linear）。</p></div>
+      </div>
+    </div>
+
+    <div class="law-group reveal">
+      <h3>没入・モーション</h3>
+      <div class="laws">
+        <div class="law"><div class="n">04</div><p><b>没入は scale + 余白 + 段階開示で。</b>motion の量で作らない（Apple / Linear）。scroll-jacking は制御を奪い restrained を壊す。</p></div>
+        <div class="law"><div class="n">05</div><p><b>強い効果は 1 箇所に絞る = pin-point。</b>magnetic cursor も流体も Crimson も「全面でなく要点」。</p></div>
+        <div class="law"><div class="n">06</div><p><b>重くても性能と reduced-motion を死守。</b>Igloo は LCP≈1 秒・テクスチャ圧縮・fallback。これが上質と自己満を分ける。</p></div>
+      </div>
+    </div>
+
+    <div class="law-group reveal">
+      <h3>語り・コピー（見せ方）</h3>
+      <div class="laws">
+        <div class="law"><div class="n">07</div><p><b>hero は宣言、proof は具体数値。</b>抽象主張は具体数字（before/after・巨大数・実名）で裏取り。4 マクロ数字はこの型に。</p></div>
+        <div class="law"><div class="n">08</div><p><b>宣言の直後に地味な実装を併置。</b>経済を作り替える→物流・税・法を一つずつ繋ぐ。壮語を具体で着地させる。</p></div>
+        <div class="law"><div class="n">09</div><p><b>時間軸の壮大さは数字でなく対句で。</b>「Insights today. Impact for generations.」$1T・100 年は数字で出さず対句に翻案。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LENS A -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">Lens A</div>
+    <h2>B2B / infra 一流</h2>
+    <p class="sec-note">型・余白・抑制。色に頼らず size と weight で premium を出す象限。</p>
+    <div class="cards">
+      <div class="card reveal"><div class="name">Stripe<span class="url">stripe.com</span></div><div class="good">結果先行の宣言 hero。巨大 bold 数字＋小注釈の proof。accent は CTA だけ。</div><div class="learn"><span class="k">学び:</span> 宣言型 hero の語順（結果→説明）。4 マクロ数字を「数字＋極短ラベル」で。</div><div class="tags"><span class="tag">#宣言型hero</span><span class="tag">#色の抑制</span><span class="tag">#proof</span></div></div>
+      <div class="card reveal"><div class="name">Linear<span class="url">linear.app</span></div><div class="good">色に頼らず size/weight だけで階層。事業を block 分割グリッド。</div><div class="learn"><span class="k">学び:</span> restrained premium の核。proof は数を盛らず 1 強数値＋実名。</div><div class="tags"><span class="tag">#タイポ</span><span class="tag">#グリッド</span><span class="tag">#余白</span></div></div>
+      <div class="card reveal"><div class="name">Anthropic<span class="url">anthropic.com</span></div><div class="good">mission 先行宣言。色を足さず権威。教育的・非攻撃トーン。</div><div class="learn"><span class="k">学び:</span> 「Anthropic 声」原典。mission を hero に置く型が直接当たる。</div><div class="tags"><span class="tag">#トーン</span><span class="tag">#宣言型hero</span></div></div>
+      <div class="card reveal"><div class="name">Sierra<span class="url">sierra.ai</span></div><div class="good">行分割の宣言文。text/image 交互レイアウトで section をリズム化。</div><div class="learn"><span class="k">学び:</span> 「Sierra motion」原典。交互レイアウトで呼吸を作る。</div><div class="tags"><span class="tag">#宣言型hero</span><span class="tag">#余白</span><span class="tag">#proof</span></div></div>
+      <div class="card reveal"><div class="name">Vercel<span class="url">vercel.com</span></div><div class="good">proof を before/after 具体数値（build 7m→40s）。高コントラスト neutral。</div><div class="learn"><span class="k">学び:</span> 抽象主張より before/after 数値が説得力。CTA は短く事務的。</div><div class="tags"><span class="tag">#proof</span><span class="tag">#色の抑制</span></div></div>
+      <div class="card reveal"><div class="name">Mercury / Retool / Browserbase<span class="url">+3</span></div><div class="good">fintech の信頼×モダン / dark の正解（色でなくコントラスト）/ agent 文脈の能力宣言。</div><div class="learn"><span class="k">学び:</span> accent を CTA と強調だけに限定する面積管理。生の巨大数字で scale。</div><div class="tags"><span class="tag">#色の抑制</span><span class="tag">#ダークモード</span><span class="tag">#proof</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- LENS B -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">Lens B</div>
+    <h2>シネマティック / 没入</h2>
+    <p class="sec-note">restrained に効くものだけ。やり過ぎは反面教師として残す。</p>
+    <div class="cards">
+      <div class="card reveal"><div class="name">Apple — AirPods<span class="url">apple.com</span></div><div class="good">scroll-scrub の startframe→endframe。scale+余白+段階開示で支配。</div><div class="learn"><span class="k">学び:</span> 最重要手本。motion でなく scale で premium。数字 reveal に直接転用。</div><div class="tags"><span class="tag star">★手本</span><span class="tag">#scroll-scrub</span><span class="tag">#restrained</span></div></div>
+      <div class="card reveal"><div class="name">Igloo Inc<span class="url">igloo.inc</span></div><div class="good">1 つの抽象オブジェクトに事業を内包→scroll で reveal。LCP≈1 秒死守。</div><div class="learn"><span class="k">学び:</span> 純抽象 IA に直結。重くても性能・reduced-motion を守る規律。</div><div class="tags"><span class="tag star">★手本</span><span class="tag">#WebGL</span><span class="tag">#performance</span></div></div>
+      <div class="card reveal"><div class="name">Obys Agency<span class="url">obys.agency</span></div><div class="good">文字組み/グリッドが主役、WebGL は脇役。letter で没入。</div><div class="learn"><span class="k">学び:</span> 過剰な 3D に頼らず文字組みで没入＝宣言型 hero と一致。</div><div class="tags"><span class="tag star">★手本</span><span class="tag">#letter-motion</span></div></div>
+      <div class="card reveal"><div class="name">Lusion<span class="url">lusion.co</span></div><div class="good">cursor 追従の流体（three-fluid-fx hero の手本）。全面 WebGL。</div><div class="learn"><span class="k">学び:</span> 流体は手本だが Andes は hero 局所に留める。全面は過剰。</div><div class="tags"><span class="tag">#fluid</span><span class="tag warn">⚠過剰注意</span></div></div>
+      <div class="card reveal"><div class="name">Active Theory<span class="url">activetheory.net</span></div><div class="good">hover で隣を 2px ずらす rack focus（低コストで上質）。</div><div class="learn"><span class="k">学び:</span> その micro 技法だけ盗む。全面 3D 空間は方向性を失う反面教師。</div><div class="tags"><span class="tag">#micro-interaction</span><span class="tag warn">⚠過剰注意</span></div></div>
+      <div class="card reveal"><div class="name">Cuberto<span class="url">cuberto.com</span></div><div class="good">magnetic cursor（CTA 1 箇所だけ効かせる）。</div><div class="learn"><span class="k">学び:</span> pin-point 同型＝効かせる場所を絞る。skew まではやり過ぎ。</div><div class="tags"><span class="tag">#cursor</span><span class="tag warn">⚠遊びすぎ注意</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- LENS C -->
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">Lens C</div>
+    <h2>見せ方 — 語り・コピーの型</h2>
+    <p class="sec-note">ビジュアルより「どの順で何を見せ、どう説得するか」。実 copy 引用（原文＋訳）。</p>
+    <div class="quotes">
+      <div class="q reveal"><div class="src">MercadoLibre<span class="url">investor.mercadolibre.com</span></div><div class="type">★最重要参照 — 地域 No.1 宣言 → 長期視点で短期不安を上書き</div><blockquote>“The Leading Commerce and Fintech Ecosystem in Latin America” / “Our Long Term View in 5 Charts”</blockquote><div class="tr">中南米を牽引するコマース＆フィンテックのエコシステム ／ 5 つのチャートで見る我々の長期視点。EC 市場 $151B(2023)→$232B(2028)。</div><div class="apply"><b>Andes →</b> 「US$7,690億」を成長トレンドの文脈に。「Long Term View」は 100 年スパンの上品な語彙。</div></div>
+
+      <div class="q reveal"><div class="src">Watershed<span class="url">watershed.com</span></div><div class="type">対句の短文で壮大さと品位を両立</div><blockquote>“Insights today. Impact for generations.”</blockquote><div class="tr">今日に洞察を。世代に影響を。（対句・体言止め）</div><div class="apply"><b>Andes →</b> 「[今/具体] と [世代/壮大]」の 2 文対句で、100 年スパンを数字を出さず匂わせる。</div></div>
+
+      <div class="q reveal"><div class="src">Anthropic<span class="url">anthropic.com</span></div><div class="type">信条宣言 → but 節で謙虚さを担保</div><blockquote>“AI research and products that put safety at the frontier.”</blockquote><div class="tr">最前線に安全を置く AI の研究とプロダクト。「恩恵を確かにし、リスクを抑える」と併置。</div><div class="apply"><b>Andes →</b> 壮語の直後に地味な実装を併置（経済を作り替える→物流・税・法を一つずつ繋ぐ）。</div></div>
+
+      <div class="q reveal"><div class="src">Nubank<span class="url">international.nubank.com.br</span></div><div class="type">包摂率でインパクトを定量化</div><blockquote>“62% of Brazilian adults are customers.”</blockquote><div class="tr">ブラジルの成人の 62% が顧客。初めてのクレカを Nu で得た人 2,800 万人。mission「fight complexity and empower people」。</div><div class="apply"><b>Andes →</b> 「2.1億人/1.7億人」を規模でなく「これだけの人の経済基盤になる」意味に転化。</div></div>
+
+      <div class="q reveal"><div class="src">Stripe<span class="url">stripe.com</span></div><div class="type">カテゴリ宣言 → 射程を広げる三段 → 数字で規模保証</div><blockquote>“事業成長を支える金融インフラ。”</blockquote><div class="tr">sub:「決済 → 組込み型金融 → エージェンティックコマースまで」（射程を広げる三段）。135+ / $1.9兆 / 99.999%。</div><div class="apply"><b>Andes →</b> 「中南米に新しい経済の基盤を建てる」+ sub で射程三段。4 数字は極短ラベルで並置。</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div><b style="color:var(--ink)">デザイン参考ライブラリ</b> — Andes 学習ノート（living）。正典 = <code>docs/11_design-references.md</code>。各サイトは 2026-06-02 に fetch 実在確認。</div>
+    <div style="margin-top:8px">このページ自体が 9 法則を体現: 単一の Crimson #C8102E を pin-point に / 色でなく type と余白で階層 / restrained な fade-in（prefers-reduced-motion 尊重）。</div>
+  </div>
+</footer>
+
+<script>
+  // restrained reveal — robust: content reveals on load (never stays hidden).
+  // prefers-reduced-motion is honored via CSS (no transition).
+  const els=document.querySelectorAll('.reveal');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    els.forEach((el,i)=>{ el.style.transitionDelay=Math.min(i*22,260)+'ms'; el.classList.add('in'); });
+  }));
+</script>
+</body>
+</html>

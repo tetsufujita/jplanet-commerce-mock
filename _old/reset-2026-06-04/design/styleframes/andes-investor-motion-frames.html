@@ -1,0 +1,1035 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Andes Investor Motion Styleframes</title>
+    <style>
+      :root {
+        --navy: #0f1b3d;
+        --paper: #fafaf7;
+        --ink: #0a0a0a;
+        --crimson: #c8102e;
+        --glow: #e83e5c;
+        --subtle: #4a5066;
+        --deep: #060b1f;
+        --grey-50: #f5f4f0;
+        --grey-100: #e8e6e0;
+        --grey-300: #b8b5ac;
+        --grey-500: #6e6b65;
+        --grey-700: #3d3b36;
+        --forest: #193d2c;
+        --moss: #5f7651;
+        --gold: #c9a876;
+        --blue: #5d8fd6;
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: #111;
+        color: var(--ink);
+        font-family:
+          "Inter",
+          "Helvetica Neue",
+          Arial,
+          "Noto Sans JP",
+          sans-serif;
+      }
+
+      body {
+        display: grid;
+        gap: 48px;
+        padding: 48px;
+      }
+
+      .frame {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--paper);
+        isolation: isolate;
+      }
+
+      .frame::before {
+        content: attr(data-frame);
+        position: absolute;
+        top: 56px;
+        left: 72px;
+        z-index: 20;
+        color: color-mix(in oklab, currentColor 45%, transparent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .navy-frame {
+        background:
+          radial-gradient(circle at 72% 16%, rgba(232, 62, 92, 0.1), transparent 26%),
+          radial-gradient(circle at 18% 76%, rgba(201, 168, 118, 0.08), transparent 28%),
+          var(--navy);
+        color: var(--paper);
+      }
+
+      .deep-frame {
+        background:
+          radial-gradient(circle at 50% 48%, rgba(200, 16, 46, 0.16), transparent 24%),
+          radial-gradient(circle at 68% 64%, rgba(250, 250, 247, 0.07), transparent 30%),
+          var(--deep);
+        color: var(--paper);
+      }
+
+      .paper-frame {
+        background:
+          linear-gradient(135deg, rgba(15, 27, 61, 0.035), transparent 34%),
+          var(--paper);
+        color: var(--ink);
+      }
+
+      .grid {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.14;
+        background-image:
+          linear-gradient(currentColor 1px, transparent 1px),
+          linear-gradient(90deg, currentColor 1px, transparent 1px);
+        background-size: 72px 72px;
+        mask-image: radial-gradient(circle at center, #000 0 44%, transparent 76%);
+      }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        opacity: 0.18;
+        background-image:
+          linear-gradient(90deg, rgba(255, 255, 255, 0.04), transparent 1px),
+          linear-gradient(rgba(255, 255, 255, 0.035), transparent 1px);
+        background-size: 5px 7px;
+        mix-blend-mode: overlay;
+      }
+
+      .caption {
+        font-size: 22px;
+        line-height: 1.5;
+        color: color-mix(in oklab, currentColor 72%, transparent);
+      }
+
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        color: color-mix(in oklab, currentColor 66%, transparent);
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 9px;
+        height: 9px;
+        border-radius: 999px;
+        background: var(--crimson);
+        box-shadow: 0 0 20px rgba(200, 16, 46, 0.65);
+      }
+
+      .display {
+        margin: 0;
+        font-size: 102px;
+        font-weight: 780;
+        letter-spacing: -0.055em;
+        line-height: 0.98;
+      }
+
+      .display-lg {
+        margin: 0;
+        font-size: 126px;
+        font-weight: 780;
+        letter-spacing: -0.06em;
+        line-height: 0.96;
+      }
+
+      .section-title {
+        margin: 0;
+        font-size: 72px;
+        font-weight: 740;
+        letter-spacing: -0.047em;
+        line-height: 1.02;
+      }
+
+      .tiny-label {
+        font-size: 13px;
+        font-weight: 720;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .mono {
+        font-family:
+          "SF Mono",
+          "JetBrains Mono",
+          "Roboto Mono",
+          monospace;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid color-mix(in oklab, currentColor 16%, transparent);
+        border-radius: 999px;
+        padding: 10px 15px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: color-mix(in oklab, currentColor 5%, transparent);
+        backdrop-filter: blur(14px);
+      }
+
+      .pill-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--crimson);
+      }
+
+      .fragment {
+        position: absolute;
+        width: 310px;
+        min-height: 118px;
+        border: 1px solid color-mix(in oklab, currentColor 14%, transparent);
+        border-radius: 22px;
+        padding: 22px;
+        background: color-mix(in oklab, var(--paper) 88%, transparent);
+        box-shadow: 0 24px 80px rgba(15, 27, 61, 0.08);
+      }
+
+      .navy-frame .fragment,
+      .deep-frame .fragment {
+        background: rgba(250, 250, 247, 0.06);
+        box-shadow: none;
+      }
+
+      .fragment strong {
+        display: block;
+        margin-bottom: 14px;
+        font-size: 15px;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+      }
+
+      .fragment span {
+        display: block;
+        font-size: 18px;
+        line-height: 1.35;
+        color: color-mix(in oklab, currentColor 72%, transparent);
+      }
+
+      .frame-a .copy {
+        position: absolute;
+        left: 126px;
+        top: 214px;
+        z-index: 5;
+        width: 920px;
+      }
+
+      .frame-a .copy .caption {
+        width: 640px;
+        margin-top: 34px;
+      }
+
+      .frame-a .corridor {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+      }
+
+      .frame-a .route-shadow {
+        filter: drop-shadow(0 0 34px rgba(200, 16, 46, 0.18));
+      }
+
+      .frame-a .anchor {
+        position: absolute;
+        z-index: 6;
+        display: grid;
+        gap: 9px;
+        font-size: 14px;
+        font-weight: 750;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+        color: color-mix(in oklab, var(--paper) 75%, transparent);
+      }
+
+      .frame-a .anchor::before {
+        content: "";
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: var(--crimson);
+        box-shadow: 0 0 30px rgba(232, 62, 92, 0.72);
+      }
+
+      .frame-a .tokyo {
+        left: 1092px;
+        top: 312px;
+      }
+
+      .frame-a .sao {
+        right: 250px;
+        bottom: 236px;
+      }
+
+      .frame-a .micro {
+        position: absolute;
+        right: 118px;
+        bottom: 98px;
+        z-index: 5;
+        width: 560px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        color: var(--paper);
+      }
+
+      .frame-a .micro .pill {
+        justify-content: center;
+        color: rgba(250, 250, 247, 0.7);
+      }
+
+      .frame-b .copy {
+        position: absolute;
+        z-index: 5;
+        left: 106px;
+        top: 116px;
+        width: 780px;
+      }
+
+      .frame-b .field-title {
+        position: absolute;
+        z-index: 7;
+        right: 132px;
+        bottom: 102px;
+        width: 620px;
+      }
+
+      .frame-b .field-title .section-title {
+        font-size: 84px;
+      }
+
+      .frame-b .label-plane {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+      }
+
+      .frame-b .fragment {
+        color: var(--ink);
+      }
+
+      .frame-b .f1 {
+        left: 156px;
+        top: 396px;
+        transform: rotate(-3deg);
+      }
+
+      .frame-b .f2 {
+        left: 560px;
+        top: 292px;
+        transform: rotate(2deg);
+      }
+
+      .frame-b .f3 {
+        right: 214px;
+        top: 260px;
+        transform: rotate(-2deg);
+      }
+
+      .frame-b .f4 {
+        left: 360px;
+        bottom: 156px;
+        transform: rotate(2.5deg);
+      }
+
+      .frame-b .f5 {
+        right: 544px;
+        bottom: 210px;
+        transform: rotate(-1deg);
+      }
+
+      .frame-b .f6 {
+        right: 166px;
+        bottom: 388px;
+        transform: rotate(3deg);
+      }
+
+      .frame-b .rail {
+        position: absolute;
+        left: 106px;
+        bottom: 118px;
+        display: flex;
+        gap: 14px;
+        z-index: 8;
+      }
+
+      .frame-b .rail span {
+        padding: 13px 16px;
+        border-radius: 999px;
+        background: rgba(15, 27, 61, 0.06);
+        color: var(--subtle);
+        font-size: 13px;
+        font-weight: 760;
+        letter-spacing: 0.1em;
+      }
+
+      .frame-c .copy {
+        position: absolute;
+        top: 102px;
+        left: 112px;
+        width: 760px;
+        z-index: 5;
+      }
+
+      .frame-c .route-panel {
+        position: absolute;
+        right: 108px;
+        top: 112px;
+        width: 1000px;
+        height: 780px;
+        border-radius: 48px;
+        background:
+          linear-gradient(135deg, rgba(15, 27, 61, 0.04), transparent),
+          rgba(255, 255, 255, 0.66);
+        border: 1px solid rgba(15, 27, 61, 0.08);
+        box-shadow: 0 44px 130px rgba(15, 27, 61, 0.08);
+        overflow: hidden;
+      }
+
+      .frame-c .proof-stack {
+        position: absolute;
+        left: 120px;
+        bottom: 112px;
+        z-index: 6;
+        width: 620px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .proof-row {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 20px;
+        align-items: center;
+        padding: 17px 20px;
+        border: 1px solid rgba(15, 27, 61, 0.08);
+        border-radius: 18px;
+        background: rgba(250, 250, 247, 0.76);
+        box-shadow: 0 20px 70px rgba(15, 27, 61, 0.05);
+      }
+
+      .proof-row b {
+        font-size: 13px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--crimson);
+      }
+
+      .proof-row span {
+        font-size: 17px;
+        color: var(--subtle);
+      }
+
+      .route-node {
+        position: absolute;
+        z-index: 5;
+        width: 150px;
+        height: 150px;
+        border-radius: 32px;
+        border: 1px solid rgba(15, 27, 61, 0.12);
+        display: grid;
+        place-items: center;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 780;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(250, 250, 247, 0.84);
+      }
+
+      .frame-c .n1 {
+        left: 92px;
+        top: 118px;
+      }
+
+      .frame-c .n2 {
+        left: 342px;
+        top: 274px;
+      }
+
+      .frame-c .n3 {
+        left: 612px;
+        top: 128px;
+      }
+
+      .frame-c .n4 {
+        left: 746px;
+        top: 440px;
+      }
+
+      .frame-c .n5 {
+        left: 318px;
+        top: 548px;
+      }
+
+      .frame-d .copy {
+        position: absolute;
+        left: 118px;
+        top: 102px;
+        width: 760px;
+        z-index: 5;
+      }
+
+      .frame-d .stack {
+        position: absolute;
+        left: 188px;
+        right: 188px;
+        bottom: 126px;
+        height: 610px;
+        z-index: 4;
+      }
+
+      .layer {
+        position: absolute;
+        left: 0;
+        right: 0;
+        border-radius: 42px;
+        border: 1px solid rgba(250, 250, 247, 0.16);
+        overflow: hidden;
+      }
+
+      .layer-1 {
+        top: 0;
+        height: 154px;
+        background: rgba(250, 250, 247, 0.07);
+      }
+
+      .layer-2 {
+        bottom: 0;
+        height: 390px;
+        background:
+          radial-gradient(circle at 22% 36%, rgba(200, 16, 46, 0.14), transparent 26%),
+          rgba(250, 250, 247, 0.09);
+        box-shadow: inset 0 1px 0 rgba(250, 250, 247, 0.14);
+      }
+
+      .layer-title {
+        position: absolute;
+        left: 42px;
+        top: 32px;
+      }
+
+      .layer-title b {
+        display: block;
+        font-size: 18px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(250, 250, 247, 0.54);
+      }
+
+      .layer-title span {
+        display: block;
+        margin-top: 8px;
+        font-size: 38px;
+        font-weight: 740;
+        letter-spacing: -0.03em;
+      }
+
+      .module-grid {
+        position: absolute;
+        left: 420px;
+        right: 42px;
+        top: 42px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+      }
+
+      .module-grid span {
+        display: grid;
+        place-items: center;
+        height: 86px;
+        border-radius: 22px;
+        border: 1px solid rgba(250, 250, 247, 0.12);
+        background: rgba(250, 250, 247, 0.055);
+        color: rgba(250, 250, 247, 0.78);
+        font-size: 15px;
+        font-weight: 760;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+      }
+
+      .frame-d .outside {
+        position: absolute;
+        right: 118px;
+        top: 132px;
+        z-index: 6;
+        display: grid;
+        gap: 14px;
+      }
+
+      .frame-d .outside .pill {
+        justify-content: center;
+      }
+
+      .frame-e .copy {
+        position: absolute;
+        left: 118px;
+        top: 108px;
+        z-index: 5;
+        width: 820px;
+      }
+
+      .frame-e .rail-map {
+        position: absolute;
+        left: 86px;
+        right: 86px;
+        bottom: 88px;
+        height: 640px;
+        border-radius: 52px;
+        border: 1px solid rgba(15, 27, 61, 0.08);
+        background:
+          radial-gradient(circle at 22% 34%, rgba(200, 16, 46, 0.2), transparent 26%),
+          radial-gradient(circle at 74% 62%, rgba(250, 250, 247, 0.09), transparent 30%),
+          linear-gradient(120deg, rgba(250, 250, 247, 0.035), transparent 46%),
+          var(--navy);
+        color: var(--paper);
+        overflow: hidden;
+        box-shadow: 0 44px 140px rgba(15, 27, 61, 0.14);
+      }
+
+      .frame-e .rail-map::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0.12;
+        background-image:
+          linear-gradient(currentColor 1px, transparent 1px),
+          linear-gradient(90deg, currentColor 1px, transparent 1px);
+        background-size: 72px 72px;
+      }
+
+      .phase {
+        position: absolute;
+        z-index: 6;
+        width: 330px;
+        padding: 0 0 0 24px;
+        border-left: 2px solid var(--crimson);
+        background: transparent;
+      }
+
+      .phase b {
+        display: block;
+        color: var(--crimson);
+        font-size: 13px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .phase strong {
+        display: block;
+        margin-top: 12px;
+        font-size: 26px;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        color: currentColor;
+      }
+
+      .phase span {
+        display: block;
+        margin-top: 12px;
+        color: color-mix(in oklab, currentColor 66%, transparent);
+        font-size: 16px;
+        line-height: 1.35;
+      }
+
+      .frame-e .p1 {
+        left: 132px;
+        top: 362px;
+      }
+
+      .frame-e .p2 {
+        left: 474px;
+        top: 176px;
+      }
+
+      .frame-e .p3 {
+        right: 472px;
+        top: 372px;
+      }
+
+      .frame-e .p4 {
+        right: 110px;
+        top: 146px;
+      }
+
+      .frame-f .close-copy {
+        position: absolute;
+        left: 118px;
+        bottom: 118px;
+        z-index: 8;
+        width: 880px;
+      }
+
+      .frame-f .wordmark {
+        position: absolute;
+        right: 124px;
+        top: 94px;
+        z-index: 8;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        border: 1px solid rgba(250, 250, 247, 0.42);
+        display: grid;
+        place-items: center;
+        color: var(--crimson);
+      }
+
+      .frame-f .cta {
+        position: absolute;
+        right: 124px;
+        bottom: 126px;
+        z-index: 8;
+        display: grid;
+        gap: 12px;
+        width: 360px;
+      }
+
+      .frame-f .cta a {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid rgba(250, 250, 247, 0.16);
+        border-radius: 18px;
+        padding: 18px 20px;
+        color: var(--paper);
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: 740;
+        background: rgba(250, 250, 247, 0.06);
+      }
+
+      svg {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="frame navy-frame frame-a" id="frame-a" data-frame="Frame A / Hero Corridor">
+      <div class="grid"></div>
+      <div class="grain"></div>
+      <svg class="corridor" viewBox="0 0 1920 1080" aria-hidden="true">
+        <defs>
+          <linearGradient id="routeA" x1="0" x2="1">
+            <stop offset="0%" stop-color="#fafaf7" stop-opacity="0.08" />
+            <stop offset="72%" stop-color="#fafaf7" stop-opacity="0.2" />
+            <stop offset="100%" stop-color="#c8102e" stop-opacity="0.96" />
+          </linearGradient>
+          <radialGradient id="mapGlow" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stop-color="#fafaf7" stop-opacity="0.12" />
+            <stop offset="100%" stop-color="#fafaf7" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <path d="M1098 327 C1256 236 1454 318 1611 758" fill="none" stroke="url(#routeA)" stroke-width="3" class="route-shadow" />
+        <path d="M1160 412 C1320 372 1460 450 1548 710" fill="none" stroke="#fafaf7" stroke-opacity="0.08" stroke-width="1.5" />
+        <path d="M990 754 C1222 654 1410 716 1612 760" fill="none" stroke="#fafaf7" stroke-opacity="0.07" stroke-width="1" />
+        <ellipse cx="1364" cy="520" rx="560" ry="380" fill="url(#mapGlow)" />
+        <g opacity="0.12" stroke="#fafaf7" fill="none">
+          <path d="M1062 292l58-34 84 28 30 88-55 44-98-28-38-58z" />
+          <path d="M1510 626l106 42 58 118-44 78-118-26-70-98z" />
+          <path d="M1424 226h330M1372 820h370M1286 152v760M1640 164v736" />
+        </g>
+      </svg>
+      <div class="copy">
+        <div class="eyebrow">Tokyo / Sao Paulo — operating 2026</div>
+        <h1 class="display-lg">中南米に、<br />新しい経済の<br />基盤を建てる。</h1>
+        <p class="caption">AIエージェントが商取引を担う時代へ。Andesは、日本・ブラジル間の現実の商流から、LATAMの次世代インフラを組み上げる。</p>
+      </div>
+      <div class="anchor tokyo">Tokyo</div>
+      <div class="anchor sao">Sao Paulo</div>
+      <div class="micro">
+        <div class="pill"><span class="pill-dot"></span>Orders</div>
+        <div class="pill"><span class="pill-dot"></span>Customs</div>
+        <div class="pill"><span class="pill-dot"></span>PIX</div>
+        <div class="pill"><span class="pill-dot"></span>NF-e</div>
+        <div class="pill"><span class="pill-dot"></span>Logistics</div>
+        <div class="pill"><span class="pill-dot"></span>Agent rails</div>
+      </div>
+    </section>
+
+    <section class="frame paper-frame frame-b" id="frame-b" data-frame="Frame B / Friction Field">
+      <div class="grid"></div>
+      <svg class="label-plane" viewBox="0 0 1920 1080" aria-hidden="true">
+        <defs>
+          <linearGradient id="frictionLine" x1="0" x2="1">
+            <stop offset="0%" stop-color="#0f1b3d" stop-opacity="0.12" />
+            <stop offset="48%" stop-color="#c8102e" stop-opacity="0.34" />
+            <stop offset="100%" stop-color="#0f1b3d" stop-opacity="0.08" />
+          </linearGradient>
+        </defs>
+        <path d="M188 690 C438 464 690 608 872 410 C1038 230 1272 340 1480 246" fill="none" stroke="url(#frictionLine)" stroke-width="2" />
+        <path d="M240 806 C512 748 758 916 976 730 C1158 576 1412 670 1688 590" fill="none" stroke="#0f1b3d" stroke-opacity="0.08" stroke-width="2" />
+        <circle cx="862" cy="412" r="10" fill="#c8102e" />
+        <circle cx="1490" cy="246" r="8" fill="#c8102e" opacity="0.72" />
+      </svg>
+      <div class="copy">
+        <div class="eyebrow">Market friction</div>
+        <h2 class="section-title">商取引は、<br />チェックアウトだけ<br />ではない。</h2>
+      </div>
+      <div class="fragment f1">
+        <strong>WhatsApp order</strong>
+        <span>pedido recebido / consumidor em Sao Paulo</span>
+      </div>
+      <div class="fragment f2">
+        <strong>Product SKU</strong>
+        <span>JP beauty catalog / localized compliance metadata</span>
+      </div>
+      <div class="fragment f3">
+        <strong>PRC / SISCOMEX</strong>
+        <span>cross-border import regime and customs flow</span>
+      </div>
+      <div class="fragment f4">
+        <strong>PIX payment</strong>
+        <span>instant local rails / reconciliation layer</span>
+      </div>
+      <div class="fragment f5">
+        <strong>NF-e / ICMS</strong>
+        <span>fiscal document and tax logic for Brazil</span>
+      </div>
+      <div class="fragment f6">
+        <strong>Local entity</strong>
+        <span>J-Planet / CNPJ / Sao Paulo operating presence</span>
+      </div>
+      <div class="rail">
+        <span>tax</span>
+        <span>customs</span>
+        <span>logistics</span>
+        <span>payments</span>
+        <span>consumer law</span>
+        <span>data protection</span>
+      </div>
+      <div class="field-title">
+        <p class="caption">LATAM Agentic Commerce cannot be solved by a checkout button. The hard layer is physical, fiscal, legal, and local.</p>
+      </div>
+    </section>
+
+    <section class="frame paper-frame frame-c" id="frame-c" data-frame="Frame C / Operating Wedge">
+      <div class="copy">
+        <div class="eyebrow">Operating wedge</div>
+        <h2 class="section-title">最初の実装は、<br />現地で動く商流。</h2>
+        <p class="caption">Andesはプロトコルの構想からではなく、J-Planetの実運用から始める。現地法人、輸入、通関、決済、消費者接点を同じ視界で扱う。</p>
+      </div>
+      <div class="proof-stack">
+        <div class="proof-row"><b>Entity</b><span>JPLANET COMERCIO INTERNACIONAL E DISTRIBUICAO LTDA</span></div>
+        <div class="proof-row"><b>CNPJ</b><span>63.097.119/0001-44</span></div>
+        <div class="proof-row"><b>Address</b><span>Av. Paulista, Sao Paulo - SP</span></div>
+      </div>
+      <div class="route-panel">
+        <svg viewBox="0 0 1000 780" width="100%" height="100%" aria-hidden="true">
+          <defs>
+            <linearGradient id="routeC" x1="0" x2="1">
+              <stop offset="0%" stop-color="#0f1b3d" stop-opacity="0.18" />
+              <stop offset="55%" stop-color="#c8102e" stop-opacity="0.8" />
+              <stop offset="100%" stop-color="#0f1b3d" stop-opacity="0.28" />
+            </linearGradient>
+          </defs>
+          <path d="M166 194 C318 196 326 354 478 354 C658 354 652 214 768 214 C914 214 866 514 820 514 C700 514 646 620 468 620" fill="none" stroke="url(#routeC)" stroke-width="4" stroke-linecap="round" />
+          <g fill="#0f1b3d" opacity="0.06">
+            <circle cx="166" cy="194" r="92" />
+            <circle cx="478" cy="354" r="112" />
+            <circle cx="768" cy="214" r="86" />
+            <circle cx="820" cy="514" r="110" />
+            <circle cx="468" cy="620" r="94" />
+          </g>
+          <g fill="#c8102e">
+            <circle cx="166" cy="194" r="7" />
+            <circle cx="478" cy="354" r="7" />
+            <circle cx="768" cy="214" r="7" />
+            <circle cx="820" cy="514" r="7" />
+            <circle cx="468" cy="620" r="7" />
+          </g>
+        </svg>
+        <div class="route-node n1">JP / KR<br />products</div>
+        <div class="route-node n2">EMS<br />bridge</div>
+        <div class="route-node n3">PRC<br />customs</div>
+        <div class="route-node n4">Sao Paulo<br />entity</div>
+        <div class="route-node n5">WhatsApp<br />demand</div>
+      </div>
+    </section>
+
+    <section class="frame navy-frame frame-d" id="frame-d" data-frame="Frame D / Two-Layer Architecture">
+      <div class="grid"></div>
+      <div class="copy">
+        <div class="eyebrow">Architecture</div>
+        <h2 class="section-title">Agentは入口。<br />価値は深い層にある。</h2>
+      </div>
+      <div class="outside">
+        <div class="pill"><span class="pill-dot"></span>Foundation model call</div>
+        <div class="pill"><span class="pill-dot"></span>Consumer intent</div>
+        <div class="pill"><span class="pill-dot"></span>Merchant demand</div>
+      </div>
+      <div class="stack">
+        <div class="layer layer-1">
+          <div class="layer-title">
+            <b>Layer 1</b>
+            <span>Purchase Agent</span>
+          </div>
+          <div class="module-grid">
+            <span>intent</span>
+            <span>selection</span>
+            <span>localization</span>
+            <span>surface</span>
+          </div>
+        </div>
+        <div class="layer layer-2">
+          <div class="layer-title">
+            <b>Layer 2</b>
+            <span>Andes Platform</span>
+          </div>
+          <div class="module-grid" style="grid-template-columns: repeat(4, 1fr); top: 156px">
+            <span>logistics</span>
+            <span>tax</span>
+            <span>customs</span>
+            <span>legal</span>
+            <span>ERP</span>
+            <span>accounting</span>
+            <span>fintech</span>
+            <span>compliance</span>
+          </div>
+        </div>
+      </div>
+      <svg viewBox="0 0 1920 1080" style="position:absolute;inset:0;z-index:3" aria-hidden="true">
+        <path d="M1462 238 C1280 312 1210 422 1170 616" fill="none" stroke="#fafaf7" stroke-opacity="0.14" stroke-width="2" />
+        <path d="M1510 304 C1380 392 1350 498 1360 728" fill="none" stroke="#c8102e" stroke-opacity="0.42" stroke-width="2" />
+      </svg>
+    </section>
+
+    <section class="frame paper-frame frame-e" id="frame-e" data-frame="Frame E / Expansion Rails">
+      <div class="copy">
+        <div class="eyebrow">Expansion rails</div>
+        <h2 class="section-title">一つの商流から、<br />大陸のインフラへ。</h2>
+      </div>
+      <div class="rail-map">
+        <svg viewBox="0 0 1748 640" width="100%" height="100%" aria-hidden="true">
+          <defs>
+            <linearGradient id="railE" x1="0" x2="1">
+              <stop offset="0%" stop-color="#c8102e" stop-opacity="0.72" />
+              <stop offset="55%" stop-color="#fafaf7" stop-opacity="0.34" />
+              <stop offset="100%" stop-color="#fafaf7" stop-opacity="0.12" />
+            </linearGradient>
+          </defs>
+          <path d="M134 430 C420 238 626 292 858 404 C1130 534 1330 288 1596 244" fill="none" stroke="url(#railE)" stroke-width="4" stroke-linecap="round" />
+          <path d="M180 476 C478 504 676 470 884 296 C1072 138 1320 162 1580 338" fill="none" stroke="#fafaf7" stroke-opacity="0.12" stroke-width="3" stroke-linecap="round" />
+          <path d="M240 230 C460 356 604 538 876 514 C1134 492 1314 514 1548 424" fill="none" stroke="#fafaf7" stroke-opacity="0.09" stroke-width="2" stroke-linecap="round" />
+          <g fill="#c8102e">
+            <circle cx="134" cy="430" r="7" />
+            <circle cx="858" cy="404" r="7" />
+            <circle cx="1596" cy="244" r="7" />
+          </g>
+        </svg>
+        <div class="phase p1">
+          <b>Phase 1</b>
+          <strong>Cross-border B2C</strong>
+          <span>Japan / Korea products into Brazil through owned operations.</span>
+        </div>
+        <div class="phase p2">
+          <b>Phase 2</b>
+          <strong>BR domestic A2A</strong>
+          <span>Local marketplace rails and agent-to-agent commerce.</span>
+        </div>
+        <div class="phase p3">
+          <b>Phase 3</b>
+          <strong>ERP / B2B / factoring</strong>
+          <span>Operational systems for merchants and suppliers.</span>
+        </div>
+        <div class="phase p4">
+          <b>Phase 4</b>
+          <strong>Agentic fintech</strong>
+          <span>Credit, settlement, receivables, insurance, and capital movement.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="frame deep-frame frame-f" id="frame-f" data-frame="Frame F / Protocol Close">
+      <div class="grid"></div>
+      <div class="wordmark">
+        <div class="mark">A</div>
+        Andes
+      </div>
+      <svg viewBox="0 0 1920 1080" style="position:absolute;inset:0;z-index:3" aria-hidden="true">
+        <defs>
+          <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#fafaf7" stop-opacity="0.92" />
+            <stop offset="100%" stop-color="#fafaf7" stop-opacity="0.08" />
+          </radialGradient>
+        </defs>
+        <g stroke="#fafaf7" stroke-opacity="0.13" stroke-width="1.5">
+          <path d="M410 470L630 328L870 410L1036 300L1270 410L1510 270" />
+          <path d="M502 650L724 560L920 684L1160 548L1388 650L1608 520" />
+          <path d="M630 328L724 560M870 410L920 684M1036 300L1160 548M1270 410L1388 650" />
+          <path d="M730 228C876 250 982 304 1036 300C1158 294 1270 222 1510 270" stroke="#c8102e" stroke-opacity="0.44" stroke-width="3" />
+        </g>
+        <g fill="url(#nodeGlow)">
+          <circle cx="410" cy="470" r="9" />
+          <circle cx="630" cy="328" r="11" />
+          <circle cx="870" cy="410" r="8" />
+          <circle cx="1036" cy="300" r="12" />
+          <circle cx="1270" cy="410" r="8" />
+          <circle cx="1510" cy="270" r="10" />
+          <circle cx="502" cy="650" r="8" />
+          <circle cx="724" cy="560" r="10" />
+          <circle cx="920" cy="684" r="9" />
+          <circle cx="1160" cy="548" r="10" />
+          <circle cx="1388" cy="650" r="8" />
+          <circle cx="1608" cy="520" r="9" />
+        </g>
+        <g class="mono" fill="#fafaf7" opacity="0.42" font-size="13" letter-spacing="2">
+          <text x="372" y="448">ORDER</text>
+          <text x="594" y="306">NF-E</text>
+          <text x="834" y="388">PIX</text>
+          <text x="990" y="278">PRC</text>
+          <text x="1234" y="388">ERP</text>
+          <text x="1470" y="248">AGENT</text>
+        </g>
+      </svg>
+      <div class="close-copy">
+        <div class="eyebrow">Common infrastructure</div>
+        <h2 class="display">Built from the<br />market up.</h2>
+        <p class="caption" style="width: 680px; margin-top: 30px">The infrastructure layer for Agentic Commerce in Latin America. Built through real operations, local rails, and the complexity global AI cannot own by itself.</p>
+      </div>
+      <div class="cta">
+        <a href="#">Investor conversation <span>ir@andes.global</span></a>
+        <a href="#">Partner with Andes <span>partners@</span></a>
+      </div>
+    </section>
+  </body>
+</html>

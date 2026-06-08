@@ -1,0 +1,881 @@
+{
+  "common": {
+    "lang": "pt-BR",
+    "company": "Andes Inc.",
+    "tagline": "Agentic Commerce for LATAM"
+  },
+  "nav": {
+    "businesses": "Negócios",
+    "about": "Sobre",
+    "careers": "Carreiras",
+    "press": "Imprensa",
+    "contact": "Contato",
+    "lang_switcher_label": "Trocar idioma",
+    "menu_open": "Abrir menu",
+    "menu_close": "Fechar menu"
+  },
+  "footer": {
+    "group_label": "Grupo",
+    "group_companies": "Andes Inc. (JP) / Andes BR / J-Planet",
+    "businesses_label": "Negócios",
+    "businesses_jplanet": "J-Planet",
+    "businesses_jvita": "J-Vita",
+    "company_label": "Empresa",
+    "company_about": "Sobre",
+    "company_careers": "Carreiras",
+    "company_press": "Imprensa",
+    "company_contact": "Contato",
+    "legal_label": "Legal",
+    "legal_privacy": "Política de Privacidade",
+    "legal_terms": "Termos de Uso",
+    "legal_cookies": "Política de Cookies",
+    "copyright": "© Andes Inc. 2026",
+    "location": "Tóquio / São Paulo"
+  },
+  "home": {
+    "meta": {
+      "title": "Andes — Agentic Commerce for LATAM",
+      "description": "Construindo a nova base econômica da América Latina. A Andes constrói a infraestrutura para o comércio agêntico em toda a América Latina."
+    },
+    "hero": {
+      "eyebrow": "ANDES — AGENTIC COMMERCE INFRASTRUCTURE",
+      "h1": {
+        "line1": "Construir na",
+        "line2": "América Latina",
+        "line3": "uma nova base econômica.",
+        "emphasis": "base",
+        "label": "Construir na América Latina uma nova base econômica."
+      },
+      "sub": "Conectamos Japão e América Latina pelo comércio operado por agentes de IA. Logística, impostos e jurídico em uma só infraestrutura.",
+      "stat": {
+        "label": "Mercado de e-commerce da LATAM",
+        "value": "769",
+        "prefix": "US$",
+        "suffix": " bi",
+        "source": "PCMI"
+      },
+      "cta": {
+        "primary": "Solicitar material",
+        "secondary": "Ver negócios"
+      },
+      "node": {
+        "tokyo": "TOKYO",
+        "saopaulo": "SÃO PAULO"
+      },
+      "coord": "-23.56, -46.65"
+    },
+    "numbers": {
+      "logo1": "J-Planet",
+      "logo2": "PIX",
+      "logo3": "PRC",
+      "logo4": "SISCOMEX",
+      "logo5": "WhatsApp",
+      "logo6": "NF-e",
+      "logo7": "Correios",
+      "logo8": "LGPD",
+      "experienceTitle": "Transforme a experiência do cliente",
+      "introLine": "A Andes ajuda grandes empresas do mundo a aparecerem no seu melhor.",
+      "title": "Conectar o Agentic Commerce até a operação em campo.",
+      "lead": "Vender por um agente de IA não basta. Impostos, aduana, logística e pagamentos precisam virar uma experiência única.",
+      "featureTitle": "Aumente o valor vitalício dos seus clientes",
+      "featureBody": "Entregue experiências realmente personalizadas em cada momento que importa.",
+      "agentLabel": "AI Agent",
+      "agentMessage": "Olá, Nicholas! Pronto para pedir o de sempre?",
+      "routeLabel": "Rota São Paulo",
+      "routeValue": "ETA 12:05",
+      "pauseAnimation": "Pausar animação",
+      "playAnimation": "Reproduzir animação",
+      "ghostDelivery": "Will arrive just in time for delivery",
+      "ghostTimelineStart": "10:00 AM",
+      "ghostTimelineEnd": "9:00 PM",
+      "ghostHotel": "Atelier Playa Mujeres",
+      "ghostCheckIn": "Check-in",
+      "ghostCheckInValue": "Fri, Sep 5 3:00 PM",
+      "ghostCheckOut": "Check-out",
+      "ghostCheckOutValue": "Sun, Sep 7 11:00 AM",
+      "ghostDining": "Drinks & dining",
+      "ghostDiningMeta": "$89 of $200",
+      "ghostEverything": "Everything else",
+      "ghostEverythingMeta": "$764 of $2,800",
+      "ghostOrderSecured": "Order secured",
+      "ghostOrderDate": "Oct 27",
+      "ghostTrackOrder": "Track order",
+      "ghostSubscriptions": "Subscriptions",
+      "ghostManage": "Manage",
+      "ghostRenewal": "Monthly renewal on Oct 15",
+      "ghostUnlocked": "Premium channels unlocked",
+      "ghostEtaLabel": "In 28 mins",
+      "ghostEtaValue": "ETA 12:05 PM",
+      "teamTitle": "Impulsione todos os times",
+      "teamBody": "Marcas, aduana, logística e suporte trabalham com o mesmo estado para manter a compra em movimento.",
+      "channelsTitle": "Unifique seus canais",
+      "channelsBody": "WhatsApp, e-mail, voz e painéis são atendidos pela mesma camada de agente.",
+      "outcomesTitle": "Pague pelo valor entregue",
+      "outcomesBody": "Compra, desembaraço e entrega viram os pontos onde a operação é otimizada."
+    },
+    "whynow": {
+      "kicker": "Por que agora",
+      "lead": "Em 2026, o comércio migra dos sites para os agentes de IA. A América Latina é a única economia que precisa da sua própria evolução disso.",
+      "p1Title": "O atrito impede",
+      "p1Body": "Atritos físicos, jurídicos e fiscais bloqueiam o comércio agêntico na América Latina.",
+      "p2Title": "Comprar e operar, como um só",
+      "p2Body": "A Andes detém tanto o agente de compra quanto a plataforma que opera por baixo dele.",
+      "p3Title": "O território vira padrão",
+      "p3Body": "Um fosso de conhecimento enraizado no território acaba se tornando o padrão do continente."
+    },
+    "how": {
+      "kicker": "Como funciona",
+      "title": "Uma estrutura de duas camadas sobre a qual o agente opera.",
+      "step1": "Um consumidor pede a uma IA",
+      "step2": "O agente de compra interpreta e orquestra",
+      "step3": "A plataforma cuida de impostos, alfândega e logística",
+      "step4": "Entregue no Brasil",
+      "layer1Title": "Camada 1 — Agente de compra",
+      "layer1Body": "A camada de marca, voltada ao consumidor.",
+      "layer2Title": "Camada 2 — Plataforma",
+      "layer2Body": "Logística, impostos, jurídico, alfândega, ERP. A camada profunda que os gigantes não conseguem construir.",
+      "note": "O verdadeiro valor está na camada profunda."
+    },
+    "seller": {
+      "kicker": "Vendedores",
+      "title": "Marcas do Japão e da Coreia, para um mercado de 660 milhões.",
+      "b1Title": "Assumimos a complexidade",
+      "b1Body": "A Andes opera logística, impostos, alfândega e compliance como um só. Você nunca carrega a complexidade transfronteiriça.",
+      "b2Title": "Um novo canal",
+      "b2Body": "Agentes de IA levam a sua marca aos consumidores locais.",
+      "b3Title": "Sem tarifas inesperadas",
+      "b3Body": "Alfândega em conformidade com o PRC significa nenhuma taxa inesperada.",
+      "ctaPrimary": "Começar a vender",
+      "ctaSecondary": "Falar com parcerias"
+    },
+    "portfolio": {
+      "kicker": "Portfólio",
+      "title": "O comércio agêntico da Andes, em operação.",
+      "jpTag": "Camada 1 — Agente de compra",
+      "jpName": "J-Planet",
+      "jpStatus": "Em operação no Brasil (2026-06)",
+      "jpDesc": "Comércio transfronteiriço, Japão e Coreia → Brasil. Um agente de compra que opera no WhatsApp.",
+      "jpCaption": "J-Planet — comércio transfronteiriço, em operação no Brasil (2026-06)",
+      "phoneOrderTitle": "Status do pedido",
+      "phoneStep1": "Saiu do Japão",
+      "phoneStep2": "Na alfândega",
+      "phoneStep3": "Saiu para entrega",
+      "destLabel": "Longo prazo",
+      "destTitle": "2028 — rumo a uma base comum para o comércio na América Latina.",
+      "destBody": "De um negócio a uma base. Construindo a infraestrutura comum sob o comércio agêntico em todo o continente.",
+      "destCta": "Ler a visão"
+    },
+    "trust": {
+      "kicker": "Confiança",
+      "title": "Confiança de campo que os gigantes não conseguem copiar.",
+      "lead": "Alfândega em conformidade com o PRC significa nenhuma tarifa inesperada. A própria regulação se torna o fosso que os gigantes não conseguem construir.",
+      "p1Title": "Alfândega",
+      "p1Body": "PRC / SISCOMEX",
+      "p2Title": "Impostos",
+      "p2Body": "ICMS / NF-e",
+      "p3Title": "Proteção de dados",
+      "p3Body": "LGPD",
+      "p4Title": "IA responsável",
+      "p4Body": "Operação transparente",
+      "collapseFrom": "Muitos trâmites de importação no Brasil",
+      "collapseTo": "Um único fluxo Andes"
+    },
+    "group": {
+      "kicker": "Empresa",
+      "title": "Estrutura do grupo",
+      "lead": "A Andes Inc., no Japão, detém IP e capital e lidera o grupo; a J-Planet opera o negócio no Brasil.",
+      "e1Name": "Andes Inc. (Japão)",
+      "e1Role": "IP / capital / liderança",
+      "e2Name": "Andes BR",
+      "e2Role": "Holding intermediária (100%)",
+      "e3Name": "J-Planet",
+      "e3Role": "EC transfronteiriço e doméstico (99%)"
+    },
+    "footerCta": {
+      "title": "Vamos construir juntos a base da América Latina.",
+      "ctaPrimary": "Começar a vender",
+      "ctaSecondary": "Junte-se ao time",
+      "contactInvestor": "Investidores",
+      "contactCareers": "Carreiras",
+      "contactPress": "Imprensa",
+      "contactPartner": "Parceiros",
+      "colBusinesses": "Negócios",
+      "colCompany": "Empresa",
+      "colCareers": "Carreiras",
+      "colLegal": "Jurídico",
+      "legalEntities": "Andes Inc. (Japão) / Andes BR / J-Planet",
+      "copyright": "© Andes Inc. 2026",
+      "location": "Tóquio / São Paulo"
+    }
+  },
+  "about": {
+    "meta": {
+      "title": "Sobre a Andes",
+      "description": "Construindo a nova base da economia latino-americana. A arquitetura em duas camadas do Agentic Commerce, o roadmap por fases e o time."
+    },
+    "vision": {
+      "title": "Para onde caminhamos",
+      "lead": "Construindo a nova base da economia latino-americana.",
+      "body": "O PIB da LATAM é US$ 6 tri. Buscamos rotear de 1 a 2% dele pela nossa própria infraestrutura. Em 2026, com o Agentic Commerce decolando globalmente, o AC latino-americano precisa evoluir como algo próprio. A Andes constrói essa camada base. Uma empresa de cem anos, nascida no Brasil."
+    },
+    "two_layer": {
+      "title": "A arquitetura em duas camadas do Agentic Commerce",
+      "lead": "Para completar o AC, são necessárias duas camadas — e nenhuma delas os gigantes conseguem construir.",
+      "layer1": {
+        "tag": "Layer ①",
+        "title": "Agente de Compra",
+        "body": "Usa a IA global como LLM e detém o ponto de contato com o consumidor latino-americano. É a camada de branding; ser substituído por um gigante aqui é aceitável."
+      },
+      "layer2": {
+        "tag": "Layer ②",
+        "title": "Plataforma",
+        "body": "Logística, tributos, jurídico, alfândega, ERP, contabilidade. O conhecimento do chão latino-americano não é construível pelos incumbentes. É aqui que mora o valor real."
+      }
+    },
+    "phase": {
+      "title": "Roadmap por fases",
+      "lead": "O AC para a LATAM se constrói em cinco passos.",
+      "p1": {
+        "year": "2026",
+        "title": "EC transfronteiriço × agente no WhatsApp"
+      },
+      "p2": {
+        "year": "2027",
+        "title": "Agente transversal sobre o EC doméstico do Brasil (A2A)"
+      },
+      "p3": {
+        "year": "2028",
+        "title": "ERP agent-native × Marketplace × Factoring"
+      },
+      "p4": {
+        "year": "2029–30",
+        "title": "Agentic Fintech em escala plena"
+      },
+      "endgame": {
+        "year": "2028 +",
+        "title": "LATAM AC Protocol (OSS de facto)"
+      }
+    },
+    "team": {
+      "title": "Time",
+      "lead": "Um time enxuto e altamente alavancado por IA, em torno de um Founder movido por visão e um Architect que estrutura o trabalho."
+    },
+    "group": {
+      "title": "Estrutura do grupo",
+      "desc": "A Andes Inc. (JP) governa IP e capital; via Andes BR, a J-Planet opera o negócio no chão."
+    }
+  },
+  "businesses": {
+    "meta": {
+      "title": "Negócios",
+      "description": "A implementação de Agentic Commerce da Andes: J-Planet (EC transfronteiriço), J-Vita (saúde) e o LATAM AC Protocol."
+    },
+    "hero": {
+      "title": "A implementação de Agentic Commerce da Andes",
+      "lead": "Três negócios, duas camadas, um protocolo."
+    },
+    "jplanet": {
+      "tag": "Layer ① Agente de Compra",
+      "title": "J-Planet",
+      "lead": "Qualidade japonesa e coreana entregue ao consumidor brasileiro via WhatsApp.",
+      "body": "Phase 1 lançada em 01/06/2026. O catálogo japonês completo entra no ar, e a experiência do agente no WhatsApp opera compra, pagamento e entrega como um fluxo integrado.",
+      "cta": "Ir para jplanet.com.br"
+    },
+    "jvita": {
+      "tag": "Layer ① Agente de Compra (Saúde)",
+      "title": "J-Vita",
+      "lead": "Saúde de qualidade japonesa trazida ao Brasil via Mandato de importação pessoal.",
+      "body": "Phase 0a lançada em 01/06/2026. GLP-1, crescimento capilar, hormônios e controle de peso. A J-Medical Ltda (em constituição) opera a marca de consumo.",
+      "cta": "Ir para j-vita.com.br (futuro)"
+    },
+    "protocol": {
+      "tag": "Layer ② Endgame",
+      "title": "LATAM AC Protocol",
+      "lead": "Em 2028, lançamos a infraestrutura comum do Agentic Commerce na LATAM como OSS.",
+      "body": "PIX, NF-e, ICMS, LGPD e CDC convertidos em MCP — colocando a Andes na posição que os gigantes (OpenAI, Google, Anthropic) chamam. A AWS, a Stripe e o Rakuten da LATAM.",
+      "cta": "Ler a visão"
+    },
+    "areas": {
+      "title": "O que operamos",
+      "lead": "As cinco camadas que a Andes opera.",
+      "a1": "Produto (catálogo japonês completo)",
+      "a2": "Regulação (conformidade no Brasil)",
+      "a3": "Pagamentos transfronteiriços (liquidação local)",
+      "a4": "Despacho simplificado (alíquota 0%)",
+      "a5": "Entrega (última milha ao consumidor)"
+    }
+  },
+  "careers": {
+    "meta": {
+      "title": "Carreiras",
+      "description": "Com quem vamos construir o Agentic Commerce da América Latina? Contratando engenheiros Claude Code Native."
+    },
+    "hero": {
+      "title": "Com quem vamos construir o Agentic Commerce da América Latina?",
+      "lead": "Contratando de 2 a 3 engenheiros Claude Code Native."
+    },
+    "what": {
+      "title": "O que estamos construindo",
+      "lead": "A base do Agentic Commerce na América Latina. Três negócios, duas camadas, um protocolo.",
+      "cta": "Saiba mais"
+    },
+    "who": {
+      "title": "Com quem você vai construir",
+      "body": "A Andes é um time enxuto em torno de um Founder movido por visão e um Architect que estrutura o trabalho. Usamos IA até o limite e não reduzimos pessoas a tarefas de ML. Uma cultura Claude Code Native que entrega de cinco a dez vezes mais rápido."
+    },
+    "open": {
+      "title": "Posições abertas",
+      "engineer": {
+        "title": "Claude Code Native Engineer (Sênior)",
+        "lead": "× 2–3 vagas",
+        "body": "Uso diário de Claude Code, Codex e agentes autônomos. Pensamento por primeiros princípios e mentalidade de build. Engenheiros para construir conosco a base do AC na LATAM.",
+        "challenge": {
+          "title": "Processo seletivo",
+          "body": "Build de cinco agentes em uma semana, com aprovação em Claude grade 70+."
+        },
+        "cta": "Detalhes e candidatura"
+      }
+    },
+    "contact": {
+      "title": "Candidatura e contato",
+      "email": "careers@andes.global",
+      "cta": "Candidatar-se"
+    }
+  },
+  "press": {
+    "meta": {
+      "title": "Imprensa",
+      "description": "Cobertura de imprensa, palestras programadas e o press kit da Andes Inc."
+    },
+    "hero": {
+      "title": "Imprensa",
+      "lead": "Solicitações de imprensa, convites para palestra e press kit."
+    },
+    "upcoming": {
+      "title": "Palestras programadas",
+      "ivs": {
+        "title": "IVS Kyoto 2026",
+        "date": "01/07/2026 – 03/07/2026",
+        "venue": "Miyako Messe + Hotel Okura Kyoto",
+        "theme": "Japan is Back × LATAM Agentic Commerce",
+        "speaker": "Tetsu Fujita (CEO, Andes Inc.)"
+      }
+    },
+    "coverage": {
+      "title": "Cobertura de imprensa",
+      "empty": "Em preparação."
+    },
+    "kit": {
+      "title": "Press kit",
+      "logo": "Download do logo (color / mono / dark)",
+      "photo": "Download de fotos",
+      "profile": "Perfil da empresa em PDF",
+      "contact": "press@andes.global",
+      "cta": "Baixar o press kit"
+    }
+  },
+  "contact": {
+    "meta": {
+      "title": "Contato",
+      "description": "Comece a conversa por um dos quatro canais: investidores, carreiras, imprensa ou parceiros."
+    },
+    "hero": {
+      "title": "Começar a conversa",
+      "lead": "Escolha o canal que se encaixa no seu objetivo."
+    },
+    "windows": {
+      "investors": {
+        "title": "Investidores",
+        "desc": "Series A / IR / análise de investimento"
+      },
+      "careers": {
+        "title": "Carreiras",
+        "desc": "Candidaturas e RH"
+      },
+      "press": {
+        "title": "Imprensa",
+        "desc": "Entrevistas e convites para palestra"
+      },
+      "partners": {
+        "title": "Parceiros",
+        "desc": "Parcerias e fornecedores"
+      }
+    },
+    "form": {
+      "name": "Nome",
+      "email": "E-mail",
+      "company": "Empresa",
+      "subject": "Assunto",
+      "body": "Mensagem",
+      "consent": "Concordo com a Política de Privacidade",
+      "submit": "Enviar",
+      "success": "Obrigado pelo contato. Responderemos em até dois dias úteis.",
+      "error": "Falha no envio. Por favor, tente novamente."
+    }
+  },
+  "preview": {
+    "animationVault": {
+      "meta": {
+        "title": "Andes Animation Vault"
+      },
+      "hero": {
+        "eyebrow": "Animation Vault",
+        "title": "Uma prateleira de movimento para a Andes.",
+        "lead": "Um site de preview que reúne o animation-kit atual e os componentes de motion existentes em uma forma fácil de levar para o site de produção da Andes. É uma prateleira de materiais, focada em onde cada padrão deve ser usado.",
+        "stats": {
+          "materials": {
+            "value": "42",
+            "label": "padrões de motion catalogados"
+          },
+          "dependencies": {
+            "value": "0",
+            "label": "novas dependências npm"
+          },
+          "route": {
+            "value": "preview",
+            "label": "/pt-BR/preview/animation-vault"
+          }
+        }
+      },
+      "demos": {
+        "beam": {
+          "title": "Agent Beam",
+          "description": "Um caminho de luz entre nós. Para a Andes, o melhor uso é mostrar de forma abstrata a conexão entre IA, marcas, consumidores, impostos e aduana.",
+          "worldAi": "IA global",
+          "andes": "Andes",
+          "brand": "Marcas JP/KR",
+          "consumer": "Consumidores LATAM",
+          "customs": "Impostos e aduana"
+        },
+        "ticker": {
+          "title": "Number Ticker",
+          "description": "Uma revelação numérica de uma só vez. Use apenas para números com base real, como escala macro, ano de lançamento e etapas do processo.",
+          "marketLabel": "Mercado",
+          "marketSuffix": "centenas de milhões",
+          "launchLabel": "Lançamento",
+          "flowLabel": "Fluxos centrais"
+        },
+        "particles": {
+          "title": "Particle Field",
+          "description": "Um fundo de partículas de baixa densidade. Funciona melhor como profundidade em uma seção escura ou diagrama de corridor do que como decoração em página inteira.",
+          "corridor": "corridor",
+          "tokyo": "Tokyo",
+          "saoPaulo": "São Paulo"
+        },
+        "native": {
+          "title": "Native Andes Motion",
+          "description": "Movimentos leves já usados no site principal. Estes padrões vêm do hero, do How it works e da seção Numbers.",
+          "typeTitle": "Type reveal",
+          "arcTitle": "Arc draw",
+          "flowTitle": "Network flow",
+          "productTitle": "Product cycle",
+          "typeLine1": "Construir",
+          "typeLine2": "a base",
+          "typeLine3": "econômica.",
+          "productBadge": "IA"
+        },
+        "fluid": {
+          "title": "Hero Fluid Lab",
+          "description": "Um teste maior de direção antes de adotar three-fluid-fx. No hero, não deve parecer tinta vermelha; deve ficar quieto na profundidade Navy e reagir com restrição.",
+          "status": "Protótipo · candidato WebGL",
+          "cursor": "Seguindo o cursor: comportamento principal do three-fluid-fx",
+          "fallback": "Fallback: drei Gradient + MeshDistortMaterial",
+          "note": "Crimson fica pontual. Não transformar o fundo inteiro em vermelho."
+        }
+      },
+      "gallery": {
+        "previewLabel": "Preview de animação",
+        "openLabel": "Abrir review detalhado",
+        "closeLabel": "Fechar review detalhado",
+        "reviewTitle": "Motion Review",
+        "reviewLead": "Veja o preview grande, encaixe em produção, fonte e notas de adoção em um só lugar.",
+        "statusLabel": "Status",
+        "categoryLabel": "Categoria",
+        "timingLabel": "Tempo",
+        "productionFitLabel": "Onde funciona em produção",
+        "fitLabel": "Encaixe",
+        "useLabel": "Uso",
+        "sourceLabel": "Fonte",
+        "anatomyLabel": "Anatomia do movimento",
+        "motionStage1": "Criar um ponto visual de partida",
+        "motionStage2": "Mostrar fluxo, mudança ou conexão",
+        "motionStage3": "Manter significado no estado estático",
+        "implementationLabel": "Decisão de implementação",
+        "implementationReady": "Pronto para migrar como componente existente. Manter restrito à seção que precisa dele.",
+        "implementationPrototype": "Candidato ou material de pesquisa. Validar textura, peso e legibilidade no preview primeiro.",
+        "implementationReview": "Não é componente de motion. Usar como checagem estética antes de levar itens do Vault para produção.",
+        "reducedMotionLabel": "Reduced motion",
+        "reducedMotionStatic": "Criar estado estático que ainda comunique quando a animação estiver desativada.",
+        "reducedMotionPause": "Candidato mais pesado ou com muito movimento. Pausar ou trocar por fallback estático em reduced-motion.",
+        "timingOneShot": "Entrada única",
+        "timingScroll": "Ligado ao scroll",
+        "timingLoop": "Loop discreto",
+        "filters": {
+          "all": "Todos",
+          "live": "Live / existente",
+          "gsap": "GSAP",
+          "webgl": "WebGL",
+          "media": "Pesquisa",
+          "guard": "Guard estético"
+        }
+      },
+      "frontier": {
+        "eyebrow": "Frontier Stack",
+        "title": "Novas referências, traduzidas para a Andes.",
+        "lead": "Skills externas e exemplos chamativos entram na prateleira com propósito e peso separados. Esta seção é a entrada para os próximos protótipos.",
+        "items": {
+          "gsapOfficial": {
+            "label": "GSAP",
+            "title": "Usar os gsap-skills oficiais como playbook de motion.",
+            "body": "Um conjunto de referência para escrever Timeline, ScrollTrigger, Flip, SplitText e motion SVG corretamente. Na Andes, focar em tipografia de hero e narrativa de scroll.",
+            "source": "https://github.com/greensock/gsap-skills"
+          },
+          "webglGlsl": {
+            "label": "WebGL / GLSL",
+            "title": "Fazer do 3D um espaço econômico abstrato, não uma cena realista.",
+            "body": "Traduzir terreno, neblina, profundidade de campo e câmera guiada por scroll em terreno Andes, profundidade fluida e atmosfera de corridor.",
+            "source": "three.js / @react-three/fiber / drei / three-fluid-fx"
+          },
+          "splineReference": {
+            "label": "Spline",
+            "title": "Spline é referência, não primeira escolha de produção.",
+            "body": "Ajuda a mostrar objetos 3D rapidamente, mas o runtime pode ficar pesado para um hero corporativo. Preferir primeiro uma implementação leve em Three.js.",
+            "source": "@splinetool/runtime is candidate-only"
+          },
+          "designTaste": {
+            "label": "Taste Guard",
+            "title": "Guardrails estéticos contra motion com cara de IA.",
+            "body": "Usar Frontend Design e padrões tipo Hallmark como regras Andes: restrição, disciplina de duas cores, Crimson pontual e motion com função clara.",
+            "source": "frontend-design skill + .agents/skills/hallmark"
+          }
+        }
+      },
+      "inventory": {
+        "eyebrow": "Inventory",
+        "title": "Padrões de movimento prontos para puxar.",
+        "lead": "A prateleira separa materiais migrados, componentes existentes e referências de preview. Puxe apenas o movimento que serve a uma seção de produção."
+      },
+      "patterns": {
+        "beam": {
+          "status": "Migrado",
+          "name": "Animated Beam",
+          "fit": "Mostra o fluxo do agentic commerce sem virar um diagrama técnico ruidoso. Útil para conectar Layer 1 e Layer 2.",
+          "use": "Uso: diagrama de agente / conexão de layers",
+          "source": "src/components/animation-vault/motion/AnimatedBeam.tsx"
+        },
+        "ticker": {
+          "status": "Migrado",
+          "name": "Number Ticker",
+          "fit": "Revela números com base real, como 660 milhões de pessoas ou o lançamento em 2026. Ideal para seções de prova para investidores.",
+          "use": "Uso: números macro / proof bar",
+          "source": "src/components/animation-vault/motion/NumberTicker.tsx"
+        },
+        "particles": {
+          "status": "Migrado",
+          "name": "Particle Field",
+          "fit": "Adiciona profundidade a um canvas escuro e contido. Mantenha em tons Navy e Paper, com Crimson reservado a acentos pontuais.",
+          "use": "Uso: canvas escuro / apoio de corridor",
+          "source": "src/components/animation-vault/motion/Particles.tsx"
+        },
+        "reveal": {
+          "status": "Existente",
+          "name": "Reveal",
+          "fit": "Fade e subida quando uma seção entra no viewport. Use em títulos e momentos-chave, não em todos os cards.",
+          "use": "Uso: entrada de seção",
+          "source": "src/components/motion/Reveal.tsx"
+        },
+        "countUp": {
+          "status": "Existente",
+          "name": "CountUp",
+          "fit": "Extrai a parte numérica de uma string i18n e conta uma vez sem quebrar prefixos ou unidades.",
+          "use": "Uso: métricas reais / KPI / prova",
+          "source": "src/components/motion/CountUp.tsx"
+        },
+        "smoothScroll": {
+          "status": "Existente",
+          "name": "Lenis SmoothScroll",
+          "fit": "Melhora a sensação de scroll da página. Desliga para usuários com reduced-motion.",
+          "use": "Uso: sensação global de scroll",
+          "source": "src/components/motion/SmoothScroll.tsx"
+        },
+        "maskedHeroType": {
+          "status": "Existente",
+          "name": "Masked Hero Type",
+          "fit": "Linhas do hero sobem a partir de uma máscara. Combina com a voz declarativa da Andes.",
+          "use": "Uso: H1 do hero / statement de seção",
+          "source": "src/components/home/Hero.tsx"
+        },
+        "heroArc": {
+          "status": "Existente",
+          "name": "Hero Corridor Arc",
+          "fit": "Desenha um arco JP/KR → BR com pathLength do framer-motion, sugerindo geografia sem mapa literal.",
+          "use": "Uso: corridor do hero",
+          "source": "src/components/home/Hero.tsx"
+        },
+        "scrollHint": {
+          "status": "Existente",
+          "name": "Scroll Hint",
+          "fit": "Uma linha fina no fim do hero respira suavemente. Um sinal mínimo para a próxima seção.",
+          "use": "Uso: dica no primeiro viewport",
+          "source": "src/components/home/Hero.tsx"
+        },
+        "networkFlow": {
+          "status": "Existente",
+          "name": "Network Flow",
+          "fit": "Uma linha pontilhada flui enquanto o node pulsa. Já usado no fluxo de quatro etapas.",
+          "use": "Uso: processo / linha de fluxo",
+          "source": "src/components/home/HowItWorks.tsx"
+        },
+        "productScene": {
+          "status": "Existente",
+          "name": "Product Scene Cycle",
+          "fit": "Cards fantasma de produto flutuam em ciclos. Bom para seções de evidência fora do hero principal.",
+          "use": "Uso: evidência de produto / cena secundária",
+          "source": "src/components/home/Numbers.tsx"
+        },
+        "progressFill": {
+          "status": "Existente",
+          "name": "Progress Fill",
+          "fit": "Uma barra de progresso preenche em ciclo. Útil para logística, orçamento, aduana ou entrega.",
+          "use": "Uso: status / progresso logístico",
+          "source": "src/components/home/Numbers.tsx"
+        },
+        "gaugeRing": {
+          "status": "Existente",
+          "name": "Gauge Ring",
+          "fit": "Anima o stroke-dashoffset de um gauge circular. Mostra conclusão ou mudança de orçamento de forma discreta.",
+          "use": "Uso: orçamento / gauge de conclusão",
+          "source": "src/components/home/Numbers.tsx"
+        },
+        "cssFadeUp": {
+          "status": "Existente",
+          "name": "CSS Fade Up",
+          "fit": "Um fade-up leve via Tailwind motion-safe. Útil, mas fácil de usar demais.",
+          "use": "Uso: entrada simples de seção",
+          "source": "src/app/globals.css -- fade-up"
+        },
+        "arc": {
+          "status": "Existente",
+          "name": "Line / Arc Draw",
+          "fit": "Serve para uma linha única JP/KR → BR. Um sinal geográfico mínimo para apoiar a declaração do hero.",
+          "use": "Uso: corridor / linha de conexão",
+          "source": "src/app/globals.css -- line-draw / arc-draw"
+        },
+        "lineArcDraw": {
+          "status": "Existente",
+          "name": "Line / Arc Draw",
+          "fit": "Desenho de linha SVG com dashoffset. Serve para arcs, diagramas de layer e caminhos de roadmap.",
+          "use": "Uso: desenho de linha SVG",
+          "source": "src/app/globals.css -- line-draw / arc-draw"
+        },
+        "scrollMorph": {
+          "status": "Referência",
+          "name": "Scroll Morph",
+          "fit": "Um morph de scroll estilo Revolut vindo do preview. Forte demais para o hero de produção da Andes, mas útil para estudar demos de produto.",
+          "use": "Uso: preview / estudo de demo de produto",
+          "source": "src/components/v2/HeroV3.tsx"
+        },
+        "gsapSplit": {
+          "status": "Candidato",
+          "name": "GSAP SplitText / SplitType",
+          "fit": "Divide texto em linhas ou caracteres para tipografia de hero mais precisa. É a direção preferida em docs/09.",
+          "use": "Uso: tipografia premium de hero",
+          "source": "docs/09_animation-stack.md + _archive/src/components/chapters"
+        },
+        "gsapScrollTrigger": {
+          "status": "Candidato",
+          "name": "GSAP ScrollTrigger",
+          "fit": "Útil para pin de seções, progresso com scrub e desenho em etapas. Prototipar antes de produção.",
+          "use": "Uso: narrativa pinned / motion por capítulos",
+          "source": "docs/09_animation-stack.md + _archive/src/components/chapters"
+        },
+        "gsapOfficialSkills": {
+          "status": "Oficial",
+          "name": "GSAP Official Skills",
+          "fit": "Skills oficiais que ensinam o playbook GSAP aos agentes. A instalação deve melhorar Timeline, React e ScrollTrigger.",
+          "use": "Uso: orientação de motion para agente",
+          "source": "https://github.com/greensock/gsap-skills"
+        },
+        "gsapTimeline": {
+          "status": "Candidato",
+          "name": "GSAP Timeline",
+          "fit": "Coordena entradas, linhas, números e CTAs em uma linha do tempo. Dá mais textura que delays empilhados manualmente.",
+          "use": "Uso: entrada coreografada de seção",
+          "source": "greensock/gsap-skills -- gsap-timeline"
+        },
+        "gsapFlip": {
+          "status": "Candidato",
+          "name": "GSAP Flip",
+          "fit": "Transforma rearranjos de cards e mudanças de estado em movimento natural, sem desaparecimentos bruscos. Forte para demos de produto.",
+          "use": "Uso: transição de estado de UI",
+          "source": "greensock/gsap-skills -- gsap-plugins / Flip"
+        },
+        "gsapMotionPath": {
+          "status": "Candidato",
+          "name": "GSAP MotionPath",
+          "fit": "Move pontos ou labels por um caminho de corridor. Mostra logística, pagamento e aduana sem mapa literal.",
+          "use": "Uso: movimento de objeto no corridor",
+          "source": "greensock/gsap-skills -- gsap-plugins / MotionPath"
+        },
+        "gsapSvgMorph": {
+          "status": "Candidato",
+          "name": "GSAP SVG Morph / Draw",
+          "fit": "Anima linhas e formas SVG em etapas. Evitar morph exagerado; usar para linhas que crescem e diagramas que esclarecem.",
+          "use": "Uso: refinamento de diagrama SVG",
+          "source": "greensock/gsap-skills -- gsap-plugins / SVG"
+        },
+        "gsapPerformance": {
+          "status": "Obrigatório",
+          "name": "GSAP Performance Pass",
+          "fit": "Passo de qualidade para motion em transform e opacity, cleanup e refresh do ScrollTrigger. Obrigatório quando o motion fica mais rico.",
+          "use": "Uso: QA de motion / guard de produção",
+          "source": "greensock/gsap-skills -- gsap-performance"
+        },
+        "dreiFluidFallback": {
+          "status": "Candidato",
+          "name": "drei Gradient + Distort",
+          "fit": "Fallback seguro para fundo fluido de hero: mais quieto e leve que uma simulação completa.",
+          "use": "Uso: fundo abstrato de hero",
+          "source": "docs/09_animation-stack.md"
+        },
+        "threeFluidFx": {
+          "status": "Protótipo",
+          "name": "three-fluid-fx",
+          "fit": "Simulação fluida que segue o cursor. Precisa validar qualidade e FPS antes de produção.",
+          "use": "Uso: protótipo de fluido no hero",
+          "source": "docs/09_animation-stack.md"
+        },
+        "webglMountainScene": {
+          "status": "Pesquisa",
+          "name": "WebGL Abstract Terrain",
+          "fit": "Traduzir a ideia de cena de montanha em um terreno econômico abstrato para a Andes. Melhor como plano profundo de fundo do que como cena realista.",
+          "use": "Uso: profundidade de hero / terreno abstrato",
+          "source": "three.js / @react-three/fiber"
+        },
+        "glslFogDepth": {
+          "status": "Pesquisa",
+          "name": "GLSL Fog Depth",
+          "fit": "Shader que cria distância entre layers como neblina entre picos. Adiciona profundidade sem adicionar mais conteúdo.",
+          "use": "Uso: profundidade atmosférica WebGL",
+          "source": "drei shaderMaterial / custom GLSL"
+        },
+        "lenisCameraScroll": {
+          "status": "Candidato",
+          "name": "Lenis Camera Scroll",
+          "fit": "A câmera avança fisicamente com o scroll. Usar apenas quando as seções precisam ser lidas como capítulos.",
+          "use": "Uso: narrativa 3D guiada por scroll",
+          "source": "Lenis + GSAP ScrollTrigger + R3F"
+        },
+        "webglDepthOfField": {
+          "status": "Pesquisa",
+          "name": "WebGL Depth of Field",
+          "fit": "Suaviza objetos distantes e mantém o texto do hero à frente. Provável candidato apenas para desktop, porque postprocessing pode pesar.",
+          "use": "Uso: sensação premium de câmera no hero",
+          "source": "three.js postprocessing candidate"
+        },
+        "scrollFogDensity": {
+          "status": "Pesquisa",
+          "name": "Scroll-linked Fog Density",
+          "fit": "Muda neblina ou densidade fluida com o progresso do scroll. Dá feedback de avanço mantendo legibilidade em primeiro lugar.",
+          "use": "Uso: feedback atmosférico de scroll",
+          "source": "requestAnimationFrame + scroll progress"
+        },
+        "twoColorWebglScene": {
+          "status": "Recomendado",
+          "name": "Two-color WebGL Scene",
+          "fit": "Restringe a paleta a duas cores e deixa a profundidade 3D carregar a emoção. Combina com a disciplina Navy / Paper / Crimson pontual da Andes.",
+          "use": "Uso: direção de arte 3D restrita",
+          "source": "Andes motion art-direction rule"
+        },
+        "remotionStory": {
+          "status": "Pesquisa",
+          "name": "Remotion Agent Story",
+          "fit": "Transforma o fluxo de agentic chat em vídeo. Mais seguro como asset renderizado do que Player embutido.",
+          "use": "Uso: vídeo explicativo / asset social",
+          "source": "_archive/src/remotion"
+        },
+        "sierraStage": {
+          "status": "Pesquisa",
+          "name": "Sierra Feature Stage",
+          "fit": "Stage de cenário, progresso e troca de UI de produto inspirado em páginas estilo Sierra.",
+          "use": "Uso: pesquisa de stage de produto",
+          "source": "_archive/src/components/sierra"
+        },
+        "cinematicCanvas": {
+          "status": "Pesquisa",
+          "name": "Cinematic Canvas",
+          "fit": "Experimentos de canvas e camadas cinematográficas. Forte demais para produção hoje, útil como pesquisa.",
+          "use": "Uso: pesquisa de fundo cinematográfico",
+          "source": "_archive/src/components/cinematic"
+        },
+        "logoMarquee": {
+          "status": "Pesquisa",
+          "name": "Logo Marquee",
+          "fit": "Movimento horizontal de wordmarks. Usar com cuidado em faixas de imprensa ou parceiros.",
+          "use": "Uso: logo wall / faixa de parceiros",
+          "source": "_archive/src/components/v2/LogoMarquee.tsx"
+        },
+        "videoLoop": {
+          "status": "Pesquisa",
+          "name": "Hero Video Loop",
+          "fit": "Referência de loop de vídeo de fundo e Ken Burns para heroes fotográficos.",
+          "use": "Uso: pesquisa de hero fotográfico",
+          "source": "_archive/src/components/v2/HeroBackgroundVideoLoop.tsx"
+        },
+        "splineHeroObject": {
+          "status": "Referência",
+          "name": "Spline Hero Object",
+          "fit": "Uma forma rápida de colocar um objeto 3D no hero. Para produção Andes, validar primeiro peso do runtime e aderência à marca.",
+          "use": "Uso: referência de hero 3D",
+          "source": "@splinetool/react-spline / @splinetool/runtime"
+        },
+        "splineScrollDrive": {
+          "status": "Referência",
+          "name": "Spline + ScrollTrigger",
+          "fit": "Uma faixa de estudo para exemplos 3D guiados por scroll. Traduzir carros e produtos em objetos abstratos de plataforma.",
+          "use": "Uso: referência 3D guiada por scroll",
+          "source": "Spline reference + GSAP ScrollTrigger"
+        },
+        "frontendDesignSkill": {
+          "status": "Referência",
+          "name": "Frontend Design Skill",
+          "fit": "Skill de design para evitar layouts genéricos de IA. Na Andes, usar para criar diferença estrutural, não decoração.",
+          "use": "Uso: guard de direção de design",
+          "source": "https://github.com/anthropics/skills/tree/main/skills/frontend-design"
+        },
+        "hallmarkAestheticGuard": {
+          "status": "Instalado",
+          "name": "Hallmark Aesthetic Guard",
+          "fit": "O padrão local contra gradientes roxos e templates de IA. Mantém o motion corporativo da Andes contido.",
+          "use": "Uso: review anti-slop de design",
+          "source": ".agents/skills/hallmark"
+        },
+        "aiMotionTasteRubric": {
+          "status": "Adicionado",
+          "name": "AI Motion Taste Rubric",
+          "fit": "Regra de seleção para avaliar se o motion parece slide deck, tem significado e tem textura. Usar antes de levar itens do Vault para produção.",
+          "use": "Uso: QA de seleção de animação",
+          "source": "Animation Vault adoption rule"
+        }
+      },
+      "rules": {
+        "eyebrow": "Adoption Rules",
+        "title": "Regras para uso em produção.",
+        "items": {
+          "restrain": {
+            "title": "Movimento só onde significa algo.",
+            "body": "Limite movimento ao hero, números, linhas de conexão e CTAs principais. Não deixe a página inteira em movimento constante."
+          },
+          "tokens": {
+            "title": "Crimson fica pontual.",
+            "body": "Não transforme Crimson em uma grande superfície ou campo de partículas. Use Andes Crimson em linhas, pontos e estados ativos."
+          },
+          "reducedMotion": {
+            "title": "Reduced motion faz parte do componente.",
+            "body": "Partículas, números e beams precisam comunicar mesmo com motion desativado. O estado estático deve carregar a informação."
+          }
+        }
+      }
+    }
+  }
+}

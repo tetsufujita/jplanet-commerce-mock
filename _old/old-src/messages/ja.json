@@ -1,0 +1,924 @@
+{
+  "common": {
+    "lang": "ja",
+    "company": "Andes Inc.",
+    "tagline": "Agentic Commerce for LATAM"
+  },
+  "nav": {
+    "businesses": "事業",
+    "about": "Andes について",
+    "careers": "採用",
+    "press": "プレス",
+    "contact": "お問い合わせ",
+    "lang_switcher_label": "言語を切り替える",
+    "menu_open": "メニューを開く",
+    "menu_close": "メニューを閉じる"
+  },
+  "footer": {
+    "group_label": "グループ",
+    "group_companies": "Andes Inc. (JP) / Andes BR / J-Planet",
+    "businesses_label": "事業",
+    "businesses_jplanet": "J-Planet",
+    "businesses_jvita": "J-Vita",
+    "company_label": "会社",
+    "company_about": "Andes について",
+    "company_careers": "採用",
+    "company_press": "プレス",
+    "company_contact": "お問い合わせ",
+    "legal_label": "Legal",
+    "legal_privacy": "プライバシーポリシー",
+    "legal_terms": "利用規約",
+    "legal_cookies": "Cookie ポリシー",
+    "copyright": "© Andes Inc. 2026",
+    "location": "Tokyo / São Paulo"
+  },
+  "home": {
+    "meta": {
+      "title": "Andes — Agentic Commerce for LATAM",
+      "description": "中南米に、新しい経済の基盤を建てる。Andes は中南米の Agentic Commerce の基盤を建てる企業です。"
+    },
+    "hero": {
+      "eyebrow": "ANDES — AGENTIC COMMERCE INFRASTRUCTURE",
+      "h1": {
+        "line1": "中南米に、",
+        "line2": "新しい経済の",
+        "line3": "基盤を建てる。",
+        "emphasis": "基盤",
+        "label": "中南米に、新しい経済の基盤を建てる。"
+      },
+      "sub": "日本と中南米を、AI エージェントの商取引でつなぐ。物流・税務・法務までを、一つの基盤に。",
+      "stat": {
+        "label": "LATAM の EC 市場",
+        "value": "7690",
+        "prefix": "US$",
+        "suffix": "億",
+        "source": "PCMI"
+      },
+      "cta": {
+        "primary": "資料請求",
+        "secondary": "事業を見る"
+      },
+      "node": {
+        "tokyo": "TOKYO",
+        "saopaulo": "SÃO PAULO"
+      },
+      "coord": "-23.56, -46.65"
+    },
+    "numbers": {
+      "logo1": "J-Planet",
+      "logo2": "PIX",
+      "logo3": "PRC",
+      "logo4": "SISCOMEX",
+      "logo5": "WhatsApp",
+      "logo6": "NF-e",
+      "logo7": "Correios",
+      "logo8": "LGPD",
+      "experienceTitle": "顧客体験を変える",
+      "introLine": "Andes は、世界中の優れた企業が最良の形で顧客に向き合うことを支えます。",
+      "title": "Agentic Commerce を、現場の運用までつなぐ。",
+      "lead": "AI エージェントが売るだけでは足りない。税務、通関、物流、決済までひとつの体験として設計する。",
+      "featureTitle": "顧客の生涯価値を高める。",
+      "featureBody": "意味のあるすべての瞬間で、真にパーソナライズされた体験を届ける。",
+      "agentLabel": "AI Agent",
+      "agentMessage": "Nicholas さん、いつもの商品を再注文しますか？",
+      "routeLabel": "São Paulo route",
+      "routeValue": "ETA 12:05",
+      "pauseAnimation": "アニメーションを一時停止",
+      "playAnimation": "アニメーションを再生",
+      "ghostDelivery": "Will arrive just in time for delivery",
+      "ghostTimelineStart": "10:00 AM",
+      "ghostTimelineEnd": "9:00 PM",
+      "ghostHotel": "Atelier Playa Mujeres",
+      "ghostCheckIn": "Check-in",
+      "ghostCheckInValue": "Fri, Sep 5 3:00 PM",
+      "ghostCheckOut": "Check-out",
+      "ghostCheckOutValue": "Sun, Sep 7 11:00 AM",
+      "ghostDining": "Drinks & dining",
+      "ghostDiningMeta": "$89 of $200",
+      "ghostEverything": "Everything else",
+      "ghostEverythingMeta": "$764 of $2,800",
+      "ghostOrderSecured": "Order secured",
+      "ghostOrderDate": "Oct 27",
+      "ghostTrackOrder": "Track order",
+      "ghostSubscriptions": "Subscriptions",
+      "ghostManage": "Manage",
+      "ghostRenewal": "Monthly renewal on Oct 15",
+      "ghostUnlocked": "Premium channels unlocked",
+      "ghostEtaLabel": "In 28 mins",
+      "ghostEtaValue": "ETA 12:05 PM",
+      "teamTitle": "すべてのチームを動かす",
+      "teamBody": "ブランド、通関、物流、CS が同じ状態を見ながら、購入体験を止めずに進める。",
+      "channelsTitle": "チャネルをひとつに束ねる",
+      "channelsBody": "WhatsApp、メール、音声、管理画面を横断して、同じエージェントが応答する。",
+      "outcomesTitle": "成果に対して支払う",
+      "outcomesBody": "購入完了、通関、配送完了。価値が発生した地点を基準に、運用を最適化する。"
+    },
+    "whynow": {
+      "kicker": "Why now",
+      "lead": "2026 年、商取引は website から AI エージェントへ移る。中南米は、その独自進化が必要な唯一の経済圏である。",
+      "p1Title": "摩擦が阻む",
+      "p1Body": "物理・法・税の摩擦が、中南米の Agentic Commerce を阻んでいる。",
+      "p2Title": "購入と運用を一体で",
+      "p2Body": "Andes は購入エージェントと、その裏側の運用基盤を一体で持つ。",
+      "p3Title": "現場が規範になる",
+      "p3Body": "現地に根ざした knowledge moat が、やがて大陸の規範になる。"
+    },
+    "how": {
+      "kicker": "どう動くか",
+      "title": "2 層構造で、エージェントが動く。",
+      "step1": "消費者が AI に依頼",
+      "step2": "購入エージェントが解釈・編成",
+      "step3": "プラットフォームが税・通関・物流を処理",
+      "step4": "ブラジルで配送",
+      "layer1Title": "Layer ① 購入エージェント",
+      "layer1Body": "消費者接点・ブランディング層。",
+      "layer2Title": "Layer ② プラットフォーム",
+      "layer2Body": "物流・税務・法務・通関・ERP。巨人には作れない深層。",
+      "note": "真の価値は、深い層にある。"
+    },
+    "seller": {
+      "kicker": "セラー",
+      "title": "日韓ブランドを、6.6 億人の市場へ。",
+      "b1Title": "複雑性を引き受ける",
+      "b1Body": "物流・税・通関・規制を Andes が一体運用。越境の複雑性を持たなくてよい。",
+      "b2Title": "新しい販路",
+      "b2Body": "AI エージェントが、現地の消費者に届ける。",
+      "b3Title": "予期せぬ関税なし",
+      "b3Body": "PRC 適合通関で、想定外の関税が発生しない。",
+      "ctaPrimary": "販売を開始する",
+      "ctaSecondary": "パートナー相談"
+    },
+    "portfolio": {
+      "kicker": "Portfolio",
+      "title": "Andes の Agentic Commerce 実装。",
+      "jpTag": "Layer ① 購入エージェント",
+      "jpName": "J-Planet",
+      "jpStatus": "ブラジルで稼働中（2026-06）",
+      "jpDesc": "日韓 → ブラジルの越境コマース。WhatsApp で動く購入エージェント。",
+      "jpCaption": "J-Planet — 越境コマース、ブラジルで稼働中（2026-06）",
+      "phoneOrderTitle": "注文ステータス",
+      "phoneStep1": "日本を出発",
+      "phoneStep2": "通関中",
+      "phoneStep3": "配送中",
+      "destLabel": "長期",
+      "destTitle": "2028 — 中南米の商取引の共通基盤へ。",
+      "destBody": "事業から基盤へ。中南米全体の Agentic Commerce を支える共通インフラを建てる。",
+      "destCta": "ビジョンを読む"
+    },
+    "trust": {
+      "kicker": "Trust",
+      "title": "巨人に複製できない、現場の信頼。",
+      "lead": "PRC 適合通関で、関税の予期せぬ発生なし。規制こそが、巨人に作れない moat になる。",
+      "p1Title": "通関",
+      "p1Body": "PRC / SISCOMEX",
+      "p2Title": "税務",
+      "p2Body": "ICMS / NF-e",
+      "p3Title": "データ保護",
+      "p3Body": "LGPD",
+      "p4Title": "責任ある AI",
+      "p4Body": "透明な運用",
+      "collapseFrom": "多数のブラジル輸入手続き",
+      "collapseTo": "ひとつの Andes の流れ"
+    },
+    "group": {
+      "kicker": "Company",
+      "title": "グループ構造",
+      "lead": "日本の親会社 Andes Inc. が IP と資金を統括し、ブラジル現地で J-Planet が事業を運用する。",
+      "e1Name": "Andes Inc.（日本）",
+      "e1Role": "IP / 資金 / 統括",
+      "e2Name": "Andes BR",
+      "e2Role": "中間持株（100%）",
+      "e3Name": "J-Planet",
+      "e3Role": "越境・国内 EC 運用（99%）"
+    },
+    "footerCta": {
+      "title": "中南米の基盤を、一緒に建てる。",
+      "ctaPrimary": "販売を開始する",
+      "ctaSecondary": "チームに加わる",
+      "contactInvestor": "投資家",
+      "contactCareers": "採用",
+      "contactPress": "プレス",
+      "contactPartner": "パートナー",
+      "colBusinesses": "Businesses",
+      "colCompany": "Company",
+      "colCareers": "Careers",
+      "colLegal": "Legal",
+      "legalEntities": "Andes Inc.（日本）/ Andes BR / J-Planet",
+      "copyright": "© Andes Inc. 2026",
+      "location": "Tokyo / São Paulo"
+    }
+  },
+  "about": {
+    "meta": {
+      "title": "Andes について",
+      "description": "中南米経済の新しい基盤を作る。Agentic Commerce の 2 層構造、Phase roadmap、team。"
+    },
+    "vision": {
+      "title": "向かう先",
+      "lead": "中南米経済の新しい基盤を作る。",
+      "body": "LATAM の GDP は $6 兆。その 1-2% を自社インフラに通す規模を目指す。Agentic Commerce が global で立ち上がる 2026 年、LATAM の AC は別物として進化する必要がある。Andes はその base layer を建てる。100 年続く企業を、ブラジル発で。"
+    },
+    "two_layer": {
+      "title": "Agentic Commerce の 2 層構造",
+      "lead": "AC を完成させるには、巨人にはできない 2 つの層が要る。",
+      "layer1": {
+        "tag": "Layer ①",
+        "title": "購入エージェント",
+        "body": "グローバル AI を LLM として使い、LATAM 消費者との接点を作る。ここはブランディング層、巨人にリプレイスされても OK。"
+      },
+      "layer2": {
+        "tag": "Layer ②",
+        "title": "プラットフォーム",
+        "body": "物流・税務・法務・通関・ERP・会計。LATAM 現場の knowledge は大手には構築できない、ここで本当の価値が出る。"
+      }
+    },
+    "phase": {
+      "title": "Phase roadmap",
+      "lead": "AC for LATAM の達成は、5 つの step で進む。",
+      "p1": {
+        "year": "2026",
+        "title": "越境 EC × WhatsApp エージェント"
+      },
+      "p2": {
+        "year": "2027",
+        "title": "BR 国内 EC 横断エージェント（A2A）"
+      },
+      "p3": {
+        "year": "2028",
+        "title": "エージェントネイティブ ERP × Marketplace × Factoring"
+      },
+      "p4": {
+        "year": "2029-30",
+        "title": "Agentic Fintech 全面"
+      },
+      "endgame": {
+        "year": "2028 +",
+        "title": "LATAM AC Protocol（OSS de facto）"
+      }
+    },
+    "team": {
+      "title": "Team",
+      "lead": "ビジョン主導の Founder と構造化を担う Architect のペアを核に、AI を最大限に使う少数精鋭。"
+    },
+    "group": {
+      "title": "グループ構造",
+      "desc": "Andes Inc.（JP）が IP と資金を統括、Andes BR を経て J-Planet が事業を実運用。"
+    }
+  },
+  "businesses": {
+    "meta": {
+      "title": "事業",
+      "description": "Andes の Agentic Commerce 実装。J-Planet（越境 EC）/ J-Vita（医療）/ LATAM AC Protocol。"
+    },
+    "hero": {
+      "title": "Andes の Agentic Commerce 実装",
+      "lead": "3 つの事業、2 つの layer、1 つの protocol へ。"
+    },
+    "jplanet": {
+      "tag": "Layer ① 購入エージェント",
+      "title": "J-Planet",
+      "lead": "日本・韓国の品質を WhatsApp 経由でブラジル消費者へ。",
+      "body": "Phase 1 launch 2026-06-01。日本商品 catalog 全件を投入、WhatsApp エージェント体験で購買から決済・配送までを一体で運営する。",
+      "cta": "jplanet.com.br へ"
+    },
+    "jvita": {
+      "tag": "Layer ① 購入エージェント（医療）",
+      "title": "J-Vita",
+      "lead": "日本品質の医療を Mandato 個人輸入代行でブラジルへ。",
+      "body": "Phase 0a launch 2026-06-01。GLP-1 / 育毛 / ホルモン / ダイエット。J-Medical Ltda（設立予定）が consumer brand を運営。",
+      "cta": "j-vita.com.br へ（将来）"
+    },
+    "protocol": {
+      "tag": "Layer ② endgame",
+      "title": "LATAM AC Protocol",
+      "lead": "2028 年、LATAM の Agentic Commerce 共通インフラを OSS として発行する。",
+      "body": "PIX / NF-e / ICMS / LGPD / CDC を MCP 化し、巨人（OpenAI / Google / Anthropic）が Andes を呼ぶ position を取る。LATAM の AWS + Stripe + 楽天。",
+      "cta": "ビジョンを読む"
+    },
+    "areas": {
+      "title": "対応領域",
+      "lead": "Andes が運営する 5 つの layer。",
+      "a1": "商品提案（日本商品全展開）",
+      "a2": "規制対応（BR 機関適合）",
+      "a3": "越境決済（BR 現地決済）",
+      "a4": "簡易通関（関税 0%）",
+      "a5": "商品配送（消費者へ宅配）"
+    }
+  },
+  "careers": {
+    "meta": {
+      "title": "採用",
+      "description": "LATAM の Agentic Commerce を、誰と建てるか。Claude Code Native engineer 募集。"
+    },
+    "hero": {
+      "title": "LATAM の Agentic Commerce を、誰と建てるか。",
+      "lead": "Claude Code Native engineer を 2-3 名募集する。"
+    },
+    "what": {
+      "title": "何を作っているか",
+      "lead": "中南米の Agentic Commerce 基盤。3 つの事業、2 つの layer、1 つの protocol。",
+      "cta": "詳しく"
+    },
+    "who": {
+      "title": "誰と作るか",
+      "body": "Andes はビジョン主導の Founder と構造化を担う Architect のペアを核にした少数精鋭。AI を最大限に使い、人を機械学習タスクに使わない。Claude Code Native 文化で、build スピードで他社の 5-10 倍を出す。"
+    },
+    "open": {
+      "title": "募集中ポジション",
+      "engineer": {
+        "title": "Claude Code Native Engineer（Senior）",
+        "lead": "× 2-3 名",
+        "body": "Claude Code / Codex / 自律エージェントを日常使用、第一原理思考で build。LATAM の AC 基盤を共に建てる engineer。",
+        "challenge": {
+          "title": "選考課題",
+          "body": "1 週間で 5 agent を build、Claude grade 70+ pass。"
+        },
+        "cta": "詳細・応募"
+      }
+    },
+    "contact": {
+      "title": "応募・問い合わせ",
+      "email": "careers@andes.global",
+      "cta": "応募する"
+    }
+  },
+  "press": {
+    "meta": {
+      "title": "Press",
+      "description": "Andes Inc. のメディア取材・登壇予定・プレスキット。"
+    },
+    "hero": {
+      "title": "Press",
+      "lead": "メディア取材・登壇依頼・プレスキット。"
+    },
+    "upcoming": {
+      "title": "登壇予定",
+      "ivs": {
+        "title": "IVS 京都 2026",
+        "date": "2026-07-01 〜 07-03",
+        "venue": "みやこめっせ + ホテルオークラ京都",
+        "theme": "Japan is Back × LATAM Agentic Commerce",
+        "speaker": "藤田テツ（Andes Inc. CEO）"
+      }
+    },
+    "coverage": {
+      "title": "メディア掲載",
+      "empty": "現在準備中。"
+    },
+    "kit": {
+      "title": "プレスキット",
+      "logo": "ロゴ DL（color / mono / dark）",
+      "photo": "写真 DL",
+      "profile": "会社概要 PDF",
+      "contact": "press@andes.global",
+      "cta": "プレスキットをダウンロード"
+    }
+  },
+  "contact": {
+    "meta": {
+      "title": "お問い合わせ",
+      "description": "投資家 / 採用 / プレス / パートナー、4 つの窓口から対話を始める。"
+    },
+    "hero": {
+      "title": "対話を始める",
+      "lead": "4 つの窓口から、目的に合うものを選んでください。"
+    },
+    "windows": {
+      "investors": {
+        "title": "投資家",
+        "desc": "Series A 関連 / IR / 投資検討"
+      },
+      "careers": {
+        "title": "採用",
+        "desc": "候補者応募 / 人事問合せ"
+      },
+      "press": {
+        "title": "プレス",
+        "desc": "取材依頼 / 登壇依頼"
+      },
+      "partners": {
+        "title": "パートナー",
+        "desc": "事業提携 / ベンダー"
+      }
+    },
+    "form": {
+      "name": "お名前",
+      "email": "メールアドレス",
+      "company": "会社名 / 所属",
+      "subject": "件名",
+      "body": "本文",
+      "consent": "プライバシーポリシーに同意します",
+      "submit": "送信",
+      "success": "送信ありがとうございます。営業日 2 日以内にご返信します。",
+      "error": "送信に失敗しました。お手数ですが再度お試しください。"
+    }
+  },
+  "preview": {
+    "animationVault": {
+      "meta": {
+        "title": "Andes Animation Vault"
+      },
+      "hero": {
+        "eyebrow": "Animation Vault",
+        "title": "Andes に使える動きの保管庫。",
+        "lead": "今ある animation-kit と既存 motion component を、Andes 本番サイトに持ち込みやすい形で並べた preview。派手さより、どこで使うと効くかを見られる素材棚です。",
+        "stats": {
+          "materials": {
+            "value": "42",
+            "label": "棚卸し済み motion patterns"
+          },
+          "dependencies": {
+            "value": "0",
+            "label": "追加 npm 依存"
+          },
+          "route": {
+            "value": "preview",
+            "label": "/ja/preview/animation-vault"
+          }
+        }
+      },
+      "demos": {
+        "beam": {
+          "title": "Agent Beam",
+          "description": "ノード間を光が流れる。Andes では AI、ブランド、消費者、税務・通関の接続を抽象的に見せる用途が本命。",
+          "worldAi": "世界の AI",
+          "andes": "Andes",
+          "brand": "日韓ブランド",
+          "consumer": "LATAM 消費者",
+          "customs": "税務・通関"
+        },
+        "ticker": {
+          "title": "Number Ticker",
+          "description": "数字を一度だけ立ち上げる。マクロ数字、稼働年、処理ステップなど、根拠のある数字だけに使う。",
+          "marketLabel": "市場",
+          "marketSuffix": "億人",
+          "launchLabel": "稼働",
+          "flowLabel": "主要フロー"
+        },
+        "particles": {
+          "title": "Particle Field",
+          "description": "低密度の粒子背景。Hero 全体を飾るより、dark section の奥行きや corridor 表現の補助に向く。",
+          "corridor": "corridor",
+          "tokyo": "Tokyo",
+          "saoPaulo": "São Paulo"
+        },
+        "native": {
+          "title": "Native Andes Motion",
+          "description": "すでに本体側で使っている軽い動き。Hero、How it works、Numbers の表現から、再利用しやすい形だけを抜き出したもの。",
+          "typeTitle": "Type reveal",
+          "arcTitle": "Arc draw",
+          "flowTitle": "Network flow",
+          "productTitle": "Product cycle",
+          "typeLine1": "中南米に、",
+          "typeLine2": "新しい経済の",
+          "typeLine3": "基盤を建てる。",
+          "productBadge": "AI"
+        },
+        "fluid": {
+          "title": "Hero Fluid Lab",
+          "description": "three-fluid-fx 本採用前に、流体の方向性を大きく確認するための専用デモ。Hero 背景では、赤い絵の具ではなく Navy の奥で静かに反応する流体として扱う。",
+          "status": "要試作 · WebGL候補",
+          "cursor": "カーソル追従: three-fluid-fx の本命挙動",
+          "fallback": "Fallback: drei Gradient + MeshDistortMaterial",
+          "note": "Crimson は pin-point。背景全体を赤くしない。"
+        }
+      },
+      "gallery": {
+        "previewLabel": "アニメーションプレビュー",
+        "openLabel": "詳細レビューを見る",
+        "closeLabel": "詳細レビューを閉じる",
+        "reviewTitle": "Motion Review",
+        "reviewLead": "大きいプレビュー、用途、実装元、採用時の注意をまとめて確認できます。",
+        "statusLabel": "状態",
+        "categoryLabel": "カテゴリ",
+        "timingLabel": "時間感",
+        "productionFitLabel": "本番で効く場所",
+        "fitLabel": "適合",
+        "useLabel": "用途",
+        "sourceLabel": "実装元",
+        "anatomyLabel": "モーション構造",
+        "motionStage1": "視線を受ける起点を作る",
+        "motionStage2": "流れ・変化・接続を見せる",
+        "motionStage3": "静止状態でも意味が残る",
+        "implementationLabel": "実装判断",
+        "implementationReady": "既存 component として移植可能。必要な section にだけ局所導入する。",
+        "implementationPrototype": "候補または研究素材。まず preview で質感・重さ・可読性を確認する。",
+        "implementationReview": "実装部品ではなく審美チェック。Vault から本番へ移す前の判断基準に使う。",
+        "reducedMotionLabel": "Reduced motion",
+        "reducedMotionStatic": "アニメーションを止めても情報が読める静止状態を用意する。",
+        "reducedMotionPause": "負荷や動きが強い候補。reduced-motion では停止または静的 fallback に切り替える。",
+        "timingOneShot": "一度だけの入場",
+        "timingScroll": "スクロール連動",
+        "timingLoop": "静かなループ",
+        "filters": {
+          "all": "すべて",
+          "live": "実装・既存",
+          "gsap": "GSAP",
+          "webgl": "WebGL",
+          "media": "研究素材",
+          "guard": "審美ガード"
+        }
+      },
+      "frontier": {
+        "eyebrow": "Frontier Stack",
+        "title": "SNSで見つけた方向性も、Andes 用に翻訳。",
+        "lead": "外部の新しいスキルや派手な実例は、そのまま入れずに用途と重さを分けて保管。ここは次に試作する候補の入口です。",
+        "items": {
+          "gsapOfficial": {
+            "label": "GSAP",
+            "title": "公式 gsap-skills を作法として使う。",
+            "body": "Timeline、ScrollTrigger、Flip、SplitText、SVG 系を AI が正しく書くための参照。Andes では hero typography とスクロール narrative の品質を上げる用途に絞る。",
+            "source": "https://github.com/greensock/gsap-skills"
+          },
+          "webglGlsl": {
+            "label": "WebGL / GLSL",
+            "title": "3D は実写風ではなく、経済圏の抽象空間にする。",
+            "body": "山岳シーン、霧、被写界深度、スクロールで進むカメラの考え方を、Andes では地形・流体・corridor の奥行きとして試す。",
+            "source": "three.js / @react-three/fiber / drei / three-fluid-fx"
+          },
+          "splineReference": {
+            "label": "Spline",
+            "title": "Spline は参考。採用は軽さを確認してから。",
+            "body": "3D オブジェクトを素早く見せる参考にはなるが、Hero 本番では runtime の重さが出やすい。まずは Three.js 自前実装を優先する。",
+            "source": "@splinetool/runtime is candidate-only"
+          },
+          "designTaste": {
+            "label": "Taste Guard",
+            "title": "AIっぽい動きを出さない審美ガード。",
+            "body": "Frontend Design や Hallmark 系の基準を、Andes の restraint、2色制限、Crimson pin-point、意味のある motion へ変換して使う。",
+            "source": "frontend-design skill + .agents/skills/hallmark"
+          }
+        }
+      },
+      "inventory": {
+        "eyebrow": "Inventory",
+        "title": "今すぐ使える動きの一覧。",
+        "lead": "素材そのもの、既存 component、preview 由来の参照を分けて整理。ここから必要なものだけ本番 section に移植します。"
+      },
+      "patterns": {
+        "beam": {
+          "status": "実装済み",
+          "name": "Animated Beam",
+          "fit": "Agentic Commerce の流れを、技術図っぽくしすぎずに見せられる。Layer ① と Layer ② の接続にも合う。",
+          "use": "用途: agent 抽象図 / layer 接続",
+          "source": "src/components/animation-vault/motion/AnimatedBeam.tsx"
+        },
+        "ticker": {
+          "status": "実装済み",
+          "name": "Number Ticker",
+          "fit": "6.6 億人、2026 年稼働などの数字を控えめに立ち上げる。投資家向けの proof section に向く。",
+          "use": "用途: マクロ数字 / proof bar",
+          "source": "src/components/animation-vault/motion/NumberTicker.tsx"
+        },
+        "particles": {
+          "status": "実装済み",
+          "name": "Particle Field",
+          "fit": "静かな暗背景に奥行きを出す。Crimson を広げず、Navy / Paper の範囲で動かすのが Andes 向き。",
+          "use": "用途: dark canvas / corridor 補助",
+          "source": "src/components/animation-vault/motion/Particles.tsx"
+        },
+        "reveal": {
+          "status": "既存",
+          "name": "Reveal",
+          "fit": "section が viewport に入った時だけ fade + rise。全カードに乱用せず、見出しや要所に使う。",
+          "use": "用途: section 入場",
+          "source": "src/components/motion/Reveal.tsx"
+        },
+        "countUp": {
+          "status": "既存",
+          "name": "CountUp",
+          "fit": "i18n 文字列に含まれる数字だけを抽出して一度だけ増加させる。単位や接頭辞を崩さない。",
+          "use": "用途: 実数値 / KPI / proof",
+          "source": "src/components/motion/CountUp.tsx"
+        },
+        "smoothScroll": {
+          "status": "既存",
+          "name": "Lenis SmoothScroll",
+          "fit": "ページ全体のスクロール感を少し上質にする土台。reduced-motion では無効化される。",
+          "use": "用途: 全体 scroll feel",
+          "source": "src/components/motion/SmoothScroll.tsx"
+        },
+        "maskedHeroType": {
+          "status": "既存",
+          "name": "Masked Hero Type",
+          "fit": "Hero の行が下から立ち上がる演出。Andes の宣言型コピーと相性がよい。",
+          "use": "用途: hero H1 / section statement",
+          "source": "src/components/home/Hero.tsx"
+        },
+        "heroArc": {
+          "status": "既存",
+          "name": "Hero Corridor Arc",
+          "fit": "JP・KR → BR の一本線を framer-motion の pathLength で描く。地図を置かずに地理を示せる。",
+          "use": "用途: hero corridor",
+          "source": "src/components/home/Hero.tsx"
+        },
+        "scrollHint": {
+          "status": "既存",
+          "name": "Scroll Hint",
+          "fit": "Hero 下部の細い縦線が静かに伸縮する。最小限の次セクション誘導。",
+          "use": "用途: first viewport cue",
+          "source": "src/components/home/Hero.tsx"
+        },
+        "networkFlow": {
+          "status": "既存",
+          "name": "Network Flow",
+          "fit": "点線が横に流れ、node が pulse する。How it works の 4 step flow に使っている。",
+          "use": "用途: process / flow line",
+          "source": "src/components/home/HowItWorks.tsx"
+        },
+        "productScene": {
+          "status": "既存",
+          "name": "Product Scene Cycle",
+          "fit": "Product UI 風の ghost card が周期的に浮かぶ。J-Planet の実運用感を hero から離して見せる時に使える。",
+          "use": "用途: product evidence / secondary scene",
+          "source": "src/components/home/Numbers.tsx"
+        },
+        "progressFill": {
+          "status": "既存",
+          "name": "Progress Fill",
+          "fit": "進捗バーが周期的に伸びる。物流、予算、通関などの状態変化を控えめに見せる。",
+          "use": "用途: status / logistics progress",
+          "source": "src/components/home/Numbers.tsx"
+        },
+        "gaugeRing": {
+          "status": "既存",
+          "name": "Gauge Ring",
+          "fit": "円形 gauge の stroke-dashoffset を動かす。数値の変化を小さく可視化できる。",
+          "use": "用途: budget / completion gauge",
+          "source": "src/components/home/Numbers.tsx"
+        },
+        "cssFadeUp": {
+          "status": "既存",
+          "name": "CSS Fade Up",
+          "fit": "Tailwind の motion-safe 経由で使える軽い fade-up。大量使用は避ける。",
+          "use": "用途: simple section reveal",
+          "source": "src/app/globals.css -- fade-up"
+        },
+        "arc": {
+          "status": "既存",
+          "name": "Line / Arc Draw",
+          "fit": "JP・KR → BR corridor の一本線に向く。Hero の宣言を支える最小の地理表現として使える。",
+          "use": "用途: corridor / connection line",
+          "source": "src/app/globals.css -- line-draw / arc-draw"
+        },
+        "lineArcDraw": {
+          "status": "既存",
+          "name": "Line / Arc Draw",
+          "fit": "SVG の dashoffset を使う線描画。地理 arc、layer diagram、roadmap の一本線に使える。",
+          "use": "用途: SVG line drawing",
+          "source": "src/app/globals.css -- line-draw / arc-draw"
+        },
+        "scrollMorph": {
+          "status": "参照",
+          "name": "Scroll Morph",
+          "fit": "Revolut 風 preview のスクロール変形。Andes 本番 hero には強すぎるが、商品デモや別 preview の研究素材になる。",
+          "use": "用途: preview / product demo 研究",
+          "source": "src/components/v2/HeroV3.tsx"
+        },
+        "gsapSplit": {
+          "status": "候補",
+          "name": "GSAP SplitText / SplitType",
+          "fit": "文字や行を分割して、Hero の言葉をより精密に立ち上げる。docs/09 の本命。",
+          "use": "用途: premium hero typography",
+          "source": "docs/09_animation-stack.md + _archive/src/components/chapters"
+        },
+        "gsapScrollTrigger": {
+          "status": "候補",
+          "name": "GSAP ScrollTrigger",
+          "fit": "section pin、scrub、段階的な線描画に向く。重い演出は preview で検証してから使う。",
+          "use": "用途: pinned narrative / chapter motion",
+          "source": "docs/09_animation-stack.md + _archive/src/components/chapters"
+        },
+        "gsapOfficialSkills": {
+          "status": "公式",
+          "name": "GSAP Official Skills",
+          "fit": "AI に GSAP の作法を読ませるための公式スキル群。Codex へ入れれば Timeline / React / ScrollTrigger の実装精度が上がる。",
+          "use": "用途: agent motion guidance",
+          "source": "https://github.com/greensock/gsap-skills"
+        },
+        "gsapTimeline": {
+          "status": "候補",
+          "name": "GSAP Timeline",
+          "fit": "複数要素の入場、線、数字、CTA を一つの時間軸で制御する。delay の積み木より質感が出る。",
+          "use": "用途: choreographed section entrance",
+          "source": "greensock/gsap-skills -- gsap-timeline"
+        },
+        "gsapFlip": {
+          "status": "候補",
+          "name": "GSAP Flip",
+          "fit": "カードの並び替えや状態切替を、急な消滅ではなく自然な移動として見せる。Product demo に向く。",
+          "use": "用途: UI state transition",
+          "source": "greensock/gsap-skills -- gsap-plugins / Flip"
+        },
+        "gsapMotionPath": {
+          "status": "候補",
+          "name": "GSAP MotionPath",
+          "fit": "点やラベルを corridor line に沿って動かす。物流、決済、通関の流れを地図なしで示せる。",
+          "use": "用途: corridor object movement",
+          "source": "greensock/gsap-skills -- gsap-plugins / MotionPath"
+        },
+        "gsapSvgMorph": {
+          "status": "候補",
+          "name": "GSAP SVG Morph / Draw",
+          "fit": "SVG 線や形状を段階的に変化させる。強い morph は避け、線が育つ表現に使う。",
+          "use": "用途: SVG diagram refinement",
+          "source": "greensock/gsap-skills -- gsap-plugins / SVG"
+        },
+        "gsapPerformance": {
+          "status": "必須",
+          "name": "GSAP Performance Pass",
+          "fit": "transform と opacity 中心、cleanup、ScrollTrigger refresh などの品質チェック。動きを増やすほど必須になる。",
+          "use": "用途: motion QA / production guard",
+          "source": "greensock/gsap-skills -- gsap-performance"
+        },
+        "dreiFluidFallback": {
+          "status": "候補",
+          "name": "drei Gradient + Distort",
+          "fit": "Hero 背景流体の安全なフォールバック。three-fluid-fx が重い時の静かな WebGL 面。",
+          "use": "用途: abstract hero background",
+          "source": "docs/09_animation-stack.md"
+        },
+        "threeFluidFx": {
+          "status": "要試作",
+          "name": "three-fluid-fx",
+          "fit": "カーソル追従の流体。質感と FPS を実機検証してから本採用する第一候補。",
+          "use": "用途: hero fluid prototype",
+          "source": "docs/09_animation-stack.md"
+        },
+        "webglMountainScene": {
+          "status": "研究",
+          "name": "WebGL Abstract Terrain",
+          "fit": "山岳シーンの考え方を、Andes では経済圏の抽象地形に置き換える。実写風より、深い背景面が向く。",
+          "use": "用途: hero depth / abstract terrain",
+          "source": "three.js / @react-three/fiber"
+        },
+        "glslFogDepth": {
+          "status": "研究",
+          "name": "GLSL Fog Depth",
+          "fit": "峰の間の霧のように、layer 間に距離を出す shader。情報量を増やさず奥行きを作れる。",
+          "use": "用途: WebGL atmospheric depth",
+          "source": "drei shaderMaterial / custom GLSL"
+        },
+        "lenisCameraScroll": {
+          "status": "候補",
+          "name": "Lenis Camera Scroll",
+          "fit": "スクロールでカメラが物理的に進む表現。Section を章として読ませる時だけ使う。",
+          "use": "用途: scroll-driven 3D narrative",
+          "source": "Lenis + GSAP ScrollTrigger + R3F"
+        },
+        "webglDepthOfField": {
+          "status": "研究",
+          "name": "WebGL Depth of Field",
+          "fit": "遠景を少しぼかし、Hero の文字を前に出す。重くなりやすいので desktop 限定候補。",
+          "use": "用途: premium hero camera feel",
+          "source": "three.js postprocessing candidate"
+        },
+        "scrollFogDensity": {
+          "status": "研究",
+          "name": "Scroll-linked Fog Density",
+          "fit": "スクロール量に応じて霧や流体密度を変える。進行感は出るが、可読性を最優先にする。",
+          "use": "用途: atmospheric scroll feedback",
+          "source": "requestAnimationFrame + scroll progress"
+        },
+        "twoColorWebglScene": {
+          "status": "推奨",
+          "name": "Two-color WebGL Scene",
+          "fit": "2色だけで制限し、3D の奥行きに感情を任せる。Andes の Navy / Paper / Crimson pin-point 規律と合う。",
+          "use": "用途: restrained 3D art direction",
+          "source": "Andes motion art-direction rule"
+        },
+        "remotionStory": {
+          "status": "研究",
+          "name": "Remotion Agent Story",
+          "fit": "Agentic chat の流れを動画化する素材。Web page 内では Player より video asset 化が安全。",
+          "use": "用途: explainer video / social asset",
+          "source": "_archive/src/remotion"
+        },
+        "sierraStage": {
+          "status": "研究",
+          "name": "Sierra Feature Stage",
+          "fit": "Sierra 風の stage / progress / scenario 切替。product demo section の参考になる。",
+          "use": "用途: product stage research",
+          "source": "_archive/src/components/sierra"
+        },
+        "cinematicCanvas": {
+          "status": "研究",
+          "name": "Cinematic Canvas",
+          "fit": "Canvas / cinematic layer 系の試作群。今の本番には強いが、背景研究として残せる。",
+          "use": "用途: cinematic background research",
+          "source": "_archive/src/components/cinematic"
+        },
+        "logoMarquee": {
+          "status": "研究",
+          "name": "Logo Marquee",
+          "fit": "ロゴや語句の横流れ。Andes では乱用せず、press / partner wall に限定するとよい。",
+          "use": "用途: logo wall / partner strip",
+          "source": "_archive/src/components/v2/LogoMarquee.tsx"
+        },
+        "videoLoop": {
+          "status": "研究",
+          "name": "Hero Video Loop",
+          "fit": "背景 video loop / Ken Burns 系。実写を使う場合の参考素材。",
+          "use": "用途: photographic hero research",
+          "source": "_archive/src/components/v2/HeroBackgroundVideoLoop.tsx"
+        },
+        "splineHeroObject": {
+          "status": "参考",
+          "name": "Spline Hero Object",
+          "fit": "3D オブジェクトを素早く hero に置く参考。Andes 本番では runtime weight と brand fit を確認してから。",
+          "use": "用途: 3D hero reference",
+          "source": "@splinetool/react-spline / @splinetool/runtime"
+        },
+        "splineScrollDrive": {
+          "status": "参考",
+          "name": "Spline + ScrollTrigger",
+          "fit": "3D object をスクロールで動かす実例の研究枠。商品や車ではなく、抽象的な platform object に翻訳する。",
+          "use": "用途: scroll-driven 3D reference",
+          "source": "Spline reference + GSAP ScrollTrigger"
+        },
+        "frontendDesignSkill": {
+          "status": "参考",
+          "name": "Frontend Design Skill",
+          "fit": "AI の generic なレイアウトを避けるための美学スキル。Andes では派手さではなく構造の差を作るために使う。",
+          "use": "用途: design direction guard",
+          "source": "https://github.com/anthropics/skills/tree/main/skills/frontend-design"
+        },
+        "hallmarkAestheticGuard": {
+          "status": "導入済み",
+          "name": "Hallmark Aesthetic Guard",
+          "fit": "紫グラデやAI風テンプレを避けるローカル基準。Andes の restrained corporate motion を守る。",
+          "use": "用途: anti-slop design review",
+          "source": ".agents/skills/hallmark"
+        },
+        "aiMotionTasteRubric": {
+          "status": "追加",
+          "name": "AI Motion Taste Rubric",
+          "fit": "動きが PPT っぽいか、意味があるか、質感があるかを判定するためのルール。Vault から本番移植する前に使う。",
+          "use": "用途: animation selection QA",
+          "source": "Animation Vault adoption rule"
+        }
+      },
+      "rules": {
+        "eyebrow": "Adoption Rules",
+        "title": "本番に持ち込む時のルール。",
+        "items": {
+          "restrain": {
+            "title": "動きは意味がある場所だけ。",
+            "body": "Hero、数字、接続線、主要 CTA など、視線誘導に効く場所へ絞る。ページ全体を常時動かさない。"
+          },
+          "tokens": {
+            "title": "Crimson は点で使う。",
+            "body": "赤い面や赤い粒子背景にはしない。Andes Crimson は線、dot、active state などの pin-point に限定する。"
+          },
+          "reducedMotion": {
+            "title": "reduced-motion を最初から持つ。",
+            "body": "粒子・数字・beam は止めても意味が残る構造にする。動きがない状態でも情報が読めることを条件にする。"
+          }
+        }
+      }
+    }
+  },
+  "v4": {
+    "hero": {
+      "eyebrow": "ラテンアメリカ × 日本",
+      "scale": "ラテンアメリカ 6.6億人の経済が、ここで動き出す。",
+      "title1": "Agentic",
+      "title2": "Commerce.",
+      "subhead": "Andes は、日本と韓国のブランドがラテンアメリカ 6.6億人へ届くための Agentic Commerce プラットフォーム。会話の裏で、物流・決済・税務・通関を Andes が引き受ける。",
+      "ctaPrimary": "販売を開始する",
+      "ctaSecondary": "Andes について",
+      "metaPhase": "Phase 1 · 2026-06",
+      "metaCities": "Tokyo · São Paulo",
+      "metaLangs": "ja · en · pt-BR"
+    },
+    "services": {
+      "eyebrow": "プラットフォーム",
+      "bentoTitle": "あらゆるブランドの、あらゆる売り方に。",
+      "bentoLead": "決済・物流・税務・通関を一つにまとめた道具立て。単体でも、組み合わせても動く。",
+      "tileAgentTag": "エージェント店頭",
+      "tileAgentTitle": "会話だけで、売れる。",
+      "tileAgentBody": "WhatsApp で話すだけ。検索もカートもなく、エージェントが選び、注文し、配送まで案内する。",
+      "tileTaxTitle": "関税も税金も、自動で計算。",
+      "tileTaxBody": "CIF・II・ICMS を会話の裏で処理。複雑な越境の計算を、見えなくする。",
+      "tileLogiTitle": "集荷から配送まで、4–7 日。",
+      "tileLogiBody": "日本・韓国からブラジルへ。通関までを一本の導線に束ねる。",
+      "tilePayTitle": "PIX も NF-e も、最初から。",
+      "tilePayBody": "現地決済 PIX と電子インボイス NF-e を内蔵。現地の商取引にそのまま接続する。",
+      "tileErpTitle": "在庫も会計も、エージェントに。",
+      "tileErpBody": "Phase を追って、ERP・会計・与信まで束ねていく。",
+      "infraTitle": "会話の裏に、深いインフラ。",
+      "infraLead": "上の層は世界の AI を使い、ブランドと消費者に向き合う。下の層は現地に深く根を張る、誰にも作れない基盤。本当の価値は、下の層にある。",
+      "layer1Tag": "① 購入エージェント",
+      "layer1Desc": "世界の AI を LLM として使い、ブランドと消費者の接点を持つ",
+      "layer2Tag": "② プラットフォーム",
+      "layer2Desc": "物流・税務・法務・通関・ERP・fintech。Andes だけの深層インフラ",
+      "endgame": "2028年、LATAM の共通インフラを protocol として発行する。",
+      "nodeAI": "世界の AI",
+      "nodeBrand": "日本・韓国のブランド",
+      "nodeConsumer": "ラテンアメリカの消費者",
+      "nodeAndes": "Andes",
+      "nodeProtocol": "LATAM AC Protocol",
+      "tileDashTitle": "ブランドの売上を、ひとつの基盤で。"
+    }
+  }
+}

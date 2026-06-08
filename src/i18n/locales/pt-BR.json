@@ -1,0 +1,126 @@
+{
+  "brand": {
+    "name": "Andes Inc.",
+    "markLabel": "Página inicial da Andes Inc."
+  },
+  "navigation": {
+    "menuLabel": "Abrir menu"
+  },
+  "home": {
+    "hero": {
+      "label": "Hero da página inicial da Andes Inc.",
+      "title": {
+        "line1": "Making",
+        "line2": "Global Commerce",
+        "line3": "Autonomous."
+      },
+      "sub": {
+        "lead": "Uma era em que a IA negocia, não as pessoas.",
+        "body": "A Andes integra pagamentos, logística e compliance para levar o Agentic Commerce à América Latina."
+      },
+      "features": {
+        "aiAgents": {
+          "label": "AI Agents",
+          "description": "Agentes de IA executam descoberta, comparação, recomendação e compra de forma autônoma."
+        },
+        "payments": {
+          "label": "Payments",
+          "description": "Uma base de pagamentos segura e fluida entre países e moedas."
+        },
+        "logistics": {
+          "label": "Logistics",
+          "description": "Uma rede logística inteligente cobrindo mercados em toda a América Latina."
+        },
+        "compliance": {
+          "label": "Compliance",
+          "description": "Um motor integrado de compliance para regras, impostos e exigências legais locais."
+        }
+      }
+    },
+    "product": {
+      "label": "OUR PRODUCT",
+      "title": "Comércio conectado por IA para uma nova experiência de compra.",
+      "lead": "As pessoas pesquisam, comparam, pagam e acompanham entregas manualmente. A Andes transforma essa cadeia em uma experiência conversacional que um agente de IA pode executar de ponta a ponta.",
+      "market": {
+        "title": "A América Latina hoje",
+        "sourceLabel": "Fontes",
+        "items": {
+          "population": {
+            "value": "660 mi",
+            "label": "População da América Latina",
+            "source": "World Bank"
+          },
+          "commerce": {
+            "value": "US$ 769 bi",
+            "label": "Mercado de e-commerce na América Latina",
+            "source": "PCMI"
+          },
+          "pix": {
+            "value": "170 mi",
+            "label": "Usuários do PIX",
+            "source": "Banco Central do Brasil"
+          }
+        }
+      },
+      "assistant": {
+        "title": "AI Shopping Assistant",
+        "request": "Quero uma camiseta branca de qualidade japonesa entregue em São Paulo em 5 a 7 dias.",
+        "suggestion": "Encontrei um produto compatível. Pagamento e entrega podem ser tratados em um único fluxo.",
+        "buy": "Looks good. Buy it.",
+        "confirmed": "Order Confirmed",
+        "confirmedDetail": "Pagamento, importação e orquestração da entrega foram iniciados.",
+        "product": {
+          "name": "White Essential Tee",
+          "price": "¥3,480",
+          "destination": "São Paulo",
+          "eta": "5–7 days"
+        }
+      },
+      "detail": {
+        "title": "Commerce orchestration",
+        "body": "Recomendação, pagamento, logística e compliance permanecem conectados como uma única experiência de transação.",
+        "tags": {
+          "payment": "Payment ready",
+          "logistics": "Logistics queued",
+          "compliance": "Compliance checked"
+        }
+      }
+    },
+    "howItWorks": {
+      "label": "HOW IT WORKS",
+      "title": "Como funciona o Agentic Commerce",
+      "lead": "Agentes de IA conectam decisões e execução da descoberta à entrega, transformando compras internacionais em um fluxo contínuo.",
+      "steps": {
+        "discover": {
+          "number": "1",
+          "title": "Descoberta",
+          "description": "Entende intenção e condições a partir de uma conversa natural."
+        },
+        "suggest": {
+          "number": "2",
+          "title": "Proposta",
+          "description": "Compara preço, prazo e condições regulatórias para apresentar a melhor opção."
+        },
+        "purchase": {
+          "number": "3",
+          "title": "Compra",
+          "description": "Confirma pagamento, moeda e condições do pedido em conjunto."
+        },
+        "process": {
+          "number": "4",
+          "title": "Processamento",
+          "description": "Conduz importação, impostos e verificações legais no mesmo fluxo."
+        },
+        "deliver": {
+          "number": "5",
+          "title": "Entrega",
+          "description": "Conecta à logística local e acompanha o pedido até a chegada."
+        }
+      },
+      "summary": {
+        "body": "Comércio internacional, natural para a IA.",
+        "emphasis": "Agentic Commerce."
+      }
+    }
+  }
+}

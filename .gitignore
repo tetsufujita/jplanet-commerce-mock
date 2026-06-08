@@ -1,0 +1,55 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# build output (Vite)
+dist/
+
+# legacy Next.js build output（Vite 移行で不要・防御的に無視）
+.next/
+out/
+build/
+next-env.d.ts
+
+# testing
+coverage/
+playwright-report/
+test-results/
+
+# AI tool caches / scratch（再生成可能・追跡しない）
+.playwright-mcp/
+.lazyweb/
+.firecrawl/
+.codex/
+
+# env files（secret）
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# editor / OS
+.DS_Store
+*.pem
+.vscode/
+.idea/
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# vercel / turbo
+.vercel
+.turbo
+
+# typescript
+*.tsbuildinfo
+
+# Claude Code session local (do not check into repo)
+.claude/settings.local.json
+.claude/sessions/

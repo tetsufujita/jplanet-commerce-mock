@@ -1,0 +1,126 @@
+{
+  "brand": {
+    "name": "Andes Inc.",
+    "markLabel": "Andes Inc. ホーム"
+  },
+  "navigation": {
+    "menuLabel": "メニューを開く"
+  },
+  "home": {
+    "hero": {
+      "label": "Andes Inc. ホームヒーロー",
+      "title": {
+        "line1": "Making",
+        "line2": "Global Commerce",
+        "line3": "Autonomous."
+      },
+      "sub": {
+        "lead": "人ではなくAIが取引する時代へ。",
+        "body": "Andesは決済・物流・規制を統合し、Agentic Commerceを中南米で実現します。"
+      },
+      "features": {
+        "aiAgents": {
+          "label": "AI Agents",
+          "description": "AIエージェントが発見・比較・提案・購入までを自律的に実行。"
+        },
+        "payments": {
+          "label": "Payments",
+          "description": "国や通貨を越えた、シームレスで安全な決済基盤。"
+        },
+        "logistics": {
+          "label": "Logistics",
+          "description": "中南米全域をカバーする、スマートな物流ネットワーク。"
+        },
+        "compliance": {
+          "label": "Compliance",
+          "description": "各国の規制・税制・法制度に対応する、統合コンプライアンスエンジン。"
+        }
+      }
+    },
+    "product": {
+      "label": "OUR PRODUCT",
+      "title": "AIがつなぐ、新しい商取引体験。",
+      "lead": "人が検索し、比較し、決済し、配送を追う。その一連の商取引を、AIエージェントが自然な会話から実行できる体験へ変えます。",
+      "market": {
+        "title": "中南米市場の今",
+        "sourceLabel": "出典",
+        "items": {
+          "population": {
+            "value": "6.6 億人",
+            "label": "中南米人口",
+            "source": "World Bank"
+          },
+          "commerce": {
+            "value": "US$ 7,690 億",
+            "label": "中南米EC市場",
+            "source": "PCMI"
+          },
+          "pix": {
+            "value": "1.7 億人",
+            "label": "PIX利用者",
+            "source": "ブラジル中銀"
+          }
+        }
+      },
+      "assistant": {
+        "title": "AI Shopping Assistant",
+        "request": "日本品質の白いTシャツを、São Pauloに5〜7日で届けたい。",
+        "suggestion": "条件に合う商品を見つけました。配送と決済をまとめて処理できます。",
+        "buy": "Looks good. Buy it.",
+        "confirmed": "Order Confirmed",
+        "confirmedDetail": "決済・輸入処理・配送手配を同じフローで開始しました。",
+        "product": {
+          "name": "White Essential Tee",
+          "price": "¥3,480",
+          "destination": "São Paulo",
+          "eta": "5–7 days"
+        }
+      },
+      "detail": {
+        "title": "Commerce orchestration",
+        "body": "商品提案、決済、物流、規制対応を分断せず、ひとつの取引体験として束ねます。",
+        "tags": {
+          "payment": "Payment ready",
+          "logistics": "Logistics queued",
+          "compliance": "Compliance checked"
+        }
+      }
+    },
+    "howItWorks": {
+      "label": "HOW IT WORKS",
+      "title": "Agentic Commerceの仕組み",
+      "lead": "AIエージェントが発見から配送までの判断と実行をつなぎ、国境を越えた購買をひとつの流れにします。",
+      "steps": {
+        "discover": {
+          "number": "1",
+          "title": "発見",
+          "description": "購入意図や条件を会話から理解し、候補を探します。"
+        },
+        "suggest": {
+          "number": "2",
+          "title": "提案",
+          "description": "価格、納期、規制条件を比較し、最適な選択肢を提示します。"
+        },
+        "purchase": {
+          "number": "3",
+          "title": "購入",
+          "description": "決済、通貨、注文条件をまとめて確定します。"
+        },
+        "process": {
+          "number": "4",
+          "title": "処理",
+          "description": "輸入、税制、法制度に必要な確認を同じ流れで進めます。"
+        },
+        "deliver": {
+          "number": "5",
+          "title": "配送",
+          "description": "地域に応じた物流へ接続し、到着まで追跡します。"
+        }
+      },
+      "summary": {
+        "body": "国境を越えた取引を、AIがあたりまえに。",
+        "emphasis": "Agentic Commerce."
+      }
+    }
+  }
+}

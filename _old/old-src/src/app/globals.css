@@ -1,0 +1,195 @@
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+
+:root {
+  --background: var(--color-andes-paper);
+  --foreground: var(--color-andes-ink);
+}
+
+@theme {
+  --color-andes-navy: #0f1b3d;
+  --color-andes-paper: #fafaf7;
+  --color-andes-ink: #0a0a0a;
+  --color-andes-light-paper: #f7f6f2;
+  --color-andes-light-ink: #14213a;
+  --color-andes-light-muted: #6b7180;
+  --color-andes-slab: #ffffff;
+  --color-andes-crimson: #c8102e;
+  --color-andes-glow: #e83e5c;
+  --color-andes-subtle: #4a5066;
+  --color-andes-deep: #060b1f;
+  --color-andes-midnight: #060b1f;
+  --color-andes-dawn: #ff8a3c;
+  --color-andes-sepia: #c9a876;
+  --color-andes-khaki: #a89567;
+  --color-andes-forest: #1a3d2e;
+  --color-andes-moss: #4a6655;
+  --color-andes-coral: #ff6b6b;
+  --color-andes-sunset: #ff6b35;
+  --color-andes-purple: #6b4f8f;
+  --color-andes-indigo: #1f2a6b;
+  --color-andes-black: #000000;
+  --color-andes-teal: #14f195;
+  --color-gray-50: #f5f4f0;
+  --color-gray-100: #e8e6e0;
+  --color-gray-300: #b8b5ac;
+  --color-gray-500: #6e6b65;
+  --color-gray-700: #3d3b36;
+  --color-gray-900: #1a1917;
+  --ease-andes: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fade-up: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-fade-in: fade-in 0.5s ease-out forwards;
+  --animate-line-draw: line-draw 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+  --animate-arc-draw: arc-draw 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
+}
+
+html {
+  overflow-x: clip;
+  background: var(--background);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  overflow-x: clip;
+  font-feature-settings: "palt";
+  line-height: 1.65;
+}
+
+.dark-inversion {
+  background: var(--color-andes-navy);
+  color: var(--color-andes-paper);
+}
+
+/* Lenis smooth scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-andes-crimson) 18%, transparent);
+}
+
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(4px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes line-draw {
+  0% {
+    stroke-dashoffset: var(--path-length, 400);
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes arc-draw {
+  0% {
+    stroke-dashoffset: var(--arc-length, 800);
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes bubbleIn {
+  0% {
+    opacity: 0;
+    transform: translateY(36px) scale(0.97);
+  }
+
+  60% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes typingDot {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+.animate-typingDot {
+  animation: typingDot 1s ease-in-out infinite;
+}
+
+@keyframes dashFlow {
+  to {
+    stroke-dashoffset: -220;
+  }
+}
+
+.net-flow {
+  animation: dashFlow 2.4s linear infinite;
+}
+
+@keyframes nodePulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.75;
+    transform: scale(1.06);
+  }
+}
+
+.net-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nodePulse 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-delay: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
