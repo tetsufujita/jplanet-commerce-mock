@@ -9,7 +9,7 @@ Claude は **設計担当**、Codex が **実装担当**。実装規律は AGENT
 ## 役割分担
 
 ```
-Claude → docs/ design/ messages 翻訳 base を更新
+Claude → docs/ design/ src/i18n/locales 翻訳 base を更新
 Codex  → AGENTS.md を読んで src/ に実装
 ```
 
@@ -25,7 +25,7 @@ Codex  → AGENTS.md を読んで src/ に実装
 6. 説明は図優先、3 段落超の散文禁止
 7. サイト掲載 copy は内部 jargon を翻案（`docs/02` の翻案ガイド参照）
 
-> 例外: `messages/*.json` の **サイト出力 copy** は当然多言語。本ルールは Claude / sir 内部会話と `docs/` 内記述に適用。
+> 例外: `src/i18n/locales/*.json` の **サイト出力 copy** は当然多言語。本ルールは Claude / sir 内部会話と `docs/` 内記述に適用。
 
 ## sir スタイル
 
