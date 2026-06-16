@@ -14,6 +14,7 @@ export default tseslint.config(
       ".agents/**",
       ".codex/**",
       ".playwright-mcp/**",
+      "scripts/**",
       "pnpm-lock.yaml",
     ],
   },

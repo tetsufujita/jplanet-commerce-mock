@@ -1,0 +1,175 @@
+/* SjFooter — stripe.com/jp footer 忠実再現
+   実測ソース: design/reproductions/stripe-jp/fullpage.png Y13722–14756（1440px 幅）
+   - 背景 #f8fafd / 罫線 #e5edf5（外枠 2 本は footer 全高、列間 3 本は links 部のみ）
+   - container 内幅 1264px（列 312/312/312/328）・列内 padding 16px
+   - 行ピッチ 24px / links 部 padding-block 62px / block 間 60px
+   - footer は完全静的（motion spec §1 #9）→ entrance なし、hover transition のみ */
+
+.sjf {
+  background: #f8fafd;
+  color: #061b31;
+}
+
+.sjf-container {
+  max-width: 1266px;
+  margin-inline: auto;
+  border-inline: 1px solid #e5edf5;
+}
+
+/* ---- リンク列（4 カラム + 縦罫線） ---- */
+
+.sjf-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 312fr) 328fr;
+  padding-block: 62px;
+}
+
+.sjf-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-inline: 16px;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .sjf-col + .sjf-col {
+    border-left: 1px solid #e5edf5;
+  }
+}
+
+.sjf-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.sjf-block + .sjf-block {
+  margin-top: 60px;
+}
+
+.sjf-block-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: -0.2px;
+  color: #061b31;
+  margin-bottom: 6px;
+}
+
+/* hds-link 相当: hover で slate → navy の色変化のみ（underline なし・実機準拠） */
+.sjf-item {
+  font-size: 15px;
+  line-height: 24px;
+  color: #425466;
+  text-decoration: none;
+  transition: color 150ms ease-out;
+}
+
+.sjf-item:hover {
+  color: #061b31;
+}
+
+/* hds-link--callout（サインイン›）: blurple + hover-arrow shift（motion spec §2b） */
+.sjf-callout {
+  display: inline-flex;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #533afd;
+  text-decoration: none;
+}
+
+.sjf-nbsp {
+  white-space: nowrap;
+}
+
+.sjf-arrow {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* 軸線は通常時非表示 → hover で fade-in、くの字は +2px 右 shift（150–300ms ease-out） */
+.sjf-arrow-line {
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.sjf-arrow-tip {
+  transition: transform 200ms ease-out;
+}
+
+.sjf-callout:hover .sjf-arrow-line {
+  opacity: 1;
+}
+
+.sjf-callout:hover .sjf-arrow-tip {
+  transform: translateX(2px);
+}
+
+/* ---- footer-bottom（locale switcher / © / 旗ロゴ） ---- */
+
+.sjf-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #e5edf5;
+  padding: 34px 16px 14px;
+}
+
+/* hds-button--transparent 相当。icon 左端が列 text と同じ x=16px に揃うよう負 margin */
+.sjf-locale {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  margin-left: -8px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  line-height: 24px;
+  color: #533afd;
+  cursor: pointer;
+  transition: background-color 150ms ease-out;
+}
+
+.sjf-locale:hover {
+  background-color: rgba(83, 58, 253, 0.08);
+}
+
+.sjf-copyright {
+  font-size: 15px;
+  line-height: 24px;
+  color: #061b31;
+  margin: 6px 0 0;
+}
+
+.sjf-logo {
+  margin-right: 16px;
+  line-height: 0;
+}
+
+/* ---- responsive（録画は desktop のみ → 簡易折返し） ---- */
+
+@media (max-width: 1023px) {
+  .sjf-grid {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 48px;
+    padding-block: 48px;
+  }
+}
+
+@media (max-width: 639px) {
+  .sjf-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sjf-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+}

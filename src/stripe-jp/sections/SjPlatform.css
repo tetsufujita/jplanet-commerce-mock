@@ -1,0 +1,1199 @@
+/* SjPlatform — stripe.com/jp §2 プロダクト bento（modular-solutions-section）再現 */
+
+@property --sj-glow-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.sj-platform {
+  padding-block: 104px;
+  background: #fff;
+}
+
+/* ---- 見出し（h2 + subdued 説明が inline で連続） ---- */
+.sj-platform__head {
+  max-width: 860px;
+  margin-bottom: 56px;
+}
+.sj-platform__title,
+.sj-platform__desc {
+  display: inline;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.015em;
+}
+.sj-platform__title {
+  color: var(--sj-navy);
+}
+/* scroll 連動の文字色 reveal（gradient clip、X% は Motion が駆動） */
+.sj-platform__desc {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ---- bento grid ---- */
+.sj-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.sj-bento--payments {
+  grid-column: span 2;
+  height: 740px;
+}
+.sj-bento--billing {
+  height: 740px;
+}
+.sj-bento--agentic,
+.sj-bento--issuing,
+.sj-bento--crypto {
+  height: 660px;
+}
+.sj-bento--connect {
+  grid-column: 1 / -1;
+  height: 430px;
+}
+
+/* ---- カード共通シェル ---- */
+.sj-bento {
+  position: relative;
+  overflow: hidden;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 1px solid rgba(10, 37, 64, 0.1);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow:
+    0 2px 5px -1px rgba(50, 50, 93, 0.06),
+    0 1px 3px -1px rgba(0, 0, 0, 0.04);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transform: translate(0, 0) scale(1);
+  transition: transform 240ms ease-out;
+}
+/* DOM 実測: --card-shift-x/y --card-grow-x/y（inline style で各カード固有値） */
+.sj-bento:hover {
+  transform: translate(var(--card-shift-x, 0px), var(--card-shift-y, 0px)) scale(1.008);
+}
+
+.sj-bento__title {
+  position: relative;
+  z-index: 3;
+  margin: 0;
+  padding: 26px 84px 0 30px;
+  max-width: 21em;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.012em;
+  color: var(--sj-navy);
+}
+.sj-bento--payments .sj-bento__title,
+.sj-bento--connect .sj-bento__title {
+  max-width: 26em;
+}
+
+/* expand ボタン ⤢（resting 薄ラベンダー → hover #635BFF 塗り + 白グリフ） */
+.sj-bento__expand {
+  position: absolute;
+  z-index: 4;
+  top: 22px;
+  right: 22px;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #eeedff;
+  color: #635bff;
+  transition:
+    background-color 200ms ease-out,
+    color 200ms ease-out;
+}
+.sj-bento:hover .sj-bento__expand {
+  background: #635bff;
+  color: #fff;
+}
+
+/* 大型カード下辺の gradient border glow（conic 回転で近似、極低速 linear infinite） */
+.sj-bento__glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: 16px;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--sj-glow-angle) at 50% 0%,
+    rgba(255, 79, 159, 0) 0deg,
+    rgba(255, 79, 159, 0.85) 40deg,
+    rgba(122, 115, 255, 0.85) 80deg,
+    rgba(255, 79, 159, 0) 140deg,
+    rgba(255, 79, 159, 0) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: sj-glow-spin 16s linear infinite;
+}
+@keyframes sj-glow-spin {
+  to {
+    --sj-glow-angle: 360deg;
+  }
+}
+
+/* ---- crossfade slot（locale デモ rotation。位置移動なしの opacity crossfade） ---- */
+.sj-xfade {
+  display: grid;
+}
+.sj-xfade > .sj-xfade__item {
+  grid-area: 1 / 1;
+  min-width: 0;
+  opacity: 0;
+  transition: opacity 480ms ease-out;
+  transition-delay: var(--xfade-delay, 0ms);
+}
+.sj-xfade > .sj-xfade__item--active {
+  opacity: 1;
+}
+
+.sj-tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================
+   payments カード
+   ========================================================= */
+.sj-payments__stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.sj-payments__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+}
+.sj-payments__terminal {
+  position: absolute;
+  left: 56px;
+  top: 148px;
+  width: 272px;
+}
+.sj-payments__terminal-frame {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.sj-payments__terminal-screen {
+  position: absolute;
+  left: 9%;
+  right: 9%;
+  top: 5.5%;
+  bottom: 25%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 22px 16px 14px;
+  font-size: 10px;
+  color: var(--sj-navy);
+}
+.sj-payments__tap-icon {
+  align-self: center;
+  color: #061b31;
+  margin-bottom: 14px;
+}
+.sj-payments__pay-label {
+  text-align: center;
+  font-size: 11px;
+  color: #687385;
+}
+.sj-payments__amount {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 2px;
+}
+.sj-payments__message {
+  text-align: center;
+  font-size: 9.5px;
+  color: #9aa7b6;
+  min-height: 24px;
+  margin-top: 4px;
+}
+.sj-payments__details {
+  margin-top: auto;
+  border-top: 1px solid #e6ebf1;
+  padding-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.sj-payments__detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+  color: #425466;
+}
+.sj-payments__detail-row--total {
+  font-weight: 600;
+  color: var(--sj-navy);
+}
+.sj-payments__terminal-btn {
+  margin-top: 10px;
+  border-radius: 6px;
+  padding: 7px 0;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  transition:
+    background-color 480ms ease-out,
+    color 480ms ease-out;
+}
+
+/* browser checkout（カード右端で clip される） */
+.sj-payments__browser {
+  position: absolute;
+  left: 366px;
+  top: 146px;
+  width: 640px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow:
+    0 24px 48px -16px rgba(10, 37, 64, 0.28),
+    0 0 0 1px rgba(10, 37, 64, 0.05);
+  overflow: hidden;
+}
+.sj-browser__bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 14px;
+  background: #fbfcfe;
+  border-bottom: 1px solid #e6ebf1;
+}
+.sj-browser__dots {
+  display: flex;
+  gap: 5px;
+}
+.sj-browser__dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e3e8ee;
+}
+.sj-browser__url {
+  flex: 1;
+  max-width: 320px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f0f4f8;
+  font-size: 10px;
+  color: #667691;
+}
+.sj-payments__brand {
+  padding: 14px 22px;
+  border-bottom: 1px solid #e6ebf1;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+.sj-payments__body {
+  display: grid;
+  grid-template-columns: 1.08fr 1fr;
+}
+.sj-payments__form {
+  padding: 18px 22px 22px;
+}
+.sj-payments__input-label {
+  font-size: 10px;
+  color: #687385;
+  margin-bottom: 4px;
+}
+.sj-payments__input {
+  border: 1px solid #e0e6ec;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 11px;
+  color: #425466;
+  box-shadow: 0 1px 2px rgba(10, 37, 64, 0.04);
+}
+.sj-payments__instant {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+.sj-payments__instant-btn {
+  height: 28px;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+.sj-payments__instant-btn--link {
+  background: #00d66f;
+  color: #011e0f;
+  font-style: italic;
+}
+.sj-payments__instant-btn--apple {
+  background: #000;
+  color: #fff;
+}
+.sj-payments__separator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 12px;
+  font-size: 9.5px;
+  color: #9aa7b6;
+}
+.sj-payments__separator::before,
+.sj-payments__separator::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e6ebf1;
+}
+.sj-payments__methods {
+  border: 1px solid #e6ebf1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.sj-payments__method {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  border-top: 1px solid #e6ebf1;
+  font-size: 11px;
+  color: #425466;
+}
+.sj-payments__method:first-child {
+  border-top: 0;
+}
+.sj-payments__method-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sj-payments__radio {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid #cfd7df;
+  flex: none;
+}
+.sj-payments__method--active .sj-payments__radio {
+  border: 3.5px solid #635bff;
+}
+.sj-payments__method--active {
+  background: #fafbff;
+  font-weight: 600;
+  color: var(--sj-navy);
+}
+.sj-payments__method-detail {
+  padding-left: 20px;
+  font-size: 9.5px;
+  font-weight: 400;
+  color: #687385;
+}
+.sj-payments__pay-btn {
+  margin-top: 14px;
+  border-radius: 6px;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  transition:
+    background-color 480ms ease-out,
+    color 480ms ease-out;
+}
+
+/* 注文概要パネル */
+.sj-payments__summary {
+  border-left: 1px solid #e6ebf1;
+  padding: 18px 22px 22px;
+}
+.sj-payments__summary-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sj-navy);
+  margin-bottom: 12px;
+}
+.sj-payments__product {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border: 1px solid #e6ebf1;
+  border-radius: 8px;
+  padding: 10px;
+}
+.sj-payments__product img {
+  width: 52px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex: none;
+}
+.sj-payments__product-label {
+  font-size: 10.5px;
+  color: #425466;
+  line-height: 1.4;
+}
+.sj-payments__product-price {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--sj-navy);
+  margin-top: 3px;
+}
+.sj-payments__totals {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.sj-payments__total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: #687385;
+}
+.sj-payments__total-row--grand {
+  border-top: 1px solid #e6ebf1;
+  padding-top: 8px;
+  font-weight: 600;
+  color: var(--sj-navy);
+}
+
+/* =========================================================
+   billing カード
+   ========================================================= */
+.sj-billing__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(120% 55% at 85% -8%, #e9f3ff 0%, rgba(233, 243, 255, 0) 60%),
+    radial-gradient(90% 45% at 8% 22%, #f4ecff 0%, rgba(244, 236, 255, 0) 55%),
+    linear-gradient(180deg, #ffffff 46%, #fff4e3 78%, #ffd9a0 100%);
+}
+.sj-billing__panels {
+  position: absolute;
+  z-index: 2;
+  left: 22px;
+  right: 22px;
+  top: 158px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sj-billing__panel {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow:
+    0 6px 16px -4px rgba(10, 37, 64, 0.1),
+    0 0 0 1px rgba(10, 37, 64, 0.03);
+  padding: 16px;
+}
+.sj-billing__plan-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sj-billing__plan-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #f4f1ff;
+  color: #635bff;
+  flex: none;
+}
+.sj-billing__plan-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sj-navy);
+}
+.sj-billing__plan-cadence {
+  font-size: 11px;
+  color: #687385;
+}
+.sj-billing__item {
+  margin-top: 14px;
+}
+.sj-billing__item-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sj-navy);
+}
+.sj-billing__item-details {
+  font-size: 11px;
+  color: #687385;
+  margin-top: 2px;
+}
+.sj-billing__usage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+.sj-billing__usage-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #687385;
+  flex: none;
+}
+.sj-billing__usage-bar {
+  flex: 1;
+  height: 10px;
+  border-radius: 6px;
+  background: #f0f0fb;
+  overflow: hidden;
+}
+.sj-billing__usage-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #cfcaff, #8f86ff);
+  transform-origin: left center;
+  animation: sj-usage-fill 9s linear infinite;
+}
+@keyframes sj-usage-fill {
+  0% {
+    transform: scaleX(0.06);
+  }
+  94% {
+    transform: scaleX(0.97);
+  }
+  100% {
+    transform: scaleX(0.06);
+  }
+}
+.sj-billing__chart-period {
+  font-size: 11px;
+  color: #687385;
+}
+.sj-billing__chart-total {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--sj-navy);
+  margin-top: 2px;
+}
+.sj-billing__chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 150px;
+  margin-top: 14px;
+}
+.sj-billing__bar {
+  flex: 1;
+  min-height: 3px;
+  border-radius: 2px;
+  background: #d6d2ff;
+  height: calc(var(--bar-scale, 0.1) * 100%);
+  transition: height 420ms ease-out;
+}
+
+/* token odometer（桁別 縦 slot roll） */
+.sj-odo {
+  display: inline-flex;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+.sj-odo__digit {
+  display: block;
+  overflow: hidden;
+  height: 1.25em;
+}
+.sj-odo__reel {
+  display: block;
+  transition: transform 950ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.sj-odo__reel span {
+  display: block;
+  height: 1.25em;
+  line-height: 1.25em;
+}
+.sj-odo__sep {
+  display: block;
+  height: 1.25em;
+  line-height: 1.25em;
+}
+
+/* =========================================================
+   agentic commerce カード
+   ========================================================= */
+.sj-agentic__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+}
+.sj-agentic__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: sj-particle-drift 28s ease-in-out infinite;
+}
+@keyframes sj-particle-drift {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.05) rotate(1.4deg);
+  }
+}
+.sj-agentic__chat {
+  position: absolute;
+  z-index: 2;
+  left: 30px;
+  right: 30px;
+  top: 168px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sj-agentic__bubble {
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 11px;
+  line-height: 1.55;
+  color: #2f3f53;
+}
+.sj-agentic__bubble--user {
+  background: #eef2f6;
+  margin-left: 36px;
+}
+.sj-agentic__bubble--agent {
+  background: #fff;
+  box-shadow: 0 4px 12px -4px rgba(10, 37, 64, 0.12);
+  margin-right: 36px;
+}
+.sj-agentic__products {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px -8px rgba(10, 37, 64, 0.16);
+  padding: 12px;
+  margin-inline: 12px;
+}
+.sj-agentic__products-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.sj-agentic__product-image {
+  background: #f6f9fc;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+}
+.sj-agentic__product-image img {
+  width: 100%;
+  height: 76px;
+  object-fit: contain;
+}
+.sj-agentic__product-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sj-navy);
+  margin-top: 8px;
+}
+.sj-agentic__product-variant {
+  font-size: 10px;
+  color: rgba(99, 91, 255, 0.8);
+  margin-top: 1px;
+}
+.sj-agentic__product-price {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sj-navy);
+  margin-top: 6px;
+}
+.sj-agentic__product-brand {
+  font-size: 10px;
+  color: #9aa7b6;
+  margin-top: 2px;
+}
+.sj-agentic__cta {
+  margin-top: 10px;
+  border-radius: 8px;
+  background: #f6f9fc;
+  text-align: center;
+  padding: 9px 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #5469d4;
+}
+
+/* =========================================================
+   issuing カード（カード柄 crossfade サイクル）
+   ========================================================= */
+.sj-issuing__scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  padding-top: 56px;
+}
+.sj-issuing__card {
+  position: relative;
+  width: 224px;
+  height: 354px;
+  border-radius: 18px;
+  display: grid;
+  box-shadow: 0 28px 56px -18px rgba(50, 50, 93, 0.4);
+}
+.sj-issuing__face {
+  grid-area: 1 / 1;
+  border-radius: 18px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 600ms ease;
+  position: relative;
+}
+.sj-issuing__face--active {
+  opacity: 1;
+}
+.sj-issuing__face--purple {
+  background:
+    radial-gradient(90% 50% at 10% 28%, rgba(255, 210, 236, 0.9) 0%, rgba(255, 210, 236, 0) 60%),
+    radial-gradient(110% 60% at 90% 62%, rgba(249, 185, 127, 0.85) 0%, rgba(249, 185, 127, 0) 55%),
+    linear-gradient(200deg, #ffd9ef 0%, #d9a8ff 26%, #9c86ff 48%, #8a7bf0 58%, #f6b88e 80%, #ffffff 94%);
+}
+.sj-issuing__face--white {
+  background: linear-gradient(210deg, #ffffff 0%, #f6f4f6 55%, #efeaf2 100%);
+  box-shadow: inset 0 0 0 1px rgba(10, 37, 64, 0.06);
+}
+.sj-issuing__chip-row {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.sj-issuing__visa {
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+  font-size: 19px;
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  color: #1a1f71;
+}
+
+/* =========================================================
+   crypto カード
+   ========================================================= */
+.sj-crypto__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.sj-crypto__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sj-crypto__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.sj-crypto__badge {
+  position: absolute;
+  left: 50%;
+  top: 35%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #0a2540;
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: 0 10px 24px -8px rgba(10, 37, 64, 0.5);
+}
+.sj-crypto__badge-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: #7a73ff;
+  display: grid;
+  place-items: center;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   connect カード
+   ========================================================= */
+.sj-connect__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.sj-connect__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sj-connect__browser {
+  position: absolute;
+  z-index: 2;
+  left: 420px;
+  right: 36px;
+  top: 36px;
+  height: 358px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow:
+    0 24px 48px -16px rgba(10, 37, 64, 0.3),
+    0 0 0 1px rgba(10, 37, 64, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.sj-connect__page {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 116px 1fr;
+  min-height: 0;
+}
+.sj-connect__sidebar {
+  border-right: 1px solid #e6ebf1;
+  padding: 14px 12px;
+}
+.sj-connect__sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sj-navy);
+}
+.sj-connect__sidebar-logo i {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffb45c, #ff6118);
+  flex: none;
+}
+.sj-connect__sidebar-nav {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sj-connect__sidebar-nav span {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: #e8edf3;
+}
+.sj-connect__main {
+  padding: 14px 18px;
+  min-width: 0;
+  overflow: hidden;
+}
+.sj-connect__dash-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sj-navy);
+}
+.sj-connect__table-head,
+.sj-connect__row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 0.95fr 1fr;
+  gap: 8px;
+  align-items: center;
+}
+.sj-connect__table-head {
+  margin-top: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e6ebf1;
+  font-size: 10px;
+  color: #687385;
+}
+.sj-connect__row {
+  padding-block: 5px;
+  border-bottom: 1px solid #f0f4f8;
+  font-size: 10.5px;
+  color: #425466;
+  border-radius: 4px;
+  transition: background-color 420ms ease-out;
+}
+.sj-connect__row--active {
+  background: #f5f3ff;
+}
+.sj-connect__account {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--sj-navy);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sj-connect__account i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: none;
+}
+.sj-connect__amount {
+  text-align: right;
+}
+
+/* 浮遊 payment card（merchant rotation） */
+.sj-connect__paycard {
+  position: absolute;
+  z-index: 3;
+  left: 150px;
+  top: 64px;
+  width: 268px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow:
+    0 28px 64px -16px rgba(10, 37, 64, 0.38),
+    0 0 0 1px rgba(10, 37, 64, 0.04);
+  padding: 16px;
+}
+.sj-connect__merchant {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sj-navy);
+}
+.sj-connect__merchant-logo {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  flex: none;
+}
+.sj-connect__screen {
+  margin-top: 12px;
+  min-height: 196px;
+}
+.sj-connect__screen-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sj-navy);
+}
+.sj-connect__screen-sub {
+  font-size: 10.5px;
+  color: #687385;
+  margin-top: 2px;
+  line-height: 1.5;
+}
+.sj-connect__order-rows {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sj-connect__order-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10.5px;
+  color: #425466;
+}
+.sj-connect__order-note {
+  color: #635bff;
+  font-size: 9.5px;
+  margin-left: 4px;
+}
+.sj-connect__order-row--total {
+  border-top: 1px solid #e6ebf1;
+  padding-top: 8px;
+  font-weight: 600;
+  color: var(--sj-navy);
+}
+.sj-connect__pm-list {
+  margin-top: 10px;
+  border: 1px solid #e6ebf1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.sj-connect__pm {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border-top: 1px solid #e6ebf1;
+  font-size: 10.5px;
+  color: #425466;
+}
+.sj-connect__pm:first-child {
+  border-top: 0;
+}
+.sj-connect__pm i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid #cfd7df;
+  flex: none;
+}
+.sj-connect__pm--active i {
+  border: 3px solid #635bff;
+}
+.sj-connect__pay-btn {
+  margin-top: 12px;
+  border-radius: 6px;
+  background: var(--sj-navy);
+  color: #fff;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 11px;
+  font-weight: 600;
+}
+.sj-connect__thanks-rows {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.sj-connect__thanks-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10.5px;
+  color: #687385;
+}
+.sj-connect__thanks-row strong {
+  color: var(--sj-navy);
+  font-weight: 600;
+}
+.sj-connect__link-pill {
+  background: #00d66f;
+  color: #011e0f;
+  font-size: 9px;
+  font-weight: 700;
+  font-style: italic;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+/* 接続線 + 金額 pill（入金フロー演出） */
+.sj-connect__flow {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 420ms ease-out;
+}
+.sj-connect__flow--active {
+  opacity: 1;
+}
+.sj-connect__pill {
+  position: absolute;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow:
+    0 8px 20px -6px rgba(10, 37, 64, 0.35),
+    0 0 0 1px rgba(10, 37, 64, 0.06);
+  padding: 4px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--sj-navy);
+  transform: scale(0.6);
+  transition: transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.sj-connect__flow--active .sj-connect__pill {
+  transform: scale(1);
+}
+
+/* ---- 簡易 responsive（mobile fallback） ---- */
+@media (max-width: 920px) {
+  .sj-bento-grid {
+    grid-template-columns: 1fr;
+  }
+  .sj-bento--payments,
+  .sj-bento--connect {
+    grid-column: auto;
+  }
+  .sj-payments__browser,
+  .sj-connect__browser,
+  .sj-connect__flow {
+    display: none;
+  }
+  .sj-payments__terminal {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .sj-connect__paycard {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .sj-bento--connect {
+    height: 560px;
+  }
+}
+
+/* ---- reduced motion: 常時アニメ停止 ---- */
+@media (prefers-reduced-motion: reduce) {
+  .sj-bento,
+  .sj-bento:hover {
+    transform: none;
+    transition: none;
+  }
+  .sj-bento__glow,
+  .sj-billing__usage-fill,
+  .sj-agentic__bg img {
+    animation: none;
+  }
+  .sj-xfade > .sj-xfade__item,
+  .sj-odo__reel,
+  .sj-billing__bar,
+  .sj-issuing__face {
+    transition: none;
+  }
+}

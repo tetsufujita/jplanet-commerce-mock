@@ -1,0 +1,365 @@
+{
+  "sections": [
+    {
+      "tag": "SECTION",
+      "cls": "hds-color-mode hero-section-container section section--white hds-mode--light",
+      "top": 76,
+      "height": 685,
+      "heading": "事業成長を支える金融インフラ。 決済から組込み型金融、エージェンティックコマースまで、企業の収益最大化を支援。"
+    },
+    {
+      "tag": "SECTION",
+      "cls": "hds-color-mode section section--white hds-mode--light",
+      "top": 761,
+      "height": 2231,
+      "heading": "ビジネスの形態を問わない、柔軟なプラットフォーム。"
+    },
+    {
+      "tag": "SECTION",
+      "cls": "hds-color-mode section section--white hds-mode--light",
+      "top": 2992,
+      "height": 560,
+      "heading": "専門スタッフによる包括的な日本語サポート。"
+    },
+    {
+      "tag": "SECTION",
+      "cls": "hds-color-mode stats-section stats-section--time-sunrise section section--white ",
+      "top": 3552,
+      "height": 977,
+      "heading": "グローバルなコマースを 支える基盤"
+    },
+    {
+      "tag": "SECTION",
+      "cls": "hds-color-mode business-sizes-section section section--white hds-mode--light",
+      "top": 4529,
+      "height": 4665,
+      "heading": "あらゆるビジネスに対応。"
+    },
+    {
+      "tag": "SECTION",
+      "cls": "hds-color-mode section hds-mode--dark",
+      "top": 9194,
+      "height": 2344,
+      "heading": "あらゆる技術スタックに、信頼と拡張性を。"
+    },
+    {
+      "tag": "SECTION",
+      "cls": "hds-color-mode section section--white hds-mode--light",
+      "top": 11538,
+      "height": 1801,
+      "heading": "Stripe の最前線"
+    },
+    {
+      "tag": "SECTION",
+      "cls": "hds-color-mode section hds-mode--light",
+      "top": 13339,
+      "height": 383,
+      "heading": null
+    }
+  ],
+  "type": {
+    "h1": {
+      "text": "事業成長を支える金融インフラ。 決済から組込み型金融、エージェンティックコマースまで、企業の収益最大化を支援。",
+      "fontFamily": "sohne-var",
+      "fontSize": "44px",
+      "fontWeight": "300",
+      "lineHeight": "50.6px",
+      "letterSpacing": "-0.88px",
+      "color": "rgb(129, 184, 26)",
+      "background": "rgba(0, 0, 0, 0)",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "transition": "all",
+      "transform": "none"
+    },
+    "h2": [
+      {
+        "text": "ビジネスの形態を問わない、柔軟なプラットフォーム。",
+        "fontFamily": "sohne-var",
+        "fontSize": "32px",
+        "fontWeight": "300",
+        "lineHeight": "35.2px",
+        "letterSpacing": "-0.64px",
+        "color": "rgb(6, 27, 49)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "transition": "all",
+        "transform": "none"
+      },
+      {
+        "text": "グローバルなコマースを 支える基盤",
+        "fontFamily": "sohne-var",
+        "fontSize": "56px",
+        "fontWeight": "300",
+        "lineHeight": "57.68px",
+        "letterSpacing": "-1.4px",
+        "color": "rgb(6, 27, 49)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "transition": "color 1.2s cubic-bezier(0.65, 0, 0.35, 1)",
+        "transform": "none"
+      },
+      {
+        "text": "あらゆるビジネスに対応。",
+        "fontFamily": "sohne-var",
+        "fontSize": "32px",
+        "fontWeight": "300",
+        "lineHeight": "35.2px",
+        "letterSpacing": "-0.64px",
+        "color": "rgb(6, 27, 49)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "transition": "all",
+        "transform": "none"
+      },
+      {
+        "text": "あらゆる技術スタックに、信頼と拡張性を。",
+        "fontFamily": "sohne-var",
+        "fontSize": "32px",
+        "fontWeight": "300",
+        "lineHeight": "35.2px",
+        "letterSpacing": "-0.64px",
+        "color": "rgb(255, 255, 255)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "transition": "all",
+        "transform": "none"
+      },
+      {
+        "text": "Stripe の最前線",
+        "fontFamily": "sohne-var",
+        "fontSize": "32px",
+        "fontWeight": "300",
+        "lineHeight": "35.2px",
+        "letterSpacing": "-0.64px",
+        "color": "rgb(6, 27, 49)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "transition": "all",
+        "transform": "none"
+      }
+    ],
+    "body": {
+      "fontFamily": "sohne-var",
+      "fontSize": "32px",
+      "fontWeight": "300",
+      "lineHeight": "35.2px",
+      "letterSpacing": "-0.64px",
+      "color": "rgb(100, 116, 141)",
+      "background": "rgba(0, 0, 0, 0)",
+      "borderRadius": "0px",
+      "padding": "0px",
+      "transition": "all",
+      "transform": "none"
+    }
+  },
+  "buttons": [
+    {
+      "text": "料金体系",
+      "fontFamily": "sohne-var",
+      "fontSize": "14px",
+      "fontWeight": "600",
+      "lineHeight": "14px",
+      "letterSpacing": "normal",
+      "color": "rgb(6, 27, 49)",
+      "background": "rgba(0, 0, 0, 0)",
+      "borderRadius": "4px",
+      "padding": "12px 0px",
+      "transition": "color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), background-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), border-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95)",
+      "transform": "none"
+    },
+    {
+      "text": "サインイン",
+      "fontFamily": "sohne-var",
+      "fontSize": "14px",
+      "fontWeight": "600",
+      "lineHeight": "14px",
+      "letterSpacing": "normal",
+      "color": "rgb(6, 27, 49)",
+      "background": "rgba(0, 0, 0, 0)",
+      "borderRadius": "4px",
+      "padding": "12px 0px",
+      "transition": "color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), background-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), border-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95)",
+      "transform": "none"
+    },
+    {
+      "text": "今すぐ始める",
+      "fontFamily": "sohne-var",
+      "fontSize": "16px",
+      "fontWeight": "600",
+      "lineHeight": "16px",
+      "letterSpacing": "normal",
+      "color": "rgb(255, 255, 255)",
+      "background": "rgb(83, 58, 253)",
+      "borderRadius": "4px",
+      "padding": "15.5px 24px 16.5px",
+      "transition": "background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s cubic-bezier(0.25, 1, 0.5, 1), border 0.3s cubic-bezier(0.25, 1, 0.5, 1)",
+      "transform": "none"
+    },
+    {
+      "text": "営業にお問い合わせ",
+      "fontFamily": "sohne-var",
+      "fontSize": "16px",
+      "fontWeight": "600",
+      "lineHeight": "16px",
+      "letterSpacing": "normal",
+      "color": "rgb(83, 58, 253)",
+      "background": "rgba(255, 255, 255, 0)",
+      "borderRadius": "4px",
+      "padding": "14.5px 24px 15.5px",
+      "transition": "background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s cubic-bezier(0.25, 1, 0.5, 1), border 0.3s cubic-bezier(0.25, 1, 0.5, 1)",
+      "transform": "none"
+    },
+    {
+      "text": "サインインサインイン",
+      "fontFamily": "sohne-var",
+      "fontSize": "14px",
+      "fontWeight": "600",
+      "lineHeight": "14px",
+      "letterSpacing": "normal",
+      "color": "rgb(83, 58, 253)",
+      "background": "rgba(0, 0, 0, 0)",
+      "borderRadius": "4px",
+      "padding": "10.5px 20px 13.5px",
+      "transition": "color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), background-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), border-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95)",
+      "transform": "none"
+    },
+    {
+      "text": "営業にお問い合わせ",
+      "fontFamily": "sohne-var",
+      "fontSize": "14px",
+      "fontWeight": "600",
+      "lineHeight": "14px",
+      "letterSpacing": "normal",
+      "color": "rgb(255, 255, 255)",
+      "background": "rgb(83, 58, 253)",
+      "borderRadius": "4px",
+      "padding": "15.5px 20px 16.5px",
+      "transition": "color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), background-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), border-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95)",
+      "transform": "none"
+    },
+    {
+      "text": "始める",
+      "fontFamily": "sohne-var",
+      "fontSize": "16px",
+      "fontWeight": "600",
+      "lineHeight": "16px",
+      "letterSpacing": "normal",
+      "color": "rgb(255, 255, 255)",
+      "background": "rgb(83, 58, 253)",
+      "borderRadius": "4px",
+      "padding": "15.5px 24px 16.5px",
+      "transition": "background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s cubic-bezier(0.25, 1, 0.5, 1), border 0.3s cubic-bezier(0.25, 1, 0.5, 1)",
+      "transform": "none"
+    },
+    {
+      "text": "Google で登録",
+      "fontFamily": "sohne-var",
+      "fontSize": "16px",
+      "fontWeight": "600",
+      "lineHeight": "16px",
+      "letterSpacing": "normal",
+      "color": "rgb(83, 58, 253)",
+      "background": "rgba(255, 255, 255, 0.65)",
+      "borderRadius": "4px",
+      "padding": "14.5px 24px 15.5px",
+      "transition": "background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s cubic-bezier(0.25, 1, 0.5, 1), border 0.3s cubic-bezier(0.25, 1, 0.5, 1)",
+      "transform": "none"
+    }
+  ],
+  "header": {
+    "fontFamily": "sohne-var",
+    "fontSize": "16px",
+    "fontWeight": "400",
+    "lineHeight": "normal",
+    "letterSpacing": "normal",
+    "color": "rgb(0, 0, 0)",
+    "background": "rgba(0, 0, 0, 0)",
+    "borderRadius": "0px",
+    "padding": "0px",
+    "transition": "all",
+    "transform": "none",
+    "height": 76
+  },
+  "navItems": [
+    {
+      "text": "",
+      "transition": "opacity 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95)"
+    },
+    {
+      "text": "サービス",
+      "transition": "color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), background-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), border-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95)"
+    },
+    {
+      "text": "ソリューション",
+      "transition": "color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), background-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), border-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95)"
+    },
+    {
+      "text": "開発者",
+      "transition": "color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), background-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), border-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95)"
+    },
+    {
+      "text": "リソース",
+      "transition": "color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), background-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), border-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95)"
+    },
+    {
+      "text": "料金体系",
+      "transition": "color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), background-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), border-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95)"
+    },
+    {
+      "text": "サインイン",
+      "transition": "color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), background-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95), border-color 0.24s cubic-bezier(0.45, 0.05, 0.55, 0.95)"
+    },
+    {
+      "text": "今すぐ始める",
+      "transition": "background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s cubic-bezier(0.25, 1, 0.5, 1), border 0.3s cubic-bezier(0.25, 1, 0.5, 1)"
+    },
+    {
+      "text": "営業にお問い合わせ",
+      "transition": "background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s cubic-bezier(0.25, 1, 0.5, 1), border 0.3s cubic-bezier(0.25, 1, 0.5, 1)"
+    },
+    {
+      "text": "戻る",
+      "transition": "background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s cubic-bezier(0.25, 1, 0.5, 1), border 0.3s cubic-bezier(0.25, 1, 0.5, 1)"
+    }
+  ],
+  "cssAnimations": [
+    {
+      "cls": "hds-navigation-menu navigation-menu navigation-menu--homepag",
+      "name": "detect-scroll",
+      "duration": "auto",
+      "timing": "linear",
+      "iteration": "1"
+    },
+    {
+      "cls": "book-of-the-week__picture book-of-the-week__image-placeholde",
+      "name": "book-of-the-week-fade-in",
+      "duration": "0.5s",
+      "timing": "cubic-bezier(0.33, 1, 0.68, 1)",
+      "iteration": "1"
+    },
+    {
+      "cls": "book-of-the-week__content",
+      "name": "book-of-the-week-fade-in",
+      "duration": "0.5s",
+      "timing": "cubic-bezier(0.33, 1, 0.68, 1)",
+      "iteration": "1"
+    }
+  ],
+  "canvases": [
+    {
+      "w": 1232,
+      "h": 460,
+      "top": 11768.53125,
+      "cls": "squeezy-carousel__canvas"
+    }
+  ],
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "pageHeight": 14756,
+  "megamenuOpen": []
+}

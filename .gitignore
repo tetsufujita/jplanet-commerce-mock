@@ -53,3 +53,16 @@ yarn-error.log*
 # Claude Code session local (do not check into repo)
 .claude/settings.local.json
 .claude/sessions/
+
+# Reproduction & generation artifacts — heavy media / frame dumps（再生成可能・追跡しない）
+# 残すもの: design/reproductions/**/*.md と *.json（実測 spec）, public/** の配信アセット
+design/reproductions/**/*.png
+design/reproductions/**/*.jpg
+design/reproductions/**/*.jpeg
+design/reproductions/**/*.webp
+design/reproductions/**/*.gif
+design/reproductions/**/*.mov
+design/reproductions/**/*.mp4
+design/reproductions/**/*.webm
+design/reproductions/**/*-dom.html
+design/reference/higgsfield-req/

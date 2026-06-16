@@ -1,0 +1,408 @@
+/* SjHeader.css — §0 Header + megamenu 専用 style
+   実測: panel x89 / y71 / w1262、open 400ms cubic-bezier(0.4,0,0.2,1)、
+   close ≤336ms fade、trigger 退色 rgb(6,27,49) → rgb(100,116,141) */
+
+.sj-header {
+  position: relative;
+  z-index: 40;
+  height: 71px;
+  background: transparent; /* 実測 headerBg = rgba(0,0,0,0)、megamenu open 中も透過 */
+}
+
+.sj-header__container {
+  max-width: 1294px; /* 1262 + padding 16×2 → 1440vw で左右 89px 一致 */
+  height: 100%;
+  margin-inline: auto;
+  padding-inline: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.sj-header__logo {
+  display: inline-flex;
+  align-items: center;
+  color: #061b31;
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+
+/* ===== nav ===== */
+
+.sj-nav-list {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sj-nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  color: #061b31;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+  /* siblings 退色: 実測 rgb(6,27,49) → rgb(100,116,141)、≤333ms */
+  transition: color 250ms ease;
+}
+
+.sj-nav-item.is-faded {
+  color: #64748d;
+}
+
+.sj-nav-item__chevron {
+  display: block;
+  transition: transform 250ms ease; /* open と同期して ∨→∧ 180° */
+}
+
+.sj-nav-item[aria-expanded="true"] .sj-nav-item__chevron {
+  transform: rotate(180deg);
+}
+
+/* ===== 右側ボタン ===== */
+
+.sj-header__buttons {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+}
+
+/* サインイン: 本家と同じ SVG mask 方式（白 pill、文字部分をくり抜いて背景を透かす） */
+.sj-signin {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 17px;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  color: inherit;
+}
+
+.sj-signin__mask {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.sj-signin__mask text {
+  font-size: 15px;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+/* 文字くり抜きの下敷き tint。hover で文字濃化（輝度 100→72 相当） */
+.sj-signin__tint {
+  opacity: 0.1;
+  transition: opacity 500ms ease; /* 戻りは遅い余韻（実測 400–600ms） */
+}
+
+.sj-signin:hover .sj-signin__tint {
+  opacity: 0.3;
+  transition-duration: 150ms;
+}
+
+/* megamenu open 中: 背後が白 veil になり cutout 文字が消えるため tint を濃くする
+   （原本実測: open 中も薄スレートで読める） */
+.sj-header--open .sj-signin__tint {
+  opacity: 0.38;
+}
+
+.sj-signin::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(6, 27, 49, 0.1);
+  transition: box-shadow 500ms ease;
+  pointer-events: none;
+}
+
+.sj-signin:hover::after {
+  box-shadow: inset 0 0 0 1px rgba(6, 27, 49, 0.4); /* border 濃化 */
+  transition-duration: 150ms;
+}
+
+.sj-signin__measure {
+  visibility: hidden;
+  white-space: nowrap;
+}
+
+/* 営業にお問い合わせ: blurple pill */
+.sj-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 17px;
+  background: var(--sj-blurple, #635bff);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 250ms ease;
+}
+
+.sj-btn-primary:hover {
+  background: rgb(83, 68, 203); /* 実測 hover darken */
+}
+
+/* hover arrow（Stripe シグネチャー: › に軸線 fade-in で → 化） */
+.sj-arrow {
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.sj-arrow__bar {
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.sj-arrow__tip {
+  transition: transform 200ms ease-out;
+}
+
+.sj-btn-primary:hover .sj-arrow__bar {
+  opacity: 1;
+}
+
+.sj-btn-primary:hover .sj-arrow__tip {
+  transform: translateX(1.5px);
+}
+
+/* ===== veil（megamenu open 中の白幕、最終 opacity は Motion 側で 0.85） ===== */
+
+.sj-veil {
+  position: fixed;
+  inset: 0;
+  z-index: -1; /* header stacking context 内で背面 = page より前・panel より後 */
+  background: #fff;
+  pointer-events: none;
+}
+
+/* ===== megamenu panel ===== */
+
+.sj-megamenu-pos {
+  position: absolute;
+  top: 71px; /* 実測 panel y=71 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1262px, calc(100vw - 32px)); /* 実測 w=1262 @1440 */
+}
+
+.sj-megamenu-panel {
+  position: relative; /* AnimatePresence popLayout の anchor */
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden; /* 上端 anchor の下方向 clip 展開（scale 変形しない） */
+  box-shadow:
+    0 24px 48px -12px rgba(50, 50, 93, 0.25),
+    0 12px 24px -12px rgba(0, 0, 0, 0.2);
+  will-change: height;
+}
+
+.sj-megamenu-content {
+  width: 100%;
+}
+
+/* ---- 共通: 列見出し / リンク / 説明 ---- */
+
+.sj-pheading {
+  margin: 0 0 16px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #596778;
+}
+
+.sj-pheading--rule {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #ebeef1;
+}
+
+.sj-plist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sj-plist > li {
+  margin-bottom: 16px;
+}
+
+.sj-plist > li:last-child {
+  margin-bottom: 0;
+}
+
+.sj-plink {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--sj-blurple, #635bff);
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.sj-plink:hover {
+  color: #0a2540;
+}
+
+.sj-pdesc {
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #425466;
+}
+
+/* ---- サービス panel: 4 列 + 右 aside（h≈654） ---- */
+
+.sj-panel--products {
+  display: flex;
+  align-items: stretch;
+}
+
+.sj-panel__main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: 32px;
+  padding: 19px 32px 7px; /* 実測原本 h=654: 26→19 top (-7), 14→7 bottom (-7) = -14px */
+}
+
+.sj-panel__aside {
+  width: 268px;
+  flex-shrink: 0;
+  background: #f6f9fc;
+  border-left: 1px solid #ebeef1;
+  padding: 19px 24px 19px; /* top/bottom match sj-panel__main の pt/pb */
+}
+
+/* Sessions card（thumbnail 実 URL は snapshot 未取得 → gradient placeholder） */
+.sj-sessions-card {
+  margin-top: 16px;
+  background: #fff;
+  border: 1px solid #e6e9ec;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.sj-sessions-card__thumb {
+  display: block;
+  width: 100%;
+  height: 88px;
+  border-radius: 4px;
+  object-fit: cover;
+  /* fallback（画像ロード前）: 原本写真のトーンに近い gradient */
+  background:
+    radial-gradient(120% 140% at 80% 10%, rgba(255, 184, 107, 0.9), transparent 55%),
+    radial-gradient(140% 120% at 15% 90%, rgba(99, 91, 255, 0.85), transparent 60%),
+    linear-gradient(120deg, #7a3df0, #e75a7c 60%, #ff8a5c);
+}
+
+.sj-sessions-card__title {
+  margin: 10px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0a2540;
+}
+
+.sj-sessions-card__desc {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #425466;
+}
+
+.sj-sessions-card__link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sj-blurple, #635bff);
+  text-decoration: none;
+}
+
+.sj-sessions-card__link:hover {
+  color: #0a2540;
+}
+
+/* ---- ソリューション / 開発者 / リソース panel: 等幅列 + 縦罫 + 末列 tint ---- */
+
+.sj-panel--cols {
+  display: grid;
+}
+
+.sj-gcol {
+  padding: 32px 32px 48px;
+}
+
+.sj-gcol--sep {
+  border-left: 1px solid #ebeef1;
+}
+
+.sj-gcol--tint {
+  background: #f6f9fc;
+}
+
+.sj-gcol .sj-pheading {
+  margin-bottom: 24px;
+}
+
+.sj-gcol .sj-plist > li {
+  margin-bottom: 11px;
+}
+
+/* ===== hamburger（mobile のみ表示。drawer は再現対象外） ===== */
+
+.sj-hamburger {
+  display: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-left: 4px;
+  cursor: pointer;
+  color: #061b31;
+}
+
+.sj-hamburger rect {
+  fill: currentColor;
+}
+
+@media (max-width: 899px) {
+  .sj-nav-list,
+  .sj-megamenu-pos,
+  .sj-signin {
+    display: none;
+  }
+
+  .sj-hamburger {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sj-header *,
+  .sj-header *::after {
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -12,6 +12,15 @@
   --font-sans: "Noto Sans JP", system-ui, sans-serif;
   --font-display: "Source Serif 4", "Noto Serif JP", Georgia, serif;
   --ease-andes: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* shopify-jp study reproduction (src/shopify-jp/) — sp- prefix, 本サイトでは使わない */
+  --color-sp-dark: #02090a;
+  --color-sp-navy: #000a1e;
+  --color-sp-pine: #041e18;
+  --color-sp-green: #061a1c;
+  --color-sp-avocado: #36f4a4;
+  --color-sp-gray: #9dabad;
+  --ease-sp: cubic-bezier(0.5, 0, 0.5, 1);
 }
 
 @layer base {

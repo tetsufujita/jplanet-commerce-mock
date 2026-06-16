@@ -1,0 +1,1013 @@
+/* §5 あらゆるビジネスに対応。 — SjUseCases 専用スタイル
+   実測根拠: specs/00-section-map.md §5 / specs/01-motion-spec.md（5a/5b/5c 行 + §4 実装メモ）
+   duration token: hover 200ms ease-out / 開閉 500ms / build-in 450ms ease-out */
+
+.sj-uc {
+  padding-block: 104px 8px;
+  background: #fff;
+}
+
+/* ---------- section title ---------- */
+
+/* 実測: 本家 h2 = 32px / w300 / lh35.2（specs h2 と §5 行間 36px 実測一致） */
+.sj-uc-h2 {
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 1.15;
+  letter-spacing: -0.64px;
+  color: var(--sj-navy);
+  max-width: 880px;
+}
+
+.sj-uc-h2__subdued {
+  color: #6b7c94;
+  font-weight: 300;
+}
+
+.sj-uc__header-divider {
+  margin-top: 56px;
+  border-top: 1px solid #e6ebf1;
+}
+
+/* ---------- 共通: 小見出し / ボタン / リンク / arrow ---------- */
+
+/* 実測: divider→h3 = 64px / 下 72px */
+.sj-uc-sub {
+  padding-block: 64px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.sj-uc-subheader {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 2fr) minmax(0, 5fr);
+  align-items: start;
+}
+
+.sj-uc-subheader__primary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.sj-uc-h3 {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--sj-navy);
+}
+
+.sj-uc-subheader__description {
+  grid-column: 3;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--sj-slate);
+}
+
+@media (max-width: 880px) {
+  .sj-uc-subheader {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .sj-uc-subheader__description {
+    grid-column: 1;
+  }
+}
+
+/* 実測: 本家 CTA pill は高さ 48px（fullpage Y4907–4955 / 6486–6534 / 7701–7749） */
+.sj-uc-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--sj-blurple);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 16px 22px;
+  border-radius: 9999px;
+  white-space: nowrap;
+  transition: background-color 200ms ease-out;
+}
+
+.sj-uc-btn-primary:hover {
+  background: #5344cb;
+}
+
+.sj-uc-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--sj-blurple);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.sj-uc-link:hover {
+  color: var(--sj-navy);
+}
+
+/* hover arrow（Stripe シグネチャー）: 軸線 fade-in + 1px 右シフト、200ms ease-out */
+.sj-uc-arrow {
+  flex: none;
+  transition: transform 200ms ease-out;
+}
+
+.sj-uc-arrow__stem {
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.sj-uc-hoverlink:hover .sj-uc-arrow {
+  transform: translateX(1.5px);
+}
+
+.sj-uc-hoverlink:hover .sj-uc-arrow__stem {
+  opacity: 1;
+}
+
+/* 部間 divider（本家 canvas.divider-canvas 1264×20 の line 代替） */
+.sj-uc-divider {
+  height: 1px;
+  background: linear-gradient(90deg, #e6ebf1, #d8dee4 50%, #e6ebf1);
+}
+
+/* ---------- 3 カラム feature ---------- */
+
+.sj-uc-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+}
+
+@media (max-width: 880px) {
+  .sj-uc-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sj-uc-feature {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 実測: charm box は 40px（fullpage Y6081–6121 / Y8417–8457） */
+.sj-uc-feature__charm {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #f6f9fc;
+  border: 1px solid #e6ebf1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sj-uc-feature__content {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--sj-slate);
+}
+
+.sj-uc-feature__content h4 {
+  display: inline;
+  font-weight: 600;
+  color: var(--sj-navy);
+}
+
+.sj-uc-feature__content p {
+  display: inline;
+}
+
+/* ---------- 5a 導入事例アコーディオン ---------- */
+
+.sj-uc-stories {
+  display: flex;
+  flex-direction: column;
+}
+
+.sj-uc-stories__customer + .sj-uc-stories__customer {
+  border-top: 1px solid #e6ebf1;
+}
+
+.sj-uc-stories__summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-block: 16px;
+}
+
+.sj-uc-stories__logo {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  border: 1px solid rgba(10, 37, 64, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.sj-uc-stories__summary-button {
+  flex: 1;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sj-uc-stories__summary-title {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--sj-navy);
+  line-height: 1.5;
+}
+
+/* 開閉式「事例を表示」ボタン: width + text/icon opacity 入替（00-map §5） */
+.sj-uc-story-btn {
+  display: block;
+  height: 32px;
+  border-radius: 9999px;
+  background: #f0efff;
+  color: var(--sj-blurple);
+  overflow: hidden;
+  transition: width 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  white-space: nowrap;
+}
+
+.sj-uc-story-btn:hover {
+  background: #e3e1ff;
+}
+
+.sj-uc-story-btn__container {
+  position: relative;
+  display: block;
+  height: 100%;
+  transition: width 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.sj-uc-story-btn__text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: opacity 200ms ease-out;
+}
+
+.sj-uc-story-btn__icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 200ms ease-out;
+}
+
+/* アコーディオン本体: --max-height 開閉（本家 inline --max-height: 625px / 0px 相当） */
+.sj-uc-stories__content {
+  overflow: hidden;
+  transition: max-height 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 実測: 本家展開画像は 1264×531（asset 比 2460:1060 より縦長に crop）→ 高さ 531 相当の比で再現 */
+.sj-uc-stories__image {
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 1048 / 531;
+}
+
+.sj-uc-stories__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sj-uc-stories__data {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  padding-block: 20px 28px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--sj-slate);
+}
+
+.sj-uc-stories__stat strong {
+  color: var(--sj-navy);
+  font-weight: 600;
+}
+
+@media (max-width: 880px) {
+  .sj-uc-stories__data {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+/* 実測: 最終事例行→title = 140px / title→charm = 64px */
+.sj-uc-experts {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  margin-top: 16px;
+}
+
+.sj-uc-experts__title {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--sj-navy);
+  max-width: 560px;
+}
+
+/* ---------- 5b スタートアップ carousel ---------- */
+
+/* 実測: header CTA→nav = 24px（sub gap 48 を相殺）/ nav→カード = 32px */
+.sj-uc-carousel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: -24px;
+}
+
+.sj-uc-carousel__nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.sj-uc-carousel__nav-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sj-blurple);
+  background: #f0efff;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease-out,
+    color 200ms ease-out;
+}
+
+.sj-uc-carousel__nav-btn:hover:not(:disabled) {
+  background: #e3e1ff;
+}
+
+.sj-uc-carousel__nav-btn:disabled {
+  color: #a3acb9;
+  background: #f6f9fc;
+  cursor: default;
+}
+
+.sj-uc-carousel__viewport {
+  overflow: hidden;
+  /* カードの hover scale がはみ出せるよう上下に余白 */
+  margin-block: -8px;
+  padding-block: 8px;
+}
+
+/* 実測: カード間 gap = 16px（fullpage x436–452 等） */
+.sj-uc-carousel__scroller {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  cursor: grab;
+}
+
+.sj-uc-carousel__scroller:active {
+  cursor: grabbing;
+}
+
+.sj-uc-carousel__item {
+  flex: none;
+  width: 332px;
+}
+
+.sj-uc-case-card {
+  display: block;
+}
+
+/* 実測: 本家カード画像 332×448（asset 864×960 を縦長に crop） */
+.sj-uc-case-card__media {
+  position: relative;
+  aspect-ratio: 332 / 448;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sj-uc-case-card__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+}
+
+.sj-uc-case-card__logo {
+  position: absolute;
+  left: 20px;
+  bottom: 16px;
+  color: #fff;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+}
+
+.sj-uc-case-card__title {
+  margin-top: 16px;
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 425;
+  color: var(--sj-navy);
+}
+
+.sj-uc-case-card__link {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--sj-blurple);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* ---------- 5b プロモ 2 カード ---------- */
+
+/* 実測: 画像下端→promo 上辺 = 209px（カード文言 + 余白。sub gap 48 + 64） */
+.sj-uc-promos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+  margin-top: 64px;
+}
+
+@media (max-width: 880px) {
+  .sj-uc-promos {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sj-uc-promo {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
+  border: 1px solid #e6ebf1;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 160px;
+  background: #fff;
+  transition: box-shadow 200ms ease-out;
+}
+
+.sj-uc-promo:hover {
+  box-shadow: 0 6px 18px rgba(10, 37, 64, 0.08);
+}
+
+.sj-uc-promo__content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sj-uc-promo__text {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--sj-slate);
+}
+
+.sj-uc-promo__text h4 {
+  display: inline;
+  font-weight: 600;
+  color: var(--sj-navy);
+}
+
+.sj-uc-promo__text p {
+  display: inline;
+}
+
+.sj-uc-promo__graphic {
+  position: relative;
+  overflow: hidden;
+}
+
+.sj-uc-promo__graphic img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center;
+}
+
+/* Atlas graphic: 本家は svg（黄→橙の対角形状）→ CSS gradient で近似 */
+.sj-uc-promo__graphic--atlas {
+  background:
+    linear-gradient(205deg, transparent 48%, #ffd748 48.5%, #ffad00 75%, #ff7600 100%),
+    linear-gradient(115deg, #fff 30%, #ffe9b3 80%, #fb0 100%);
+}
+
+/* ---------- 5c Zenflow ダッシュボード ---------- */
+
+/* 実測: graphic 全高 532px（Y7845–8377）・CTA→graphic = 約 96px（sub gap 48 + 56） */
+.sj-uc-zen {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 532px;
+  margin-top: 56px;
+  padding: 56px 64px 0;
+  background-image: url("https://images.stripeassets.com/fzn2n1nzq965/5dQAw5oJf3TOO1Jt6IKDRH/f391594c11f38d821259acdd3412a7a6/platform-graphic-background_2x.png?w=1232&fm=webp&q=90");
+  background-size: cover;
+  background-position: center;
+}
+
+@media (max-width: 880px) {
+  .sj-uc-zen {
+    height: auto;
+    min-height: 480px;
+    padding: 24px 16px 0;
+  }
+}
+
+.sj-uc-zen__browser {
+  position: relative;
+  margin-inline: auto;
+  max-width: 880px;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  box-shadow: 0 30px 60px -12px rgba(50, 50, 93, 0.25);
+}
+
+.sj-uc-zen__topbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding-inline: 14px;
+  background: rgba(255, 244, 234, 0.92);
+  border-bottom: 1px solid rgba(10, 37, 64, 0.06);
+}
+
+.sj-uc-zen__dots {
+  display: flex;
+  gap: 6px;
+}
+
+.sj-uc-zen__dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(10, 37, 64, 0.18);
+}
+
+.sj-uc-zen__url {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #735a63;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 9999px;
+  padding: 4px 14px;
+}
+
+.sj-uc-zen__body {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  min-height: 430px;
+}
+
+.sj-uc-zen__sidebar {
+  background: linear-gradient(170deg, #5d1049 0%, #43093f 45%, #2c0735 100%);
+  color: rgba(255, 255, 255, 0.85);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.sj-uc-zen__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.sj-uc-zen__brand-logo {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff8db8, #e1407e);
+}
+
+.sj-uc-zen__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.sj-uc-zen__nav-item--active {
+  color: #ff7ab0;
+  font-weight: 600;
+}
+
+.sj-uc-zen__content {
+  background: linear-gradient(180deg, #fffaf6, #fff6f2);
+  padding: 20px 22px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sj-uc-zen__greeting {
+  font-size: 15px;
+  font-weight: 600;
+  color: #b3265c;
+}
+
+.sj-uc-zen__card {
+  background: #fff;
+  border: 1px solid #f3e2e2;
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+
+.sj-uc-zen__card--notification {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sj-uc-zen__notification-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #5b4a52;
+}
+
+.sj-uc-zen__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #97808d;
+}
+
+.sj-uc-zen__button {
+  flex: none;
+  align-self: flex-start;
+  display: inline-block;
+  background: #de2c66;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 5px 10px;
+  white-space: nowrap;
+}
+
+.sj-uc-zen__card-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 12px;
+}
+
+.sj-uc-zen__card--payouts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sj-uc-zen__balance {
+  font-size: 20px;
+  font-weight: 600;
+  color: #33222b;
+  font-variant-numeric: tabular-nums;
+}
+
+.sj-uc-zen__available {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #97808d;
+  border-top: 1px dashed #f0dde2;
+  padding-top: 8px;
+}
+
+.sj-uc-zen__available-amount {
+  color: #33222b;
+  font-variant-numeric: tabular-nums;
+}
+
+.sj-uc-zen__card--capital {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sj-uc-zen__capital-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #33222b;
+  line-height: 1.5;
+}
+
+.sj-uc-zen__capital-desc {
+  font-size: 11px;
+  color: #97808d;
+  line-height: 1.5;
+}
+
+.sj-uc-zen__payments-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #33222b;
+  margin-bottom: 8px;
+}
+
+.sj-uc-zen__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  color: #5b4a52;
+}
+
+.sj-uc-zen__table th {
+  text-align: left;
+  font-weight: 500;
+  color: #97808d;
+  padding-block: 4px;
+  border-bottom: 1px solid #f3e2e2;
+}
+
+.sj-uc-zen__table td {
+  padding-block: 6px;
+  border-bottom: 1px solid #faf0f0;
+}
+
+.sj-uc-zen__amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: #33222b;
+}
+
+.sj-uc-zen__status {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.sj-uc-zen__status--succeeded {
+  background: #d7f7c2;
+  color: #217005;
+}
+
+.sj-uc-zen__status--disputed {
+  background: #fcedb9;
+  color: #a05b00;
+}
+
+.sj-uc-zen__status--refunded {
+  background: #ebeef1;
+  color: #545969;
+}
+
+/* floating feature cards（payments / capital / payouts / notification） */
+.sj-uc-zen-float {
+  position: absolute;
+  width: 230px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow:
+    0 13px 27px -5px rgba(50, 50, 93, 0.25),
+    0 8px 16px -8px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+
+@media (max-width: 1080px) {
+  .sj-uc-zen-float {
+    display: none;
+  }
+}
+
+.sj-uc-zen-float--notification {
+  top: 28px;
+  right: 24px;
+}
+
+.sj-uc-zen-float--payouts {
+  top: 150px;
+  left: 24px;
+}
+
+.sj-uc-zen-float--payments {
+  bottom: 64px;
+  left: 56px;
+}
+
+.sj-uc-zen-float--capital {
+  bottom: 140px;
+  right: 16px;
+}
+
+.sj-uc-zen-float__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sj-navy);
+}
+
+.sj-uc-zen-float__description {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--sj-slate);
+}
+
+.sj-uc-zen-float__code {
+  display: block;
+  margin-top: 10px;
+  background: #f6f8fa;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: "SF Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.sj-uc-zen-float__code-base {
+  color: #2f3d4f;
+}
+
+.sj-uc-zen-float__code-arg {
+  color: #09825d;
+}
+
+/* ---------- 5c testimonial carousel ---------- */
+
+/* 実測: 3 カラム下端→logo = 113px / card 領域は本家比で高め（quote 3 行 + 余白） */
+.sj-uc-tst {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding-top: 56px;
+}
+
+.sj-uc-tst__card-area {
+  min-height: 310px;
+  display: flex;
+  justify-content: center;
+}
+
+.sj-uc-tst__card {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 24px;
+}
+
+/* 実測: quote 行送り 28–29px（font 20 / lh1.45 で 3 行） */
+.sj-uc-tst__quote {
+  font-size: 20px;
+  line-height: 1.45;
+  color: var(--sj-slate);
+}
+
+.sj-uc-tst__author {
+  font-size: 14px;
+  color: var(--sj-navy);
+}
+
+.sj-uc-tst__role {
+  color: var(--sj-slate);
+}
+
+/* navigation: 破線 divider + active 区間の progress 下線（linear、auto-rotate 周期） */
+.sj-uc-tst__navigation {
+  position: relative;
+}
+
+.sj-uc-tst__divider {
+  border-top: 1px dashed #d8dee4;
+}
+
+.sj-uc-tst__selection {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  height: 2px;
+  transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sj-uc-tst__selection-fill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform-origin: left center;
+  animation-name: sj-uc-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes sj-uc-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sj-uc-tst__selection-fill {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
+
+.sj-uc-tst__customers {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding-top: 28px;
+}
+
+.sj-uc-tst__customer-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  opacity: 0.45;
+  filter: grayscale(1);
+  transition: opacity 200ms ease-out;
+}
+
+.sj-uc-tst__customer-btn:hover {
+  opacity: 0.75;
+}
+
+.sj-uc-tst__customer-btn--active {
+  opacity: 1;
+  filter: none;
+}
+
+/* logo wordmark 近似（本家は svg path。ライセンス的に path 移植せず type 近似） */
+.sj-uc-tst-logo {
+  color: var(--sj-navy);
+  white-space: nowrap;
+}
+
+/* 実測: 本家 logo 行の glyph 高 ≈ 25px → 一回り大きく */
+.sj-uc-tst-logo--mindbody {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #2d2d2d;
+}
+
+.sj-uc-tst-logo--jobber {
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #012939;
+}
+
+.sj-uc-tst-logo--substack {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #ff671a;
+}
+
+.sj-uc-tst-logo--adastria {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  color: #0a2540;
+}

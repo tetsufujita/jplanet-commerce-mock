@@ -1,0 +1,37 @@
+/* Stripe JP 再現 — 実測 token（design/reproductions/stripe-jp/stripe-jp-specs.json） */
+.sj-root {
+  --sj-navy: #0a2540;
+  --sj-slate: #425466;
+  --sj-blurple: #635bff;
+  --sj-blurple-dark: #0048e5;
+  --sj-cyan: #00d4ff;
+  --sj-bg: #ffffff;
+  --sj-bg-light: #f6f9fc;
+  /* sohne-var はライセンス上移植不可 → 最近似スタック */
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
+    "Hiragino Sans", "Noto Sans JP", Arial, sans-serif;
+  color: var(--sj-navy);
+  background: var(--sj-bg);
+  font-feature-settings: "palt";
+}
+
+.sj-root h1,
+.sj-root h2,
+.sj-root h3 {
+  letter-spacing: -0.02em;
+}
+
+/* h1 実測: 44px / w300 / lh 1.15 / ls -0.88px */
+.sj-h1 {
+  font-size: 44px;
+  font-weight: 300;
+  line-height: 1.15;
+  letter-spacing: -0.88px;
+}
+
+.sj-container {
+  max-width: 1080px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}

@@ -1,0 +1,698 @@
+{
+  "h1": {
+    "text": "目指せ、次のAI のオールスター",
+    "style": {
+      "fontSize": "96px",
+      "fontWeight": "400",
+      "lineHeight": "96px",
+      "letterSpacing": "normal",
+      "color": "rgb(255, 255, 255)",
+      "fontFamily": "\"Noto Sans JP\", Helvetica, Arial, sans-serif"
+    }
+  },
+  "rotWords": [],
+  "headerStyle": {
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "height": "72px",
+    "position": "sticky"
+  },
+  "navLinks": [
+    "短期間で開業明日から販売できます。",
+    "Shopifyへ移行する集客を増やし、売上アップ。",
+    "Sidekickコマースに特化したAIアシスタント。",
+    "ウェブサイトビルダー",
+    "テーマ",
+    "ドメイン",
+    "お客様アカウント",
+    "Sidekick",
+    "オンライン",
+    "AIチャット",
+    "POS",
+    "Shopアプリ",
+    "SNSとモール型EC",
+    "グローバル",
+    "B2B",
+    "複数マーケットへの展開",
+    "広告とキャンペーン",
+    "メールとカスタマーチャット",
+    "ディスカウント",
+    "ストア分析",
+    "注文管理と在庫管理",
+    "配送",
+    "ワークフローのオートメーション",
+    "チェックアウト",
+    "決済方法",
+    "エージェント向けコマース当社のエージェントツールで構築",
+    "Shopify.dev開発者ドキュメント、CLI、その他",
+    "Sidekick Pulse",
+    "商品管理ネットワーク",
+    "Dev MCPの完全サポート",
+    "価格設定",
+    "Enterprise",
+    "無料で始める",
+    "資料請求",
+    "ログイン",
+    "ログイン",
+    "無料で始める"
+  ],
+  "heroCtas": [
+    {
+      "text": "無料で始める",
+      "style": {
+        "backgroundColor": "rgb(255, 255, 255)",
+        "color": "rgb(0, 0, 0)",
+        "borderRadius": "9999px",
+        "fontSize": "16px",
+        "fontWeight": "550",
+        "padding": "8px 20px"
+      }
+    },
+    {
+      "text": "無料で始める",
+      "style": {
+        "backgroundColor": "rgb(255, 255, 255)",
+        "color": "rgb(0, 0, 0)",
+        "borderRadius": "9999px",
+        "fontSize": "18px",
+        "fontWeight": "550",
+        "padding": "12px 24px"
+      }
+    },
+    {
+      "text": "Shopifyが開発されるまで",
+      "style": {
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "color": "rgb(255, 255, 255)",
+        "borderRadius": "9999px",
+        "fontSize": "18px",
+        "fontWeight": "550",
+        "padding": "12px 26px 12px 16px"
+      }
+    },
+    {
+      "text": "Shopifyが開発されるまで",
+      "style": {
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "color": "rgb(255, 255, 255)",
+        "borderRadius": "0px",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "padding": "0px"
+      }
+    },
+    {
+      "text": "Shopifyが開発されるまで",
+      "style": {
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "color": "rgb(255, 255, 255)",
+        "borderRadius": "9999px",
+        "fontSize": "18px",
+        "fontWeight": "550",
+        "padding": "12px 24px"
+      }
+    },
+    {
+      "text": "mejuri.com",
+      "style": {
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "color": "rgb(255, 255, 255)",
+        "borderRadius": "0px",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "padding": "0px"
+      }
+    }
+  ],
+  "videos": [
+    {
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/5a751065b0c61a7ef84271640431b54a.webm",
+      "poster": "https://cdn.shopify.com/b/shopify-brochure2-assets/07baf8219532d81f6d6725151f9e3482.png?width=434",
+      "w": 190,
+      "h": 87,
+      "top": 1130,
+      "autoplay": false,
+      "loop": false,
+      "muted": true
+    },
+    {
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/99ded60def529a689cecaea5a18e7284.webm",
+      "poster": "https://cdn.shopify.com/b/shopify-brochure2-assets/89c9725d301503b2de05c561eb773134.png?width=434",
+      "w": 190,
+      "h": 87,
+      "top": 1331,
+      "autoplay": false,
+      "loop": false,
+      "muted": true
+    },
+    {
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/702de66d02e01107f01fb66b161a5ece.webm",
+      "poster": "https://cdn.shopify.com/b/shopify-brochure2-assets/b766e752d914319c7641dc67a8f92b08.png?width=512",
+      "w": 256,
+      "h": 150,
+      "top": 1004,
+      "autoplay": false,
+      "loop": false,
+      "muted": true
+    },
+    {
+      "src": "blob:https://www.shopify.com/7abd72a7-895d-443b-8ffc-812f483b020e",
+      "poster": "https://cdn.shopify.com/b/shopify-brochure2-assets/7ecd57f2fa3d7b997d29181a62c954ee.png?originalWidth=1920&originalHeight=1080",
+      "w": 1425,
+      "h": 851,
+      "top": 0,
+      "autoplay": true,
+      "loop": true,
+      "muted": true
+    },
+    {
+      "src": "blob:https://www.shopify.com/7abd72a7-895d-443b-8ffc-812f483b020e",
+      "poster": "",
+      "w": 188,
+      "h": 107,
+      "top": 2193,
+      "autoplay": true,
+      "loop": true,
+      "muted": true
+    },
+    {
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/297a585daeef11b9368ee3f8f06c6ffd.webm",
+      "poster": "https://cdn.shopify.com/b/shopify-brochure2-assets/59ee2f1c4ee7318b33100d4bf6685cca.png?originalWidth=2090&originalHeight=1742",
+      "w": 622,
+      "h": 519,
+      "top": 1625,
+      "autoplay": true,
+      "loop": true,
+      "muted": true
+    },
+    {
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/9276dfacf60e83c2fd293594774e7066.webm",
+      "poster": "https://cdn.shopify.com/b/shopify-brochure2-assets/ba9e9d0f3f684d8a39353c0346a37770.png?originalWidth=1920&originalHeight=1001",
+      "w": 1148,
+      "h": 598,
+      "top": 2464,
+      "autoplay": true,
+      "loop": true,
+      "muted": true
+    },
+    {
+      "src": "",
+      "poster": "",
+      "w": 300,
+      "h": 150,
+      "top": 3266,
+      "autoplay": true,
+      "loop": true,
+      "muted": true
+    },
+    {
+      "src": "",
+      "poster": "",
+      "w": 838,
+      "h": 362,
+      "top": 6044,
+      "autoplay": true,
+      "loop": true,
+      "muted": true
+    },
+    {
+      "src": "",
+      "poster": "",
+      "w": 407,
+      "h": 362,
+      "top": 6044,
+      "autoplay": false,
+      "loop": false,
+      "muted": false
+    }
+  ],
+  "h2s": [
+    {
+      "text": "カテゴリークリエイター",
+      "fs": "96px",
+      "fw": "400",
+      "lh": "96px",
+      "ls": "2.4px",
+      "color": "rgb(255, 255, 255)",
+      "ff": "\"Noto Sans JP\", Helvetica, Arial, sans-s"
+    },
+    {
+      "text": "ブランドがチャットに登場",
+      "fs": "55px",
+      "fw": "330",
+      "lh": "64px",
+      "ls": "normal",
+      "color": "rgb(255, 255, 255)",
+      "ff": "\"Noto Sans JP\", Helvetica, Arial, sans-s"
+    },
+    {
+      "text": "秘密兵器、Sidekick の登場です",
+      "fs": "55px",
+      "fw": "330",
+      "lh": "64px",
+      "ls": "normal",
+      "color": "rgb(255, 255, 255)",
+      "ff": "\"Noto Sans JP\", Helvetica, Arial, sans-s"
+    },
+    {
+      "text": "構築に最適な環境が揃っています",
+      "fs": "70px",
+      "fw": "330",
+      "lh": "70px",
+      "ls": "normal",
+      "color": "rgb(255, 255, 255)",
+      "ff": "\"Noto Sans JP\", Helvetica, Arial, sans-s"
+    },
+    {
+      "text": "Shopify でビジネスを迅速に構築",
+      "fs": "55px",
+      "fw": "330",
+      "lh": "64px",
+      "ls": "normal",
+      "color": "rgb(255, 255, 255)",
+      "ff": "\"Noto Sans JP\", Helvetica, Arial, sans-s"
+    }
+  ],
+  "imgCount": 78,
+  "imgs": [
+    {
+      "alt": "Shopify",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/d9340911ca8c679b148dd4a205ad2ffa.svg",
+      "w": 126,
+      "h": 36,
+      "top": 1499
+    },
+    {
+      "alt": "短期間で開業",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/35d24a52160348807e95f1d335e9e295.png?width=421",
+      "w": 287,
+      "h": 274,
+      "top": 1092
+    },
+    {
+      "alt": "Shopifyへ移行する",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/b4995abc3f73dd8442f579e10023a4df.png?width=421",
+      "w": 287,
+      "h": 274,
+      "top": 1092
+    },
+    {
+      "alt": "エンタープライズブランドからの信頼",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/91fd2e27323b7a94d9fdb2a7973e668e.png?width=421",
+      "w": 287,
+      "h": 274,
+      "top": 1092
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/3ca176cfc5834b102d6303de07a5eb12.svg",
+      "w": 24,
+      "h": 23,
+      "top": 2235
+    },
+    {
+      "alt": "ファインジュエリーを販売する Mejuri のウェブサイトの画像",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/72c834844fdfffbfd0e733f4eed20dcc.jpg?originalWidth=1046&originalHeight=800&widt",
+      "w": 492,
+      "h": 376,
+      "top": 1106
+    },
+    {
+      "alt": "スケートボードアパレルを販売する FTC のウェブサイトの画像",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/173eefc5283b61aa3fc670eb2e13eefc.jpg?originalWidth=454&originalHeight=800&width",
+      "w": 213,
+      "h": 376,
+      "top": 1106
+    },
+    {
+      "alt": "美容商品を販売する Glossier のウェブサイトの画像",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/4f34cdb8ec9c120b80b8be143d0791d7.jpg?originalWidth=1046&originalHeight=800&widt",
+      "w": 492,
+      "h": 376,
+      "top": 1106
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/2e7b8cb838253000ebe4fcbde269ff5f.jpg?originalWidth=454&originalHeight=800&width",
+      "w": 213,
+      "h": 376,
+      "top": 1106
+    },
+    {
+      "alt": "陶磁器を販売する East Fork のウェブサイトの画像",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/a6899266ed2cbd8bc42cdba617224792.jpg?originalWidth=1046&originalHeight=800&widt",
+      "w": 492,
+      "h": 376,
+      "top": 1106
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/a0c96ba75e5187b81f4a4d383b7eaf2c.jpg?originalWidth=1046&originalHeight=800&widt",
+      "w": 492,
+      "h": 376,
+      "top": 1106
+    },
+    {
+      "alt": "スーツケースや旅行用品を販売する Monos のウェブサイトの画像",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/82299140d19921a76d556ca8b3b77906.jpg?originalWidth=1046&originalHeight=800&widt",
+      "w": 492,
+      "h": 376,
+      "top": 1106
+    },
+    {
+      "alt": "ドリンクウェアやギアを販売する Stanley のウェブサイトの画像",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/460f664bed3c41d8f289786f3acfd3c8.jpg?originalWidth=454&originalHeight=800&width",
+      "w": 213,
+      "h": 376,
+      "top": 1106
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/51b842da31d62d4563236652dbff9680.png?originalWidth=1046&originalHeight=800&widt",
+      "w": 492,
+      "h": 376,
+      "top": 1106
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/a40c077bb5d101ad46c694749a273612.jpg?originalWidth=1046&originalHeight=800&widt",
+      "w": 492,
+      "h": 376,
+      "top": 1106
+    },
+    {
+      "alt": "ジェンダーインクルーシブな服を販売する Kirrin Finch のウェブサイトの画像",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/9fdd11f1070d9a9a2cb11d4ed9ffee7f.jpg?originalWidth=454&originalHeight=800&width",
+      "w": 213,
+      "h": 376,
+      "top": 1106
+    },
+    {
+      "alt": "寝具や生活雑貨を販売する Brooklinen のウェブサイトの画像",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/b519a22258fad60f580a2417c5011823.jpg?originalWidth=1046&originalHeight=800&widt",
+      "w": 492,
+      "h": 376,
+      "top": 1106
+    },
+    {
+      "alt": "ChatGPT",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/52cc986d473ce3cd415dc55fdac284ff.svg",
+      "w": 28,
+      "h": 28,
+      "top": 1679
+    },
+    {
+      "alt": "Google",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/4f6dd4416d8053a60c7b3f5b68e67fa2.png",
+      "w": 28,
+      "h": 28,
+      "top": 1679
+    },
+    {
+      "alt": "Copilot",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/dfd1d6ffc02fdd7a562f8fb104e97815.svg",
+      "w": 28,
+      "h": 28,
+      "top": 1679
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/e9b1787b05cc3141b4aec50b024ad68c.png",
+      "w": 40,
+      "h": 29,
+      "top": 4367
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/c87d3ea84d6b07cc56c44653ed8911f5.png",
+      "w": 40,
+      "h": 29,
+      "top": 3455
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/b1debcf2c15172ecfe86b0d30d664ad3.png",
+      "w": 40,
+      "h": 29,
+      "top": 3531
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/7fd378060668fbb746a61d562bd40dc9.png",
+      "w": 40,
+      "h": 29,
+      "top": 3607
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/48c3fa7e8d48a8a316f818f7ab8c3335.png",
+      "w": 40,
+      "h": 29,
+      "top": 3683
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/7aa525b00d5c1f6ca1db1f7d8030e493.png",
+      "w": 40,
+      "h": 29,
+      "top": 3759
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/dfe62984c290cac4d9ab1f6d64d56990.png",
+      "w": 40,
+      "h": 29,
+      "top": 3835
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/0f899d067f8fd6d3de6df6dc072a9f95.png",
+      "w": 40,
+      "h": 29,
+      "top": 3911
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/ea64c5d6352869143ca123c102a436e8.png",
+      "w": 40,
+      "h": 29,
+      "top": 3987
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/dc2669381c95b83588445a4aa4401214.png",
+      "w": 40,
+      "h": 29,
+      "top": 4063
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/4142eddf07530c57040f91cc1bb2b5d0.png",
+      "w": 40,
+      "h": 29,
+      "top": 4139
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/d7f23791c6047e0be843461f636db279.png",
+      "w": 40,
+      "h": 29,
+      "top": 4215
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/7a63b5c2087a9ad7f05c4a6721cbf726.png",
+      "w": 40,
+      "h": 29,
+      "top": 4291
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/966c4fe15bc05cfe25422b7c25e981ec.jpg?originalWidth=812&originalHeight=904",
+      "w": 146,
+      "h": 162,
+      "top": 4118
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/b5695aa84d13d681040a1f792102db4c.jpg?originalWidth=812&originalHeight=904",
+      "w": 170,
+      "h": 189,
+      "top": 4102
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/8c2c23882c250ec4a2b9e4e8bb2db7ed.jpg?originalWidth=812&originalHeight=904",
+      "w": 204,
+      "h": 227,
+      "top": 4078
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/bc86cf8bb923173525f0463b4ede64f3.jpg?originalWidth=812&originalHeight=904",
+      "w": 170,
+      "h": 189,
+      "top": 4102
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/2f7cc9cc755fdf8b468557953320b3f5.jpg?originalWidth=812&originalHeight=904",
+      "w": 146,
+      "h": 162,
+      "top": 4118
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/34c79ed6726fca9045a7e6549b56a204.jpg?originalWidth=812&originalHeight=904",
+      "w": 146,
+      "h": 162,
+      "top": 4118
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/90d3e8a4c9863e20043adf67aa375fd3.png?originalWidth=939&originalHeight=818",
+      "w": 320,
+      "h": 279,
+      "top": 4166
+    },
+    {
+      "alt": "cohina",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/cohina-329e4a2f864706db2ff64187c48708cd7a0f0f61221aaaceee",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "francfranc",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/franc-franc-a632a3dfb6d90e63e02c391505a65825afae456a088dc",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "Bento & Co.",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/bento-and-co-c79d7450c6422bd2242db74a724a6b3a207a6950cc90",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "Gymshark",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/en-GB/gymshark-39a8fabd7d2d2e42a63096957f97966fad566761055baf4a",
+      "w": 190,
+      "h": 82,
+      "top": 5655
+    },
+    {
+      "alt": "KURASU",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/kurasu-7955d235375f9b56e0ff55161cc35cc49bf54fe170ae4ea1ab",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "Amirisu",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/amirisu-32820ef6dff9b8ddd57c899322948097188619bda4b3516ae",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "Tsuchiya Kaban",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/tsuchiya-kaban-9d7edc0498ff95869da2df129a215e7546b61fc9d1",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "Kyoto Brewing Co.",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/kyoto-brewing-co-eaa8bce44ab3a6d204f5e3ac03c6aa5f0a99fcb2",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "cohina",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/cohina-329e4a2f864706db2ff64187c48708cd7a0f0f61221aaaceee",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "francfranc",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/franc-franc-a632a3dfb6d90e63e02c391505a65825afae456a088dc",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "Bento & Co.",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/bento-and-co-c79d7450c6422bd2242db74a724a6b3a207a6950cc90",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "Gymshark",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/en-GB/gymshark-39a8fabd7d2d2e42a63096957f97966fad566761055baf4a",
+      "w": 190,
+      "h": 82,
+      "top": 5655
+    },
+    {
+      "alt": "KURASU",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/kurasu-7955d235375f9b56e0ff55161cc35cc49bf54fe170ae4ea1ab",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "Amirisu",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/amirisu-32820ef6dff9b8ddd57c899322948097188619bda4b3516ae",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "Tsuchiya Kaban",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/tsuchiya-kaban-9d7edc0498ff95869da2df129a215e7546b61fc9d1",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "Kyoto Brewing Co.",
+      "src": "https://cdn.shopify.com/shopifycloud/brochure/assets/cms/logo-soup/ja-JP/kyoto-brewing-co-eaa8bce44ab3a6d204f5e3ac03c6aa5f0a99fcb2",
+      "w": 190,
+      "h": 81,
+      "top": 5656
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/9354c77a37ba8e717fcc86cb4bbd366b.jpg?width=1856&height=530&width=1856&height=53",
+      "w": 1600,
+      "h": 457,
+      "top": 6737
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/9354c77a37ba8e717fcc86cb4bbd366b.jpg?width=1856&height=530&width=1856&height=53",
+      "w": 1600,
+      "h": 457,
+      "top": 6737
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/9354c77a37ba8e717fcc86cb4bbd366b.jpg?width=1856&height=530&width=1856&height=53",
+      "w": 1600,
+      "h": 457,
+      "top": 6737
+    },
+    {
+      "alt": "",
+      "src": "https://cdn.shopify.com/b/shopify-brochure2-assets/9354c77a37ba8e717fcc86cb4bbd366b.jpg?width=1856&height=530&width=1856&height=53",
+      "w": 1600,
+      "h": 457,
+      "top": 6737
+    }
+  ]
+}

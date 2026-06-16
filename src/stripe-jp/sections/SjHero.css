@@ -1,0 +1,287 @@
+/* SjHero 専用スタイル — hero + logo marquee（stripe.com/jp 再現） */
+
+.sj-hero {
+  position: relative;
+  /* 実測: 原本 eyebrow box top = hero top + 157px */
+  padding-top: 157px;
+  background: var(--sj-bg);
+}
+
+/* 上下の fullbleed 罫線（hero-section__fullbleed-line 相当） */
+.sj-hero-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e6ebf1;
+}
+
+.sj-hero-line--top {
+  top: 0;
+}
+
+.sj-hero-line--bottom {
+  bottom: 0;
+}
+
+/* 背景 wave（実測: img x=337 y=-107 w=1392 h=975 @1440vp・静的）
+   page y=-107 = hero top(76) 比 -183px */
+.sj-hero-bg {
+  position: absolute;
+  top: -183px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sj-hero-wave {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 383px);
+  width: 1392px;
+  height: 975px;
+  max-width: none;
+}
+
+.sj-hero-layout {
+  position: relative;
+  z-index: 1;
+}
+
+/* eyebrow + GDP ticker */
+.sj-hero-eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  /* 実測: eyebrow box bottom(177) → h1 box top(218) = 41px */
+  margin: 0 0 41px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--sj-slate);
+}
+
+.sj-hero-eyebrow-value {
+  display: inline-flex;
+  height: 20px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--sj-navy);
+}
+
+.sj-ticker-slot {
+  position: relative;
+  display: inline-block;
+  width: 1ch;
+  height: 20px;
+  overflow: hidden;
+}
+
+.sj-ticker-digit {
+  position: absolute;
+  inset: 0;
+  line-height: 20px;
+  text-align: center;
+}
+
+.sj-ticker-char {
+  display: inline-block;
+  line-height: 20px;
+  animation: sj-fade-in 0.3s ease-out both;
+  animation-delay: 0.7s;
+}
+
+@keyframes sj-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* h1 二枚重ね: 背景層 = navy 実色 / 前景層 = gradient clip text（hue がゆっくり動く） */
+.sj-hero-title-stack {
+  position: relative;
+  /* 900px = 原本と同じ折返し（L1 …組込み / L2 型金融、…企業の / L3 収益最大化を支援。） */
+  max-width: 900px;
+}
+
+.sj-hero-title {
+  margin: 0;
+  color: var(--sj-navy);
+}
+
+.sj-hero-title em {
+  font-style: normal;
+}
+
+/* 実測: 背景層の copy はやや明るい slate-blue（#40668d 近傍）、em のみ navy */
+.sj-hero-title--background .sj-hero-title-copy {
+  color: #40668d;
+}
+
+.sj-hero-title--foreground {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* 前景層の TITLE_MAIN は paint しない → 背景層の navy 実色が見える */
+.sj-hero-title--foreground em {
+  visibility: hidden;
+}
+
+/* copy の gradient（slice = 3 行を一本につないだ軸で実測再現）:
+   L1 fragment「決済から組込み」(0–19.2%) = blurple→紫 vivid、
+   行替わりで slate へハードストップ、L2 末尾「企業の」(66.5–76.1%) だけ再度 vivid、
+   L3「収益最大化を支援。」(76.1%–) は slate。
+   アニメ無し＝原本 recordings f-scroll 001–010 で静止を確認済 */
+.sj-hero-title--foreground .sj-hero-title-copy {
+  background-image: linear-gradient(
+    90deg,
+    #5e55f8 0%,
+    #7b49d9 19.2%,
+    #40668d 19.2%,
+    #40668d 66.5%,
+    #724df5 69.5%,
+    #7b49d9 76.1%,
+    #40668d 76.1%,
+    #40668d 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  /* slice = gradient が行をまたいで連続する（行頭で再スタートしない） */
+  -webkit-box-decoration-break: slice;
+  box-decoration-break: slice;
+}
+
+/* CTA */
+.sj-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* 実測: h1 box bottom(370) → button top(409) = 39px */
+  margin-top: 39px;
+}
+
+/* hero の CTA は header より大きい（実測 height 48px = 12px×2 + lh24px） */
+.sj-hero-actions .sj-btn {
+  padding: 12px 20px;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.sj-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 9999px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 200ms ease-out,
+    border-color 200ms ease-out,
+    color 200ms ease-out;
+}
+
+.sj-btn--primary {
+  background: var(--sj-blurple);
+  color: #fff;
+}
+
+/* 実測: hover で rgb(99,78,250) → rgb(83,68,203) */
+.sj-btn--primary:hover {
+  background: #5344cb;
+}
+
+/* hover arrow（Stripe シグネチャー）: 軸線 fade-in + くの字 +2px 右 */
+.sj-arrow-line {
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+
+.sj-arrow-head {
+  transition: transform 200ms ease-out;
+}
+
+.sj-btn--primary:hover .sj-arrow-line {
+  opacity: 1;
+}
+
+.sj-btn--primary:hover .sj-arrow-head {
+  transform: translateX(2px);
+}
+
+/* 実測: border のみ rgb(237,237,237) → rgb(202,196,234) */
+.sj-btn--google {
+  background: #fff;
+  color: var(--sj-navy);
+  border: 1px solid #ededed;
+}
+
+.sj-btn--google:hover {
+  border-color: #cac4ea;
+}
+
+/* logo marquee（実測 30.03px/s・全幅 6192px = 172px × 36 item） */
+.sj-hero-logos {
+  position: relative;
+  z-index: 1;
+  /* 実測: button bottom(457) → logo img top(630) = 173px / img bottom(664) → hero bottom(685) = 21px */
+  margin-top: 173px;
+  padding-bottom: 21px;
+}
+
+.sj-marquee-viewport {
+  overflow: hidden;
+}
+
+.sj-marquee {
+  display: flex;
+  width: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* 1 set = 18 logo × 172px = 3096px / 30.03px/s ≈ 103s */
+  animation: sj-marquee 103s linear infinite;
+}
+
+.sj-marquee-item {
+  display: flex;
+  align-items: center;
+  flex: none;
+  width: 142px;
+  margin-right: 30px;
+}
+
+.sj-marquee-item img {
+  display: block;
+  width: 142px;
+  height: 34px;
+}
+
+@keyframes sj-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sj-marquee {
+    animation: none;
+  }
+
+  .sj-ticker-char {
+    animation: none;
+  }
+}

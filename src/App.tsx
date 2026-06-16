@@ -1,8 +1,22 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { defaultLocale, isLocale } from "@/i18n/createI18n";
 import { HomePage } from "@/pages/HomePage";
+
+const ShopifyJpPage = lazy(() =>
+  import("@/shopify-jp/ShopifyJpPage").then((m) => ({ default: m.ShopifyJpPage })),
+);
+
+const StripeJpPage = lazy(() =>
+  import("@/stripe-jp/StripeJpPage").then((m) => ({ default: m.StripeJpPage })),
+);
+
+const AndesStatsPreview = lazy(() =>
+  import("@/preview-stats/AndesStatsPreview").then((m) => ({
+    default: m.AndesStatsPreview,
+  })),
+);
 
 function LocalizedHomeRoute() {
   const { locale } = useParams();
@@ -28,6 +42,30 @@ export function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to={`/${defaultLocale}`} replace />} />
+      <Route
+        path="/shopify-jp"
+        element={
+          <Suspense fallback={null}>
+            <ShopifyJpPage />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/stripe-jp"
+        element={
+          <Suspense fallback={null}>
+            <StripeJpPage />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/preview/stats"
+        element={
+          <Suspense fallback={null}>
+            <AndesStatsPreview />
+          </Suspense>
+        }
+      />
       <Route path="/:locale" element={<LocalizedHomeRoute />} />
       <Route path="*" element={<Navigate to={`/${defaultLocale}`} replace />} />
     </Routes>

@@ -1,0 +1,419 @@
+{
+  "animCount": 14,
+  "anims": [
+    {
+      "type": "CSSTransition",
+      "name": "",
+      "target": "SPAN.inline-block m-0 p-0 transition-opacity-transform duration-[",
+      "targetText": "個人起業家",
+      "duration": 450,
+      "delay": 3000,
+      "iterations": 1,
+      "easing": "cubic-bezier(0.5, 0, 0.5, 1)",
+      "fill": "backwards",
+      "playState": "running",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "translate": "0px -400px",
+          "computedOffset": 0
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "translate": "0px 400px",
+          "computedOffset": 1
+        }
+      ]
+    },
+    {
+      "type": "CSSTransition",
+      "name": "",
+      "target": "SPAN.inline-block m-0 p-0 transition-opacity-transform duration-[",
+      "targetText": "カテゴリークリエイター",
+      "duration": 450,
+      "delay": 3000,
+      "iterations": 1,
+      "easing": "cubic-bezier(0.5, 0, 0.5, 1)",
+      "fill": "backwards",
+      "playState": "running",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "opacity": "1",
+          "computedOffset": 0
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "opacity": "0",
+          "computedOffset": 1
+        }
+      ]
+    },
+    {
+      "type": "CSSTransition",
+      "name": "",
+      "target": "SPAN.inline-block m-0 p-0 transition-opacity-transform duration-[",
+      "targetText": "カテゴリークリエイター",
+      "duration": 450,
+      "delay": 3000,
+      "iterations": 1,
+      "easing": "cubic-bezier(0.5, 0, 0.5, 1)",
+      "fill": "backwards",
+      "playState": "running",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "translate": "0px",
+          "computedOffset": 0
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "translate": "0px -400px",
+          "computedOffset": 1
+        }
+      ]
+    },
+    {
+      "type": "CSSTransition",
+      "name": "",
+      "target": "SPAN.inline-block m-0 p-0 transition-opacity-transform duration-[",
+      "targetText": "世界的企業",
+      "duration": 450,
+      "delay": 3150,
+      "iterations": 1,
+      "easing": "cubic-bezier(0.5, 0, 0.5, 1)",
+      "fill": "backwards",
+      "playState": "running",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "opacity": "0",
+          "computedOffset": 0
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "opacity": "1",
+          "computedOffset": 1
+        }
+      ]
+    },
+    {
+      "type": "CSSTransition",
+      "name": "",
+      "target": "SPAN.inline-block m-0 p-0 transition-opacity-transform duration-[",
+      "targetText": "世界的企業",
+      "duration": 450,
+      "delay": 3150,
+      "iterations": 1,
+      "easing": "cubic-bezier(0.5, 0, 0.5, 1)",
+      "fill": "backwards",
+      "playState": "running",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "translate": "0px 400px",
+          "computedOffset": 0
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "translate": "0px",
+          "computedOffset": 1
+        }
+      ]
+    },
+    {
+      "type": "CSSAnimation",
+      "name": "logo-group-marquee",
+      "target": "UL.flex justify-center shrink-0 space-x-4 md:space-x-6 motion-r",
+      "targetText": "",
+      "duration": 60000,
+      "delay": 0,
+      "iterations": null,
+      "easing": "linear",
+      "fill": "none",
+      "playState": "running",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "transform": "translate(calc(-100% - 24px))",
+          "computedOffset": 0
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "transform": "translate(0px)",
+          "computedOffset": 1
+        }
+      ]
+    },
+    {
+      "type": "CSSAnimation",
+      "name": "logo-group-marquee",
+      "target": "UL.flex justify-center shrink-0 space-x-4 md:space-x-6 motion-r",
+      "targetText": "",
+      "duration": 60000,
+      "delay": 0,
+      "iterations": null,
+      "easing": "linear",
+      "fill": "none",
+      "playState": "running",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "transform": "translate(calc(-100% - 24px))",
+          "computedOffset": 0
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "transform": "translate(0px)",
+          "computedOffset": 1
+        }
+      ]
+    },
+    {
+      "type": "CSSAnimation",
+      "name": "scroll-x",
+      "target": "DIV.motion-safe:animate-scroll-x bg-repeat transform-gpu flex sh",
+      "targetText": "",
+      "duration": 240000,
+      "delay": 0,
+      "iterations": null,
+      "easing": "linear",
+      "fill": "none",
+      "playState": "running",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "transform": "translate(-100%)",
+          "computedOffset": 0
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "transform": "translate(0px)",
+          "computedOffset": 1
+        }
+      ]
+    },
+    {
+      "type": "CSSAnimation",
+      "name": "scroll-x",
+      "target": "DIV.motion-safe:animate-scroll-x bg-repeat transform-gpu flex sh",
+      "targetText": "",
+      "duration": 240000,
+      "delay": 0,
+      "iterations": null,
+      "easing": "linear",
+      "fill": "none",
+      "playState": "running",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "transform": "translate(-100%)",
+          "computedOffset": 0
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "transform": "translate(0px)",
+          "computedOffset": 1
+        }
+      ]
+    },
+    {
+      "type": "CSSAnimation",
+      "name": "scroll-x",
+      "target": "DIV.motion-safe:animate-scroll-x bg-repeat transform-gpu flex sh",
+      "targetText": "",
+      "duration": 240000,
+      "delay": 0,
+      "iterations": null,
+      "easing": "linear",
+      "fill": "none",
+      "playState": "running",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "transform": "translate(-100%)",
+          "computedOffset": 0
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "transform": "translate(0px)",
+          "computedOffset": 1
+        }
+      ]
+    },
+    {
+      "type": "CSSAnimation",
+      "name": "scroll-x",
+      "target": "DIV.motion-safe:animate-scroll-x bg-repeat transform-gpu flex sh",
+      "targetText": "",
+      "duration": 240000,
+      "delay": 0,
+      "iterations": null,
+      "easing": "linear",
+      "fill": "none",
+      "playState": "running",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "transform": "translate(-100%)",
+          "computedOffset": 0
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "transform": "translate(0px)",
+          "computedOffset": 1
+        }
+      ]
+    },
+    {
+      "type": "CSSAnimation",
+      "name": "loop",
+      "target": "SPAN.border-glow absolute -inset-px rounded-t-[20px] border borde",
+      "targetText": "",
+      "duration": 8000,
+      "delay": 1000,
+      "iterations": null,
+      "easing": "linear",
+      "fill": "none",
+      "playState": "paused",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "offsetDistance": "-20%",
+          "computedOffset": 0
+        },
+        {
+          "offset": 0.4,
+          "easing": "linear",
+          "composite": "auto",
+          "offsetDistance": "80%",
+          "computedOffset": 0.4
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "offsetDistance": "80%",
+          "computedOffset": 1
+        }
+      ]
+    },
+    {
+      "type": "CSSAnimation",
+      "name": "loop",
+      "target": "SPAN.border-glow absolute -inset-px rounded-tl-[20px] border bord",
+      "targetText": "",
+      "duration": 8000,
+      "delay": 4000,
+      "iterations": null,
+      "easing": "linear",
+      "fill": "none",
+      "playState": "paused",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "offsetDistance": "-30%",
+          "computedOffset": 0
+        },
+        {
+          "offset": 0.4,
+          "easing": "linear",
+          "composite": "auto",
+          "offsetDistance": "60%",
+          "computedOffset": 0.4
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "offsetDistance": "60%",
+          "computedOffset": 1
+        }
+      ]
+    },
+    {
+      "type": "CSSAnimation",
+      "name": "loop",
+      "target": "SPAN.border-glow absolute -inset-px rounded-t-[20px] border borde",
+      "targetText": "",
+      "duration": 8000,
+      "delay": 5500,
+      "iterations": null,
+      "easing": "linear",
+      "fill": "none",
+      "playState": "paused",
+      "keyframes": [
+        {
+          "offset": 0,
+          "easing": "linear",
+          "composite": "auto",
+          "offsetDistance": "-30%",
+          "computedOffset": 0
+        },
+        {
+          "offset": 0.4,
+          "easing": "linear",
+          "composite": "auto",
+          "offsetDistance": "-120%",
+          "computedOffset": 0.4
+        },
+        {
+          "offset": 1,
+          "easing": "linear",
+          "composite": "auto",
+          "offsetDistance": "-120%",
+          "computedOffset": 1
+        }
+      ]
+    }
+  ],
+  "h1HTML": "<h1 class=\"richtext text-dsp mb-lg md:mb-2xl\">目指せ、次の<br>AI のオールスター</h1>"
+}

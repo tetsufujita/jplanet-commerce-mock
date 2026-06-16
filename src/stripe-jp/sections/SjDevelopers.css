@@ -1,0 +1,319 @@
+/* SjDevelopers.css — §6 開発者（唯一の dark section）専用スタイル
+   実測根拠: design/reproductions/stripe-jp/{specs,recordings/f-scroll/047-052}
+   共有の stripe.css には触れない */
+
+.sjd {
+  --sjd-bg: #0d1a41;
+  --sjd-accent: #5d64fe;
+  --sjd-line: #2a3578;
+  --sjd-node-bg: #1c2566;
+  --sjd-node-border: #3d49ac;
+  --sjd-node-text: #d2dbff;
+  background-color: var(--sjd-bg);
+  color: #fff;
+}
+
+/* ── 見出し（hds-heading--lg 32px/300、--md 24px、subdued は inline 続き） ── */
+.sjd-h2 {
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 1.18;
+  letter-spacing: -0.64px;
+}
+
+.sjd-h3 {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.36px;
+}
+
+/* ── CTA ボタン（hds-button dark 再現、primary 実測 bg rgb(83,58,253)） ── */
+.sjd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9999px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 10px 16px;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease-out,
+    box-shadow 0.2s ease-out;
+}
+
+.sjd-btn--primary {
+  background: #533afd;
+  color: #fff;
+}
+
+.sjd-btn--primary:hover {
+  background: #4330d8;
+}
+
+.sjd-btn--secondary {
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+.sjd-btn--secondary:hover {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+}
+
+/* ── hover arrow（hds-icon-hover-arrow: 軸線 fade-in + くの字 1.5px shift） ── */
+.sjd-arrow {
+  flex: none;
+}
+
+.sjd-arrow-line {
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+
+.sjd-arrow-tip {
+  transition: transform 0.2s ease-out;
+}
+
+.sjd-btn:hover .sjd-arrow-line,
+.sjd-link:hover .sjd-arrow-line {
+  opacity: 1;
+}
+
+.sjd-btn:hover .sjd-arrow-tip,
+.sjd-link:hover .sjd-arrow-tip {
+  transform: translateX(1.5px);
+}
+
+/* ── callout link（hds-link--callout dark） ── */
+.sjd-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #8e9bff;
+  transition: color 0.2s ease-out;
+}
+
+.sjd-link:hover {
+  color: #b9c2ff;
+}
+
+/* ── 区切り線（divider-canvas 1264×20 → 1px gradient line で代替） ── */
+.sjd-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.16) 12%,
+    rgba(255, 255, 255, 0.16) 88%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* ════ §6a developer-systems-animation（構成図） ════ */
+
+.sjd-figure {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1000 / 440;
+}
+
+.sjd-dotgrid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(99, 102, 241, 0.32) 1px, transparent 1.4px);
+  background-size: 14px 14px;
+  mask-image: radial-gradient(70% 70% at 50% 50%, #000 25%, transparent 100%);
+  -webkit-mask-image: radial-gradient(70% 70% at 50% 50%, #000 25%, transparent 100%);
+}
+
+.sjd-diagram-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 基底線（DOM: stroke #152460 / #5D64FE, dasharray 2 2） */
+.sjd-line {
+  fill: none;
+  stroke: var(--sjd-line);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.sjd-line--center {
+  stroke: var(--sjd-accent);
+  stroke-dasharray: 2 3;
+  opacity: 0.4;
+}
+
+/* dash flow（DOM: psp-connection-path stroke #5D64FE dasharray:120 → 走るパルスとして再現） */
+.sjd-pulse {
+  fill: none;
+  stroke: var(--sjd-accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 12 88;
+  stroke-dashoffset: 100;
+  animation: sjd-dash 3.4s linear infinite;
+}
+
+@keyframes sjd-dash {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ノード pill */
+.sjd-node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--sjd-node-bg);
+  border: 1px solid var(--sjd-node-border);
+  color: var(--sjd-node-text);
+  font-size: 11.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* dynamic-rect-bg 相当: 明色 block + 低速 gradient shimmer */
+.sjd-node--bright {
+  background-image: linear-gradient(
+    110deg,
+    #4f46e5 0%,
+    #5d64fe 40%,
+    #7d80ff 50%,
+    #5d64fe 60%,
+    #4f46e5 100%
+  );
+  background-size: 220% 100%;
+  border-color: rgba(160, 163, 255, 0.5);
+  color: #fff;
+  animation: sjd-shimmer 5s linear infinite;
+}
+
+@keyframes sjd-shimmer {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 220% 0;
+  }
+}
+
+/* 中央 stripe block */
+.sjd-stripe-block {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #232e75, #131c52);
+  border: 1px solid rgba(125, 128, 255, 0.35);
+  box-shadow:
+    0 0 50px rgba(93, 100, 254, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+/* app logo flip（__app-logo__front/back, rotateX 180°） */
+.sjd-apps {
+  position: absolute;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.sjd-applogo-wrap {
+  perspective: 600px;
+}
+
+.sjd-applogo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.sjd-applogo-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.sjd-applogo-back {
+  transform: rotateX(180deg);
+}
+
+/* ════ §6b スケール数値（gradient 数字） ════ */
+
+.sjd-stat {
+  display: inline-block;
+  font-size: 48px;
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -1.2px;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.sjd-stat--orange {
+  background-image: linear-gradient(90deg, #ffae7b, #f66da8);
+}
+
+.sjd-stat--pink {
+  background-image: linear-gradient(90deg, #f66da8, #b06af5);
+}
+
+.sjd-stat--purple {
+  background-image: linear-gradient(90deg, #9d8cff, #6e62f9);
+}
+
+/* ════ §6c feature card ════ */
+
+.sjd-card {
+  aspect-ratio: 400 / 294;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.sjd-card--nocode {
+  background: linear-gradient(160deg, #33498f 0%, #1b2766 60%, #131d53 100%);
+}
+
+.sjd-card--platforms {
+  background: linear-gradient(160deg, #1d2a6e 0%, #10194b 100%);
+}
+
+.sjd-card--code {
+  background: #171f55;
+}
+
+/* ── reduced motion: 常時アニメ全停止 ── */
+@media (prefers-reduced-motion: reduce) {
+  .sjd-pulse,
+  .sjd-node--bright {
+    animation: none;
+  }
+}
