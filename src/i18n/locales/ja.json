@@ -155,6 +155,127 @@
       "language": "言語",
       "topActionsLabel": "ユーザーメニュー"
     },
+    "auth": {
+      "close": "ログインを閉じる",
+      "next": "次へ",
+      "provider": {
+        "title": "ログイン または会員登録",
+        "intro": "ログイン方法を選んでください",
+        "couponCallout": "アプリ限定！登録するとすぐに送料50%OFFクーポンをプレゼント",
+        "couponCta": "送料50%OFFクーポンを今すぐ受け取る",
+        "webReward": "または、Webで登録して500円分のポイントを受け取る",
+        "google": "Googleで続ける",
+        "apple": "Appleで続ける",
+        "email": "メールで続ける"
+      },
+      "birthday": {
+        "title": "生年月日を入力してください",
+        "progress": "会員登録 1/2",
+        "label": "生年月日（西暦）",
+        "placeholder": "YYYY-MM-DD",
+        "help": "生年月日は他の方に開示されることはありません。"
+      },
+      "phone": {
+        "title": "電話番号を入力してください",
+        "progress": "会員登録 2/2",
+        "explanation": "安全な取引のための必須手続きです。必要な情報のみ確認いたします",
+        "countryLabel": "国番号",
+        "numberLabel": "電話番号",
+        "placeholder": "ハイフンなしの数字のみ",
+        "consent": "私はSAZOのサービス利用契約、支払サービス利用規約に同意し、個人情報保護ポリシーを承諾します。",
+        "optOut": "SAZOからのお得な情報を受け取らない"
+      }
+    },
+    "account": {
+      "back": "前の画面に戻る",
+      "mypage": {
+        "title": "マイページ",
+        "memberGreeting": "{{name}} さん",
+        "points": "ポイント",
+        "coupons": "クーポン",
+        "allOrders": "ご注文全体を確認",
+        "shopping": "ショッピング",
+        "orderHistory": "注文履歴",
+        "coupon": "クーポン",
+        "point": "ポイント",
+        "review": "レビュー",
+        "createReview": "レビューを作成",
+        "createdReviews": "作成したレビュー",
+        "settings": "設定",
+        "editProfile": "会員情報の修正",
+        "cards": "登録カード管理",
+        "delivery": "配送先管理",
+        "notifications": "通知設定",
+        "support": "サポート",
+        "logout": "ログアウト"
+      }
+    },
+    "favorites": {
+      "title": "お気に入り",
+      "tabsLabel": "お気に入りの種類",
+      "tabs": {
+        "product": "商品",
+        "brand": "ブランド",
+        "review": "レビュー"
+      },
+      "filters": {
+        "all": "全体(0)",
+        "regular": "一般(0)",
+        "limited": "限定(0)"
+      },
+      "sort": {
+        "label": "並び順",
+        "latest": "最新順",
+        "price": "価格安い順",
+        "name": "名前順"
+      },
+      "empty": {
+        "product": {
+          "title": "お気に入り商品がありません",
+          "body": "お気に入りに追加してください"
+        },
+        "brand": {
+          "title": "お気に入りブランドがありません",
+          "body": "お気に入りに追加してください",
+          "cta": "ブランドを見に行く"
+        },
+        "review": {
+          "title": "リアクションしたレビューがありません",
+          "body": "他のレビューにリアクションしてみましょう"
+        }
+      }
+    },
+    "profile": {
+      "title": "会員情報の修正・変更",
+      "nickname": "ニックネーム",
+      "email": "メールアドレス",
+      "orderNotice": "ご注文の商品、配送状況をお見逃しなく！メール認証し正確な情報をもとに、ご注文の商品のお届け状況を見逃しなく確認できます。",
+      "nameKanji": "氏名（漢字・英語・ひらがな）",
+      "nameKana": "氏名（カナまたは英語）",
+      "familyName": "姓",
+      "givenName": "名",
+      "familyNameKana": "姓（カナまたは英語）",
+      "givenNameKana": "名（カナまたは英語）",
+      "image": "プロフィール画像",
+      "upload": "クリックしてアップロード",
+      "uploadHelp": "またはドラッグ＆ドロップ PNG、JPGまたはGIF（最大10MB）",
+      "withdraw": "退会",
+      "save": "変更内容を保存"
+    },
+    "cards": {
+      "title": "登録カード管理",
+      "empty": "登録されているカードがありません。"
+    },
+    "chat": {
+      "title": "SAZOチャット",
+      "close": "チャットを閉じる",
+      "loading": "チャットを読み込んでいます",
+      "emptyTitle": "メッセージはまだありません",
+      "emptyBody": "ご質問を入力するとサポートを開始できます。",
+      "messageLabel": "メッセージ",
+      "placeholder": "メッセージを入力",
+      "send": "メッセージを送信"
+    },
     "home": {
       "heroLabel": "キャンペーンバナー",
       "previousBanner": "前のバナー",

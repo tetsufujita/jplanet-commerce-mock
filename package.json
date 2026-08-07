@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:sazo-home-browser": "node scripts/sazo-commerce-home-browser.mjs",
     "test:sazo-views-browser": "node scripts/sazo-commerce-views-browser.mjs",
+    "test:sazo-account-browser": "node scripts/sazo-commerce-account-browser.mjs",
     "sazo:reference": "node scripts/sazo-extract-reference.mjs",
     "format": "prettier --write ."
   },

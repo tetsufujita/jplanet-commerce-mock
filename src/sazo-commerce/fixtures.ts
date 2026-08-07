@@ -130,6 +130,52 @@ export interface ReviewRecommendation {
   product: Product;
 }
 
+export type SazoCountryCode =
+  | "JP"
+  | "KR"
+  | "CN"
+  | "US"
+  | "TW"
+  | "BN"
+  | "SG"
+  | "DE"
+  | "TH"
+  | "GU"
+  | "RU";
+
+export interface SazoCountryOption {
+  code: SazoCountryCode;
+  dialingCode: string;
+}
+
+export interface SazoAccountFixture {
+  coupons: number;
+  displayName: string;
+  email: string;
+  points: number;
+}
+
+export const sazoAccountFixture = {
+  coupons: 0,
+  displayName: "Tetsu Fujita",
+  email: "tetsu.fujita@andes.global",
+  points: 500,
+} satisfies SazoAccountFixture;
+
+export const sazoCountryOptions = [
+  { code: "JP", dialingCode: "81" },
+  { code: "KR", dialingCode: "82" },
+  { code: "CN", dialingCode: "86" },
+  { code: "US", dialingCode: "1" },
+  { code: "TW", dialingCode: "886" },
+  { code: "BN", dialingCode: "673" },
+  { code: "SG", dialingCode: "65" },
+  { code: "DE", dialingCode: "49" },
+  { code: "TH", dialingCode: "66" },
+  { code: "GU", dialingCode: "1" },
+  { code: "RU", dialingCode: "7" },
+] satisfies readonly SazoCountryOption[];
+
 export const heroSlides = [
   {
     id: "delivery-line",

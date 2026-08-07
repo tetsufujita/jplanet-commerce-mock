@@ -148,6 +148,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
   const { t } = useTranslation();
   const loginExpanded = state.overlay === "login";
   const serviceView = state.view === "service";
+  const accountView = ["mypage", "favorites", "profile", "cards"].includes(state.view);
 
   return (
     <div
@@ -199,15 +200,26 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
               icon={Bell}
               label={t("sazo.navigation.notification")}
             />
-            <ControlButton
-              className="sazo-top-action"
-              expanded={loginExpanded}
-              icon={UserRound}
-              label={t("sazo.actions.login")}
-              onPress={() => {
-                dispatch({ type: "open-login" });
-              }}
-            />
+            {accountView ? (
+              <NavigationButton
+                className="sazo-top-action"
+                dispatch={dispatch}
+                icon={UserRound}
+                label={t("sazo.navigation.mypage")}
+                state={state}
+                view="mypage"
+              />
+            ) : (
+              <ControlButton
+                className="sazo-top-action"
+                expanded={loginExpanded}
+                icon={UserRound}
+                label={t("sazo.actions.login")}
+                onPress={() => {
+                  dispatch({ type: "open-login" });
+                }}
+              />
+            )}
             <ControlButton
               className="sazo-top-action"
               icon={Globe2}
@@ -299,15 +311,25 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
             state={state}
             view="favorites"
           />
-          <ControlButton
-            className="sazo-nav-button"
-            expanded={loginExpanded}
-            icon={UserRound}
-            label={t("sazo.actions.login")}
-            onPress={() => {
-              dispatch({ type: "open-login" });
-            }}
-          />
+          {accountView ? (
+            <NavigationButton
+              dispatch={dispatch}
+              icon={UserRound}
+              label={t("sazo.navigation.mypage")}
+              state={state}
+              view="mypage"
+            />
+          ) : (
+            <ControlButton
+              className="sazo-nav-button"
+              expanded={loginExpanded}
+              icon={UserRound}
+              label={t("sazo.actions.login")}
+              onPress={() => {
+                dispatch({ type: "open-login" });
+              }}
+            />
+          )}
         </nav>
       </div>
 

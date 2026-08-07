@@ -1,4 +1,4 @@
-.sazo-root {
+.sazo-page {
   --sazo-pink: #e52969;
   --sazo-ink: #101319;
   --sazo-muted: #72767d;
@@ -6,6 +6,10 @@
   --sazo-surface: #ffffff;
   --sazo-soft: #f6f7f8;
   --sazo-shadow: rgb(16 19 25 / 12%);
+  min-height: 100vh;
+}
+
+.sazo-root {
   min-height: 100vh;
   background: var(--sazo-surface);
   color: var(--sazo-ink);
@@ -26,7 +30,9 @@
   color: inherit;
 }
 
-.sazo-root .sazo-visually-hidden {
+.sazo-root .sazo-visually-hidden,
+.sazo-page > .sazo-auth-backdrop .sazo-visually-hidden,
+.sazo-page > .sazo-chat-backdrop .sazo-visually-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -36,6 +42,275 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.sazo-page > .sazo-auth-backdrop,
+.sazo-page > .sazo-chat-backdrop {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  box-sizing: border-box;
+  color: var(--sazo-ink);
+  font-family: Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+}
+
+.sazo-page > .sazo-auth-backdrop *,
+.sazo-page > .sazo-chat-backdrop * {
+  box-sizing: border-box;
+}
+
+.sazo-page > .sazo-auth-backdrop button,
+.sazo-page > .sazo-auth-backdrop input,
+.sazo-page > .sazo-auth-backdrop select,
+.sazo-page > .sazo-chat-backdrop button,
+.sazo-page > .sazo-chat-backdrop textarea {
+  font: inherit;
+}
+
+.sazo-page > .sazo-auth-backdrop,
+.sazo-page > .sazo-chat-backdrop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--sazo-ink) 36%, transparent);
+}
+
+.sazo-page .sazo-overlay-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sazo-muted);
+  cursor: pointer;
+}
+
+.sazo-page .sazo-overlay-close:hover {
+  background: var(--sazo-soft);
+  color: var(--sazo-ink);
+}
+
+.sazo-page .sazo-overlay-close:focus-visible,
+.sazo-page .sazo-auth-dialog button:focus-visible,
+.sazo-page .sazo-auth-dialog input:focus-visible,
+.sazo-page .sazo-auth-dialog select:focus-visible,
+.sazo-page .sazo-chat-panel button:focus-visible,
+.sazo-page .sazo-chat-panel textarea:focus-visible {
+  outline: 3px solid var(--sazo-pink);
+  outline-offset: 3px;
+}
+
+.sazo-page .sazo-auth-dialog {
+  position: relative;
+  width: min(420px, calc(100vw - 48px));
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  border-radius: 20px;
+  background: var(--sazo-surface);
+  box-shadow: 0 24px 70px color-mix(in srgb, var(--sazo-ink) 24%, transparent);
+}
+
+.sazo-page .sazo-auth-dialog > .sazo-overlay-close {
+  position: absolute;
+  z-index: 2;
+  top: 14px;
+  right: 14px;
+}
+
+.sazo-page .sazo-auth-content {
+  padding: 66px 28px 32px;
+}
+
+.sazo-page .sazo-auth-content h1 {
+  max-width: calc(100% - 38px);
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+  white-space: pre-line;
+}
+
+.sazo-page .sazo-auth-provider-content h1 {
+  max-width: 230px;
+}
+
+.sazo-page .sazo-auth-content > p {
+  margin: 24px 0 0;
+  color: var(--sazo-muted);
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.sazo-page .sazo-auth-coupon-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 28px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--sazo-pink) 32%, var(--sazo-line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--sazo-pink) 7%, var(--sazo-surface));
+  color: var(--sazo-pink);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.sazo-page .sazo-auth-coupon-callout svg {
+  flex: 0 0 auto;
+}
+
+.sazo-page .sazo-auth-coupon-button,
+.sazo-page .sazo-auth-next {
+  width: 100%;
+  min-height: 56px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--sazo-pink);
+  color: var(--sazo-surface);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sazo-page .sazo-auth-coupon-button {
+  margin-top: 10px;
+}
+
+.sazo-page .sazo-auth-reward-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.sazo-page .sazo-auth-reward-divider::before,
+.sazo-page .sazo-auth-reward-divider::after {
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--sazo-line);
+  content: "";
+}
+
+.sazo-page .sazo-auth-reward-divider span {
+  max-width: 240px;
+}
+
+.sazo-page .sazo-auth-providers {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.sazo-page .sazo-auth-provider {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items: center;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 1px solid var(--sazo-line);
+  border-radius: 12px;
+  background: var(--sazo-surface);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sazo-page .sazo-auth-provider-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.sazo-page .sazo-auth-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.sazo-page .sazo-auth-form .sazo-auth-progress {
+  margin-top: 18px;
+  color: var(--sazo-ink);
+}
+
+.sazo-page .sazo-auth-form .sazo-auth-explanation {
+  margin: 24px 0 32px;
+}
+
+.sazo-page .sazo-auth-form > label {
+  margin: 28px 0 8px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.sazo-page .sazo-auth-form > input,
+.sazo-page .sazo-auth-phone-row {
+  width: 100%;
+  min-height: 58px;
+  border: 1px solid var(--sazo-line);
+  border-radius: 12px;
+  background: var(--sazo-surface);
+}
+
+.sazo-page .sazo-auth-form > input {
+  padding: 0 16px;
+}
+
+.sazo-page .sazo-auth-form > small {
+  margin-top: 7px;
+  color: var(--sazo-muted);
+  font-weight: 650;
+}
+
+.sazo-page .sazo-auth-next {
+  margin-top: 28px;
+}
+
+.sazo-page .sazo-auth-phone-row {
+  display: grid;
+  grid-template-columns: 126px 1fr;
+  overflow: hidden;
+}
+
+.sazo-page .sazo-auth-phone-row select,
+.sazo-page .sazo-auth-phone-row input {
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+}
+
+.sazo-page .sazo-auth-phone-row select {
+  padding: 0 10px 0 14px;
+  border-right: 1px solid var(--sazo-line);
+}
+
+.sazo-page .sazo-auth-phone-row input {
+  padding: 0 14px;
+}
+
+.sazo-page .sazo-auth-consent-copy {
+  color: var(--sazo-ink);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.sazo-page .sazo-auth-opt-out {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid var(--sazo-line);
+}
+
+.sazo-page .sazo-auth-opt-out input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--sazo-pink);
 }
 
 .sazo-root .sazo-desktop-shell {
@@ -2583,5 +2858,627 @@
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
     transition-delay: 0ms !important;
+  }
+}
+
+.sazo-root .sazo-account-view {
+  min-height: calc(100vh - 178px);
+  background: var(--sazo-surface);
+}
+
+.sazo-root .sazo-account-header {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  width: min(920px, calc(100% - 48px));
+  min-height: 72px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--sazo-line);
+}
+
+.sazo-root .sazo-account-header > button,
+.sazo-root .sazo-account-header-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-account-header h1 {
+  margin: 0;
+  font-size: 24px;
+  text-align: center;
+}
+
+.sazo-root .sazo-account-header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.sazo-root .sazo-account-content,
+.sazo-root .sazo-favorites-content,
+.sazo-root .sazo-profile-form,
+.sazo-root .sazo-cards-content {
+  width: min(760px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 36px 0 96px;
+}
+
+.sazo-root .sazo-member-summary,
+.sazo-root .sazo-account-group {
+  padding: 28px 0;
+  border-bottom: 1px solid var(--sazo-line);
+}
+
+.sazo-root .sazo-member-name {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-member-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--sazo-soft);
+  color: var(--sazo-muted);
+  font-weight: 800;
+}
+
+.sazo-root .sazo-member-name strong {
+  font-size: 24px;
+}
+
+.sazo-root .sazo-member-balances {
+  display: flex;
+  gap: 46px;
+  margin-top: 24px;
+}
+
+.sazo-root .sazo-member-balances > div {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  align-items: center;
+}
+
+.sazo-root .sazo-member-balances svg {
+  grid-row: 1 / span 2;
+}
+
+.sazo-root .sazo-member-balances strong {
+  color: var(--sazo-pink);
+  font-size: 20px;
+  text-decoration: underline;
+}
+
+.sazo-root .sazo-member-balances span {
+  color: var(--sazo-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sazo-root .sazo-order-summary,
+.sazo-root .sazo-account-support {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 72px;
+  padding: 0 22px;
+  border: 1px solid var(--sazo-line);
+  border-radius: 14px;
+  background: var(--sazo-surface);
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-order-summary {
+  margin-top: 28px;
+}
+
+.sazo-root .sazo-account-group h2 {
+  margin: 0 0 12px;
+  font-size: 24px;
+}
+
+.sazo-root .sazo-account-link {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 58px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-weight: 750;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-account-chevron {
+  color: var(--sazo-muted);
+}
+
+.sazo-root .sazo-account-support {
+  grid-template-columns: auto auto;
+  justify-content: center;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.sazo-root .sazo-account-logout,
+.sazo-root .sazo-profile-withdraw {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid var(--sazo-line);
+  border-radius: 10px;
+  background: var(--sazo-surface);
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-favorite-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid var(--sazo-line);
+}
+
+.sazo-root .sazo-favorite-tabs button {
+  min-height: 54px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--sazo-muted);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-favorite-tabs button[aria-selected="true"] {
+  border-bottom-color: var(--sazo-ink);
+  color: var(--sazo-ink);
+}
+
+.sazo-root .sazo-favorite-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 0;
+}
+
+.sazo-root .sazo-favorite-filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.sazo-root .sazo-favorite-filters button,
+.sazo-root .sazo-favorite-toolbar select {
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--sazo-line);
+  border-radius: 999px;
+  background: var(--sazo-surface);
+  font-weight: 750;
+}
+
+.sazo-root .sazo-favorite-filters button[aria-pressed="true"] {
+  border-color: var(--sazo-ink);
+  background: var(--sazo-ink);
+  color: var(--sazo-surface);
+}
+
+.sazo-root .sazo-favorite-toolbar select {
+  margin-left: auto;
+  background: var(--sazo-soft);
+}
+
+.sazo-root .sazo-account-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 290px;
+  padding: 32px;
+  border: 1px solid var(--sazo-line);
+  border-radius: 16px;
+  text-align: center;
+}
+
+.sazo-root .sazo-account-empty-state svg {
+  color: var(--sazo-muted);
+}
+
+.sazo-root .sazo-account-empty-state h2 {
+  margin: 18px 0 0;
+  font-size: 20px;
+}
+
+.sazo-root .sazo-account-empty-state p {
+  margin: 10px 0 0;
+  color: var(--sazo-muted);
+  font-weight: 650;
+}
+
+.sazo-root .sazo-account-empty-state button {
+  min-height: 48px;
+  margin-top: 24px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--sazo-ink);
+  color: var(--sazo-surface);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.sazo-root .sazo-profile-form > label,
+.sazo-root .sazo-profile-form legend {
+  margin-top: 15px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.sazo-root .sazo-profile-form > input,
+.sazo-root .sazo-profile-form fieldset input,
+.sazo-root .sazo-profile-phone {
+  min-height: 50px;
+  border: 1px solid var(--sazo-line);
+  border-radius: 10px;
+  background: var(--sazo-surface);
+}
+
+.sazo-root .sazo-profile-form > input,
+.sazo-root .sazo-profile-form fieldset input {
+  padding: 0 14px;
+}
+
+.sazo-root .sazo-profile-form input[readonly] {
+  background: var(--sazo-soft);
+}
+
+.sazo-root .sazo-profile-notice {
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--sazo-pink) 30%, var(--sazo-line));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--sazo-pink) 6%, var(--sazo-surface));
+  color: var(--sazo-muted);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.sazo-root .sazo-profile-form fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 0;
+  border: 0;
+}
+
+.sazo-root .sazo-profile-form fieldset legend {
+  grid-column: 1 / -1;
+  margin-bottom: 9px;
+}
+
+.sazo-root .sazo-profile-form fieldset input:first-of-type {
+  border-radius: 10px 0 0 10px;
+}
+
+.sazo-root .sazo-profile-form fieldset input:last-of-type {
+  border-left: 0;
+  border-radius: 0 10px 10px 0;
+}
+
+.sazo-root .sazo-profile-phone {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  overflow: hidden;
+}
+
+.sazo-root .sazo-profile-phone select,
+.sazo-root .sazo-profile-phone input {
+  min-width: 0;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+}
+
+.sazo-root .sazo-profile-phone select {
+  border-right: 1px solid var(--sazo-line);
+}
+
+.sazo-root .sazo-profile-image h2 {
+  margin: 24px 0 12px;
+  font-size: 18px;
+}
+
+.sazo-root .sazo-profile-image > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 180px;
+  padding: 28px;
+  border: 1px solid var(--sazo-line);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.sazo-root .sazo-profile-image strong {
+  color: var(--sazo-pink);
+  text-decoration: underline;
+}
+
+.sazo-root .sazo-profile-image span {
+  color: var(--sazo-muted);
+  font-size: 13px;
+}
+
+.sazo-root .sazo-profile-withdraw {
+  align-self: flex-start;
+  border: 0;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.sazo-root .sazo-profile-save {
+  min-height: 54px;
+  margin-top: 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--sazo-ink);
+  color: var(--sazo-surface);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-account-view button:focus-visible,
+.sazo-root .sazo-account-view input:focus-visible,
+.sazo-root .sazo-account-view select:focus-visible,
+.sazo-root .sazo-account-view textarea:focus-visible {
+  outline: 3px solid var(--sazo-pink);
+  outline-offset: 3px;
+}
+
+.sazo-page > .sazo-chat-backdrop {
+  justify-content: flex-end;
+  background: color-mix(in srgb, var(--sazo-ink) 16%, transparent);
+}
+
+.sazo-page .sazo-chat-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(400px, calc(100vw - 48px));
+  height: min(680px, calc(100dvh - 48px));
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--sazo-surface);
+  box-shadow: 0 24px 70px color-mix(in srgb, var(--sazo-ink) 24%, transparent);
+}
+
+.sazo-page .sazo-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+  padding: 12px 14px 12px 20px;
+  border-bottom: 1px solid var(--sazo-line);
+}
+
+.sazo-page .sazo-chat-header > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sazo-page .sazo-chat-header h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.sazo-page .sazo-chat-history {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 28px;
+  overflow-y: auto;
+}
+
+.sazo-page .sazo-chat-status,
+.sazo-page .sazo-chat-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--sazo-muted);
+  text-align: center;
+}
+
+.sazo-page .sazo-chat-status {
+  gap: 12px;
+  font-weight: 700;
+}
+
+.sazo-page .sazo-chat-empty h2 {
+  margin: 18px 0 0;
+  color: var(--sazo-ink);
+  font-size: 19px;
+}
+
+.sazo-page .sazo-chat-empty p {
+  margin: 10px 0 0;
+  line-height: 1.55;
+}
+
+.sazo-page .sazo-chat-composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 46px;
+  gap: 8px;
+  padding: 14px;
+  border-top: 1px solid var(--sazo-line);
+}
+
+.sazo-page .sazo-chat-composer textarea {
+  min-height: 56px;
+  max-height: 120px;
+  resize: vertical;
+  padding: 12px 14px;
+  border: 1px solid var(--sazo-line);
+  border-radius: 12px;
+}
+
+.sazo-page .sazo-chat-composer button {
+  align-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--sazo-pink);
+  color: var(--sazo-surface);
+}
+
+.sazo-page .sazo-chat-composer button:disabled {
+  background: var(--sazo-soft);
+  color: var(--sazo-muted);
+}
+
+@media (max-width: 767px) {
+  .sazo-page > .sazo-auth-backdrop,
+  .sazo-page > .sazo-chat-backdrop {
+    padding: 0;
+    background: var(--sazo-surface);
+  }
+
+  .sazo-page .sazo-auth-dialog {
+    width: 100%;
+    max-height: 100dvh;
+    min-height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .sazo-page .sazo-auth-content {
+    padding: 74px 20px 36px;
+  }
+
+  .sazo-page .sazo-auth-content h1 {
+    font-size: 30px;
+  }
+
+  .sazo-page .sazo-auth-form > label {
+    margin-top: 26px;
+  }
+
+  .sazo-page .sazo-auth-phone-row {
+    grid-template-columns: 112px 1fr;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mobile-header,
+  .sazo-root[data-view="favorites"] .sazo-mobile-header,
+  .sazo-root[data-view="profile"] .sazo-mobile-header,
+  .sazo-root[data-view="cards"] .sazo-mobile-header {
+    display: none;
+  }
+
+  .sazo-root .sazo-account-view {
+    min-height: calc(100vh - 68px);
+  }
+
+  .sazo-root .sazo-account-header {
+    position: sticky;
+    z-index: 20;
+    top: 0;
+    width: 100%;
+    min-height: 64px;
+    padding: 0 10px;
+    background: var(--sazo-surface);
+    box-shadow: 0 5px 16px var(--sazo-shadow);
+  }
+
+  .sazo-root .sazo-account-header h1 {
+    font-size: 18px;
+  }
+
+  .sazo-root .sazo-account-content,
+  .sazo-root .sazo-favorites-content,
+  .sazo-root .sazo-profile-form,
+  .sazo-root .sazo-cards-content {
+    width: 100%;
+    padding: 24px 18px 100px;
+  }
+
+  .sazo-root .sazo-member-name strong {
+    font-size: 20px;
+  }
+
+  .sazo-root .sazo-member-balances {
+    gap: 30px;
+  }
+
+  .sazo-root .sazo-account-group h2 {
+    font-size: 22px;
+  }
+
+  .sazo-root .sazo-favorites-content {
+    padding-top: 0;
+  }
+
+  .sazo-root .sazo-favorite-toolbar {
+    align-items: flex-start;
+  }
+
+  .sazo-root .sazo-favorite-toolbar select {
+    max-width: 120px;
+  }
+
+  .sazo-root .sazo-account-empty-state {
+    min-height: 250px;
+  }
+
+  .sazo-page > .sazo-chat-backdrop {
+    align-items: flex-end;
+    background: color-mix(in srgb, var(--sazo-ink) 12%, transparent);
+  }
+
+  .sazo-page .sazo-chat-panel {
+    width: 100%;
+    height: min(78dvh, 660px);
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -12px 38px var(--sazo-shadow);
   }
 }
