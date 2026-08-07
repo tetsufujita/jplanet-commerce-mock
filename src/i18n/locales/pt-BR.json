@@ -183,6 +183,95 @@
       "rating": "5点中{{rating}}点",
       "favoriteProduct": "{{product}}をお気に入りに追加"
     },
+    "views": {
+      "common": {
+        "back": "ホームに戻る",
+        "home": "ホーム",
+        "cart": "カート",
+        "saveBrand": "{{brand}}を保存",
+        "savedBrand": "{{brand}}の保存を解除",
+        "favoriteProductRemove": "{{product}}をお気に入りから削除"
+      },
+      "brands": {
+        "title": "人気ブランド",
+        "all": "全体",
+        "apparel": "アパレル",
+        "accessories": "ファッション小物",
+        "bags": "バッグ",
+        "shoes": "シューズ",
+        "gadgets": "ガジェット",
+        "beauty": "ビューティー",
+        "search": "ブランド内検索",
+        "total": "全体953個"
+      },
+      "categories": {
+        "title": "カテゴリー",
+        "brandsTab": "人気ブランド",
+        "categoriesTab": "カテゴリー",
+        "more": "もっと見る"
+      },
+      "catalog": {
+        "title": "化粧品",
+        "allCount": "全体 86個",
+        "listMode": "リスト表示",
+        "gridMode": "グリッド表示"
+      },
+      "ranking": {
+        "title": "SAZO RANKING",
+        "purchaseCount": "購入数",
+        "viewCount": "閲覧数",
+        "week": "週間"
+      },
+      "reviews": {
+        "title": "利用レビュー",
+        "likes": "{{count}}件のいいね",
+        "comments": "{{count}}件のコメント"
+      },
+      "service": {
+        "eyebrow": "これまでの手間のかかる代行とは違う！",
+        "title": "SAZOのコピペ代行",
+        "urlLabel": "韓国商品のURL",
+        "urlPlaceholder": "韓国サイトのURLを入力してね",
+        "urlHint": "ここに欲しい商品のURLを入力してショッピングをしましょう！",
+        "search": "検索",
+        "stepsTitle": "URL入力だけで、韓国の商品をかんたん注文",
+        "stepLabel": "STEP {{step}}",
+        "step01Title": "URL入力",
+        "step01Summary": "URL入力で購入代行ができます。",
+        "step01Body": "商品検索欄に欲しい韓国商品のURLを入力することで、どんな品物でもかんたんに購入代行が可能です。",
+        "step02Title": "商品情報の確認",
+        "step02Summary": "商品の詳細情報が確認できます。",
+        "step02Body": "内容や価格の確認、オプションの選択が可能です。購入前に必要な情報をまとめて確認できます。",
+        "step03Title": "支払い後に注文完了",
+        "step03Summary": "お支払い後に代行注文が受け付けられます。",
+        "step03Body": "クレジットカードとPayPayで決済できます。決済を完了すると買付へ進みます。",
+        "trustTitle": "SAZOの安心ポイント",
+        "trust01": "確定後の追加請求なし",
+        "trust02": "細かく追跡可能",
+        "trust03": "安心の配送",
+        "faqTitle": "よくある質問",
+        "faq01Question": "韓国以外からも購入できますか？",
+        "faq01Answer": "URLで商品情報を確認できる韓国サイトの商品を対象に購入代行を利用できます。",
+        "faq02Question": "販売者に問い合わせることはできますか？",
+        "faq02Answer": "購入前の確認が必要な場合はカスタマーサポートへご相談ください。",
+        "faq03Question": "送料はいくらですか？",
+        "faq03Answer": "商品の重量や配送方法に応じて注文画面に送料が表示されます。",
+        "faq04Question": "関税は発生しますか？",
+        "faq04Answer": "商品や申告額によって関税が発生する場合があります。",
+        "supportTitle": "カスタマーサポート",
+        "supportHours": "平日：10:00〜18:00　土日祝：15:00〜18:00",
+        "supportBody": "チャットよりお問い合わせください。24時間以内に担当者が回答します。",
+        "supportX": "X",
+        "supportInstagram": "Instagram",
+        "supportLine": "LINE",
+        "company": "会社紹介",
+        "careers": "採用情報",
+        "press": "プレスリリース",
+        "terms": "利用規約",
+        "privacy": "プライバシー規約",
+        "commerce": "特定商取引法に基づく表記"
+      }
+    },
     "footer": {
       "copyright": "© SAZO"
     }

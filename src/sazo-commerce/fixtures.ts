@@ -33,6 +33,7 @@ export interface RankingKeyword {
 export interface Brand {
   id: string;
   name: string;
+  japaneseName: string;
   image: SazoImagePath;
 }
 
@@ -42,12 +43,31 @@ export interface Category {
   image: SazoImagePath;
 }
 
+export interface CategoryDirectoryEntry {
+  id: string;
+  name: string;
+  children: readonly string[];
+}
+
+export interface CatalogTab {
+  id: string;
+  label: string;
+  chips: readonly string[];
+}
+
+export interface ServiceStep {
+  id: "01" | "02" | "03";
+  image: SazoImagePath;
+}
+
 export interface Review {
   id: string;
   author: string;
   productName: string;
   comment: string;
   rating: number;
+  likes: number;
+  comments: number;
   image: SazoImagePath;
 }
 
@@ -231,14 +251,54 @@ export const rankingKeywords = [
 ] satisfies readonly RankingKeyword[];
 
 export const brands = [
-  { id: "anua", name: "Anua", image: "/sazo-commerce/brands/01.webp" },
-  { id: "amuse", name: "AMUSE", image: "/sazo-commerce/brands/02.webp" },
-  { id: "clio", name: "CLIO", image: "/sazo-commerce/brands/03.webp" },
-  { id: "dasique", name: "dasique", image: "/sazo-commerce/brands/04.webp" },
-  { id: "hince", name: "hince", image: "/sazo-commerce/brands/05.webp" },
-  { id: "innisfree", name: "innisfree", image: "/sazo-commerce/brands/06.webp" },
-  { id: "romand", name: "rom&nd", image: "/sazo-commerce/brands/07.webp" },
-  { id: "torriden", name: "Torriden", image: "/sazo-commerce/brands/08.webp" },
+  {
+    id: "nike",
+    name: "NIKE",
+    japaneseName: "ナイキ",
+    image: "/sazo-commerce/brands/01.webp",
+  },
+  {
+    id: "acne-studios",
+    name: "ACNE STUDIOS",
+    japaneseName: "アクネ・ストゥディオズ",
+    image: "/sazo-commerce/brands/02.webp",
+  },
+  {
+    id: "arcteryx",
+    name: "ARC'TERYX",
+    japaneseName: "アークテリクス",
+    image: "/sazo-commerce/brands/03.webp",
+  },
+  {
+    id: "apple",
+    name: "APPLE",
+    japaneseName: "アップル",
+    image: "/sazo-commerce/brands/04.webp",
+  },
+  {
+    id: "diptyque",
+    name: "DIPTYQUE",
+    japaneseName: "ディプティック",
+    image: "/sazo-commerce/brands/05.webp",
+  },
+  {
+    id: "maison-margiela",
+    name: "MAISON MARGIELA",
+    japaneseName: "メゾン・マルジェラ",
+    image: "/sazo-commerce/brands/06.webp",
+  },
+  {
+    id: "the-north-face",
+    name: "THE NORTH FACE",
+    japaneseName: "ザ・ノース・フェイス",
+    image: "/sazo-commerce/brands/07.webp",
+  },
+  {
+    id: "longchamp",
+    name: "LONGCHAMP",
+    japaneseName: "ロンシャン",
+    image: "/sazo-commerce/brands/08.webp",
+  },
 ] satisfies readonly Brand[];
 
 export const categories = [
@@ -266,6 +326,114 @@ export const categories = [
   { id: "sale", name: "セール", image: "/sazo-commerce/products/02.webp" },
 ] satisfies readonly Category[];
 
+export const categoryDirectory = [
+  {
+    id: "beauty",
+    name: "化粧品",
+    children: [
+      "スキンケア",
+      "ベースメイク",
+      "ポイントメイク",
+      "セット商品",
+      "メイク小物",
+      "UVケア",
+      "ボディ・ハンド・フットケア",
+      "脱毛・除毛",
+      "ネイル",
+      "ヘア",
+      "香水",
+      "メンズコスメ",
+    ],
+  },
+  {
+    id: "ladies",
+    name: "レディース",
+    children: ["トップス", "アウター", "ボトムス", "ワンピース", "バッグ"],
+  },
+  {
+    id: "mens",
+    name: "メンズ",
+    children: ["トップス", "アウター", "ボトムス", "シューズ"],
+  },
+  {
+    id: "kids",
+    name: "キッズ",
+    children: ["キッズファッション", "ベビー", "おもちゃ"],
+  },
+  {
+    id: "living",
+    name: "生活雑貨",
+    children: ["家電", "キッチン", "インテリア", "日用品"],
+  },
+  {
+    id: "food",
+    name: "食品",
+    children: ["お菓子", "飲料", "インスタント食品"],
+  },
+  {
+    id: "pets",
+    name: "ペット",
+    children: ["ペットフード", "ペット用品"],
+  },
+  {
+    id: "appliances",
+    name: "家電",
+    children: ["家電・PC・ゲーム"],
+  },
+  {
+    id: "hobby",
+    name: "趣味",
+    children: ["K-POP", "キャラクター", "スポーツ"],
+  },
+] satisfies readonly CategoryDirectoryEntry[];
+
+export const catalogTabs = [
+  {
+    id: "skincare",
+    label: "スキンケア",
+    chips: ["化粧水", "トナー", "ローション", "乳液", "エッセンス"],
+  },
+  {
+    id: "base-makeup",
+    label: "ベースメイク",
+    chips: ["メイクアップベース", "プライマー", "BBクリーム", "CCクリーム"],
+  },
+  {
+    id: "point-makeup",
+    label: "ポイントメイク",
+    chips: ["アイメイク", "リップ", "チーク"],
+  },
+  {
+    id: "sets",
+    label: "セット商品",
+    chips: ["化粧品セット", "基礎化粧品セット", "化粧品ギフトセット"],
+  },
+  {
+    id: "tools",
+    label: "メイク小物",
+    chips: ["ブラシ", "パフ", "ミラー"],
+  },
+] satisfies readonly CatalogTab[];
+
+export const reviewCategories = [
+  "全体",
+  "アイドル",
+  "音楽",
+  "文房具・雑貨",
+  "食品",
+  "美容",
+  "キッズ・ベビー",
+  "ファッション",
+  "ドラマ",
+  "アイテム",
+] as const;
+
+export const serviceSteps = [
+  { id: "01", image: "/sazo-commerce/service/step-01.webp" },
+  { id: "02", image: "/sazo-commerce/service/step-02.webp" },
+  { id: "03", image: "/sazo-commerce/service/step-03.webp" },
+] satisfies readonly ServiceStep[];
+
 export const reviews = [
   {
     id: "r01",
@@ -274,6 +442,8 @@ export const reviews = [
     comment:
       "SNSで見かけてからどうしても欲しくて探していたところ、このサイトを見つけました。",
     rating: 5,
+    likes: 4,
+    comments: 0,
     image: "/sazo-commerce/community/04.webp",
   },
   {
@@ -283,6 +453,8 @@ export const reviews = [
     comment:
       "代行なので遅いかと思ったけど、結構早くてびっくりしました！ありがとうございました。",
     rating: 5,
+    likes: 4,
+    comments: 0,
     image: "/sazo-commerce/community/07.webp",
   },
   {
@@ -292,6 +464,8 @@ export const reviews = [
     comment:
       "初めて利用しましたが、日本で出回りがなくレアなカードがゲットできて嬉しいです。",
     rating: 4,
+    likes: 13,
+    comments: 0,
     image: "/sazo-commerce/community/05.webp",
   },
   {
@@ -300,6 +474,8 @@ export const reviews = [
     productName: "韓国スナック",
     comment: "美味しそうです！ありがとうございました。",
     rating: 5,
+    likes: 15,
+    comments: 0,
     image: "/sazo-commerce/community/08.webp",
   },
   {
@@ -308,6 +484,8 @@ export const reviews = [
     productName: "韓国ファッション",
     comment: "サイズ感もオーバーで、自分が欲しかったサイズ感で満足です！",
     rating: 5,
+    likes: 7,
+    comments: 0,
     image: "/sazo-commerce/community/09.webp",
   },
   {
@@ -316,6 +494,8 @@ export const reviews = [
     productName: "キャラクターグッズ",
     comment: "好きなアイドルのグッズを購入しました！とても満足しています。",
     rating: 5,
+    likes: 0,
+    comments: 0,
     image: "/sazo-commerce/community/06.webp",
   },
   {
@@ -324,6 +504,8 @@ export const reviews = [
     productName: "ITZY アルバム",
     comment: "ITZYのアルバム付いてきてました笑笑 綺麗な状態で届きましたー！！",
     rating: 5,
+    likes: 0,
+    comments: 0,
     image: "/sazo-commerce/community/10.webp",
   },
   {
@@ -332,6 +514,8 @@ export const reviews = [
     productName: "S.COUPS × MINGYU アルバム",
     comment: "ありがとうございました( ; ; )",
     rating: 5,
+    likes: 0,
+    comments: 0,
     image: "/sazo-commerce/community/11.webp",
   },
 ] satisfies readonly Review[];

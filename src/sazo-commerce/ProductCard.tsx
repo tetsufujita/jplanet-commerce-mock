@@ -1,4 +1,5 @@
 import { Bookmark } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Product } from "@/sazo-commerce/fixtures";
 
@@ -9,6 +10,7 @@ export interface ProductCardProps {
 
 export function ProductCard({ product, variant = "standard" }: ProductCardProps) {
   const { t } = useTranslation();
+  const [favorite, setFavorite] = useState(false);
 
   return (
     <article className="sazo-product-card" data-variant={variant}>
@@ -21,11 +23,24 @@ export function ProductCard({ product, variant = "standard" }: ProductCardProps)
           width={640}
         />
         <button
-          aria-label={t("sazo.home.favoriteProduct", { product: product.name })}
+          aria-label={
+            favorite
+              ? t("sazo.views.common.favoriteProductRemove", { product: product.name })
+              : t("sazo.home.favoriteProduct", { product: product.name })
+          }
+          aria-pressed={favorite}
           className="sazo-product-favorite"
+          onClick={() => {
+            setFavorite((current) => !current);
+          }}
           type="button"
         >
-          <Bookmark aria-hidden size={20} strokeWidth={1.7} />
+          <Bookmark
+            aria-hidden
+            fill={favorite ? "currentColor" : "none"}
+            size={20}
+            strokeWidth={1.7}
+          />
         </button>
       </div>
       <div className="sazo-product-copy">

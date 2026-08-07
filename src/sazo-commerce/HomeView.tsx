@@ -48,6 +48,7 @@ export interface HomeViewProps {
 }
 
 interface SectionHeadingProps {
+  onMore?: () => void;
   title: string;
 }
 
@@ -57,13 +58,13 @@ function getCircularHeroOffset(index: number, activeIndex: number, total: number
   return forwardOffset > total / 2 ? forwardOffset - total : forwardOffset;
 }
 
-function SectionHeading({ title }: SectionHeadingProps) {
+function SectionHeading({ onMore, title }: SectionHeadingProps) {
   const { t } = useTranslation();
 
   return (
     <div className="sazo-section-heading">
       <h2>{title}</h2>
-      <button className="sazo-more-link" type="button">
+      <button className="sazo-more-link" onClick={onMore} type="button">
         {t("sazo.home.more")}
       </button>
     </div>
@@ -218,12 +219,17 @@ function ShortcutRow() {
   );
 }
 
-function ReviewStrip() {
+function ReviewStrip({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
 
   return (
     <section className="sazo-home-section sazo-review-section">
-      <SectionHeading title={t("sazo.home.reviewsTitle")} />
+      <SectionHeading
+        onMore={() => {
+          dispatch({ type: "navigate", view: "reviews" });
+        }}
+        title={t("sazo.home.reviewsTitle")}
+      />
       <div className="sazo-horizontal-strip sazo-review-strip">
         {homeReviews.map((review) => (
           <article className="sazo-review-card" key={review.id}>
@@ -316,7 +322,7 @@ function ProductGrid({ end, start = 0 }: { end: number; start?: number }) {
   );
 }
 
-function ProductDiscovery() {
+function ProductDiscovery({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
 
   return (
@@ -346,7 +352,12 @@ function ProductDiscovery() {
       </section>
 
       <section className="sazo-home-section sazo-ranking-section">
-        <SectionHeading title={t("sazo.home.rankingTitle")} />
+        <SectionHeading
+          onMore={() => {
+            dispatch({ type: "navigate", view: "ranking" });
+          }}
+          title={t("sazo.home.rankingTitle")}
+        />
         <div className="sazo-ranking-controls">
           <button aria-pressed="true" type="button">
             {t("sazo.home.purchaseCount")}
@@ -403,10 +414,10 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
         </button>
       </section>
 
-      <ReviewStrip />
+      <ReviewStrip dispatch={dispatch} />
       <GramStrip />
       <RecommendedReviews />
-      <ProductDiscovery />
+      <ProductDiscovery dispatch={dispatch} />
       <SearchDiscovery />
     </div>
   );
