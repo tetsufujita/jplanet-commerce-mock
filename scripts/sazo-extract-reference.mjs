@@ -4,10 +4,11 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
 const projectRoot = fileURLToPath(new URL("..", import.meta.url));
-const manifestPath = join(
+const defaultManifestPath = join(
   projectRoot,
   "design/reproductions/sazo-commerce/reference-manifest.json",
 );
+const manifestPath = process.env.SAZO_REFERENCE_MANIFEST ?? defaultManifestPath;
 const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 const referenceRoot = join(
   projectRoot,

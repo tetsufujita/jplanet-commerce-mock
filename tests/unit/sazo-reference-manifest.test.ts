@@ -74,15 +74,36 @@ describe("SAZO recording manifest", () => {
     }
   });
 
-  it("requests FFmpeg overwrite when regenerating reference frames", () => {
+  it("uses an injected manifest to regenerate reference frames without recordings", () => {
     const fakeFfmpegDirectory = mkdtempSync(join(tmpdir(), "sazo-fake-ffmpeg-"));
+    const fixtureSourcePath = join(fakeFfmpegDirectory, "source.mov");
+    const fixtureManifestPath = join(fakeFfmpegDirectory, "manifest.json");
     const fakeFfmpegPath = join(fakeFfmpegDirectory, "ffmpeg");
+    const fixtureViewport = "test-fixture";
+    const fixtureOutputDirectory = join(
+      process.cwd(),
+      "design/reproductions/sazo-commerce/qa/reference",
+      fixtureViewport,
+    );
+    writeFileSync(fixtureSourcePath, "fixture recording");
+    writeFileSync(
+      fixtureManifestPath,
+      JSON.stringify({
+        [fixtureViewport]: {
+          source: fixtureSourcePath,
+          viewport: { width: 1, height: 1 },
+          durationSeconds: 1,
+          checkpoints: [{ name: "fixture", second: 0 }],
+        },
+      }),
+    );
     writeFileSync(
       fakeFfmpegPath,
       [
         "#!/usr/bin/env node",
-        'if (!process.argv.includes("-y")) {',
-        '  process.stderr.write("FFmpeg requires -y to overwrite existing frames\\n");',
+        'const source = process.argv[process.argv.indexOf("-i") + 1];',
+        'if (!process.argv.includes("-y") || source !== process.env.SAZO_TEST_SOURCE) {',
+        '  process.stderr.write("FFmpeg received an unexpected extraction request\\n");',
         "  process.exit(1);",
         "}",
       ].join("\n"),
@@ -96,12 +117,15 @@ describe("SAZO recording manifest", () => {
         env: {
           ...process.env,
           PATH: `${fakeFfmpegDirectory}:${process.env.PATH ?? ""}`,
+          SAZO_REFERENCE_MANIFEST: fixtureManifestPath,
+          SAZO_TEST_SOURCE: fixtureSourcePath,
         },
       });
 
       expect(result.status).toBe(0);
     } finally {
       rmSync(fakeFfmpegDirectory, { force: true, recursive: true });
+      rmSync(fixtureOutputDirectory, { force: true, recursive: true });
     }
   });
 });
