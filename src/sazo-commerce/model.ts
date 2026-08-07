@@ -57,7 +57,7 @@ export function createInitialSazoState(): SazoState {
 export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
   switch (action.type) {
     case "navigate":
-      return { ...state, view: action.view };
+      return { ...state, view: action.view, overlay: "none" };
     case "set-catalog-mode":
       return { ...state, catalogMode: action.mode };
     case "hero-next":
