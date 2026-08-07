@@ -14,6 +14,8 @@
     "test:sazo-home-browser": "node scripts/sazo-commerce-home-browser.mjs",
     "test:sazo-views-browser": "node scripts/sazo-commerce-views-browser.mjs",
     "test:sazo-account-browser": "node scripts/sazo-commerce-account-browser.mjs",
+    "test:e2e:sazo": "playwright test tests/e2e/sazo-commerce-reproduction.spec.ts",
+    "sazo:record": "node scripts/sazo-record.mjs",
     "sazo:reference": "node scripts/sazo-extract-reference.mjs",
     "format": "prettier --write ."
   },

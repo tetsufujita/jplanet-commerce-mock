@@ -93,6 +93,7 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
       aria-label={t("sazo.home.heroLabel")}
       className="sazo-hero"
       data-hero-index={state.heroIndex}
+      data-testid="sazo-hero"
     >
       <div className="sazo-hero-viewport">
         {heroSlides.map((slide, index) => {

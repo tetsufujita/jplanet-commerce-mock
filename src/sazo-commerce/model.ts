@@ -143,7 +143,7 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
     case "open-login":
       return { ...state, overlay: "login", authStep: "provider" };
     case "advance-auth":
-      return { ...state, authStep: action.step, overlay: "none" };
+      return { ...state, authStep: action.step, overlay: "none", view: "home" };
     case "complete-auth":
       return { ...state, authStep: "provider", overlay: "none", view: "mypage" };
     case "open-chat":

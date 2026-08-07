@@ -63,6 +63,23 @@ describe("sazoReducer", () => {
     expect(state.overlay).toBe("chat");
   });
 
+  it("returns a catalog login to home before showing the registration page", () => {
+    let state = sazoReducer(createInitialSazoState(), {
+      type: "navigate",
+      view: "catalog",
+    });
+    state = sazoReducer(state, { type: "set-catalog-mode", mode: "grid" });
+    state = sazoReducer(state, { type: "open-login" });
+    state = sazoReducer(state, { type: "advance-auth", step: "birthday" });
+
+    expect(state).toMatchObject({
+      authStep: "birthday",
+      catalogMode: "grid",
+      overlay: "none",
+      view: "home",
+    });
+  });
+
   it("completes the auth page without reopening it after account navigation", () => {
     let state = sazoReducer(createInitialSazoState(), { type: "open-login" });
     state = sazoReducer(state, { type: "advance-auth", step: "phone" });

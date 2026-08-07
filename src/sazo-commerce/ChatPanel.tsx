@@ -202,6 +202,7 @@ export function ChatPanel({ dispatch }: ChatPanelProps) {
           <button
             aria-label={t("sazo.chat.close")}
             className="sazo-overlay-close"
+            data-testid="chat-close"
             onClick={close}
             type="button"
           >

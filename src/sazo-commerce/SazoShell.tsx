@@ -50,6 +50,7 @@ interface NavigationButtonProps {
   icon?: LucideIcon;
   label: string;
   state: SazoState;
+  testId?: string;
   view?: SazoView;
 }
 
@@ -59,6 +60,7 @@ function NavigationButton({
   icon: Icon,
   label,
   state,
+  testId,
   view,
 }: NavigationButtonProps) {
   const isNavigable = view !== undefined;
@@ -67,6 +69,7 @@ function NavigationButton({
     <button
       aria-pressed={isNavigable ? state.view === view : undefined}
       className={className}
+      data-testid={testId}
       onClick={
         isNavigable
           ? () => {
@@ -88,6 +91,7 @@ interface ControlButtonProps {
   icon: LucideIcon;
   label: string;
   onPress?: () => void;
+  testId?: string;
 }
 
 function ControlButton({
@@ -96,11 +100,13 @@ function ControlButton({
   icon: Icon,
   label,
   onPress,
+  testId,
 }: ControlButtonProps) {
   return (
     <button
       aria-expanded={expanded}
       className={className}
+      data-testid={testId}
       onClick={onPress}
       type="button"
     >
@@ -213,6 +219,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
                 onPress={() => {
                   dispatch({ type: "open-login" });
                 }}
+                testId="login-launcher"
               />
             )}
             <ControlButton
@@ -236,6 +243,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
               key={item.translationKey}
               label={t(item.translationKey)}
               state={state}
+              testId={item.view === "reviews" ? "nav-reviews" : undefined}
               view={item.view}
             />
           ))}
@@ -332,6 +340,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
         aria-expanded={state.overlay === "chat"}
         aria-label={t("sazo.actions.chat")}
         className="sazo-chat-button"
+        data-testid="chat-launcher"
         onClick={() => {
           dispatch({ type: "open-chat" });
         }}
