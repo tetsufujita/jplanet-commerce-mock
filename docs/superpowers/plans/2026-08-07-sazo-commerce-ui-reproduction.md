@@ -269,7 +269,7 @@ git commit -m "feat: add deterministic SAZO commerce state"
 
 - [ ] **Step 1: Write the failing shell test**
 
-Use `renderToStaticMarkup` and an `I18nextProvider` to assert the wordmark, search label, desktop nav labels, mobile bottom nav labels, main landmark, and chat button. Also read `sazo.css` and assert `.sazo-root`, the desktop media query, the exact pink token, and reduced-motion handling.
+Use `renderToStaticMarkup` and an `I18nextProvider` to assert the wordmark, search label, desktop nav labels, mobile bottom nav labels, main landmark, and chat button. Verify responsive styling later through the real-browser computed-style and screenshot scenarios in Tasks 7–8; do not grep CSS source text.
 
 ```ts
 expect(markup).toContain("SAZO");
@@ -277,9 +277,8 @@ expect(markup).toContain("キーワードまたはURLを入力");
 expect(markup).toContain("サービス紹介");
 expect(markup).toContain("お気に入り");
 expect(markup).toContain('aria-label="チャットを開く"');
-expect(css).toContain("--sazo-pink: #e52969");
-expect(css).toContain("@media (min-width: 900px)");
-expect(css).toContain("prefers-reduced-motion: reduce");
+expect(markup).toContain('data-shell="desktop"');
+expect(markup).toContain('data-shell="mobile"');
 ```
 
 - [ ] **Step 2: Run the shell test to verify RED**
@@ -635,15 +634,29 @@ git commit -m "test: automate SAZO reproduction recordings"
 - Consumes: manifest checkpoints, reference PNGs, and deterministic mock routes/actions.
 - Produces: actual PNG, diff PNG, side-by-side PNG, JSON summary, and a written fidelity report for each desktop/mobile checkpoint.
 
-- [ ] **Step 1: Write the failing comparison-contract test**
+- [ ] **Step 1: Write the failing comparison-behavior test**
 
-The test reads `scripts/sazo-compare.mjs` and asserts it imports `pixelmatch` and `pngjs`, reads the manifest, writes `summary.json`, and exits nonzero when an image pair has different dimensions. It also asserts `package.json` exposes `sazo:compare`.
+The test creates controlled PNG pairs with `pngjs` in a temporary directory and runs the real `scripts/sazo-compare.mjs` CLI. Assert: identical 8×8 images exit 0 and write a summary with ratio 0; a one-pixel difference writes a positive ratio; an 8×8 versus 9×8 pair exits nonzero and reports `dimension-mismatch`. Do not assert source text, import names, or private structure.
+
+```ts
+const identical = spawnSync("node", [
+  "scripts/sazo-compare.mjs", "--pair", referencePath, identicalPath, "--out", outputPath,
+]);
+expect(identical.status).toBe(0);
+expect(JSON.parse(readFileSync(outputPath, "utf8")).ratio).toBe(0);
+
+const mismatch = spawnSync("node", [
+  "scripts/sazo-compare.mjs", "--pair", referencePath, wrongSizePath, "--out", outputPath,
+]);
+expect(mismatch.status).not.toBe(0);
+expect(mismatch.stderr.toString()).toContain("dimension-mismatch");
+```
 
 - [ ] **Step 2: Run the comparison test to verify RED**
 
 Run: `pnpm vitest run tests/unit/sazo-comparison-contract.test.ts`
 
-Expected: FAIL because the scripts and package command do not exist.
+Expected: FAIL because the executable comparison script does not exist.
 
 - [ ] **Step 3: Implement deterministic checkpoint capture**
 
