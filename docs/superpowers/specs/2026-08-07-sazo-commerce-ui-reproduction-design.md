@@ -1,8 +1,11 @@
 # SAZO Commerce UI Recording Reproduction Design
 
-**Date:** 2026-08-07  
-**Status:** approved in conversation; pending written-spec review  
-**Owner:** Codex  
+**Date:** 2026-08-07
+
+**Status:** approved in conversation; pending written-spec review
+
+**Owner:** Codex
+
 **Implementation target:** isolated `Andes-Website` worktree, route `/sazo-commerce-mock`
 
 ## 1. Objective
@@ -183,4 +186,3 @@ The feature lives under a new `src/sazo-commerce/` boundary. It may add one rout
 - Real search, payment, ordering, delivery tracking, OAuth, or personal-data storage.
 - Rebranding to J-Planet in this first reproduction pass.
 - Refactoring unrelated Andes corporate pages or committing existing unrelated working-tree changes.
-
