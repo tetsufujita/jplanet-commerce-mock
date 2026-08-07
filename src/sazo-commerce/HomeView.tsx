@@ -1,23 +1,19 @@
 import type { CSSProperties, Dispatch } from "react";
 import { useCallback } from "react";
 import {
-  BadgePercent,
   Camera,
   ChevronLeft,
   ChevronRight,
-  CircleDollarSign,
-  Music2,
   Pause,
   Play,
   Search,
   Sparkles,
   Star,
-  Tags,
-  type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   heroSlides,
+  gramEntries,
   homeGramEntries,
   homeReviews,
   products,
@@ -28,14 +24,6 @@ import {
 import type { SazoAction, SazoState } from "@/sazo-commerce/model";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 import { useSazoHero } from "@/sazo-commerce/useSazoHero";
-
-const shortcutIcons: Record<string, LucideIcon> = {
-  cosmetics: Sparkles,
-  feature: Sparkles,
-  "flea-market": Tags,
-  "k-pop": Music2,
-  limited: BadgePercent,
-};
 
 interface HeroSlideStyle extends CSSProperties {
   "--sazo-slide-left": string;
@@ -134,6 +122,16 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
               <span className="sazo-visually-hidden">
                 {slide.title} {slide.subtitle}
               </span>
+              {slide.id === "new-benefits" ? (
+                <button
+                  aria-label="クーポンキャンペーンを見る"
+                  className="sazo-hero-campaign-link"
+                  onClick={() => {
+                    dispatch({ type: "open-campaign" });
+                  }}
+                  type="button"
+                />
+              ) : null}
             </article>
           );
         })}
@@ -194,28 +192,14 @@ function ShortcutRow() {
       className="sazo-shortcuts"
       role="group"
     >
-      {shortcuts.map((shortcut) => {
-        const Icon = shortcutIcons[shortcut.id] ?? CircleDollarSign;
-
-        return (
-          <button className="sazo-shortcut" key={shortcut.id} type="button">
-            <span className="sazo-shortcut-icon">
-              {shortcut.id === "feature" ? (
-                <img
-                  alt=""
-                  aria-hidden
-                  height={44}
-                  src="/sazo-commerce/logo-mark.svg"
-                  width={44}
-                />
-              ) : (
-                <Icon aria-hidden size={32} strokeWidth={1.8} />
-              )}
-            </span>
-            <span>{shortcut.label}</span>
-          </button>
-        );
-      })}
+      {shortcuts.map((shortcut) => (
+        <button className="sazo-shortcut" key={shortcut.id} type="button">
+          <span className="sazo-shortcut-icon">
+            <img alt="" aria-hidden height={84} src={shortcut.image} width={84} />
+          </span>
+          <span>{shortcut.label}</span>
+        </button>
+      ))}
     </div>
   );
 }
@@ -273,6 +257,67 @@ function GramStrip() {
             </div>
             <h3>{entry.caption}</h3>
             <p>{entry.author}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const gramCatalogEntries = [
+  gramEntries[3],
+  gramEntries[4],
+  gramEntries[5],
+  null,
+  null,
+  null,
+  {
+    author: "KREAM",
+    caption: "REMINI Plush キャラぬいキーリング",
+    id: "g-catalog-02",
+    image: "/sazo-commerce/gram/list-02.png",
+  },
+  null,
+  {
+    author: "MUSINSA",
+    caption: "rd check pants スウェットパンツまとめ",
+    id: "g-catalog-04",
+    image: "/sazo-commerce/gram/list-04.png",
+  },
+  {
+    author: "KREAM",
+    caption: "夏の韓国トレンドまとめ",
+    id: "g-catalog-05",
+    image: "/sazo-commerce/gram/list-05.png",
+  },
+] as const;
+
+function GramCatalog() {
+  return (
+    <section aria-label="SAZO GRAM 一覧" className="sazo-gram-catalog-section">
+      <div className="sazo-gram-catalog-grid">
+        {gramCatalogEntries.map((entry, index) => (
+          <article
+            className="sazo-gram-catalog-card"
+            data-placeholder={entry === null}
+            key={entry?.id ?? `gram-placeholder-${String(index)}`}
+          >
+            <div className="sazo-gram-catalog-media">
+              {entry ? (
+                <img
+                  alt={entry.caption}
+                  decoding="async"
+                  height={500}
+                  loading="lazy"
+                  src={entry.image}
+                  width={390}
+                />
+              ) : null}
+            </div>
+            <div className="sazo-gram-catalog-copy">
+              <strong>{entry?.caption ?? "購入代行依頼"}</strong>
+              <span>{entry?.author ?? "¥1"}</span>
+            </div>
           </article>
         ))}
       </div>
@@ -420,6 +465,7 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
       <RecommendedReviews />
       <ProductDiscovery dispatch={dispatch} />
       <SearchDiscovery />
+      <GramCatalog />
     </div>
   );
 }

@@ -12,8 +12,14 @@ const localOrigin = `http://${host}:${String(port)}`;
 const routeUrl = `${localOrigin}/sazo-commerce-mock/?qa=1`;
 const actualRoot = resolve("design/reproductions/sazo-commerce/qa/actual");
 const viewports = Object.freeze({
-  desktop: { height: 1_656, width: 3_022 },
-  mobile: { height: 1_470, width: 682 },
+  desktop: Object.freeze({
+    css: { height: 828, width: 1_511 },
+    output: { height: 1_656, width: 3_022 },
+  }),
+  mobile: Object.freeze({
+    css: { height: 735, width: 341 },
+    output: { height: 1_470, width: 682 },
+  }),
 });
 const captureTimingMs = Object.freeze({
   desktop: Object.freeze({
@@ -224,10 +230,11 @@ async function recordScenario(browser, viewportName, replay) {
 
   const context = await browser.newContext({
     colorScheme: "light",
+    deviceScaleFactor: 2,
     locale: "ja-JP",
-    recordVideo: { dir: temporaryDirectory, size: viewport },
+    recordVideo: { dir: temporaryDirectory, size: viewport.output },
     reducedMotion: "no-preference",
-    viewport,
+    viewport: viewport.css,
   });
   await context.route("https://**", async (route) => {
     await route.abort();
@@ -236,6 +243,11 @@ async function recordScenario(browser, viewportName, replay) {
   const video = page.video();
 
   assert(video !== null, `Video recording did not start for ${viewportName}`);
+  assert.deepEqual(await page.evaluate(() => [window.innerWidth, window.innerHeight]), [
+    viewport.css.width,
+    viewport.css.height,
+  ]);
+  assert.equal(await page.evaluate(() => window.devicePixelRatio), 2);
 
   try {
     await replay(page);
@@ -247,6 +259,23 @@ async function recordScenario(browser, viewportName, replay) {
   await video.saveAs(webmPath);
   await rm(temporaryDirectory, { force: true, recursive: true });
   convertRecording(webmPath, mp4Path);
+
+  const dimensions = runCommand("ffprobe", [
+    "-v",
+    "error",
+    "-select_streams",
+    "v:0",
+    "-show_entries",
+    "stream=width,height",
+    "-of",
+    "csv=p=0:s=x",
+    mp4Path,
+  ]);
+  assert.equal(
+    dimensions,
+    `${String(viewport.output.width)}x${String(viewport.output.height)}`,
+    `Unexpected MP4 dimensions for ${viewportName}`,
+  );
 
   return {
     mp4Duration: readDuration(mp4Path),

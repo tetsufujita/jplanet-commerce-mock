@@ -254,6 +254,22 @@ describe("SAZO captured view contracts", () => {
     expect(firstReview?.querySelector("img")?.getAttribute("src")).toBe(
       "/sazo-commerce/editorial-reviews/01.webp",
     );
+    const capturedReviewTiles = Array.from(
+      container.querySelectorAll<HTMLElement>(".sazo-review-tile"),
+    ).slice(4);
+
+    expect(
+      capturedReviewTiles.map((tile) => tile.querySelector("img")?.getAttribute("src")),
+    ).toEqual([
+      "/sazo-commerce/community/10.webp",
+      undefined,
+      "/sazo-commerce/community/11.webp",
+      "/sazo-commerce/reviews/unseen.png",
+      "/sazo-commerce/reviews/tail-01.png",
+      "/sazo-commerce/reviews/tail-03.png",
+      "/sazo-commerce/reviews/tail-04.png",
+      "/sazo-commerce/reviews/tail-02.png",
+    ]);
 
     fireEvent.click(screen.getByRole("button", { name: "アイドル" }));
 

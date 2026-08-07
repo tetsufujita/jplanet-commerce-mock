@@ -4,6 +4,7 @@ export type SazoView =
   | "brands"
   | "categories"
   | "catalog"
+  | "campaign"
   | "reviews"
   | "ranking"
   | "mypage"
@@ -91,6 +92,8 @@ export interface SazoState {
   rankingMetric: RankingMetric;
   heroIndex: number;
   heroPaused: boolean;
+  campaignLoaded: boolean;
+  authenticated: boolean;
 }
 
 export type SazoAction =
@@ -98,6 +101,8 @@ export type SazoAction =
   | { type: "set-catalog-mode"; mode: CatalogMode }
   | { type: "hero-next" }
   | { type: "toggle-hero-pause" }
+  | { type: "open-campaign" }
+  | { type: "campaign-loaded" }
   | { type: "open-login" }
   | { type: "advance-auth"; step: SazoAuthStep }
   | { type: "complete-auth" }
@@ -127,6 +132,8 @@ export function createInitialSazoState(): SazoState {
     rankingMetric: "purchases",
     heroIndex: 0,
     heroPaused: false,
+    campaignLoaded: false,
+    authenticated: false,
   };
 }
 
@@ -140,12 +147,22 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
       return { ...state, heroIndex: (state.heroIndex + 1) % heroSlideCount };
     case "toggle-hero-pause":
       return { ...state, heroPaused: !state.heroPaused };
+    case "open-campaign":
+      return { ...state, campaignLoaded: false, overlay: "none", view: "campaign" };
+    case "campaign-loaded":
+      return { ...state, campaignLoaded: true };
     case "open-login":
       return { ...state, overlay: "login", authStep: "provider" };
     case "advance-auth":
       return { ...state, authStep: action.step, overlay: "none", view: "home" };
     case "complete-auth":
-      return { ...state, authStep: "provider", overlay: "none", view: "mypage" };
+      return {
+        ...state,
+        authenticated: true,
+        authStep: "provider",
+        overlay: "none",
+        view: "mypage",
+      };
     case "open-chat":
       return { ...state, overlay: "chat" };
     case "close-overlay":

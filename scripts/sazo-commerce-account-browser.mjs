@@ -311,7 +311,10 @@ try {
   );
   assert(favoritesHeaderBounds.height >= 80 && favoritesHeaderBounds.height <= 85);
   assert(favoritesTabsBounds.height >= 76 && favoritesTabsBounds.height <= 84);
-  assert(favoritesEmptyBounds.y >= 285 && favoritesEmptyBounds.y <= 305);
+  assert(
+    favoritesEmptyBounds.y >= 285 && favoritesEmptyBounds.y <= 305,
+    `favorites empty y=${String(favoritesEmptyBounds.y)}`,
+  );
   assert(favoritesEmptyBounds.height >= 400 && favoritesEmptyBounds.height <= 440);
   await mobilePage.screenshot({ path: "/tmp/sazo-task6-fix-mobile-favorites.png" });
   await mobilePage.getByRole("tab", { name: "レビュー" }).click();

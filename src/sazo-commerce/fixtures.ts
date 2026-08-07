@@ -96,7 +96,7 @@ export interface EditorialReview {
   categoryIds: readonly Exclude<ReviewCategoryId, "all">[];
   likes: number;
   comments: number;
-  image: SazoImagePath;
+  image: SazoImagePath | null;
 }
 
 export interface ServiceStep {
@@ -182,9 +182,9 @@ export const heroSlides = [
     title: "配送状況をLINEでお届け！",
     subtitle: "配送料50%OFF クーポンプレゼント！",
     image: "/sazo-commerce/hero/slide-1.webp",
-    mobileHeight: 278,
-    mobileImage: "/sazo-commerce/hero/mobile/slide-1.webp",
-    mobileWidth: 450,
+    mobileHeight: 490,
+    mobileImage: "/sazo-commerce/hero/slide-1.webp",
+    mobileWidth: 1200,
   },
   {
     id: "new-benefits",
@@ -201,8 +201,8 @@ export const heroSlides = [
     subtitle: "30kg以上のソファーや棚も、お得な価格で手に入ります！",
     image: "/sazo-commerce/hero/slide-3.webp",
     mobileHeight: 490,
-    mobileImage: "/sazo-commerce/hero/mobile/slide-3.webp",
-    mobileWidth: 794,
+    mobileImage: "/sazo-commerce/hero/slide-3.webp",
+    mobileWidth: 1200,
   },
   {
     id: "cold-delivery",
@@ -217,7 +217,7 @@ export const heroSlides = [
     id: "friend-invite",
     title: "友達招待でお得！",
     subtitle: "友達招待で友達もあなたも送料無料クーポンをゲット！",
-    image: "/sazo-commerce/hero/slide-5.webp",
+    image: "/sazo-commerce/hero/friend-invite-captured.png",
     mobileHeight: 490,
     mobileImage: "/sazo-commerce/hero/mobile/slide-5.webp",
     mobileWidth: 794,
@@ -225,14 +225,22 @@ export const heroSlides = [
 ] satisfies readonly HeroSlide[];
 
 export const shortcuts = [
-  { id: "feature", label: "SAZO特集", image: "/sazo-commerce/products/01.webp" },
-  { id: "limited", label: "限定", image: "/sazo-commerce/products/02.webp" },
-  { id: "flea-market", label: "フリマ", image: "/sazo-commerce/products/03.webp" },
-  { id: "cosmetics", label: "コスメ", image: "/sazo-commerce/products/04.webp" },
+  { id: "feature", label: "SAZO特集", image: "/sazo-commerce/shortcuts/feature.png" },
+  { id: "limited", label: "限定", image: "/sazo-commerce/shortcuts/limited.png" },
+  {
+    id: "flea-market",
+    label: "フリマ",
+    image: "/sazo-commerce/shortcuts/flea-market.png",
+  },
+  {
+    id: "cosmetics",
+    label: "コスメ",
+    image: "/sazo-commerce/shortcuts/cosmetics.png",
+  },
   {
     id: "k-pop",
     label: "K-POP",
-    image: "/sazo-commerce/products/05.webp",
+    image: "/sazo-commerce/shortcuts/k-pop.png",
   },
 ] satisfies readonly Shortcut[];
 
@@ -858,39 +866,75 @@ export const editorialReviews = [
   },
   {
     id: "editorial-review-05",
-    author: "和佳 山本",
-    body: "届くまで時間がかかりましたが無事届きました。ありがとうございます。",
+    author: "ちか",
+    body: "ITZYのアルバム付いてきてました笑笑 綺麗な状態で届きましたー！！",
     categoryIds: ["idol"],
     likes: 0,
     comments: 0,
-    image: "/sazo-commerce/editorial-reviews/05.webp",
+    image: "/sazo-commerce/community/10.webp",
   },
   {
     id: "editorial-review-06",
-    author: "saksak",
-    body: "グッズの状態もよかったです！",
+    author: "ピョピョちゃん",
+    body: "日本では買えないグッズが手に入れられてとても嬉しいです！めちゃめちゃ可愛い～！",
     categoryIds: ["idol", "books"],
     likes: 0,
     comments: 0,
-    image: "/sazo-commerce/editorial-reviews/06.webp",
+    image: null,
   },
   {
     id: "editorial-review-07",
-    author: "saksak",
-    body: "とれかまでついてきてとても最高でした！",
+    author: "YU",
+    body: "ありがとうございました( ; ; )",
     categoryIds: ["idol", "automotive"],
     likes: 0,
     comments: 0,
-    image: "/sazo-commerce/editorial-reviews/07.webp",
+    image: "/sazo-commerce/community/11.webp",
   },
   {
     id: "editorial-review-08",
-    author: "山根政一",
-    body: "梱包が丁寧で商品がとても可愛かったです",
+    author: "璃季",
+    body: "商品の状態が良かった",
     categoryIds: ["idol", "food"],
     likes: 0,
     comments: 0,
-    image: "/sazo-commerce/editorial-reviews/08.webp",
+    image: "/sazo-commerce/reviews/unseen.png",
+  },
+  {
+    id: "editorial-review-09",
+    author: "",
+    body: "",
+    categoryIds: ["idol"],
+    likes: 0,
+    comments: 0,
+    image: "/sazo-commerce/reviews/tail-01.png",
+  },
+  {
+    id: "editorial-review-10",
+    author: "",
+    body: "",
+    categoryIds: ["idol"],
+    likes: 0,
+    comments: 0,
+    image: "/sazo-commerce/reviews/tail-03.png",
+  },
+  {
+    id: "editorial-review-11",
+    author: "",
+    body: "",
+    categoryIds: ["idol"],
+    likes: 0,
+    comments: 0,
+    image: "/sazo-commerce/reviews/tail-04.png",
+  },
+  {
+    id: "editorial-review-12",
+    author: "",
+    body: "",
+    categoryIds: ["idol"],
+    likes: 0,
+    comments: 0,
+    image: "/sazo-commerce/reviews/tail-02.png",
   },
 ] satisfies readonly EditorialReview[];
 
@@ -983,12 +1027,12 @@ export const reviews = [
 type ReviewId = (typeof reviews)[number]["id"];
 
 export const homeReviewIds = [
-  "r01",
+  "r06",
   "r02",
   "r03",
+  "r01",
   "r04",
   "r05",
-  "r06",
 ] as const satisfies readonly ReviewId[];
 
 export const homeReviews: readonly Review[] = homeReviewIds.map((id) => {

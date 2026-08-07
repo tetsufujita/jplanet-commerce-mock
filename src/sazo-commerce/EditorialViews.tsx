@@ -126,14 +126,18 @@ export function ReviewsView({ dispatch, state }: StatefulViewProps) {
           {visibleReviews.map((review) => (
             <article className="sazo-review-tile" key={review.id}>
               <div className="sazo-review-tile-media">
-                <img
-                  alt={review.body}
-                  decoding="async"
-                  height={500}
-                  loading="lazy"
-                  src={review.image}
-                  width={390}
-                />
+                {review.image ? (
+                  <img
+                    alt={review.body}
+                    decoding="async"
+                    height={500}
+                    loading="lazy"
+                    src={review.image}
+                    width={390}
+                  />
+                ) : (
+                  <div aria-hidden className="sazo-review-tile-placeholder" />
+                )}
                 <span>{review.author}</span>
               </div>
               <p>{review.body}</p>

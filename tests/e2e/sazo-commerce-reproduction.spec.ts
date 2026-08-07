@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const desktopViewport = { height: 1_656, width: 3_022 };
-const mobileViewport = { height: 1_470, width: 682 };
+const desktopViewport = { height: 828, width: 1_511 };
+const mobileViewport = { height: 735, width: 341 };
 const localOrigin = "http://127.0.0.1:5190";
 const routePath = "/sazo-commerce-mock/?qa=1";
 
@@ -143,6 +143,8 @@ async function replayMobileScenario(page: Page) {
 }
 
 test("replays the deterministic SAZO commerce journey", async ({ page }, testInfo) => {
+  expect(await page.evaluate(() => window.devicePixelRatio)).toBe(2);
+
   if (testInfo.project.name === "desktop") {
     expect(page.viewportSize()).toEqual(desktopViewport);
     await replayDesktopScenario(page);

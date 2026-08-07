@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import {
   CardsView,
@@ -8,6 +8,7 @@ import {
 } from "@/sazo-commerce/AccountViews";
 import { AuthFlow } from "@/sazo-commerce/AuthFlow";
 import { CatalogView } from "@/sazo-commerce/CatalogView";
+import { CampaignView } from "@/sazo-commerce/CampaignView";
 import { ChatPanel } from "@/sazo-commerce/ChatPanel";
 import { BrandsView, CategoriesView } from "@/sazo-commerce/DirectoryViews";
 import { RankingView, ReviewsView } from "@/sazo-commerce/EditorialViews";
@@ -19,6 +20,7 @@ import "@/sazo-commerce/sazo.css";
 
 export function SazoCommercePage() {
   const [state, dispatch] = useReducer(sazoReducer, undefined, createInitialSazoState);
+  const [headerCollapsed, setHeaderCollapsed] = useState(false);
   const authPageActive = state.authStep !== "provider" && state.view === "home";
 
   useEffect(() => {
@@ -26,10 +28,38 @@ export function SazoCommercePage() {
     document.body.scrollTop = 0;
   }, [state.view]);
 
+  useEffect(() => {
+    if (state.view !== "campaign" || state.campaignLoaded) {
+      return undefined;
+    }
+
+    const timeout = window.setTimeout(() => {
+      dispatch({ type: "campaign-loaded" });
+    }, 500);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [state.campaignLoaded, state.view]);
+
+  useEffect(() => {
+    const updateHeader = () => {
+      setHeaderCollapsed(window.scrollY >= 38);
+    };
+
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", updateHeader);
+    };
+  }, []);
+
   return (
     <div
       className="sazo-root"
       data-auth-step={state.authStep}
+      data-header-collapsed={headerCollapsed}
       data-overlay={state.overlay}
       data-view={state.view}
     >
@@ -38,6 +68,9 @@ export function SazoCommercePage() {
       ) : (
         <SazoShell dispatch={dispatch} state={state}>
           {state.view === "home" ? <HomeView dispatch={dispatch} state={state} /> : null}
+          {state.view === "campaign" ? (
+            <CampaignView dispatch={dispatch} loaded={state.campaignLoaded} />
+          ) : null}
           {state.view === "service" ? <ServiceView dispatch={dispatch} /> : null}
           {state.view === "brands" ? (
             <BrandsView dispatch={dispatch} state={state} />

@@ -155,6 +155,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
   const loginExpanded = state.overlay === "login";
   const serviceView = state.view === "service";
   const accountView = ["mypage", "favorites", "profile", "cards"].includes(state.view);
+  const accountAvailable = state.authenticated || accountView;
 
   return (
     <div className="sazo-shell-background" data-overlay-background="true">
@@ -201,7 +202,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
               icon={Bell}
               label={t("sazo.navigation.notification")}
             />
-            {accountView ? (
+            {accountAvailable ? (
               <NavigationButton
                 className="sazo-top-action"
                 dispatch={dispatch}
@@ -261,6 +262,21 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
               homeLabel={t("sazo.brand.homeLabel")}
               wordmark={t("sazo.brand.wordmark")}
             />
+            <div
+              aria-label="モバイルヘッダー操作"
+              className="sazo-mobile-header-actions"
+              role="group"
+            >
+              <button aria-label={t("sazo.actions.language")} type="button">
+                <span aria-hidden>🇯🇵</span>
+              </button>
+              <button aria-label={t("sazo.navigation.search")} type="button">
+                <Search aria-hidden size={22} strokeWidth={2.2} />
+              </button>
+              <button aria-label={t("sazo.actions.cart")} type="button">
+                <ShoppingCart aria-hidden size={23} strokeWidth={2.2} />
+              </button>
+            </div>
           </div>
           <nav
             aria-label={t("sazo.navigation.mobileSecondaryLabel")}
@@ -314,7 +330,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
             state={state}
             view="favorites"
           />
-          {accountView ? (
+          {accountAvailable ? (
             <NavigationButton
               dispatch={dispatch}
               icon={UserRound}

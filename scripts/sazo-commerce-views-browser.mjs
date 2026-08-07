@@ -35,7 +35,7 @@ try {
 
   await desktopNavigation.getByRole("button", { name: "レビュー" }).click();
   await desktopPage.locator('[data-view-content="reviews"]').waitFor();
-  assert.equal(await desktopPage.locator(".sazo-review-tile").count(), 8);
+  assert.equal(await desktopPage.locator(".sazo-review-tile").count(), 12);
   const reviewPositions = await desktopPage
     .locator(".sazo-review-tile")
     .evaluateAll((tiles) =>

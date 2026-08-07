@@ -115,24 +115,24 @@ describe("SAZO home composition", () => {
     };
 
     expect(sectionImages("みんなの口コミ")).toEqual([
-      "/sazo-commerce/community/04.webp",
+      "/sazo-commerce/community/06.webp",
       "/sazo-commerce/community/07.webp",
       "/sazo-commerce/community/05.webp",
+      "/sazo-commerce/community/04.webp",
       "/sazo-commerce/community/08.webp",
       "/sazo-commerce/community/09.webp",
-      "/sazo-commerce/community/06.webp",
     ]);
     const reviewSection = screen
       .getByRole("heading", { name: "みんなの口コミ" })
       .closest("section");
 
     includesInOrder(reviewSection?.textContent ?? "", [
-      "mm",
+      "17♡",
       "なー",
       "T",
+      "mm",
       "村上ラッペ",
       "코코",
-      "17♡",
     ]);
     expect(sectionImages("SAZO GRAM")).toEqual([
       "/sazo-commerce/community/01.webp",
@@ -144,6 +144,19 @@ describe("SAZO home composition", () => {
       "/sazo-commerce/recommendations/02.webp",
     ]);
     expect(container.querySelectorAll(".sazo-recommendation")).toHaveLength(2);
+    expect(container.querySelectorAll(".sazo-gram-catalog-card")).toHaveLength(10);
+    expect(
+      Array.from(
+        container.querySelectorAll<HTMLImageElement>(".sazo-gram-catalog-card img"),
+      ).map(({ src }) => new URL(src).pathname),
+    ).toEqual([
+      "/sazo-commerce/community/12.webp",
+      "/sazo-commerce/community/13.webp",
+      "/sazo-commerce/community/14.webp",
+      "/sazo-commerce/gram/list-02.png",
+      "/sazo-commerce/gram/list-04.png",
+      "/sazo-commerce/gram/list-05.png",
+    ]);
   });
 });
 
@@ -238,11 +251,21 @@ describe("SAZO hero controls", () => {
       })),
     ).toEqual([
       {
-        height: "278",
-        srcSet: "/sazo-commerce/hero/mobile/slide-1.webp",
-        width: "450",
+        height: "490",
+        srcSet: "/sazo-commerce/hero/slide-1.webp",
+        width: "1200",
       },
-      ...[2, 3, 4, 5].map((slide) => ({
+      {
+        height: "490",
+        srcSet: "/sazo-commerce/hero/mobile/slide-2.webp",
+        width: "794",
+      },
+      {
+        height: "490",
+        srcSet: "/sazo-commerce/hero/slide-3.webp",
+        width: "1200",
+      },
+      ...[4, 5].map((slide) => ({
         height: "490",
         srcSet: `/sazo-commerce/hero/mobile/slide-${String(slide)}.webp`,
         width: "794",

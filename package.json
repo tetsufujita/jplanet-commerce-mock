@@ -17,6 +17,8 @@
     "test:e2e:sazo": "playwright test tests/e2e/sazo-commerce-reproduction.spec.ts",
     "sazo:record": "node scripts/sazo-record.mjs",
     "sazo:reference": "node scripts/sazo-extract-reference.mjs",
+    "sazo:capture": "node scripts/sazo-capture-checkpoints.mjs",
+    "sazo:compare": "node scripts/sazo-compare.mjs",
     "format": "prettier --write ."
   },
   "dependencies": {

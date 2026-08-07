@@ -53,6 +53,16 @@ describe("sazoReducer", () => {
     expect(sazoReducer(state, { type: "toggle-hero-pause" }).heroPaused).toBe(true);
   });
 
+  it("opens the coupon campaign in a deterministic loading state", () => {
+    const loading = sazoReducer(createInitialSazoState(), { type: "open-campaign" });
+
+    expect(loading).toMatchObject({ campaignLoaded: false, view: "campaign" });
+    expect(sazoReducer(loading, { type: "campaign-loaded" })).toMatchObject({
+      campaignLoaded: true,
+      view: "campaign",
+    });
+  });
+
   it("advances the mock registration and opens chat deterministically", () => {
     let state = sazoReducer(createInitialSazoState(), { type: "open-login" });
     state = sazoReducer(state, { type: "advance-auth", step: "birthday" });
@@ -91,6 +101,7 @@ describe("sazoReducer", () => {
     const completed = sazoReducer(state, { type: "complete-auth" });
 
     expect(completed).toMatchObject({
+      authenticated: true,
       authStep: "provider",
       overlay: "none",
       view: "mypage",
@@ -222,7 +233,7 @@ describe("SAZO fixture asset contract", () => {
       "/sazo-commerce/hero/slide-2.webp",
       "/sazo-commerce/hero/slide-3.webp",
       "/sazo-commerce/hero/slide-4.webp",
-      "/sazo-commerce/hero/slide-5.webp",
+      "/sazo-commerce/hero/friend-invite-captured.png",
     ]);
     expect(products.map(({ image }) => image)).toEqual([
       "/sazo-commerce/products/01.webp",
@@ -291,10 +302,10 @@ describe("SAZO fixture asset contract", () => {
 
     expect(imagePaths).toHaveLength(58);
     expect(imagePaths.every((image) => image.startsWith("/sazo-commerce/"))).toBe(true);
-    expect(imagePaths.every((image) => image.endsWith(".webp"))).toBe(true);
+    expect(imagePaths.every((image) => /\.(?:png|webp)$/.test(image))).toBe(true);
     expect(
       imagePaths.every((image) =>
-        /^\/sazo-commerce\/(hero\/slide-0?[1-5]|products\/(0[1-9]|1[0-2])|brands\/0[1-8]|community\/(0[1-9]|1[0-4]))\.webp$/.test(
+        /^\/sazo-commerce\/(?:(?:hero\/slide-0?[1-5]|products\/(0[1-9]|1[0-2])|brands\/0[1-8]|community\/(0[1-9]|1[0-4]))\.webp|(?:hero\/friend-invite-captured|shortcuts\/(?:feature|limited|flea-market|cosmetics|k-pop))\.png)$/.test(
           image,
         ),
       ),
@@ -317,18 +328,18 @@ describe("SAZO fixture asset contract", () => {
   });
 
   it("maps the home subsets by explicit fixture IDs with stable content associations", () => {
-    expect(homeReviewIds).toEqual(["r01", "r02", "r03", "r04", "r05", "r06"]);
+    expect(homeReviewIds).toEqual(["r06", "r02", "r03", "r01", "r04", "r05"]);
     expect(homeReviews.map(({ author, id, image }) => ({ author, id, image }))).toEqual([
-      { author: "mm", id: "r01", image: "/sazo-commerce/community/04.webp" },
+      { author: "17♡", id: "r06", image: "/sazo-commerce/community/06.webp" },
       { author: "なー", id: "r02", image: "/sazo-commerce/community/07.webp" },
       { author: "T", id: "r03", image: "/sazo-commerce/community/05.webp" },
+      { author: "mm", id: "r01", image: "/sazo-commerce/community/04.webp" },
       {
         author: "村上ラッペ",
         id: "r04",
         image: "/sazo-commerce/community/08.webp",
       },
       { author: "코코", id: "r05", image: "/sazo-commerce/community/09.webp" },
-      { author: "17♡", id: "r06", image: "/sazo-commerce/community/06.webp" },
     ]);
     expect(homeGramEntryIds).toEqual(["g01", "g02", "g03"]);
     expect(homeGramEntries.map(({ id }) => id)).toEqual(homeGramEntryIds);

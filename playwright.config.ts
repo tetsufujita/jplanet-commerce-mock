@@ -12,14 +12,16 @@ export default defineConfig({
       name: "desktop",
       use: {
         channel: "chrome",
-        viewport: { height: 1_656, width: 3_022 },
+        deviceScaleFactor: 2,
+        viewport: { height: 828, width: 1_511 },
       },
     },
     {
       name: "mobile",
       use: {
         channel: "chrome",
-        viewport: { height: 1_470, width: 682 },
+        deviceScaleFactor: 2,
+        viewport: { height: 735, width: 341 },
       },
     },
   ],
