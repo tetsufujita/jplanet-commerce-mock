@@ -122,5 +122,33 @@
         "emphasis": "Agentic Commerce."
       }
     }
+  },
+  "sazo": {
+    "brand": {
+      "wordmark": "SAZO",
+      "homeLabel": "SAZO ホーム"
+    },
+    "search": {
+      "label": "商品を検索",
+      "placeholder": "キーワードまたはURLを入力"
+    },
+    "navigation": {
+      "desktopLabel": "メインメニュー",
+      "mobileLabel": "モバイルメニュー",
+      "home": "ホーム",
+      "service": "サービス紹介",
+      "brands": "ブランド",
+      "categories": "カテゴリー",
+      "reviews": "レビュー",
+      "favorites": "お気に入り",
+      "mypage": "マイページ"
+    },
+    "actions": {
+      "login": "ログイン",
+      "chat": "チャットを開く"
+    },
+    "footer": {
+      "copyright": "© SAZO"
+    }
   }
 }

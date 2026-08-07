@@ -18,6 +18,12 @@ const AndesStatsPreview = lazy(() =>
   })),
 );
 
+const SazoCommercePage = lazy(() =>
+  import("@/sazo-commerce/SazoCommercePage").then((module) => ({
+    default: module.SazoCommercePage,
+  })),
+);
+
 function LocalizedHomeRoute() {
   const { locale } = useParams();
   const { i18n } = useTranslation();
@@ -63,6 +69,14 @@ export function App() {
         element={
           <Suspense fallback={null}>
             <AndesStatsPreview />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/sazo-commerce-mock/*"
+        element={
+          <Suspense fallback={null}>
+            <SazoCommercePage />
           </Suspense>
         }
       />
