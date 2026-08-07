@@ -24,6 +24,7 @@ for (const [viewport, recording] of Object.entries(manifest)) {
     mkdirSync(dirname(output), { recursive: true });
 
     const result = spawnSync("ffmpeg", [
+      "-y",
       "-ss",
       String(second),
       "-i",
