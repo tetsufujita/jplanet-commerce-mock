@@ -186,3 +186,45 @@ The feature lives under a new `src/sazo-commerce/` boundary. It may add one rout
 - Real search, payment, ordering, delivery tracking, OAuth, or personal-data storage.
 - Rebranding to J-Planet in this first reproduction pass.
 - Refactoring unrelated Andes corporate pages or committing existing unrelated working-tree changes.
+
+## 13. Service-page Typography and URL-entry Refinement
+
+### 13.1 Approved direction
+
+- [sir-decided] Use `Noto Sans JP` for the service introduction page so Japanese headings, body copy, labels, and controls no longer render with Arial-first metrics.
+- [sir-decided] Keep the URL-entry control visually faithful to the supplied 2026-08-07 recording while refining its type weight, alignment, focus treatment, and shadow.
+- [verified] At the inspected 1732×1268 desktop viewport, the current URL-entry outer box is 1147×100 px.
+- [inferred] The 1726×1264 recording reference is approximately 1148×99 px based on the extracted checkpoint frame. The implementation must preserve the current outer dimensions within the acceptance tolerance below.
+- [inferred] “A better form” means a more coherent and polished visual treatment, not a redesign of the hero layout or a new search backend.
+
+### 13.2 Font delivery and scope
+
+- Self-host `Noto Sans JP` WOFF2 files under `public/sazo-commerce/fonts/` so screenshots and recordings do not depend on an external font service or network timing.
+- Provide the weights used by the service page: 400, 500, 700, and 900. Declare them with `@font-face` and `font-display: swap`.
+- Apply the family at `.sazo-service-view`, with `"Hiragino Sans"`, `"Yu Gothic"`, `Meiryo`, and `sans-serif` as fallbacks. Do not change typography on the other commerce mock views in this refinement.
+- Keep the SAZO logo artwork and Lucide icons independent of the text-family change.
+
+### 13.3 URL-entry visual rules
+
+- Preserve the desktop control’s 100 px outer height, two-pixel pink border, pill radius, 200 px action area, and hero overlap measured from the recording.
+- Use Noto Sans JP’s 700 weight for the prompt bubble and placeholder, and 900 for the search action. Compensate for the new glyph metrics with line-height and letter-spacing rather than resizing the whole control.
+- Vertically center the placeholder, search icon, and search label against the same optical axis. Keep the button icon at 30 px and the label at 25 px on the reference desktop viewport.
+- Retain a white field and SAZO-pink action. Reduce the current shadow to a softer, tighter pink tint so the control reads as one surface instead of a floating block.
+- Add a visible `:focus-within` state using a subtle outer pink ring. The focus state must not change the box dimensions or cause layout movement.
+- Preserve the existing prompt bubble and pointer, but tune its weight and spacing to match the recording’s compact label treatment.
+- On mobile, keep a single-row pill while reducing type and action width at the existing breakpoint. The URL input must retain a usable hit area and must not overflow at 320 px viewport width.
+
+### 13.4 Behavior and accessibility
+
+- Keep the current local-mock behavior: no external request, navigation, or personal-data persistence is added.
+- Preserve an explicit label for the URL input and keyboard focusability for the action.
+- Give hover, pressed, keyboard-focus, and disabled visual states the same family, weight system, and color hierarchy.
+- Respect `prefers-reduced-motion`; form-state transitions use no required motion and remain understandable without animation.
+
+### 13.5 Verification and acceptance
+
+- Assert that `document.fonts.check()` succeeds for the required Noto Sans JP weight before fidelity screenshots are captured.
+- Verify computed styles on the service page no longer resolve to Arial for the hero copy, prompt bubble, URL input, or action label.
+- At 1726×1264, compare the hero and URL-entry checkpoint against the supplied recording. Accept no more than 2 px deviation in the form’s outer width or height and no visible baseline drift between icon and label.
+- Verify the service page at the existing desktop and mobile QA viewports, plus a 320 px narrow-width check for overflow.
+- Run the scoped unit tests, service-page browser scenario, typecheck, and build. Record unrelated pre-existing failures separately rather than weakening the new checks.
