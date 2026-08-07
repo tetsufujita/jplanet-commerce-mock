@@ -13,7 +13,7 @@ export type SazoView =
   | "cards";
 
 export type SazoOverlay = "none" | "login" | "chat";
-export type SazoAuthStep = "provider" | "birthday" | "phone";
+export type SazoAuthStep = "provider" | "google" | "birthday" | "phone";
 export type CatalogMode = "list" | "grid";
 export type BrandFilterId =
   | "all"

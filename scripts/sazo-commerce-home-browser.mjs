@@ -134,7 +134,9 @@ try {
 
   await page.reload();
   await page.locator("[data-home-view]").waitFor();
-  await page.getByRole("button", { name: "前のバナー" }).click();
+  for (let index = 0; index < 3; index += 1) {
+    await page.getByRole("button", { name: "次のバナー" }).click();
+  }
   await page.waitForTimeout(500);
   const centerOf = (slide) =>
     page.locator(`[data-hero-slide="${slide}"]`).evaluate((element) => {
@@ -166,9 +168,9 @@ try {
           };
         }),
       );
-  const fifthAtFive = await centerOf("friend-invite");
-  const firstAtFive = await centerOf("delivery-line");
-  const slotWidth = firstAtFive - fifthAtFive;
+  const friendAtFour = await centerOf("friend-invite");
+  const nextAtFour = await centerOf("new-benefits");
+  const slotWidth = nextAtFour - friendAtFour;
 
   await page.getByRole("button", { name: "次のバナー" }).click();
   await page.waitForTimeout(45);
@@ -184,18 +186,18 @@ try {
     ),
   );
   await page.waitForTimeout(500);
-  const fifthAtOne = await centerOf("friend-invite");
-  const firstAtOne = await centerOf("delivery-line");
+  const friendAtFive = await centerOf("friend-invite");
+  const nextAtFive = await centerOf("new-benefits");
 
-  assert(Math.abs(fifthAtOne - fifthAtFive + slotWidth) < 2);
-  assert(Math.abs(firstAtOne - firstAtFive + slotWidth) < 2);
+  assert(Math.abs(friendAtFive - friendAtFour + slotWidth) < 2);
+  assert(Math.abs(nextAtFive - nextAtFour + slotWidth) < 2);
 
   await page.getByRole("button", { name: "前のバナー" }).click();
   await page.waitForTimeout(45);
   assert.deepEqual((await visibleHeroSlides()).sort(), [
     "cold-delivery",
-    "delivery-line",
     "friend-invite",
+    "new-benefits",
   ]);
   assert(
     (await farHeroSlideStyles()).every(
@@ -218,10 +220,10 @@ try {
   );
 
   assert.deepEqual(reviewGeometry, [
-    { image: "/sazo-commerce/community/10.webp", x: 176 },
-    { image: undefined, x: 766 },
-    { image: "/sazo-commerce/community/11.webp", x: 1061 },
-    { image: "/sazo-commerce/reviews/unseen.png", x: 471 },
+    { image: "/sazo-commerce/community/10.webp", x: 171 },
+    { image: undefined, x: 759 },
+    { image: "/sazo-commerce/community/11.webp", x: 1053 },
+    { image: "/sazo-commerce/reviews/unseen-media.png", x: 465 },
   ]);
   const reviewPlaceholderBounds = await page
     .locator(".sazo-review-tile-placeholder")
@@ -233,9 +235,9 @@ try {
     .boundingBox();
 
   assert(reviewPlaceholderBounds !== null && reviewPlaceholderMediaBounds !== null);
-  assert(Math.abs(reviewPlaceholderBounds.width - 275) < 4);
-  assert(Math.abs(reviewPlaceholderBounds.height - 275) < 4);
-  assert(Math.abs(reviewPlaceholderMediaBounds.height - 275) < 4);
+  assert(Math.abs(reviewPlaceholderBounds.width - 270) < 4);
+  assert(Math.abs(reviewPlaceholderBounds.height - 270) < 4);
+  assert(Math.abs(reviewPlaceholderMediaBounds.height - 270) < 4);
   assert.deepEqual(
     await page
       .locator(".sazo-review-tile")
@@ -246,7 +248,7 @@ try {
       "matrix(1, 0, 0, 1, 0, 16)",
       "matrix(1, 0, 0, 1, 0, -43)",
       "matrix(1, 0, 0, 1, 0, 15)",
-      "matrix(1, 0, 0, 1, 0, 15)",
+      "matrix(1, 0, 0, 1, 0, -40)",
     ],
   );
 
@@ -400,9 +402,11 @@ try {
   assert.equal(mobileMetrics.naturalHeight, 490);
   assert(Math.abs(mobileMetrics.displayRatio - 2) < 0.01);
 
-  await mobilePage.locator(".sazo-hero-arrow-next").evaluate((button) => {
-    button.click();
-  });
+  for (let index = 0; index < 4; index += 1) {
+    await mobilePage.locator(".sazo-hero-arrow-next").evaluate((button) => {
+      button.click();
+    });
+  }
   await mobilePage.getByRole("button", { name: "クーポンキャンペーンを見る" }).click();
   await mobilePage.locator('[data-campaign-loaded="true"]').waitFor();
   const campaignBannerBounds = await mobilePage

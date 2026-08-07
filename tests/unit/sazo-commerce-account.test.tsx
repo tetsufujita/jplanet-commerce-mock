@@ -93,6 +93,15 @@ describe("SAZO local authentication", () => {
     }
 
     fireEvent.click(within(provider).getByRole("button", { name: "Googleで続ける" }));
+    const chooser = screen.getByTestId("sazo-google-chooser");
+    expect(within(chooser).getByRole("heading", { name: "アカウントを選択してください" })).toBeTruthy();
+    expect(within(chooser).getByText("accounts.google.com/v3/signin/accountchooser")).toBeTruthy();
+    expect(container.querySelector("a[href^='http']")).toBeNull();
+    fireEvent.click(
+      within(chooser).getByRole("button", {
+        name: "Tetsu Fujita tetsu.fujita@andes.global",
+      }),
+    );
     expect(
       screen.getByRole("heading", { name: "生年月日を入力してください" }),
     ).toBeTruthy();
@@ -138,6 +147,11 @@ describe("SAZO local authentication", () => {
 
     fireEvent.click(within(desktopShell).getByRole("button", { name: "ログイン" }));
     fireEvent.click(screen.getByRole("button", { name: "Googleで続ける" }));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Tetsu Fujita tetsu.fujita@andes.global",
+      }),
+    );
 
     expect(screen.queryByRole("dialog")).toBeNull();
     const birthdayPage = screen.getByTestId("sazo-auth-page");
@@ -385,6 +399,10 @@ describe("SAZO local chat overlay", () => {
     expect(document.activeElement).toBe(close);
 
     fireEvent.click(close);
+    expect(background?.hasAttribute("aria-hidden")).toBe(false);
+    expect(background?.hasAttribute("inert")).toBe(false);
+    expect(document.body.style.overflow).toBe("");
+    expect(document.activeElement).toBe(launcher);
     await waitFor(() => {
       expect(screen.queryByRole("dialog", { name: "SAZOチャット" })).toBeNull();
     });

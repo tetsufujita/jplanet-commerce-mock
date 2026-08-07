@@ -218,20 +218,33 @@ describe("SAZO hero controls", () => {
         ?.getAttribute("data-hero-offset");
 
     expect(offsetFor("delivery-line")).toBe("0");
-    expect(offsetFor("new-benefits")).toBe("1");
-    expect(offsetFor("friend-invite")).toBe("-1");
+    expect(offsetFor("friend-invite")).toBe("-2");
+    expect(offsetFor("new-benefits")).toBe("-1");
 
-    fireEvent.click(screen.getByRole("button", { name: "前のバナー" }));
-    expect(screen.getByTestId("sazo-hero-counter").textContent).toBe("5/5");
+    for (let index = 0; index < 3; index += 1) {
+      fireEvent.click(screen.getByRole("button", { name: "次のバナー" }));
+    }
+    expect(screen.getByTestId("sazo-hero-counter").textContent).toBe("4/5");
+    expect(screen.getAllByText("4/5")).toHaveLength(1);
+    expect(
+      container
+        .querySelector('[data-hero-slide="friend-invite"] img')
+        ?.getAttribute("src"),
+    ).toBe("/sazo-commerce/hero/slide-5.webp");
+    expect(
+      container.querySelectorAll(
+        '[data-hero-slide="friend-invite"] .sazo-hero-arrow, [data-hero-slide="friend-invite"] .sazo-hero-status',
+      ),
+    ).toHaveLength(0);
     expect(offsetFor("friend-invite")).toBe("0");
     expect(offsetFor("cold-delivery")).toBe("-1");
-    expect(offsetFor("delivery-line")).toBe("1");
+    expect(offsetFor("new-benefits")).toBe("1");
 
     fireEvent.click(screen.getByRole("button", { name: "次のバナー" }));
-    expect(screen.getByTestId("sazo-hero-counter").textContent).toBe("1/5");
+    expect(screen.getByTestId("sazo-hero-counter").textContent).toBe("5/5");
     expect(offsetFor("friend-invite")).toBe("-1");
-    expect(offsetFor("delivery-line")).toBe("0");
-    expect(offsetFor("new-benefits")).toBe("1");
+    expect(offsetFor("new-benefits")).toBe("0");
+    expect(offsetFor("delivery-line")).toBe("1");
   });
 
   it("provides isotropic mobile hero sources at the rendered 1.62 ratio", async () => {
@@ -257,15 +270,10 @@ describe("SAZO hero controls", () => {
       },
       {
         height: "490",
-        srcSet: "/sazo-commerce/hero/mobile/slide-2.webp",
-        width: "794",
-      },
-      {
-        height: "490",
         srcSet: "/sazo-commerce/hero/slide-3.webp",
         width: "1200",
       },
-      ...[4, 5].map((slide) => ({
+      ...[4, 5, 2].map((slide) => ({
         height: "490",
         srcSet: `/sazo-commerce/hero/mobile/slide-${String(slide)}.webp`,
         width: "794",

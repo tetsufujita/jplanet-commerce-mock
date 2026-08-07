@@ -1,34 +1,50 @@
-# Task 8 report — frame comparison and fidelity loop
+# Task 8 Fix Round 1 — frame comparison and fidelity loop
 
 ## Result
 
-Task 8 is complete. The controlled comparison contract passes, all 21 deterministic checkpoints were freshly captured, and final comparison is **pass 3 / review 18 / fail 0**. The highest ratio is `mobile/catalog-grid` at `0.173880`, below the `0.18` failure threshold.
+Fix Round 1 is complete. Two consecutive fresh reference/capture/compare chains returned **pass 3 / review 18 / fail 0**, with identical per-checkpoint ratios and identical hashes for all 42 reference/actual PNGs. `desktop/reviews` also produced the same screenshot hash in three additional focused captures.
 
 ## Delivered
 
-- Deterministic DPR 2 checkpoint capture for 9 desktop and 12 mobile states.
-- Pixelmatch comparison CLI with exact threshold policy, dimension-mismatch failure, diff, side-by-side, and JSON output.
-- Controlled PNG contract coverage for identical, one-pixel-different, and dimension-mismatched pairs.
-- Recorded campaign, catalogue, review, service, auth persistence, collapsed header, and responsive shell fidelity corrections.
-- Fresh desktop/mobile recordings and fresh reference/actual/compare artifacts.
-- Full checkpoint table, accepted residual causes, audit scorecard, and every material correction iteration in `design/reproductions/sazo-commerce/fidelity-report.md`.
+- Mutation-resistant comparison contract with exact `.08` and `.18` boundaries, threshold/AA fixtures, magenta diff/dimension checks, batch totals/exits, and stale-output cleanup.
+- Local Google account chooser with no external application request or navigation.
+- Distinct registration and lower-settings mypage captures with explicit state/scroll assertions.
+- Corrected mobile phone-registration geometry (`0.200835 → 0.126982` focused).
+- Removed captured friend-invite page UI and restored clean hero artwork with live DOM controls.
+- Replaced review screenshot tiles with media-only crops and live DOM author/body/actions.
+- Stable review image decode/layout and per-column positioning (`0.154341`, three identical hashes).
+- Synchronous chat isolation cleanup preserving focus, `aria-hidden`, `inert`, and body scroll.
+- Formal `ecommerce` and `mobile-first` baseline/final re-audit, fix verification, and checkpoint-specific residual evidence in `design/reproductions/sazo-commerce/fidelity-report.md`.
+
+## Final ratios changed by this round
+
+| Checkpoint | Baseline/focused | Final |
+| --- | ---: | ---: |
+| mobile/catalog-grid | 0.173880 | 0.111643 |
+| mobile/login | 0.200835 | 0.126982 |
+| desktop/reviews | 0.170283 before media cleanup | 0.154341 |
+| desktop/login-modal | captured screenshot UI | clean DOM/media, 0.163852 |
+| mobile/mypage | wrong/duplicate state | correct settings state, 0.069850 |
+
+`desktop/home-sections` is regionally corrected but finishes at `0.175864` because the visible product fixture images differ from the reference recording.
 
 ## Verification
 
-- `pnpm vitest run tests/unit/sazo-comparison-contract.test.ts` — 3 passed.
-- `pnpm test` — 97 passed across 10 files.
+- `pnpm test` — 104/104, three consecutive runs.
+- Focused synchronous chat-close test — 3/3 consecutive runs.
+- `pnpm exec vitest run tests/unit/sazo-comparison-contract.test.ts` — 9/9.
 - `pnpm typecheck` — pass.
 - `pnpm lint` — pass.
 - `pnpm build` — pass.
-- `pnpm test:e2e:sazo` — 2 projects passed.
+- `pnpm test:e2e:sazo` — desktop/mobile 2/2 pass.
 - `pnpm test:sazo-home-browser` — pass.
 - `pnpm test:sazo-views-browser` — pass.
 - `pnpm test:sazo-account-browser` — pass.
-- `pnpm sazo:record` — desktop 3022x1656 at 5.840s; mobile 682x1470 at 10.800s.
-- `pnpm sazo:reference && pnpm sazo:capture && pnpm sazo:compare` — 21/21, fail 0 after the focused mobile catalogue recapture.
-- Artifact counts — reference 21, actual 21, diff 21, side-by-side 21.
+- Full fresh chain run 1 — pass 3 / review 18 / fail 0.
+- Full fresh chain run 2 — pass 3 / review 18 / fail 0; all 42 PNG hashes identical to run 1.
 
-## Risks
+## Remaining risks
 
-- Eighteen checkpoints remain in review rather than pass. Their documented residuals are restricted to recording compression, source-only cursor location, and platform text/font rasterization.
-- Generated QA images and recordings are intentionally gitignored; reproduction depends on the source recording paths declared in the manifest.
+- Eighteen checkpoints remain `review`, though none exceed the `0.18` fail boundary.
+- Four reference frames intentionally caught loading/placeholder states while the mock shows populated content; these are listed as open state/timing residuals rather than generic compression noise.
+- Generated QA media is gitignored and reproducible from the source recording paths in the manifest.

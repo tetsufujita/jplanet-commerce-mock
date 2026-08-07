@@ -56,7 +56,7 @@ function ProviderButton({ icon, label, onPress }: ProviderButtonProps) {
 interface AuthPageChromeProps {
   children: ReactNode;
   dispatch: Dispatch<SazoAction>;
-  step: Exclude<SazoAuthStep, "provider">;
+  step: "birthday" | "phone";
 }
 
 function AuthPageChrome({ children, dispatch, step }: AuthPageChromeProps) {
@@ -130,6 +130,57 @@ function AuthPageChrome({ children, dispatch, step }: AuthPageChromeProps) {
   );
 }
 
+function GoogleChooser({ dispatch }: Pick<AuthFlowProps, "dispatch">) {
+  const continueToBirthday = () => {
+    dispatch({ type: "advance-auth", step: "birthday" });
+  };
+
+  return (
+    <main
+      aria-label="Google アカウント選択（ローカルモック）"
+      className="sazo-google-chooser"
+      data-local-google-chooser="true"
+      data-overlay-background="true"
+      data-testid="sazo-google-chooser"
+    >
+      <header className="sazo-google-browser-chrome">
+        <strong>ログイン - Google アカウント</strong>
+        <span>accounts.google.com/v3/signin/accountchooser</span>
+      </header>
+      <div className="sazo-google-brand">Google でログイン</div>
+      <section className="sazo-google-account-panel">
+        <h1>アカウントを選択してください</h1>
+        <p>「SAZO Inc.」に移動</p>
+        <div className="sazo-google-account-list">
+          <button onClick={continueToBirthday} type="button">
+            <span aria-hidden className="sazo-google-avatar">T</span>
+            <span>
+              <strong>Tetsu Fujita</strong>
+              <small>tetsu.fujita@andes.global</small>
+            </span>
+          </button>
+          <button onClick={continueToBirthday} type="button">
+            <span aria-hidden className="sazo-google-avatar">徹</span>
+            <span>
+              <strong>藤田徹</strong>
+              <small>tetsu.fujita@np.japan.1997@gmail.com</small>
+            </span>
+          </button>
+          <button onClick={continueToBirthday} type="button">
+            <span aria-hidden className="sazo-google-avatar">＋</span>
+            <span>
+              <strong>別のアカウントを使用</strong>
+            </span>
+          </button>
+        </div>
+        <p className="sazo-google-privacy">
+          このアプリを使用する前に、SAZO Inc. のプライバシーポリシーと利用規約をご確認ください。
+        </p>
+      </section>
+    </main>
+  );
+}
+
 export function AuthFlow({ authStep, dispatch }: AuthFlowProps) {
   const { t } = useTranslation();
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -139,6 +190,9 @@ export function AuthFlow({ authStep, dispatch }: AuthFlowProps) {
   const [optOut, setOptOut] = useState(false);
   const close = useCallback(() => {
     dispatch({ type: "close-overlay" });
+  }, [dispatch]);
+  const continueToGoogle = useCallback(() => {
+    dispatch({ type: "advance-auth", step: "google" });
   }, [dispatch]);
   const continueToBirthday = useCallback(() => {
     dispatch({ type: "advance-auth", step: "birthday" });
@@ -228,6 +282,10 @@ export function AuthFlow({ authStep, dispatch }: AuthFlowProps) {
     event.preventDefault();
     dispatch({ type: "complete-auth" });
   };
+
+  if (authStep === "google") {
+    return <GoogleChooser dispatch={dispatch} />;
+  }
 
   if (authStep === "birthday") {
     return (
@@ -383,7 +441,7 @@ export function AuthFlow({ authStep, dispatch }: AuthFlowProps) {
             <ProviderButton
               icon="google"
               label={t("sazo.auth.provider.google")}
-              onPress={continueToBirthday}
+              onPress={continueToGoogle}
             />
             <ProviderButton
               icon="apple"

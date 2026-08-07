@@ -213,6 +213,15 @@ try {
   assert.equal(Math.round(mobileProviderBounds.width), mobileViewport.width);
   assert.equal(Math.round(mobileProviderBounds.height), mobileViewport.height);
   await mobileProvider.getByRole("button", { name: "Googleで続ける" }).click();
+  const googleChooser = mobilePage.getByTestId("sazo-google-chooser");
+  await googleChooser.waitFor();
+  assert.equal(await googleChooser.getAttribute("data-local-google-chooser"), "true");
+  assert.equal(mobilePage.url(), baseUrl);
+  await googleChooser
+    .getByRole("button", {
+      name: "Tetsu Fujita tetsu.fujita@andes.global",
+    })
+    .click();
 
   const birthdayPage = mobilePage.getByTestId("sazo-auth-page");
   const birthdayHeader = birthdayPage.getByRole("banner");
@@ -230,11 +239,14 @@ try {
       birthdayFooterBounds !== null,
   );
   assert.equal(Math.round(birthdayHeaderBounds.width), mobileViewport.width);
-  assert(Math.abs(birthdayHeaderBounds.height - 82) < 2);
-  assert(Math.abs(birthdayHeadingBounds.x - 34) < 2);
-  assert(birthdayHeadingBounds.y >= 140 && birthdayHeadingBounds.y <= 180);
-  assert(birthdayHeadingBounds.width < 430 && birthdayHeadingBounds.height > 70);
-  assert(birthdayFooterBounds.y >= 1000 && birthdayFooterBounds.y <= 1080);
+  assert(Math.abs(birthdayHeaderBounds.height - 42) < 2);
+  assert(Math.abs(birthdayHeadingBounds.x - 17) < 2);
+  assert(birthdayHeadingBounds.y >= 70 && birthdayHeadingBounds.y <= 85);
+  assert(birthdayHeadingBounds.width < 150 && birthdayHeadingBounds.height > 45);
+  assert(
+    birthdayFooterBounds.y >= 1250 && birthdayFooterBounds.y <= 1350,
+    `birthday footer y=${String(birthdayFooterBounds.y)}`,
+  );
   assert.equal(await mobilePage.locator(".sazo-root").getAttribute("aria-hidden"), null);
   assert.equal(await birthdayPage.getAttribute("inert"), null);
   assert.equal(await mobilePage.evaluate(() => document.body.style.overflow), "");
@@ -261,7 +273,7 @@ try {
 
   assert(phoneLabelBounds !== null);
   assert(
-    phoneLabelBounds.y >= 420 && phoneLabelBounds.y <= 480,
+    phoneLabelBounds.y >= 190 && phoneLabelBounds.y <= 205,
     `phone label y=${String(phoneLabelBounds.y)}`,
   );
   assert.deepEqual(await country.locator("option").allTextContents(), [

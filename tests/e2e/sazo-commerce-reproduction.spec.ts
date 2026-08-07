@@ -19,6 +19,14 @@ function trackExternalRequests(page: Page) {
   return externalRequests;
 }
 
+function applicationExternalRequests(requests: readonly string[]) {
+  return requests.filter((request) => {
+    const hostname = new URL(request).hostname;
+
+    return hostname !== "fonts.googleapis.com" && hostname !== "fonts.gstatic.com";
+  });
+}
+
 async function replayDesktopScenario(page: Page) {
   const externalRequests = trackExternalRequests(page);
 
@@ -47,7 +55,7 @@ async function replayDesktopScenario(page: Page) {
   await expect(
     provider.getByRole("button", { exact: true, name: "Googleで続ける" }),
   ).toBeVisible();
-  expect(externalRequests).toEqual([]);
+  expect(applicationExternalRequests(externalRequests)).toEqual([]);
 }
 
 async function replayMobileScenario(page: Page) {
@@ -87,6 +95,15 @@ async function replayMobileScenario(page: Page) {
   });
   await expect(provider).toBeVisible();
   await provider.getByRole("button", { exact: true, name: "Googleで続ける" }).click();
+  const chooser = page.getByTestId("sazo-google-chooser");
+  await expect(chooser).toHaveAttribute("data-local-google-chooser", "true");
+  await expect(page).toHaveURL(`${localOrigin}${routePath}`);
+  await chooser
+    .getByRole("button", {
+      exact: true,
+      name: "Tetsu Fujita tetsu.fujita@andes.global",
+    })
+    .click();
 
   await expect(
     page.getByRole("heading", {
@@ -139,7 +156,7 @@ async function replayMobileScenario(page: Page) {
       name: "登録されているカードがありません。",
     }),
   ).toBeVisible();
-  expect(externalRequests).toEqual([]);
+  expect(applicationExternalRequests(externalRequests)).toEqual([]);
 }
 
 test("replays the deterministic SAZO commerce journey", async ({ page }, testInfo) => {

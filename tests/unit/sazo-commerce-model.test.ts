@@ -230,10 +230,10 @@ describe("SAZO fixture asset contract", () => {
   it("uses only Task 4 and Task 5 delivery paths for fixture imagery", () => {
     expect(heroSlides.map(({ image }) => image)).toEqual([
       "/sazo-commerce/hero/slide-1.webp",
-      "/sazo-commerce/hero/slide-2.webp",
       "/sazo-commerce/hero/slide-3.webp",
       "/sazo-commerce/hero/slide-4.webp",
-      "/sazo-commerce/hero/friend-invite-captured.png",
+      "/sazo-commerce/hero/slide-5.webp",
+      "/sazo-commerce/hero/slide-2.webp",
     ]);
     expect(products.map(({ image }) => image)).toEqual([
       "/sazo-commerce/products/01.webp",
@@ -305,7 +305,7 @@ describe("SAZO fixture asset contract", () => {
     expect(imagePaths.every((image) => /\.(?:png|webp)$/.test(image))).toBe(true);
     expect(
       imagePaths.every((image) =>
-        /^\/sazo-commerce\/(?:(?:hero\/slide-0?[1-5]|products\/(0[1-9]|1[0-2])|brands\/0[1-8]|community\/(0[1-9]|1[0-4]))\.webp|(?:hero\/friend-invite-captured|shortcuts\/(?:feature|limited|flea-market|cosmetics|k-pop))\.png)$/.test(
+        /^\/sazo-commerce\/(?:(?:hero\/slide-0?[1-5]|products\/(0[1-9]|1[0-2])|brands\/0[1-8]|community\/(0[1-9]|1[0-4]))\.webp|(?:shortcuts\/(?:feature|limited|flea-market|cosmetics|k-pop))\.png)$/.test(
           image,
         ),
       ),

@@ -1,14 +1,23 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
 
 const projectRoot = fileURLToPath(new URL("..", import.meta.url));
-const qaRoot = join(projectRoot, "design/reproductions/sazo-commerce/qa");
-const manifestPath = join(
-  projectRoot,
-  "design/reproductions/sazo-commerce/reference-manifest.json",
+const qaRoot = resolve(
+  process.env.SAZO_QA_ROOT ??
+    join(projectRoot, "design/reproductions/sazo-commerce/qa"),
+);
+const manifestPath = resolve(
+  process.env.SAZO_COMPARE_MANIFEST ??
+    join(projectRoot, "design/reproductions/sazo-commerce/reference-manifest.json"),
 );
 const pixelmatchOptions = Object.freeze({
   diffColor: [255, 0, 255],
@@ -21,7 +30,7 @@ function usage() {
   return [
     "Usage:",
     "  node scripts/sazo-compare.mjs",
-    "  node scripts/sazo-compare.mjs --pair <reference.png> <actual.png> --out <summary.json>",
+    "  node scripts/sazo-compare.mjs --pair <reference.png> <actual.png> --out <summary.json> [--diff <diff.png> --side-by-side <side-by-side.png>]",
   ].join("\n");
 }
 
@@ -30,18 +39,44 @@ function parseArguments(arguments_) {
     return { mode: "batch" };
   }
 
+  if (arguments_[0] !== "--pair" || arguments_.length < 5) {
+    throw new Error(usage());
+  }
+
+  const options = new Map();
+
+  for (let index = 3; index < arguments_.length; index += 2) {
+    const flag = arguments_[index];
+    const value = arguments_[index + 1];
+
+    if (
+      value === undefined ||
+      !["--diff", "--out", "--side-by-side"].includes(flag) ||
+      options.has(flag)
+    ) {
+      throw new Error(usage());
+    }
+
+    options.set(flag, value);
+  }
+
   if (
-    arguments_[0] !== "--pair" ||
-    arguments_.length !== 5 ||
-    arguments_[3] !== "--out"
+    !options.has("--out") ||
+    options.has("--diff") !== options.has("--side-by-side")
   ) {
     throw new Error(usage());
   }
 
   return {
     actualPath: resolve(arguments_[2]),
+    artifactPaths: options.has("--diff")
+      ? {
+          diffPath: resolve(options.get("--diff")),
+          sideBySidePath: resolve(options.get("--side-by-side")),
+        }
+      : undefined,
     mode: "pair",
-    outputPath: resolve(arguments_[4]),
+    outputPath: resolve(options.get("--out")),
     referencePath: resolve(arguments_[1]),
   };
 }
@@ -85,7 +120,17 @@ function makeSideBySide(reference, actual) {
   return sideBySide;
 }
 
-function comparePair({ actualPath, artifactDirectory, name, referencePath, viewport }) {
+function clearArtifacts(artifactPaths) {
+  if (artifactPaths === undefined) {
+    return;
+  }
+
+  rmSync(artifactPaths.diffPath, { force: true });
+  rmSync(artifactPaths.sideBySidePath, { force: true });
+}
+
+function comparePair({ actualPath, artifactPaths, name, referencePath, viewport }) {
+  clearArtifacts(artifactPaths);
   const reference = readPng(referencePath, "reference");
   const actual = readPng(actualPath, "actual");
   const totalPixels = reference.width * reference.height;
@@ -123,16 +168,14 @@ function comparePair({ actualPath, artifactDirectory, name, referencePath, viewp
     viewport,
   };
 
-  if (artifactDirectory !== undefined) {
-    const diffPath = join(artifactDirectory, `${name}.diff.png`);
-    const sideBySidePath = join(artifactDirectory, `${name}.side-by-side.png`);
-    writePng(diffPath, diff);
-    writePng(sideBySidePath, makeSideBySide(reference, actual));
+  if (artifactPaths !== undefined) {
+    writePng(artifactPaths.diffPath, diff);
+    writePng(artifactPaths.sideBySidePath, makeSideBySide(reference, actual));
 
     return {
       ...summary,
-      diffPath: relative(projectRoot, diffPath),
-      sideBySidePath: relative(projectRoot, sideBySidePath),
+      diffPath: relative(projectRoot, artifactPaths.diffPath),
+      sideBySidePath: relative(projectRoot, artifactPaths.sideBySidePath),
     };
   }
 
@@ -148,6 +191,7 @@ function runPairMode(command) {
   const name = basename(command.referencePath, ".png");
   const summary = comparePair({
     actualPath: command.actualPath,
+    artifactPaths: command.artifactPaths,
     name,
     referencePath: command.referencePath,
     viewport: "pair",
@@ -168,9 +212,18 @@ function runBatchMode() {
   const compareRoot = join(qaRoot, "compare");
   const checkpoints = [];
 
+  rmSync(compareRoot, { force: true, recursive: true });
+
   for (const [viewport, recording] of Object.entries(manifest)) {
     for (const checkpoint of recording.checkpoints) {
       const artifactDirectory = join(compareRoot, viewport);
+      const artifactPaths = {
+        diffPath: join(artifactDirectory, `${checkpoint.name}.diff.png`),
+        sideBySidePath: join(
+          artifactDirectory,
+          `${checkpoint.name}.side-by-side.png`,
+        ),
+      };
       const referencePath = join(qaRoot, "reference", viewport, `${checkpoint.name}.png`);
       const actualPath = join(qaRoot, "actual", viewport, `${checkpoint.name}.png`);
 
@@ -178,7 +231,7 @@ function runBatchMode() {
         checkpoints.push(
           comparePair({
             actualPath,
-            artifactDirectory,
+            artifactPaths,
             name: checkpoint.name,
             referencePath,
             viewport,

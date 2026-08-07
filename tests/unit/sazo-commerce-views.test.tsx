@@ -1,9 +1,12 @@
 // @vitest-environment jsdom
 
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import React from "react";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it } from "vitest";
+import { PNG } from "pngjs";
 import { createI18n } from "@/i18n/createI18n";
 import { CatalogView } from "@/sazo-commerce/CatalogView";
 import { CategoriesView, BrandsView } from "@/sazo-commerce/DirectoryViews";
@@ -35,6 +38,23 @@ function stateWithCatalogMode(mode: CatalogMode): SazoState {
 }
 
 describe("SAZO captured view contracts", () => {
+  it("keeps review screenshot crops above their recorded author/action overlays", () => {
+    const expectedBoundaries = [
+      ["unseen-media.png", 540, 440],
+      ["tail-02-media.png", 536, 430],
+      ["tail-03-media.png", 538, 420],
+    ] as const;
+
+    for (const [file, width, maximumHeight] of expectedBoundaries) {
+      const png = PNG.sync.read(
+        readFileSync(join(process.cwd(), "public/sazo-commerce/reviews", file)),
+      );
+
+      expect(png.width).toBe(width);
+      expect(png.height).toBeLessThanOrEqual(maximumHeight);
+    }
+  });
+
   it.each([
     ["brands", "LONGCHAMP", <BrandsView dispatch={noDispatch} />],
     [
@@ -264,12 +284,21 @@ describe("SAZO captured view contracts", () => {
       "/sazo-commerce/community/10.webp",
       undefined,
       "/sazo-commerce/community/11.webp",
-      "/sazo-commerce/reviews/unseen.png",
+      "/sazo-commerce/reviews/unseen-media.png",
       "/sazo-commerce/reviews/tail-01.png",
-      "/sazo-commerce/reviews/tail-03.png",
+      "/sazo-commerce/reviews/tail-03-media.png",
       "/sazo-commerce/reviews/tail-04.png",
-      "/sazo-commerce/reviews/tail-02.png",
+      "/sazo-commerce/reviews/tail-02-media.png",
     ]);
+    expect(
+      Array.from(container.querySelectorAll<HTMLElement>(".sazo-review-tile")).every(
+        (tile) =>
+          (tile.querySelector(".sazo-review-tile-media > span")?.textContent.trim()
+            .length ?? 0) > 0 &&
+          (tile.querySelector(":scope > p")?.textContent.trim().length ?? 0) > 0 &&
+          tile.querySelectorAll(":scope > .sazo-review-tile-actions").length === 1,
+      ),
+    ).toBe(true);
 
     fireEvent.click(screen.getByRole("button", { name: "アイドル" }));
 

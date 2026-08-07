@@ -293,6 +293,116 @@
   accent-color: var(--sazo-pink);
 }
 
+.sazo-root .sazo-google-chooser {
+  min-height: 100vh;
+  background: var(--sazo-surface);
+  color: #202124;
+  font-family: Arial, "Noto Sans JP", sans-serif;
+}
+
+.sazo-root .sazo-google-browser-chrome {
+  display: grid;
+  min-height: 66px;
+  border-bottom: 1px solid #c7c7c7;
+  background: #f6f6f6;
+}
+
+.sazo-root .sazo-google-browser-chrome strong,
+.sazo-root .sazo-google-browser-chrome span {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0 14px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sazo-root .sazo-google-browser-chrome strong {
+  min-height: 30px;
+  font-size: 15px;
+}
+
+.sazo-root .sazo-google-browser-chrome span {
+  min-height: 36px;
+  border-top: 1px solid #d7d7d7;
+  background: #fff7f2;
+  font-size: 14px;
+}
+
+.sazo-root .sazo-google-brand {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 0 18px;
+  border-bottom: 1px solid #c7c7c7;
+  font-size: 16px;
+}
+
+.sazo-root .sazo-google-account-panel {
+  width: min(620px, 100%);
+  margin: 0 auto;
+  padding: 96px 18px 70px;
+}
+
+.sazo-root .sazo-google-account-panel h1 {
+  margin: 0;
+  font-size: 29px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.sazo-root .sazo-google-account-panel > p {
+  margin: 54px 0 26px;
+  color: #3c4043;
+  font-size: 14px;
+}
+
+.sazo-root .sazo-google-account-list {
+  border-top: 1px solid #dadce0;
+}
+
+.sazo-root .sazo-google-account-list button {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 70px;
+  padding: 9px 5px;
+  border: 0;
+  border-bottom: 1px solid #dadce0;
+  background: var(--sazo-surface);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-google-account-list button > span:last-child {
+  display: grid;
+  gap: 3px;
+}
+
+.sazo-root .sazo-google-account-list small {
+  font-size: 13px;
+}
+
+.sazo-root .sazo-google-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e8eaed;
+  color: #5f6368;
+  font-weight: 700;
+}
+
+.sazo-root .sazo-google-account-panel .sazo-google-privacy {
+  margin-top: 42px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
 .sazo-root .sazo-auth-page {
   position: relative;
   display: flex;
@@ -719,6 +829,14 @@
 
 .sazo-root .sazo-hero-slide img {
   object-fit: cover;
+}
+
+.sazo-root .sazo-hero-slide[data-hero-slide="friend-invite"] {
+  background: linear-gradient(90deg, #e8eff0 0%, #f0dcda 42%, #efcfcb 100%);
+}
+
+.sazo-root .sazo-hero-slide[data-hero-slide="friend-invite"] img {
+  object-fit: contain;
 }
 
 .sazo-root .sazo-hero-arrow,
@@ -1317,12 +1435,12 @@
 }
 
 .sazo-root .sazo-search-callout {
-  width: min(880px, 100%);
+  width: min(650px, 100%);
   margin: 0 auto 110px;
 }
 
 .sazo-root .sazo-search-callout h2 {
-  font-size: clamp(34px, 3.4vw, 52px);
+  font-size: 34px;
 }
 
 .sazo-root .sazo-large-search {
@@ -2484,9 +2602,7 @@
 }
 
 .sazo-root .sazo-review-category-rail {
-  position: sticky;
   z-index: 10;
-  top: 124px;
   margin: 0 -4px 30px;
   padding: 8px 4px;
   background: var(--sazo-surface);
@@ -2503,7 +2619,7 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   grid-auto-flow: row dense;
   grid-auto-rows: 1px;
-  column-gap: 20px;
+  column-gap: 24px;
 }
 
 .sazo-root .sazo-review-tile {
@@ -2548,17 +2664,6 @@
   aspect-ratio: auto;
 }
 
-.sazo-root .sazo-review-tile:nth-child(2) > p,
-.sazo-root .sazo-review-tile:nth-child(2) > .sazo-review-tile-actions {
-  display: none;
-}
-
-.sazo-root .sazo-review-tile:nth-child(5) .sazo-review-tile-media > span,
-.sazo-root .sazo-review-tile:nth-child(7) .sazo-review-tile-media > span,
-.sazo-root .sazo-review-tile:nth-child(8) .sazo-review-tile-media > span {
-  display: none;
-}
-
 .sazo-root .sazo-review-tile:nth-child(n + 9) {
   padding-bottom: 0;
 }
@@ -2568,19 +2673,20 @@
   aspect-ratio: auto;
 }
 
-.sazo-root .sazo-review-tile:nth-child(n + 9) .sazo-review-tile-media > span,
-.sazo-root .sazo-review-tile:nth-child(n + 9) > p,
-.sazo-root .sazo-review-tile:nth-child(n + 9) > .sazo-review-tile-actions {
-  display: none;
-}
-
 @media (min-width: 900px) {
+  .sazo-root .sazo-reviews-view-content {
+    left: -9px;
+    width: min(1152px, calc(100% - 48px));
+    position: relative;
+  }
+
   .sazo-root .sazo-review-tile:nth-child(5) {
     grid-column: 1;
   }
 
   .sazo-root .sazo-review-tile:nth-child(8) {
     grid-column: 2;
+    transform: translateY(-67px);
   }
 
   .sazo-root .sazo-review-tile:nth-child(6) {
@@ -2615,9 +2721,12 @@
     transform: translateY(-43px);
   }
 
-  .sazo-root .sazo-review-tile:nth-child(11),
-  .sazo-root .sazo-review-tile:nth-child(12) {
+  .sazo-root .sazo-review-tile:nth-child(11) {
     transform: translateY(15px);
+  }
+
+  .sazo-root .sazo-review-tile:nth-child(12) {
+    transform: translateY(-40px);
   }
 }
 
@@ -4020,38 +4129,139 @@
     margin-top: 26px;
   }
 
-  .sazo-root .sazo-auth-phone-row {
-    grid-template-columns: 112px 1fr;
+  .sazo-root .sazo-auth-page-header {
+    min-height: 42px;
+    padding: 0 17px;
   }
 
-  .sazo-root .sazo-auth-page-header {
-    min-height: 82px;
-    padding: 0 34px;
+  .sazo-root .sazo-auth-page-brand {
+    gap: 5px;
+    font-size: 20px;
+  }
+
+  .sazo-root .sazo-auth-page-brand img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sazo-root .sazo-auth-page-actions {
+    gap: 2px;
+  }
+
+  .sazo-root .sazo-auth-page-actions button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .sazo-root .sazo-auth-page-actions svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sazo-root .sazo-auth-page-actions span {
+    font-size: 16px;
   }
 
   .sazo-root .sazo-auth-page-main {
-    width: calc(100% - 68px);
-    padding: 70px 0 120px;
+    width: calc(100% - 34px);
+    padding: 34px 0 36px;
   }
 
   .sazo-root .sazo-auth-page .sazo-auth-content h1 {
-    max-width: 390px;
-    font-size: 38px;
-  }
-
-  .sazo-root .sazo-auth-page-footer {
-    min-height: 420px;
-    padding: 30px 34px 46px;
-    font-size: 18px;
-  }
-
-  .sazo-root .sazo-auth-page-footer a {
+    max-width: 132px;
     font-size: 22px;
   }
 
+  .sazo-root .sazo-auth-form .sazo-auth-progress {
+    margin-top: 7px;
+    font-size: 14px;
+  }
+
+  .sazo-root .sazo-auth-form .sazo-auth-explanation {
+    margin: 6px 0 8px;
+    font-size: 12px;
+  }
+
+  .sazo-root .sazo-auth-form > label {
+    margin: 20px 0 2px;
+    font-size: 14px;
+  }
+
+  .sazo-root .sazo-auth-form .sazo-auth-explanation + label {
+    margin-top: 8px;
+  }
+
+  .sazo-root .sazo-auth-phone-row {
+    grid-template-columns: 80px 1fr;
+  }
+
+  .sazo-root .sazo-auth-form > input,
+  .sazo-root .sazo-auth-phone-row {
+    min-height: 42px;
+    border-radius: 9px;
+  }
+
+  .sazo-root .sazo-auth-form > small,
+  .sazo-root .sazo-auth-consent-copy,
+  .sazo-root .sazo-auth-opt-out {
+    font-size: 11px;
+  }
+
+  .sazo-root .sazo-auth-form > small {
+    margin-top: 4px;
+  }
+
+  .sazo-root .sazo-auth-form > .sazo-auth-consent-copy {
+    margin: 9px 0 5px;
+  }
+
+  .sazo-root .sazo-auth-form > .sazo-auth-opt-out {
+    margin: 10px 0 2px;
+    padding-top: 14px;
+    font-size: 11px;
+  }
+
+  .sazo-root .sazo-auth-opt-out input {
+    width: 17px;
+    height: 17px;
+  }
+
+  .sazo-root .sazo-auth-phone-row select {
+    padding-right: 4px;
+    padding-left: 4px;
+    font-size: 13px;
+  }
+
+  .sazo-root .sazo-auth-next {
+    min-height: 42px;
+    margin-top: 14px;
+    border-radius: 9px;
+  }
+
+  .sazo-root .sazo-auth-page-footer {
+    min-height: 0;
+    padding: 15px 17px 24px;
+    font-size: 11px;
+  }
+
+  .sazo-root .sazo-auth-page-footer a {
+    font-size: 13px;
+  }
+
+  .sazo-root .sazo-auth-page-company-copy {
+    margin: 14px 0 9px;
+  }
+
   .sazo-root .sazo-auth-page-chat {
-    right: 34px;
-    bottom: 34px;
+    right: 18px;
+    bottom: 18px;
+    width: 34px;
+    height: 34px;
+  }
+
+  .sazo-root .sazo-auth-page-chat svg {
+    width: 18px;
+    height: 18px;
   }
 
   .sazo-root[data-view="mypage"] .sazo-mobile-header,
@@ -4148,23 +4358,23 @@
 
 @media (max-width: 480px) {
   .sazo-root .sazo-auth-page-header {
-    padding: 0 20px;
+    padding: 0 17px;
   }
 
   .sazo-root .sazo-auth-page-brand {
-    font-size: 27px;
+    font-size: 20px;
   }
 
   .sazo-root .sazo-auth-page-main {
-    width: calc(100% - 40px);
+    width: calc(100% - 34px);
   }
 
   .sazo-root .sazo-auth-page-footer {
-    padding-right: 20px;
-    padding-left: 20px;
+    padding-right: 17px;
+    padding-left: 17px;
   }
 
   .sazo-root .sazo-auth-page-chat {
-    right: 20px;
+    right: 18px;
   }
 }

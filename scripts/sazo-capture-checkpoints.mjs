@@ -73,25 +73,37 @@ async function settle(page) {
       document.activeElement.blur();
     }
 
-    const visibleImages = Array.from(document.images).filter((image) => {
-      const bounds = image.getBoundingClientRect();
+    const images = Array.from(document.images);
 
-      return (
-        bounds.bottom > 0 &&
-        bounds.right > 0 &&
-        bounds.top < window.innerHeight &&
-        bounds.left < window.innerWidth
-      );
-    });
+    for (const image of images) {
+      image.loading = "eager";
+    }
 
     await Promise.all(
-      visibleImages.map(async (image) => image.decode().catch(() => undefined)),
+      images.map(async (image) => {
+        if (!image.complete) {
+          await new Promise((resolveImage, rejectImage) => {
+            const timeout = window.setTimeout(() => {
+              rejectImage(new Error(`Timed out loading image: ${image.currentSrc}`));
+            }, 5_000);
+            const finish = () => {
+              window.clearTimeout(timeout);
+              resolveImage();
+            };
+
+            image.addEventListener("load", finish, { once: true });
+            image.addEventListener("error", finish, { once: true });
+          });
+        }
+
+        await image.decode().catch(() => undefined);
+      }),
     );
-    await new Promise((resolveFrame) => {
-      requestAnimationFrame(() => {
+    for (let frame = 0; frame < 3; frame += 1) {
+      await new Promise((resolveFrame) => {
         requestAnimationFrame(resolveFrame);
       });
-    });
+    }
   });
 }
 
@@ -154,6 +166,16 @@ async function openMobilePhoneRegistration(page) {
   });
   await waitForVisible(provider);
   await provider.getByRole("button", { exact: true, name: "Googleで続ける" }).click();
+  const chooser = page.getByTestId("sazo-google-chooser");
+  await waitForVisible(chooser);
+  assert.equal(await chooser.getAttribute("data-local-google-chooser"), "true");
+  assert.equal(page.url(), routeUrl);
+  await chooser
+    .getByRole("button", {
+      exact: true,
+      name: "Tetsu Fujita tetsu.fujita@andes.global",
+    })
+    .click();
   await waitForVisible(
     page.getByRole("heading", {
       exact: true,
@@ -181,17 +203,18 @@ async function completeMobileRegistration(page) {
 
 const desktopCaptures = Object.freeze({
   "home-hero": async (page) => {
-    await advanceHero(page, 1);
+    await advanceHero(page, 4);
   },
   "home-sections": async (page) => {
-    await scrollTo(page, ".sazo-search-discovery", 235);
+    await scrollTo(page, ".sazo-search-discovery", 70);
   },
   "chat-open": async (page) => {
     await scrollTo(page, ".sazo-keyword-section", 215);
   },
   reviews: async (page) => {
     await openDesktopView(page, "nav-reviews", "reviews");
-    await scrollTo(page, ".sazo-review-masonry", -120);
+    await settle(page);
+    await scrollTo(page, ".sazo-review-masonry", -108);
   },
   gram: async (page) => {
     await scrollTo(page, ".sazo-gram-catalog-grid", 96);
@@ -214,21 +237,21 @@ const desktopCaptures = Object.freeze({
     await waitForVisible(page.locator('[data-view-content="brands"]'));
   },
   "login-modal": async (page) => {
-    await advanceHero(page, 4);
+    await advanceHero(page, 3);
   },
 });
 
 const mobileCaptures = Object.freeze({
   "home-hero": async () => undefined,
   "home-community": async (page) => {
-    await advanceHero(page, 1);
+    await advanceHero(page, 4);
     await page
       .getByRole("button", { exact: true, name: "クーポンキャンペーンを見る" })
       .click();
     await waitForVisible(page.locator('[data-campaign-loaded="false"]'));
   },
   ranking: async (page) => {
-    await advanceHero(page, 1);
+    await advanceHero(page, 4);
     await page
       .getByRole("button", { exact: true, name: "クーポンキャンペーンを見る" })
       .click();
@@ -252,16 +275,23 @@ const mobileCaptures = Object.freeze({
       .click();
   },
   "catalog-list": async (page) => {
-    await advanceHero(page, 2);
+    await advanceHero(page, 1);
   },
   "catalog-grid": async (page) => {
     await page
       .getByRole("navigation", { exact: true, name: "モバイルメニュー" })
       .getByRole("button", { exact: true, name: "ログイン" })
       .click();
-    await waitForVisible(
-      page.getByRole("dialog", { exact: true, name: "ログイン または会員登録" }),
-    );
+    const provider = page.getByRole("dialog", {
+      exact: true,
+      name: "ログイン または会員登録",
+    });
+    await waitForVisible(provider);
+    await provider.getByRole("button", { exact: true, name: "Googleで続ける" }).click();
+    const chooser = page.getByTestId("sazo-google-chooser");
+    await waitForVisible(chooser);
+    assert.equal(await chooser.getAttribute("data-local-google-chooser"), "true");
+    assert.equal(page.url(), routeUrl);
   },
   login: async (page) => {
     await openMobilePhoneRegistration(page);
@@ -269,9 +299,18 @@ const mobileCaptures = Object.freeze({
   },
   registration: async (page) => {
     await completeMobileRegistration(page);
+    assert.equal(await page.evaluate(() => window.scrollY), 0);
+    await waitForVisible(page.locator(".sazo-member-summary"));
   },
   mypage: async (page) => {
     await completeMobileRegistration(page);
+    await scrollTo(page, ".sazo-account-group:last-of-type", 213);
+    const settingsBounds = await page
+      .locator(".sazo-account-group:last-of-type > h2")
+      .boundingBox();
+    assert(settingsBounds !== null);
+    assert((await page.evaluate(() => window.scrollY)) > 0);
+    assert(settingsBounds.y >= 180 && settingsBounds.y <= 250);
   },
   profile: async (page) => {
     await completeMobileRegistration(page);
@@ -280,7 +319,7 @@ const mobileCaptures = Object.freeze({
       .getByRole("button", { exact: true, name: "ホーム" })
       .click();
     await waitForVisible(page.locator("[data-home-view]"));
-    await advanceHero(page, 2);
+    await advanceHero(page, 1);
     await page.evaluate(() => {
       window.scrollTo({ behavior: "instant", top: 136 });
     });
@@ -383,6 +422,18 @@ try {
       ) {
         await captureCheckpoint(browser, viewportName, recording.viewport, checkpoint);
       }
+    }
+
+    if (viewportName === "mobile" && selection.checkpoint === undefined) {
+      const registration = await readFile(
+        join(actualRoot, "mobile", "registration.png"),
+      );
+      const mypage = await readFile(join(actualRoot, "mobile", "mypage.png"));
+      assert.notDeepEqual(
+        registration,
+        mypage,
+        "mobile/registration and mobile/mypage must capture distinct scroll states",
+      );
     }
   }
 } finally {

@@ -72,13 +72,18 @@ function usePrefersReducedMotion() {
 export function ChatPanel({ dispatch }: ChatPanelProps) {
   const { t } = useTranslation();
   const panelRef = useRef<HTMLDivElement>(null);
+  const restoreIsolationRef = useRef<(() => void) | null>(null);
   const [loading, setLoading] = useState(true);
   const mobile = useMobileViewport();
   const reducedMotion = usePrefersReducedMotion();
   const duration = reducedMotion ? 0 : mobile ? 0.18 : 0.22;
+  const restoreIsolation = useCallback(() => {
+    restoreIsolationRef.current?.();
+  }, []);
   const close = useCallback(() => {
+    restoreIsolation();
     dispatch({ type: "close-overlay" });
-  }, [dispatch]);
+  }, [dispatch, restoreIsolation]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -99,6 +104,36 @@ export function ChatPanel({ dispatch }: ChatPanelProps) {
     const previousAriaHidden = background?.getAttribute("aria-hidden") ?? null;
     const backgroundWasInert = background?.hasAttribute("inert") ?? false;
     const previousOverflow = document.body.style.overflow;
+    let restored = false;
+
+    const restore = () => {
+      if (restored) {
+        return;
+      }
+
+      restored = true;
+      document.body.style.overflow = previousOverflow;
+
+      if (background !== null) {
+        if (previousAriaHidden === null) {
+          background.removeAttribute("aria-hidden");
+        } else {
+          background.setAttribute("aria-hidden", previousAriaHidden);
+        }
+
+        if (!backgroundWasInert) {
+          background.removeAttribute("inert");
+        }
+      }
+
+      previousActive?.focus({ preventScroll: true });
+
+      if (restoreIsolationRef.current === restore) {
+        restoreIsolationRef.current = null;
+      }
+    };
+
+    restoreIsolationRef.current = restore;
 
     background?.setAttribute("aria-hidden", "true");
     background?.setAttribute("inert", "");
@@ -144,21 +179,7 @@ export function ChatPanel({ dispatch }: ChatPanelProps) {
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-
-      if (background !== null) {
-        if (previousAriaHidden === null) {
-          background.removeAttribute("aria-hidden");
-        } else {
-          background.setAttribute("aria-hidden", previousAriaHidden);
-        }
-
-        if (!backgroundWasInert) {
-          background.removeAttribute("inert");
-        }
-      }
-
-      previousActive?.focus({ preventScroll: true });
+      restore();
     };
   }, [close]);
 
