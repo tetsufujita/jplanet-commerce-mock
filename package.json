@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "sazo:reference": "node scripts/sazo-extract-reference.mjs",
     "format": "prettier --write ."
   },
   "dependencies": {

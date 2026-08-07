@@ -1,0 +1,37 @@
+{
+  "desktop": {
+    "source": "/Users/fujitatetsu/Downloads/画面収録 2026-08-06 20.24.01.mov",
+    "viewport": { "width": 3022, "height": 1656 },
+    "durationSeconds": 448.23,
+    "checkpoints": [
+      { "name": "home-hero", "second": 0 },
+      { "name": "home-sections", "second": 36 },
+      { "name": "chat-open", "second": 72 },
+      { "name": "reviews", "second": 120 },
+      { "name": "gram", "second": 168 },
+      { "name": "ranking", "second": 240 },
+      { "name": "service", "second": 312 },
+      { "name": "brands", "second": 384 },
+      { "name": "login-modal", "second": 438 }
+    ]
+  },
+  "mobile": {
+    "source": "/Users/fujitatetsu/Downloads/画面収録 2026-08-06 20.31.56.mov",
+    "viewport": { "width": 682, "height": 1470 },
+    "durationSeconds": 211.957,
+    "checkpoints": [
+      { "name": "home-hero", "second": 0 },
+      { "name": "home-community", "second": 24 },
+      { "name": "ranking", "second": 48 },
+      { "name": "service", "second": 72 },
+      { "name": "brands", "second": 96 },
+      { "name": "categories", "second": 112 },
+      { "name": "catalog-list", "second": 128 },
+      { "name": "catalog-grid", "second": 144 },
+      { "name": "login", "second": 160 },
+      { "name": "registration", "second": 176 },
+      { "name": "mypage", "second": 192 },
+      { "name": "profile", "second": 208 }
+    ]
+  }
+}
