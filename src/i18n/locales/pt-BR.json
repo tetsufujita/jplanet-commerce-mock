@@ -137,15 +137,22 @@
       "mobileLabel": "モバイルメニュー",
       "home": "ホーム",
       "service": "サービス紹介",
-      "brands": "ブランド",
+      "brands": "人気ブランド",
       "categories": "カテゴリー",
       "reviews": "レビュー",
+      "help": "ヘルプ",
+      "news": "お知らせ",
+      "notification": "通知",
+      "search": "検索",
       "favorites": "お気に入り",
       "mypage": "マイページ"
     },
     "actions": {
       "login": "ログイン",
-      "chat": "チャットを開く"
+      "chat": "チャットを開く",
+      "cart": "カート",
+      "language": "言語",
+      "topActionsLabel": "ユーザーメニュー"
     },
     "footer": {
       "copyright": "© SAZO"
