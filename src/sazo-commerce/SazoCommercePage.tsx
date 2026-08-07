@@ -19,6 +19,7 @@ import "@/sazo-commerce/sazo.css";
 
 export function SazoCommercePage() {
   const [state, dispatch] = useReducer(sazoReducer, undefined, createInitialSazoState);
+  const authPageActive = state.authStep !== "provider" && state.view === "home";
 
   useEffect(() => {
     document.documentElement.scrollTop = 0;
@@ -26,33 +27,42 @@ export function SazoCommercePage() {
   }, [state.view]);
 
   return (
-    <div className="sazo-page">
-      <SazoShell dispatch={dispatch} state={state}>
-        {state.view === "home" ? <HomeView dispatch={dispatch} state={state} /> : null}
-        {state.view === "service" ? <ServiceView dispatch={dispatch} /> : null}
-        {state.view === "brands" ? (
-          <BrandsView dispatch={dispatch} state={state} />
-        ) : null}
-        {state.view === "categories" ? (
-          <CategoriesView dispatch={dispatch} state={state} />
-        ) : null}
-        {state.view === "catalog" ? (
-          <CatalogView dispatch={dispatch} state={state} />
-        ) : null}
-        {state.view === "ranking" ? (
-          <RankingView dispatch={dispatch} state={state} />
-        ) : null}
-        {state.view === "reviews" ? (
-          <ReviewsView dispatch={dispatch} state={state} />
-        ) : null}
-        {state.view === "mypage" ? <MyPageView dispatch={dispatch} /> : null}
-        {state.view === "favorites" ? <FavoritesView dispatch={dispatch} /> : null}
-        {state.view === "profile" ? <ProfileView dispatch={dispatch} /> : null}
-        {state.view === "cards" ? <CardsView dispatch={dispatch} /> : null}
-      </SazoShell>
+    <div
+      className="sazo-root"
+      data-auth-step={state.authStep}
+      data-overlay={state.overlay}
+      data-view={state.view}
+    >
+      {authPageActive ? (
+        <AuthFlow authStep={state.authStep} dispatch={dispatch} />
+      ) : (
+        <SazoShell dispatch={dispatch} state={state}>
+          {state.view === "home" ? <HomeView dispatch={dispatch} state={state} /> : null}
+          {state.view === "service" ? <ServiceView dispatch={dispatch} /> : null}
+          {state.view === "brands" ? (
+            <BrandsView dispatch={dispatch} state={state} />
+          ) : null}
+          {state.view === "categories" ? (
+            <CategoriesView dispatch={dispatch} state={state} />
+          ) : null}
+          {state.view === "catalog" ? (
+            <CatalogView dispatch={dispatch} state={state} />
+          ) : null}
+          {state.view === "ranking" ? (
+            <RankingView dispatch={dispatch} state={state} />
+          ) : null}
+          {state.view === "reviews" ? (
+            <ReviewsView dispatch={dispatch} state={state} />
+          ) : null}
+          {state.view === "mypage" ? <MyPageView dispatch={dispatch} /> : null}
+          {state.view === "favorites" ? <FavoritesView dispatch={dispatch} /> : null}
+          {state.view === "profile" ? <ProfileView dispatch={dispatch} /> : null}
+          {state.view === "cards" ? <CardsView dispatch={dispatch} /> : null}
+        </SazoShell>
+      )}
 
       <AnimatePresence>
-        {state.overlay === "login" ? (
+        {state.overlay === "login" && state.authStep === "provider" ? (
           <AuthFlow authStep={state.authStep} dispatch={dispatch} key="sazo-login" />
         ) : null}
         {state.overlay === "chat" ? (

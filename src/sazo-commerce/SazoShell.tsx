@@ -151,12 +151,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
   const accountView = ["mypage", "favorites", "profile", "cards"].includes(state.view);
 
   return (
-    <div
-      className="sazo-root"
-      data-auth-step={state.authStep}
-      data-overlay={state.overlay}
-      data-view={state.view}
-    >
+    <div className="sazo-shell-background" data-overlay-background="true">
       <div className="sazo-desktop-shell" data-shell="desktop">
         <header className="sazo-desktop-header">
           <Wordmark

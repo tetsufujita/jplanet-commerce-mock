@@ -56,10 +56,28 @@ describe("sazoReducer", () => {
   it("advances the mock registration and opens chat deterministically", () => {
     let state = sazoReducer(createInitialSazoState(), { type: "open-login" });
     state = sazoReducer(state, { type: "advance-auth", step: "birthday" });
+    expect(state.overlay).toBe("none");
     state = sazoReducer(state, { type: "open-chat" });
 
     expect(state.authStep).toBe("birthday");
     expect(state.overlay).toBe("chat");
+  });
+
+  it("completes the auth page without reopening it after account navigation", () => {
+    let state = sazoReducer(createInitialSazoState(), { type: "open-login" });
+    state = sazoReducer(state, { type: "advance-auth", step: "phone" });
+    state = sazoReducer(state, { type: "open-chat" });
+    state = sazoReducer(state, { type: "close-overlay" });
+
+    expect(state).toMatchObject({ authStep: "phone", overlay: "none", view: "home" });
+
+    const completed = sazoReducer(state, { type: "complete-auth" });
+
+    expect(completed).toMatchObject({
+      authStep: "provider",
+      overlay: "none",
+      view: "mypage",
+    });
   });
 
   it.each(["login", "chat"] as const)("closes the %s overlay", (overlay) => {

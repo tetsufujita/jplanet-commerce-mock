@@ -128,6 +128,71 @@ describe("SAZO local authentication", () => {
     ).toBeTruthy();
   });
 
+  it("renders birthday and phone as normal auth pages with recorded page chrome", async () => {
+    const { container } = await renderPage();
+    const desktopShell = container.querySelector<HTMLElement>('[data-shell="desktop"]');
+
+    if (desktopShell === null) {
+      throw new Error("Desktop SAZO shell not found");
+    }
+
+    fireEvent.click(within(desktopShell).getByRole("button", { name: "ログイン" }));
+    fireEvent.click(screen.getByRole("button", { name: "Googleで続ける" }));
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    const birthdayPage = screen.getByTestId("sazo-auth-page");
+    const birthdayMain = within(birthdayPage).getByRole("main", { name: "会員登録" });
+    expect(
+      within(birthdayMain).getByRole("heading", {
+        name: "生年月日を入力してください",
+      }),
+    ).toBeTruthy();
+    expect(within(birthdayPage).getByRole("banner")).toBeTruthy();
+    expect(within(birthdayPage).getByRole("contentinfo")).toBeTruthy();
+    for (const link of [
+      "会社紹介",
+      "採用情報",
+      "プレスリリース",
+      "利用規約",
+      "プライバシー規約",
+      "特定商取引法に基づく表記",
+    ]) {
+      expect(within(birthdayPage).getByRole("link", { name: link })).toBeTruthy();
+    }
+    const authChatLauncher = within(birthdayPage).getByRole("button", {
+      name: "チャットを開く",
+    });
+    expect(authChatLauncher).toBeTruthy();
+
+    const root = container.querySelector<HTMLElement>(".sazo-root");
+    expect(root?.getAttribute("aria-hidden")).toBeNull();
+    expect(root?.hasAttribute("inert")).toBe(false);
+    expect(document.body.style.overflow).toBe("");
+
+    fireEvent.click(authChatLauncher);
+    fireEvent.click(screen.getByRole("button", { name: "チャットを閉じる" }));
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "SAZOチャット" })).toBeNull();
+    });
+    expect(screen.getByTestId("sazo-auth-page")).toBeTruthy();
+
+    fireEvent.change(within(birthdayMain).getByLabelText("生年月日（西暦）"), {
+      target: { value: "2001-08-22" },
+    });
+    fireEvent.click(within(birthdayMain).getByRole("button", { name: "次へ" }));
+
+    const phonePage = screen.getByTestId("sazo-auth-page");
+    const phoneMain = within(phonePage).getByRole("main", { name: "会員登録" });
+    expect(
+      within(phoneMain).getByRole("heading", {
+        name: "電話番号を入力してください",
+      }),
+    ).toBeTruthy();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(within(phonePage).getByRole("banner")).toBeTruthy();
+    expect(within(phonePage).getByRole("contentinfo")).toBeTruthy();
+  });
+
   it("closes with Escape and returns focus to the login launcher", async () => {
     const { container } = await renderPage();
     const desktopShell = container.querySelector<HTMLElement>('[data-shell="desktop"]');
@@ -164,10 +229,15 @@ describe("SAZO local authentication", () => {
     });
     const close = within(dialog).getByRole("button", { name: "ログインを閉じる" });
     const email = within(dialog).getByRole("button", { name: "メールで続ける" });
-    const background = container.querySelector<HTMLElement>(".sazo-root");
+    const root = container.querySelector<HTMLElement>(".sazo-root");
+    const background = container.querySelector<HTMLElement>(
+      '[data-overlay-background="true"]',
+    );
 
     expect(background?.getAttribute("aria-hidden")).toBe("true");
     expect(background?.hasAttribute("inert")).toBe(true);
+    expect(root?.getAttribute("aria-hidden")).toBeNull();
+    expect(root?.hasAttribute("inert")).toBe(false);
     expect(document.body.style.overflow).toBe("hidden");
 
     close.focus();
@@ -225,6 +295,21 @@ describe("SAZO recorded account views", () => {
     expect(screen.getByText("お気に入りブランドがありません")).toBeTruthy();
   });
 
+  it("reaches recorded reviews from the review favorite empty state", async () => {
+    const { container } = await renderPage();
+    const desktopShell = container.querySelector<HTMLElement>('[data-shell="desktop"]');
+
+    if (desktopShell === null) {
+      throw new Error("Desktop SAZO shell not found");
+    }
+
+    fireEvent.click(within(desktopShell).getByRole("button", { name: "お気に入り" }));
+    fireEvent.click(screen.getByRole("tab", { name: "レビュー" }));
+    fireEvent.click(screen.getByRole("button", { name: "レビューを見に行く" }));
+
+    expect(container.querySelector('[data-view-content="reviews"]')).not.toBeNull();
+  });
+
   it("sources the recorded profile values from the typed fixture", async () => {
     await renderWithI18n(<ProfileView dispatch={noDispatch} />);
 
@@ -235,6 +320,32 @@ describe("SAZO recorded account views", () => {
     expect(screen.getByLabelText("メールアドレス").getAttribute("value")).toBe(
       "tetsu.fujita@andes.global",
     );
+  });
+
+  it("renders the recorded profile phone verification and LINE linkage UI", async () => {
+    const { container } = await renderWithI18n(<ProfileView dispatch={noDispatch} />);
+
+    expect(
+      screen.getByText(
+        "ご注文の商品、配送状況をお見逃しなく！メール認証とLINE連携することで、ご注文の商品の配送状況を見逃しなく確認できます。",
+      ),
+    ).toBeTruthy();
+
+    const phone = screen.getByRole("group", { name: "電話番号" });
+    expect(within(phone).getByText("JP")).toBeTruthy();
+    expect(within(phone).queryByRole("combobox")).toBeNull();
+    expect(
+      within(phone)
+        .getByRole("textbox", { name: "認証済み電話番号" })
+        .hasAttribute("readonly"),
+    ).toBe(true);
+    expect(screen.getByText("電話番号を認証すると自動で入力されます")).toBeTruthy();
+
+    const authenticate = screen.getByRole("button", { name: "認証する" });
+    expect(authenticate.getAttribute("aria-pressed")).toBe("false");
+    fireEvent.click(authenticate);
+    expect(authenticate.getAttribute("aria-pressed")).toBe("true");
+    expect(container.querySelector("a[href^='http']")).toBeNull();
   });
 
   it("renders the recorded cards empty state", async () => {
@@ -255,11 +366,16 @@ describe("SAZO local chat overlay", () => {
     const dialog = screen.getByRole("dialog", { name: "SAZOチャット" });
     const close = within(dialog).getByRole("button", { name: "チャットを閉じる" });
     const message = within(dialog).getByRole("textbox", { name: "メッセージ" });
-    const background = container.querySelector<HTMLElement>(".sazo-root");
+    const root = container.querySelector<HTMLElement>(".sazo-root");
+    const background = container.querySelector<HTMLElement>(
+      '[data-overlay-background="true"]',
+    );
 
     expect(dialog.getAttribute("aria-modal")).toBe("true");
     expect(background?.getAttribute("aria-hidden")).toBe("true");
     expect(background?.hasAttribute("inert")).toBe(true);
+    expect(root?.getAttribute("aria-hidden")).toBeNull();
+    expect(root?.hasAttribute("inert")).toBe(false);
     expect(document.body.style.overflow).toBe("hidden");
 
     close.focus();

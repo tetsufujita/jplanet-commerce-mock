@@ -100,6 +100,7 @@ export type SazoAction =
   | { type: "toggle-hero-pause" }
   | { type: "open-login" }
   | { type: "advance-auth"; step: SazoAuthStep }
+  | { type: "complete-auth" }
   | { type: "open-chat" }
   | { type: "close-overlay" }
   | { type: "select-directory-category"; category: DirectoryCategoryId }
@@ -142,7 +143,9 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
     case "open-login":
       return { ...state, overlay: "login", authStep: "provider" };
     case "advance-auth":
-      return { ...state, authStep: action.step };
+      return { ...state, authStep: action.step, overlay: "none" };
+    case "complete-auth":
+      return { ...state, authStep: "provider", overlay: "none", view: "mypage" };
     case "open-chat":
       return { ...state, overlay: "chat" };
     case "close-overlay":

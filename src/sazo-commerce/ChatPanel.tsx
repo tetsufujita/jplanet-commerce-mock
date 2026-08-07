@@ -93,7 +93,9 @@ export function ChatPanel({ dispatch }: ChatPanelProps) {
   useEffect(() => {
     const previousActive =
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const background = document.querySelector<HTMLElement>(".sazo-root");
+    const background = document.querySelector<HTMLElement>(
+      '[data-overlay-background="true"]',
+    );
     const previousAriaHidden = background?.getAttribute("aria-hidden") ?? null;
     const backgroundWasInert = background?.hasAttribute("inert") ?? false;
     const previousOverflow = document.body.style.overflow;

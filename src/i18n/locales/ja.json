@@ -158,6 +158,21 @@
     "auth": {
       "close": "ログインを閉じる",
       "next": "次へ",
+      "page": {
+        "label": "会員登録",
+        "companyLinksLabel": "会社情報",
+        "company": "会社紹介",
+        "careers": "採用情報",
+        "press": "プレスリリース",
+        "koreaCopyright": "© 2024-2026 SAJWO Inc",
+        "koreaAddress": "54, Gwangjinmal-ro, Uiwang-si, Gyeonggi-do, Republic of Korea",
+        "japanCopyright": "© 2024-2026 株式会社SAZO",
+        "japanAddress": "1-2-32 Tsurumai, Showa-ku, Nagoya-shi, Aichi, Japan",
+        "termsLinksLabel": "規約",
+        "terms": "利用規約",
+        "privacy": "プライバシー規約",
+        "commerce": "特定商取引法に基づく表記"
+      },
       "provider": {
         "title": "ログイン または会員登録",
         "intro": "ログイン方法を選んでください",
@@ -241,7 +256,8 @@
         },
         "review": {
           "title": "リアクションしたレビューがありません",
-          "body": "他のレビューにリアクションしてみましょう"
+          "body": "他のレビューにリアクションしてみましょう",
+          "cta": "レビューを見に行く"
         }
       }
     },
@@ -249,13 +265,19 @@
       "title": "会員情報の修正・変更",
       "nickname": "ニックネーム",
       "email": "メールアドレス",
-      "orderNotice": "ご注文の商品、配送状況をお見逃しなく！メール認証し正確な情報をもとに、ご注文の商品のお届け状況を見逃しなく確認できます。",
+      "orderNotice": "ご注文の商品、配送状況をお見逃しなく！メール認証とLINE連携することで、ご注文の商品の配送状況を見逃しなく確認できます。",
       "nameKanji": "氏名（漢字・英語・ひらがな）",
       "nameKana": "氏名（カナまたは英語）",
       "familyName": "姓",
       "givenName": "名",
       "familyNameKana": "姓（カナまたは英語）",
       "givenNameKana": "名（カナまたは英語）",
+      "phone": {
+        "label": "電話番号",
+        "authenticate": "認証する",
+        "inputLabel": "認証済み電話番号",
+        "help": "電話番号を認証すると自動で入力されます"
+      },
       "image": "プロフィール画像",
       "upload": "クリックしてアップロード",
       "uploadHelp": "またはドラッグ＆ドロップ PNG、JPGまたはGIF（最大10MB）",

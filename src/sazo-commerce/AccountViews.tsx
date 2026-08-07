@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   Bell,
   Bookmark,
+  ChevronDown,
   ChevronRight,
   CircleDollarSign,
   ClipboardList,
@@ -21,7 +22,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { sazoAccountFixture, sazoCountryOptions } from "@/sazo-commerce/fixtures";
+import { sazoAccountFixture } from "@/sazo-commerce/fixtures";
 import type { SazoAction, SazoView } from "@/sazo-commerce/model";
 
 interface AccountViewProps {
@@ -321,6 +322,16 @@ export function FavoritesView({ dispatch }: AccountViewProps) {
               {t("sazo.favorites.empty.brand.cta")}
             </button>
           ) : null}
+          {tab === "review" ? (
+            <button
+              onClick={() => {
+                dispatch({ type: "navigate", view: "reviews" });
+              }}
+              type="button"
+            >
+              {t("sazo.favorites.empty.review.cta")}
+            </button>
+          ) : null}
         </section>
       </div>
     </AccountViewFrame>
@@ -329,6 +340,7 @@ export function FavoritesView({ dispatch }: AccountViewProps) {
 
 export function ProfileView({ dispatch }: AccountViewProps) {
   const { t } = useTranslation();
+  const [phoneAuthenticationRequested, setPhoneAuthenticationRequested] = useState(false);
   const handleSubmit = (event: SyntheticEvent<HTMLFormElement, SubmitEvent>) => {
     event.preventDefault();
     dispatch({ type: "navigate", view: "mypage" });
@@ -374,21 +386,30 @@ export function ProfileView({ dispatch }: AccountViewProps) {
           placeholder={t("sazo.auth.birthday.placeholder")}
           type="text"
         />
-        <label htmlFor="sazo-profile-country">{t("sazo.auth.phone.countryLabel")}</label>
-        <div className="sazo-profile-phone">
-          <select id="sazo-profile-country">
-            {sazoCountryOptions.map((option) => (
-              <option key={option.code} value={option.code}>
-                {option.code} +{option.dialingCode}
-              </option>
-            ))}
-          </select>
-          <input
-            aria-label={t("sazo.auth.phone.numberLabel")}
-            placeholder={t("sazo.auth.phone.placeholder")}
-            type="tel"
-          />
+        <div className="sazo-profile-phone-heading">
+          <span id="sazo-profile-phone-label">{t("sazo.profile.phone.label")}</span>
+          <button
+            aria-pressed={phoneAuthenticationRequested}
+            onClick={() => {
+              setPhoneAuthenticationRequested(true);
+            }}
+            type="button"
+          >
+            {t("sazo.profile.phone.authenticate")}
+          </button>
         </div>
+        <div
+          aria-labelledby="sazo-profile-phone-label"
+          className="sazo-profile-phone"
+          role="group"
+        >
+          <span className="sazo-profile-phone-country">
+            JP
+            <ChevronDown aria-hidden size={17} strokeWidth={1.8} />
+          </span>
+          <input aria-label={t("sazo.profile.phone.inputLabel")} readOnly type="tel" />
+        </div>
+        <small className="sazo-profile-phone-help">{t("sazo.profile.phone.help")}</small>
 
         <section className="sazo-profile-image">
           <h2>{t("sazo.profile.image")}</h2>
