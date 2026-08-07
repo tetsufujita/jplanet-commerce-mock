@@ -30,6 +30,14 @@ const desktopNavigation = [
   { translationKey: "sazo.navigation.news" },
 ] satisfies readonly NavigationItem[];
 
+const mobileSecondaryNavigation = [
+  { translationKey: "sazo.navigation.home", view: "home" },
+  { translationKey: "sazo.navigation.service", view: "service" },
+  { translationKey: "sazo.navigation.brands", view: "brands" },
+  { translationKey: "sazo.navigation.categories", view: "categories" },
+  { translationKey: "sazo.navigation.reviews", view: "reviews" },
+] satisfies readonly NavigationItem[];
+
 export interface SazoShellProps {
   children?: ReactNode;
   dispatch: Dispatch<SazoAction>;
@@ -232,11 +240,28 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
 
       <div className="sazo-mobile-shell" data-shell="mobile">
         <header className="sazo-mobile-header">
-          <Wordmark
-            dispatch={dispatch}
-            homeLabel={t("sazo.brand.homeLabel")}
-            wordmark={t("sazo.brand.wordmark")}
-          />
+          <div className="sazo-mobile-header-primary">
+            <Wordmark
+              dispatch={dispatch}
+              homeLabel={t("sazo.brand.homeLabel")}
+              wordmark={t("sazo.brand.wordmark")}
+            />
+          </div>
+          <nav
+            aria-label={t("sazo.navigation.mobileSecondaryLabel")}
+            className="sazo-mobile-secondary-nav"
+          >
+            {mobileSecondaryNavigation.map((item) => (
+              <NavigationButton
+                className="sazo-mobile-secondary-button"
+                dispatch={dispatch}
+                key={item.translationKey}
+                label={t(item.translationKey)}
+                state={state}
+                view={item.view}
+              />
+            ))}
+          </nav>
         </header>
 
         <main className="sazo-main sazo-mobile-main" />

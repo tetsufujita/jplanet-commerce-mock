@@ -14,16 +14,83 @@ export type SazoView =
 export type SazoOverlay = "none" | "login" | "chat";
 export type SazoAuthStep = "provider" | "birthday" | "phone";
 export type CatalogMode = "list" | "grid";
+export type BrandFilterId =
+  | "all"
+  | "apparel"
+  | "accessories"
+  | "bags"
+  | "shoes"
+  | "gadgets"
+  | "beauty";
+export type DirectoryCategoryId =
+  | "beauty"
+  | "ladies"
+  | "mens"
+  | "kids"
+  | "living"
+  | "food"
+  | "pets"
+  | "appliances"
+  | "hobby";
+export type CatalogTabId =
+  | "skincare"
+  | "base-makeup"
+  | "point-makeup"
+  | "sets"
+  | "tools"
+  | "uv-care"
+  | "body-care"
+  | "hair-removal"
+  | "nails"
+  | "hair"
+  | "fragrance"
+  | "mens-cosmetics"
+  | "tops"
+  | "outerwear"
+  | "bottoms"
+  | "dresses"
+  | "bags"
+  | "shoes"
+  | "kids-fashion"
+  | "baby"
+  | "toys"
+  | "appliances"
+  | "kitchen"
+  | "interior"
+  | "daily"
+  | "snacks"
+  | "drinks"
+  | "instant-food"
+  | "pet-food"
+  | "pet-supplies"
+  | "electronics"
+  | "kpop"
+  | "characters"
+  | "sports";
+export type ReviewCategoryId =
+  | "all"
+  | "idol"
+  | "beauty"
+  | "clothing"
+  | "food"
+  | "books"
+  | "automotive"
+  | "kids-pets";
+export type RankingMetric = "purchases" | "views";
 
 export interface SazoState {
   view: SazoView;
   overlay: SazoOverlay;
   authStep: SazoAuthStep;
   catalogMode: CatalogMode;
+  catalogTab: CatalogTabId;
+  catalogChip: string | null;
+  directoryCategory: DirectoryCategoryId;
+  brandFilter: BrandFilterId;
+  reviewCategory: ReviewCategoryId;
+  rankingMetric: RankingMetric;
   heroIndex: number;
   heroPaused: boolean;
-  selectedCategory: string;
-  selectedTab: string;
 }
 
 export type SazoAction =
@@ -35,8 +102,12 @@ export type SazoAction =
   | { type: "advance-auth"; step: SazoAuthStep }
   | { type: "open-chat" }
   | { type: "close-overlay" }
-  | { type: "select-category"; category: string }
-  | { type: "select-tab"; tab: string }
+  | { type: "select-directory-category"; category: DirectoryCategoryId }
+  | { type: "select-brand-filter"; filter: BrandFilterId }
+  | { type: "select-catalog-tab"; tab: CatalogTabId }
+  | { type: "select-catalog-chip"; chip: string | null }
+  | { type: "select-review-category"; category: ReviewCategoryId }
+  | { type: "select-ranking-metric"; metric: RankingMetric }
   | { type: "reset" };
 
 const heroSlideCount = 5;
@@ -47,10 +118,14 @@ export function createInitialSazoState(): SazoState {
     overlay: "none",
     authStep: "provider",
     catalogMode: "list",
+    catalogTab: "skincare",
+    catalogChip: null,
+    directoryCategory: "beauty",
+    brandFilter: "all",
+    reviewCategory: "all",
+    rankingMetric: "purchases",
     heroIndex: 0,
     heroPaused: false,
-    selectedCategory: "all",
-    selectedTab: "all",
   };
 }
 
@@ -72,10 +147,18 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
       return { ...state, overlay: "chat" };
     case "close-overlay":
       return { ...state, overlay: "none" };
-    case "select-category":
-      return { ...state, selectedCategory: action.category };
-    case "select-tab":
-      return { ...state, selectedTab: action.tab };
+    case "select-directory-category":
+      return { ...state, directoryCategory: action.category };
+    case "select-brand-filter":
+      return { ...state, brandFilter: action.filter };
+    case "select-catalog-tab":
+      return { ...state, catalogTab: action.tab, catalogChip: null };
+    case "select-catalog-chip":
+      return { ...state, catalogChip: action.chip };
+    case "select-review-category":
+      return { ...state, reviewCategory: action.category };
+    case "select-ranking-metric":
+      return { ...state, rankingMetric: action.metric };
     case "reset":
       return createInitialSazoState();
     default:

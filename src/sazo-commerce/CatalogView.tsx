@@ -1,17 +1,24 @@
 import { LayoutGrid, List } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ViewHeader, type StatefulViewProps } from "@/sazo-commerce/DirectoryViews";
-import { catalogTabs, products } from "@/sazo-commerce/fixtures";
+import { catalogInventory, catalogTabs } from "@/sazo-commerce/fixtures";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 
 export function CatalogView({ dispatch, state }: StatefulViewProps) {
   const { t } = useTranslation();
   const activeTab =
-    catalogTabs.find(({ id }) => id === state.selectedTab) ?? catalogTabs[0];
+    catalogTabs.find(({ id }) => id === state.catalogTab) ?? catalogTabs[0];
 
   if (activeTab === undefined) {
     throw new Error("Missing SAZO catalog tab fixture");
   }
+
+  const visibleEntries = catalogInventory.filter(
+    ({ chipIds, tabIds }) =>
+      tabIds.some((tabId) => tabId === activeTab.id) &&
+      (state.catalogChip === null ||
+        chipIds.some((chipId) => chipId === state.catalogChip)),
+  );
 
   return (
     <div className="sazo-catalog-view" data-view-content="catalog">
@@ -23,7 +30,7 @@ export function CatalogView({ dispatch, state }: StatefulViewProps) {
               aria-selected={activeTab.id === tab.id}
               key={tab.id}
               onClick={() => {
-                dispatch({ type: "select-tab", tab: tab.id });
+                dispatch({ type: "select-catalog-tab", tab: tab.id });
               }}
               role="tab"
               type="button"
@@ -34,8 +41,18 @@ export function CatalogView({ dispatch, state }: StatefulViewProps) {
         </div>
         <div className="sazo-catalog-chips">
           {activeTab.chips.map((chip) => (
-            <button key={chip} type="button">
-              {chip}
+            <button
+              aria-pressed={state.catalogChip === chip.id}
+              key={chip.id}
+              onClick={() => {
+                dispatch({
+                  type: "select-catalog-chip",
+                  chip: state.catalogChip === chip.id ? null : chip.id,
+                });
+              }}
+              type="button"
+            >
+              {chip.label}
             </button>
           ))}
         </div>
@@ -66,7 +83,7 @@ export function CatalogView({ dispatch, state }: StatefulViewProps) {
         </div>
       </div>
       <div className="sazo-catalog-products" data-catalog-mode={state.catalogMode}>
-        {products.slice(0, 10).map((product) => (
+        {visibleEntries.map(({ product }) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>

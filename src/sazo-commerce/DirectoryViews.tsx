@@ -8,13 +8,8 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import {
-  brands,
-  catalogTabs,
-  categoryDirectory,
-  type Brand,
-} from "@/sazo-commerce/fixtures";
-import type { SazoAction, SazoState } from "@/sazo-commerce/model";
+import { brands, categoryDirectory, type Brand } from "@/sazo-commerce/fixtures";
+import type { BrandFilterId, SazoAction, SazoState } from "@/sazo-commerce/model";
 
 export interface ViewDispatchProps {
   dispatch: Dispatch<SazoAction>;
@@ -78,9 +73,14 @@ function BrandPreview({ brand }: { brand: Brand }) {
   return (
     <article className="sazo-brand-row">
       <div className="sazo-brand-row-heading">
-        <span aria-hidden className="sazo-brand-logo">
-          {brand.name.slice(0, 1)}
-        </span>
+        <img
+          alt=""
+          aria-hidden
+          className="sazo-brand-logo"
+          height={44}
+          src={brand.logo}
+          width={44}
+        />
         <div>
           <h2>{brand.name}</h2>
           <p>{brand.japaneseName}</p>
@@ -125,7 +125,11 @@ function BrandPreview({ brand }: { brand: Brand }) {
   );
 }
 
-export function BrandsView({ dispatch }: ViewDispatchProps) {
+interface BrandsViewProps extends ViewDispatchProps {
+  state?: SazoState;
+}
+
+export function BrandsView({ dispatch, state }: BrandsViewProps) {
   const { t } = useTranslation();
   const filters = [
     "all",
@@ -135,15 +139,29 @@ export function BrandsView({ dispatch }: ViewDispatchProps) {
     "shoes",
     "gadgets",
     "beauty",
-  ] as const;
+  ] as const satisfies readonly BrandFilterId[];
+  const activeFilter = state?.brandFilter ?? "all";
+  const visibleBrands =
+    activeFilter === "all"
+      ? brands
+      : brands.filter(({ filters: brandFilters }) =>
+          brandFilters.some((filter) => filter === activeFilter),
+        );
 
   return (
     <div className="sazo-directory-view" data-view-content="brands">
       <ViewHeader dispatch={dispatch} title={t("sazo.views.brands.title")} />
       <div className="sazo-directory-content">
         <div aria-label={t("sazo.views.brands.title")} className="sazo-filter-rail">
-          {filters.map((filter, index) => (
-            <button aria-pressed={index === 0} key={filter} type="button">
+          {filters.map((filter) => (
+            <button
+              aria-pressed={activeFilter === filter}
+              key={filter}
+              onClick={() => {
+                dispatch({ type: "select-brand-filter", filter });
+              }}
+              type="button"
+            >
               {t(`sazo.views.brands.${filter}`)}
             </button>
           ))}
@@ -154,7 +172,7 @@ export function BrandsView({ dispatch }: ViewDispatchProps) {
         </div>
         <p className="sazo-directory-count">{t("sazo.views.brands.total")}</p>
         <div className="sazo-brand-grid">
-          {brands.map((brand) => (
+          {visibleBrands.map((brand) => (
             <BrandPreview brand={brand} key={brand.id} />
           ))}
         </div>
@@ -166,7 +184,7 @@ export function BrandsView({ dispatch }: ViewDispatchProps) {
 export function CategoriesView({ dispatch, state }: StatefulViewProps) {
   const { t } = useTranslation();
   const selected =
-    categoryDirectory.find(({ id }) => id === state.selectedCategory) ??
+    categoryDirectory.find(({ id }) => id === state.directoryCategory) ??
     categoryDirectory[0];
 
   if (selected === undefined) {
@@ -201,7 +219,10 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
               aria-current={selected.id === category.id ? "page" : undefined}
               key={category.id}
               onClick={() => {
-                dispatch({ type: "select-category", category: category.id });
+                dispatch({
+                  type: "select-directory-category",
+                  category: category.id,
+                });
               }}
               type="button"
             >
@@ -215,19 +236,19 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
             <button type="button">{t("sazo.views.categories.more")}</button>
           </div>
           <div className="sazo-category-child-list">
-            {selected.children.map((child, index) => (
+            {selected.children.map((child) => (
               <button
-                key={child}
+                key={child.id}
                 onClick={() => {
                   dispatch({
-                    type: "select-tab",
-                    tab: catalogTabs[index]?.id ?? catalogTabs[0]?.id ?? "skincare",
+                    type: "select-catalog-tab",
+                    tab: child.targetCatalogId,
                   });
                   dispatch({ type: "navigate", view: "catalog" });
                 }}
                 type="button"
               >
-                <span>{child}</span>
+                <span>{child.label}</span>
                 <ChevronRight aria-hidden size={20} />
               </button>
             ))}

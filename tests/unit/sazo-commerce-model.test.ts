@@ -1,3 +1,6 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   brands,
@@ -68,20 +71,59 @@ describe("sazoReducer", () => {
     expect(sazoReducer(state, { type: "close-overlay" }).overlay).toBe("none");
   });
 
-  it("selects category and tab independently", () => {
-    const categorySelected = sazoReducer(createInitialSazoState(), {
-      type: "select-category",
-      category: "beauty",
+  it("keeps directory selection independent from catalog tab and chip", () => {
+    let state = sazoReducer(createInitialSazoState(), {
+      type: "select-directory-category",
+      category: "ladies",
     });
-    const tabSelected = sazoReducer(categorySelected, {
-      type: "select-tab",
-      tab: "popular",
+    state = sazoReducer(state, {
+      type: "select-catalog-tab",
+      tab: "tops",
+    });
+    state = sazoReducer(state, {
+      type: "select-catalog-chip",
+      chip: "short-sleeve",
     });
 
-    expect(tabSelected).toMatchObject({
-      selectedCategory: "beauty",
-      selectedTab: "popular",
+    expect(state).toMatchObject({
+      directoryCategory: "ladies",
+      catalogTab: "tops",
+      catalogChip: "short-sleeve",
     });
+  });
+
+  it("keeps brand, review, and ranking controls in dedicated state fields", () => {
+    let state = sazoReducer(createInitialSazoState(), {
+      type: "select-brand-filter",
+      filter: "gadgets",
+    });
+    state = sazoReducer(state, {
+      type: "select-review-category",
+      category: "idol",
+    });
+    state = sazoReducer(state, {
+      type: "select-ranking-metric",
+      metric: "views",
+    });
+
+    expect(state).toMatchObject({
+      brandFilter: "gadgets",
+      reviewCategory: "idol",
+      rankingMetric: "views",
+    });
+  });
+
+  it("clears a chip that belongs to the previous catalog tab", () => {
+    let state = sazoReducer(createInitialSazoState(), {
+      type: "select-catalog-chip",
+      chip: "toner",
+    });
+    state = sazoReducer(state, {
+      type: "select-catalog-tab",
+      tab: "base-makeup",
+    });
+
+    expect(state).toMatchObject({ catalogTab: "base-makeup", catalogChip: null });
   });
 
   it("resets every stateful screen choice", () => {
@@ -93,8 +135,24 @@ describe("sazoReducer", () => {
     state = sazoReducer(state, { type: "hero-next" });
     state = sazoReducer(state, { type: "open-login" });
     state = sazoReducer(state, { type: "advance-auth", step: "phone" });
-    state = sazoReducer(state, { type: "select-category", category: "beauty" });
-    state = sazoReducer(state, { type: "select-tab", tab: "popular" });
+    state = sazoReducer(state, {
+      type: "select-directory-category",
+      category: "beauty",
+    });
+    state = sazoReducer(state, {
+      type: "select-catalog-tab",
+      tab: "base-makeup",
+    });
+    state = sazoReducer(state, { type: "select-catalog-chip", chip: "primer" });
+    state = sazoReducer(state, { type: "select-brand-filter", filter: "beauty" });
+    state = sazoReducer(state, {
+      type: "select-review-category",
+      category: "beauty",
+    });
+    state = sazoReducer(state, {
+      type: "select-ranking-metric",
+      metric: "views",
+    });
 
     expect(sazoReducer(state, { type: "reset" })).toEqual(createInitialSazoState());
   });
@@ -155,6 +213,34 @@ describe("SAZO fixture asset contract", () => {
       "/sazo-commerce/brands/07.webp",
       "/sazo-commerce/brands/08.webp",
     ]);
+  });
+
+  it("maps every brand to an existing unique local recording logo", () => {
+    const logoPaths = brands.map(({ logo }) => logo);
+
+    expect(logoPaths).toEqual([
+      "/sazo-commerce/brand-logos/01.webp",
+      "/sazo-commerce/brand-logos/02.webp",
+      "/sazo-commerce/brand-logos/03.webp",
+      "/sazo-commerce/brand-logos/04.webp",
+      "/sazo-commerce/brand-logos/05.webp",
+      "/sazo-commerce/brand-logos/06.webp",
+      "/sazo-commerce/brand-logos/07.webp",
+      "/sazo-commerce/brand-logos/08.webp",
+    ]);
+
+    const hashes = logoPaths.flatMap((logoPath) => {
+      if (typeof logoPath !== "string") {
+        return [];
+      }
+
+      const bytes = readFileSync(join(process.cwd(), "public", logoPath));
+
+      return [createHash("sha256").update(bytes).digest("hex")];
+    });
+
+    expect(hashes).toHaveLength(8);
+    expect(new Set(hashes).size).toBe(8);
   });
 
   it("keeps every fixture image under the local SAZO asset prefix", () => {

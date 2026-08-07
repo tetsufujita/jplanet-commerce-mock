@@ -1,3 +1,11 @@
+import type {
+  BrandFilterId,
+  CatalogTabId,
+  DirectoryCategoryId,
+  RankingMetric,
+  ReviewCategoryId,
+} from "@/sazo-commerce/model";
+
 export type SazoImagePath = `/sazo-commerce/${string}`;
 
 export interface HeroSlide {
@@ -35,6 +43,8 @@ export interface Brand {
   name: string;
   japaneseName: string;
   image: SazoImagePath;
+  logo: SazoImagePath;
+  filters: readonly BrandFilterId[];
 }
 
 export interface Category {
@@ -44,15 +54,49 @@ export interface Category {
 }
 
 export interface CategoryDirectoryEntry {
-  id: string;
+  id: DirectoryCategoryId;
   name: string;
-  children: readonly string[];
+  children: readonly CategoryDirectoryChild[];
+}
+
+export interface CategoryDirectoryChild {
+  id: string;
+  label: string;
+  targetCatalogId: CatalogTabId;
+}
+
+export interface CatalogChip {
+  id: string;
+  label: string;
 }
 
 export interface CatalogTab {
-  id: string;
+  id: CatalogTabId;
   label: string;
-  chips: readonly string[];
+  chips: readonly CatalogChip[];
+}
+
+export interface CatalogInventoryEntry {
+  product: Product;
+  tabIds: readonly CatalogTabId[];
+  chipIds: readonly string[];
+}
+
+export type RankingProduct = Product;
+
+export interface ReviewCategory {
+  id: ReviewCategoryId;
+  label: string;
+}
+
+export interface EditorialReview {
+  id: string;
+  author: string;
+  body: string;
+  categoryIds: readonly Exclude<ReviewCategoryId, "all">[];
+  likes: number;
+  comments: number;
+  image: SazoImagePath;
 }
 
 export interface ServiceStep {
@@ -256,48 +300,64 @@ export const brands = [
     name: "NIKE",
     japaneseName: "ナイキ",
     image: "/sazo-commerce/brands/01.webp",
+    logo: "/sazo-commerce/brand-logos/01.webp",
+    filters: ["apparel", "shoes"],
   },
   {
     id: "acne-studios",
     name: "ACNE STUDIOS",
     japaneseName: "アクネ・ストゥディオズ",
     image: "/sazo-commerce/brands/02.webp",
+    logo: "/sazo-commerce/brand-logos/02.webp",
+    filters: ["apparel", "accessories"],
   },
   {
     id: "arcteryx",
     name: "ARC'TERYX",
     japaneseName: "アークテリクス",
     image: "/sazo-commerce/brands/03.webp",
+    logo: "/sazo-commerce/brand-logos/03.webp",
+    filters: ["apparel", "accessories", "bags"],
   },
   {
     id: "apple",
     name: "APPLE",
     japaneseName: "アップル",
     image: "/sazo-commerce/brands/04.webp",
+    logo: "/sazo-commerce/brand-logos/04.webp",
+    filters: ["gadgets"],
   },
   {
     id: "diptyque",
     name: "DIPTYQUE",
     japaneseName: "ディプティック",
     image: "/sazo-commerce/brands/05.webp",
+    logo: "/sazo-commerce/brand-logos/05.webp",
+    filters: ["beauty"],
   },
   {
     id: "maison-margiela",
     name: "MAISON MARGIELA",
     japaneseName: "メゾン・マルジェラ",
     image: "/sazo-commerce/brands/06.webp",
+    logo: "/sazo-commerce/brand-logos/06.webp",
+    filters: ["apparel", "accessories"],
   },
   {
     id: "the-north-face",
     name: "THE NORTH FACE",
     japaneseName: "ザ・ノース・フェイス",
     image: "/sazo-commerce/brands/07.webp",
+    logo: "/sazo-commerce/brand-logos/07.webp",
+    filters: ["apparel", "bags"],
   },
   {
     id: "longchamp",
     name: "LONGCHAMP",
     japaneseName: "ロンシャン",
     image: "/sazo-commerce/brands/08.webp",
+    logo: "/sazo-commerce/brand-logos/08.webp",
+    filters: ["accessories", "bags"],
   },
 ] satisfies readonly Brand[];
 
@@ -331,59 +391,128 @@ export const categoryDirectory = [
     id: "beauty",
     name: "化粧品",
     children: [
-      "スキンケア",
-      "ベースメイク",
-      "ポイントメイク",
-      "セット商品",
-      "メイク小物",
-      "UVケア",
-      "ボディ・ハンド・フットケア",
-      "脱毛・除毛",
-      "ネイル",
-      "ヘア",
-      "香水",
-      "メンズコスメ",
+      { id: "skincare", label: "スキンケア", targetCatalogId: "skincare" },
+      {
+        id: "base-makeup",
+        label: "ベースメイク",
+        targetCatalogId: "base-makeup",
+      },
+      {
+        id: "point-makeup",
+        label: "ポイントメイク",
+        targetCatalogId: "point-makeup",
+      },
+      { id: "sets", label: "セット商品", targetCatalogId: "sets" },
+      { id: "tools", label: "メイク小物", targetCatalogId: "tools" },
+      { id: "uv-care", label: "UVケア", targetCatalogId: "uv-care" },
+      {
+        id: "body-care",
+        label: "ボディ・ハンド・フットケア",
+        targetCatalogId: "body-care",
+      },
+      {
+        id: "hair-removal",
+        label: "脱毛・除毛",
+        targetCatalogId: "hair-removal",
+      },
+      { id: "nails", label: "ネイル", targetCatalogId: "nails" },
+      { id: "hair", label: "ヘア", targetCatalogId: "hair" },
+      { id: "fragrance", label: "香水", targetCatalogId: "fragrance" },
+      {
+        id: "mens-cosmetics",
+        label: "メンズコスメ",
+        targetCatalogId: "mens-cosmetics",
+      },
     ],
   },
   {
     id: "ladies",
     name: "レディース",
-    children: ["トップス", "アウター", "ボトムス", "ワンピース", "バッグ"],
+    children: [
+      { id: "tops", label: "トップス", targetCatalogId: "tops" },
+      { id: "outerwear", label: "アウター", targetCatalogId: "outerwear" },
+      { id: "bottoms", label: "ボトムス", targetCatalogId: "bottoms" },
+      { id: "dresses", label: "ワンピース", targetCatalogId: "dresses" },
+      { id: "bags", label: "バッグ", targetCatalogId: "bags" },
+    ],
   },
   {
     id: "mens",
     name: "メンズ",
-    children: ["トップス", "アウター", "ボトムス", "シューズ"],
+    children: [
+      { id: "mens-tops", label: "トップス", targetCatalogId: "tops" },
+      { id: "mens-outerwear", label: "アウター", targetCatalogId: "outerwear" },
+      { id: "mens-bottoms", label: "ボトムス", targetCatalogId: "bottoms" },
+      { id: "shoes", label: "シューズ", targetCatalogId: "shoes" },
+    ],
   },
   {
     id: "kids",
     name: "キッズ",
-    children: ["キッズファッション", "ベビー", "おもちゃ"],
+    children: [
+      {
+        id: "kids-fashion",
+        label: "キッズファッション",
+        targetCatalogId: "kids-fashion",
+      },
+      { id: "baby", label: "ベビー", targetCatalogId: "baby" },
+      { id: "toys", label: "おもちゃ", targetCatalogId: "toys" },
+    ],
   },
   {
     id: "living",
     name: "生活雑貨",
-    children: ["家電", "キッチン", "インテリア", "日用品"],
+    children: [
+      { id: "appliances", label: "家電", targetCatalogId: "appliances" },
+      { id: "kitchen", label: "キッチン", targetCatalogId: "kitchen" },
+      { id: "interior", label: "インテリア", targetCatalogId: "interior" },
+      { id: "daily", label: "日用品", targetCatalogId: "daily" },
+    ],
   },
   {
     id: "food",
     name: "食品",
-    children: ["お菓子", "飲料", "インスタント食品"],
+    children: [
+      { id: "snacks", label: "お菓子", targetCatalogId: "snacks" },
+      { id: "drinks", label: "飲料", targetCatalogId: "drinks" },
+      {
+        id: "instant-food",
+        label: "インスタント食品",
+        targetCatalogId: "instant-food",
+      },
+    ],
   },
   {
     id: "pets",
     name: "ペット",
-    children: ["ペットフード", "ペット用品"],
+    children: [
+      { id: "pet-food", label: "ペットフード", targetCatalogId: "pet-food" },
+      {
+        id: "pet-supplies",
+        label: "ペット用品",
+        targetCatalogId: "pet-supplies",
+      },
+    ],
   },
   {
     id: "appliances",
     name: "家電",
-    children: ["家電・PC・ゲーム"],
+    children: [
+      {
+        id: "electronics",
+        label: "家電・PC・ゲーム",
+        targetCatalogId: "electronics",
+      },
+    ],
   },
   {
     id: "hobby",
     name: "趣味",
-    children: ["K-POP", "キャラクター", "スポーツ"],
+    children: [
+      { id: "kpop", label: "K-POP", targetCatalogId: "kpop" },
+      { id: "characters", label: "キャラクター", targetCatalogId: "characters" },
+      { id: "sports", label: "スポーツ", targetCatalogId: "sports" },
+    ],
   },
 ] satisfies readonly CategoryDirectoryEntry[];
 
@@ -391,48 +520,333 @@ export const catalogTabs = [
   {
     id: "skincare",
     label: "スキンケア",
-    chips: ["化粧水", "トナー", "ローション", "乳液", "エッセンス"],
+    chips: [
+      { id: "toner", label: "化粧水" },
+      { id: "skin-toner", label: "トナー" },
+      { id: "lotion", label: "ローション" },
+      { id: "emulsion", label: "乳液" },
+      { id: "essence", label: "エッセンス" },
+      { id: "sheet-mask", label: "マスクパック" },
+    ],
   },
   {
     id: "base-makeup",
     label: "ベースメイク",
-    chips: ["メイクアップベース", "プライマー", "BBクリーム", "CCクリーム"],
+    chips: [
+      { id: "makeup-base", label: "メイクアップベース" },
+      { id: "primer", label: "プライマー" },
+      { id: "bb-cream", label: "BBクリーム" },
+      { id: "cc-cream", label: "CCクリーム" },
+    ],
   },
   {
     id: "point-makeup",
     label: "ポイントメイク",
-    chips: ["アイメイク", "リップ", "チーク"],
+    chips: [
+      { id: "eye-makeup", label: "アイメイク" },
+      { id: "lip", label: "リップ" },
+      { id: "cheek", label: "チーク" },
+    ],
   },
   {
     id: "sets",
     label: "セット商品",
-    chips: ["化粧品セット", "基礎化粧品セット", "化粧品ギフトセット"],
+    chips: [
+      { id: "cosmetics-set", label: "化粧品セット" },
+      { id: "skincare-set", label: "基礎化粧品セット" },
+      { id: "gift-set", label: "化粧品ギフトセット" },
+    ],
   },
   {
     id: "tools",
     label: "メイク小物",
-    chips: ["ブラシ", "パフ", "ミラー"],
+    chips: [
+      { id: "brush", label: "ブラシ" },
+      { id: "puff", label: "パフ" },
+      { id: "mirror", label: "ミラー" },
+    ],
   },
+  { id: "uv-care", label: "UVケア", chips: [] },
+  { id: "body-care", label: "ボディ・ハンド・フットケア", chips: [] },
+  { id: "hair-removal", label: "脱毛・除毛", chips: [] },
+  { id: "nails", label: "ネイル", chips: [] },
+  { id: "hair", label: "ヘア", chips: [{ id: "hair-accessory", label: "ヘア小物" }] },
+  { id: "fragrance", label: "香水", chips: [] },
+  { id: "mens-cosmetics", label: "メンズコスメ", chips: [] },
+  {
+    id: "tops",
+    label: "トップス",
+    chips: [
+      { id: "short-sleeve", label: "半袖" },
+      { id: "long-sleeve", label: "長袖" },
+    ],
+  },
+  { id: "outerwear", label: "アウター", chips: [] },
+  { id: "bottoms", label: "ボトムス", chips: [] },
+  { id: "dresses", label: "ワンピース", chips: [] },
+  { id: "bags", label: "バッグ", chips: [{ id: "tote", label: "トートバッグ" }] },
+  { id: "shoes", label: "シューズ", chips: [{ id: "sandals", label: "サンダル" }] },
+  { id: "kids-fashion", label: "キッズファッション", chips: [] },
+  { id: "baby", label: "ベビー", chips: [] },
+  { id: "toys", label: "おもちゃ", chips: [] },
+  { id: "appliances", label: "家電", chips: [] },
+  { id: "kitchen", label: "キッチン", chips: [] },
+  { id: "interior", label: "インテリア", chips: [] },
+  { id: "daily", label: "日用品", chips: [] },
+  { id: "snacks", label: "お菓子", chips: [] },
+  { id: "drinks", label: "飲料", chips: [] },
+  { id: "instant-food", label: "インスタント食品", chips: [] },
+  { id: "pet-food", label: "ペットフード", chips: [] },
+  { id: "pet-supplies", label: "ペット用品", chips: [] },
+  { id: "electronics", label: "家電・PC・ゲーム", chips: [] },
+  { id: "kpop", label: "K-POP", chips: [] },
+  { id: "characters", label: "キャラクター", chips: [] },
+  { id: "sports", label: "スポーツ", chips: [] },
 ] satisfies readonly CatalogTab[];
 
+function requireProduct(productId: string) {
+  const product = products.find(({ id }) => id === productId);
+
+  if (product === undefined) {
+    throw new Error(`Missing SAZO catalog product fixture: ${productId}`);
+  }
+
+  return product;
+}
+
+export const catalogInventory = [
+  { product: requireProduct("p01"), tabIds: ["skincare"], chipIds: ["toner"] },
+  {
+    product: requireProduct("p02"),
+    tabIds: ["skincare"],
+    chipIds: ["skin-toner", "lotion"],
+  },
+  {
+    product: requireProduct("p03"),
+    tabIds: ["skincare", "base-makeup"],
+    chipIds: ["serum", "bb-cream"],
+  },
+  {
+    product: requireProduct("p04"),
+    tabIds: ["skincare", "point-makeup"],
+    chipIds: ["essence", "eye-makeup"],
+  },
+  {
+    product: requireProduct("p05"),
+    tabIds: ["skincare", "sets"],
+    chipIds: ["lotion", "cosmetics-set"],
+  },
+  {
+    product: requireProduct("p06"),
+    tabIds: ["skincare", "tools"],
+    chipIds: ["skin-toner", "brush"],
+  },
+  {
+    product: requireProduct("p07"),
+    tabIds: ["skincare", "tops"],
+    chipIds: ["serum", "short-sleeve"],
+  },
+  {
+    product: requireProduct("p08"),
+    tabIds: ["skincare", "bags"],
+    chipIds: ["essence", "tote"],
+  },
+  {
+    product: requireProduct("p09"),
+    tabIds: ["skincare", "shoes"],
+    chipIds: ["lotion", "sandals"],
+  },
+  {
+    product: requireProduct("p10"),
+    tabIds: ["skincare", "hair"],
+    chipIds: ["serum", "hair-accessory"],
+  },
+  {
+    product: requireProduct("p11"),
+    tabIds: ["skincare"],
+    chipIds: ["sheet-mask"],
+  },
+  {
+    product: requireProduct("p12"),
+    tabIds: ["skincare", "characters"],
+    chipIds: ["skin-toner"],
+  },
+] satisfies readonly CatalogInventoryEntry[];
+
 export const reviewCategories = [
-  "全体",
-  "アイドル",
-  "音楽",
-  "文房具・雑貨",
-  "食品",
-  "美容",
-  "キッズ・ベビー",
-  "ファッション",
-  "ドラマ",
-  "アイテム",
-] as const;
+  { id: "all", label: "全体" },
+  { id: "idol", label: "アイドル" },
+  { id: "beauty", label: "美容" },
+  { id: "clothing", label: "衣類" },
+  { id: "food", label: "食品・お菓子" },
+  { id: "books", label: "本・文具" },
+  { id: "automotive", label: "自動車" },
+  { id: "kids-pets", label: "キッズ・ペット" },
+] satisfies readonly ReviewCategory[];
 
 export const serviceSteps = [
   { id: "01", image: "/sazo-commerce/service/step-01.webp" },
   { id: "02", image: "/sazo-commerce/service/step-02.webp" },
   { id: "03", image: "/sazo-commerce/service/step-03.webp" },
 ] satisfies readonly ServiceStep[];
+
+const rankingHairpin = {
+  id: "ranking-hairpin",
+  brand: "NAVER",
+  name: "プチプチ犬ヘッドピン 大リボンボンドピン",
+  price: "¥806",
+  badge: "13%",
+  image: "/sazo-commerce/ranking/01.webp",
+} satisfies RankingProduct;
+const rankingMask = {
+  id: "ranking-mask",
+  brand: "11D",
+  name: "高濃縮アンプルマスクパック 6種30枚",
+  price: "¥1,578",
+  image: "/sazo-commerce/ranking/02.webp",
+} satisfies RankingProduct;
+const rankingYarn = {
+  id: "ranking-yarn",
+  brand: "NAVER",
+  name: "優しい人形室 手編みマカロン綿糸",
+  price: "¥104",
+  image: "/sazo-commerce/ranking/03.webp",
+} satisfies RankingProduct;
+const rankingPokemon = {
+  id: "ranking-pokemon",
+  brand: "NAVER",
+  name: "ポケモンキーリング人形 ピカチュウミュウ",
+  price: "¥714",
+  badge: "32%",
+  image: "/sazo-commerce/ranking/04.webp",
+} satisfies RankingProduct;
+const rankingSaltKeyring = {
+  id: "ranking-salt-keyring",
+  brand: "KREAM",
+  name: "TENTSEOUL Five Elements Salt Keyring",
+  price: "¥2,522",
+  badge: "21%",
+  image: "/sazo-commerce/ranking/05.webp",
+} satisfies RankingProduct;
+const rankingReina = {
+  id: "ranking-reina",
+  brand: "NAVER",
+  name: "レイナ",
+  price: "¥403",
+  image: "/sazo-commerce/ranking/06.webp",
+} satisfies RankingProduct;
+const rankingMagikarp = {
+  id: "ranking-magikarp",
+  brand: "POKÉMON",
+  name: "Pokémon TCG Mega Festa 2026 Promo Card Magikarp",
+  price: "¥8,894",
+  image: "/sazo-commerce/ranking/07.webp",
+} satisfies RankingProduct;
+const rankingPreorder = {
+  id: "ranking-preorder",
+  brand: "JORDAN",
+  name: "予約購入 ジョーダン コラボラインエディション",
+  price: "¥13,701",
+  image: "/sazo-commerce/ranking/08.webp",
+} satisfies RankingProduct;
+
+export const rankingInventories = {
+  purchases: [
+    rankingHairpin,
+    rankingMask,
+    rankingYarn,
+    rankingPokemon,
+    rankingSaltKeyring,
+    rankingReina,
+    rankingMagikarp,
+    rankingPreorder,
+  ],
+  views: [
+    rankingPokemon,
+    rankingHairpin,
+    rankingMagikarp,
+    rankingMask,
+    rankingYarn,
+    rankingSaltKeyring,
+    rankingPreorder,
+    rankingReina,
+  ],
+} satisfies Record<RankingMetric, readonly RankingProduct[]>;
+
+export const editorialReviews = [
+  {
+    id: "editorial-review-01",
+    author: "MKT",
+    body: "めちゃめちゃ良かったです",
+    categoryIds: ["beauty"],
+    likes: 0,
+    comments: 0,
+    image: "/sazo-commerce/editorial-reviews/01.webp",
+  },
+  {
+    id: "editorial-review-02",
+    author: "加藤奈実",
+    body: "無事に届きました。ありがとうございました。",
+    categoryIds: ["idol"],
+    likes: 0,
+    comments: 0,
+    image: "/sazo-commerce/editorial-reviews/02.webp",
+  },
+  {
+    id: "editorial-review-03",
+    author: "あ",
+    body: "迅速なご対応ありがとうございました！",
+    categoryIds: ["beauty"],
+    likes: 0,
+    comments: 0,
+    image: "/sazo-commerce/editorial-reviews/03.webp",
+  },
+  {
+    id: "editorial-review-04",
+    author: "かと",
+    body: "とても良い状態で大満足です。有難うございました。",
+    categoryIds: ["clothing", "kids-pets"],
+    likes: 0,
+    comments: 0,
+    image: "/sazo-commerce/editorial-reviews/04.webp",
+  },
+  {
+    id: "editorial-review-05",
+    author: "和佳 山本",
+    body: "届くまで時間がかかりましたが無事届きました。ありがとうございます。",
+    categoryIds: ["idol"],
+    likes: 0,
+    comments: 0,
+    image: "/sazo-commerce/editorial-reviews/05.webp",
+  },
+  {
+    id: "editorial-review-06",
+    author: "saksak",
+    body: "グッズの状態もよかったです！",
+    categoryIds: ["idol", "books"],
+    likes: 0,
+    comments: 0,
+    image: "/sazo-commerce/editorial-reviews/06.webp",
+  },
+  {
+    id: "editorial-review-07",
+    author: "saksak",
+    body: "とれかまでついてきてとても最高でした！",
+    categoryIds: ["idol", "automotive"],
+    likes: 0,
+    comments: 0,
+    image: "/sazo-commerce/editorial-reviews/07.webp",
+  },
+  {
+    id: "editorial-review-08",
+    author: "山根政一",
+    body: "梱包が丁寧で商品がとても可愛かったです",
+    categoryIds: ["idol", "food"],
+    likes: 0,
+    comments: 0,
+    image: "/sazo-commerce/editorial-reviews/08.webp",
+  },
+] satisfies readonly EditorialReview[];
 
 export const reviews = [
   {

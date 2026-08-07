@@ -1,12 +1,17 @@
+import { useEffect, useRef } from "react";
 import { MessageCircle, ThumbsUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ViewHeader, type StatefulViewProps } from "@/sazo-commerce/DirectoryViews";
-import { products, reviewCategories, reviews } from "@/sazo-commerce/fixtures";
+import {
+  editorialReviews,
+  rankingInventories,
+  reviewCategories,
+} from "@/sazo-commerce/fixtures";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 
 export function RankingView({ dispatch, state }: StatefulViewProps) {
   const { t } = useTranslation();
-  const selectedMetric = state.selectedTab === "views" ? "views" : "purchases";
+  const rankingProducts = rankingInventories[state.rankingMetric];
 
   return (
     <div className="sazo-editorial-view" data-view-content="ranking">
@@ -16,18 +21,18 @@ export function RankingView({ dispatch, state }: StatefulViewProps) {
           <h1>{t("sazo.views.ranking.title")}</h1>
           <div className="sazo-ranking-view-controls">
             <button
-              aria-pressed={selectedMetric === "purchases"}
+              aria-pressed={state.rankingMetric === "purchases"}
               onClick={() => {
-                dispatch({ type: "select-tab", tab: "purchases" });
+                dispatch({ type: "select-ranking-metric", metric: "purchases" });
               }}
               type="button"
             >
               {t("sazo.views.ranking.purchaseCount")}
             </button>
             <button
-              aria-pressed={selectedMetric === "views"}
+              aria-pressed={state.rankingMetric === "views"}
               onClick={() => {
-                dispatch({ type: "select-tab", tab: "views" });
+                dispatch({ type: "select-ranking-metric", metric: "views" });
               }}
               type="button"
             >
@@ -37,7 +42,7 @@ export function RankingView({ dispatch, state }: StatefulViewProps) {
           </div>
         </div>
         <div className="sazo-ranking-product-grid">
-          {products.map((product, index) => (
+          {rankingProducts.map((product, index) => (
             <div className="sazo-ranked-product" key={product.id}>
               <strong aria-hidden>{index + 1}</strong>
               <ProductCard product={product} />
@@ -51,9 +56,52 @@ export function RankingView({ dispatch, state }: StatefulViewProps) {
 
 export function ReviewsView({ dispatch, state }: StatefulViewProps) {
   const { t } = useTranslation();
-  const selectedCategory =
-    reviewCategories.find((category) => category === state.selectedCategory) ??
-    reviewCategories[0];
+  const masonryRef = useRef<HTMLDivElement>(null);
+  const visibleReviews =
+    state.reviewCategory === "all"
+      ? editorialReviews
+      : editorialReviews.filter(({ categoryIds }) =>
+          categoryIds.some((categoryId) => categoryId === state.reviewCategory),
+        );
+
+  useEffect(() => {
+    const masonry = masonryRef.current;
+
+    if (masonry === null) {
+      return;
+    }
+
+    const tiles = Array.from(masonry.querySelectorAll<HTMLElement>(".sazo-review-tile"));
+    const resizeTiles = () => {
+      const rowHeight = Number.parseFloat(getComputedStyle(masonry).gridAutoRows);
+
+      if (!Number.isFinite(rowHeight) || rowHeight <= 0) {
+        return;
+      }
+
+      for (const tile of tiles) {
+        tile.style.gridRowEnd = `span ${String(
+          Math.ceil(tile.getBoundingClientRect().height / rowHeight),
+        )}`;
+      }
+    };
+
+    resizeTiles();
+
+    if (typeof ResizeObserver === "undefined") {
+      return;
+    }
+
+    const observer = new ResizeObserver(resizeTiles);
+
+    for (const tile of tiles) {
+      observer.observe(tile);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [visibleReviews]);
 
   return (
     <div className="sazo-editorial-view" data-view-content="reviews">
@@ -63,23 +111,23 @@ export function ReviewsView({ dispatch, state }: StatefulViewProps) {
         <div className="sazo-review-category-rail">
           {reviewCategories.map((category) => (
             <button
-              aria-pressed={selectedCategory === category}
-              key={category}
+              aria-pressed={state.reviewCategory === category.id}
+              key={category.id}
               onClick={() => {
-                dispatch({ type: "select-category", category });
+                dispatch({ type: "select-review-category", category: category.id });
               }}
               type="button"
             >
-              {category}
+              {category.label}
             </button>
           ))}
         </div>
-        <div className="sazo-review-masonry">
-          {reviews.map((review) => (
+        <div className="sazo-review-masonry" ref={masonryRef}>
+          {visibleReviews.map((review) => (
             <article className="sazo-review-tile" key={review.id}>
               <div className="sazo-review-tile-media">
                 <img
-                  alt={review.productName}
+                  alt={review.body}
                   decoding="async"
                   height={500}
                   loading="lazy"
@@ -88,8 +136,7 @@ export function ReviewsView({ dispatch, state }: StatefulViewProps) {
                 />
                 <span>{review.author}</span>
               </div>
-              <h2>{review.productName}</h2>
-              <p>{review.comment}</p>
+              <p>{review.body}</p>
               <div className="sazo-review-tile-actions">
                 <span aria-label={t("sazo.views.reviews.likes", { count: review.likes })}>
                   <ThumbsUp aria-hidden size={19} />

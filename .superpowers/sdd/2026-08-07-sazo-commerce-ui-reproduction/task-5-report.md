@@ -70,3 +70,54 @@ pnpm test:sazo-views-browser
 
 - catalogの商品画像と商品fixtureはTask 4で録画から作成された12商品を再利用している。今回の録画に表示された86件全量をfixture化したものではない。
 - browser QA screenshotは`/tmp/sazo-task5-*`にのみ生成し、deliveryには含めていない。
+
+## Fix Round 1
+
+### Status
+
+完了。Task 5 reviewで指摘された6件のImportantを修正し、通常pointer操作だけで到達可能なmobile navigation、画面ごとに分離したstate/action、録画固有fixtureとlocal asset、FAQのkeyboard/accessibility contractを追加した。
+
+### Corrections
+
+1. home mobile headerに`ホーム / サービス紹介 / 人気ブランド / カテゴリー / レビュー`の横スクロール可能なsecondary navigationを追加した。browser QAはhidden desktop navigationやDOM `element.click()`を使わず、visible / focusable判定後に通常のPlaywright clickでbrands、categories、serviceへ遷移する。
+2. Rankingは録画先頭8商品と購入数 / 閲覧数の明示順、Reviewsは録画先頭8件のauthor / body / categoryを専用typed fixtureへ分離した。両viewはTask 4のgeneric products / home reviewsを再利用しない。
+3. category childを`{ id, label, targetCatalogId }`へ変更し、配列index推論を除去した。`レディース → トップス`が`tops` catalogを開き、`skincare`へ誤遷移しない回帰テストを追加した。
+4. `brandFilter / directoryCategory / catalogTab / catalogChip / reviewCategory / rankingMetric`を独立state/actionへ分離した。brand filter、catalog tab/chip、review category、ranking metricはそれぞれ実inventoryを変更する。
+5. FAQ closed panelへ`aria-hidden="true"`を設定し、Escapeで閉じてもtriggerへfocusを保持する。click / Enter / Escapeと`aria-expanded` / `aria-hidden`をunit・Chrome双方で確認した。
+6. 録画crop由来のbrand logo 8枚を追加し、decorative imageとして`alt=""` / `aria-hidden="true"`で描画した。fixture path、file existence、8 SHA-256 hashesの一意性をunit testで固定した。
+
+### Recording assets
+
+- `brand-logos/01.webp`〜`08.webp`、`ranking/01.webp`〜`08.webp`、`editorial-reviews/01.webp`〜`08.webp`の24 filesを追加した。
+- 合計452,774 bytes、最大53,118 bytes（`ranking/04.webp`）。全ファイルlocal WebPで、brand logo 8枚はすべて異なるhashを持つ。
+- Chrome 1511×828でRanking先頭4商品とReviews先頭4件の画像・author順を座標でも検証し、Reviewsは`MKT / 加藤奈実 / あ / かと`の録画順をresponsive masonryで維持する。
+
+### TDD evidence
+
+#### RED
+
+```bash
+pnpm vitest run tests/unit/sazo-commerce-model.test.ts tests/unit/sazo-commerce-views.test.tsx
+pnpm test:sazo-views-browser
+```
+
+- 旧shared state/action、文字列category children、非機能filter、generic Ranking / Reviews、文字logo、FAQのaria/Escape不足を13 failuresとして確認した。
+- mobileの`人気ブランド`がvisibleでないbrowser failureを確認した。
+- visual QA追加時にReviews先頭行が`MKT / あ / 和佳 山本 / saksak`となるcolumn-major failureを確認した。
+
+#### GREEN
+
+| Command                                                                 | Result                         |
+| ----------------------------------------------------------------------- | ------------------------------ |
+| focused Vitest                                                          | PASS — 2 files / 37 tests      |
+| `pnpm test`                                                             | PASS — 8 files / 74 tests      |
+| `pnpm typecheck`                                                        | PASS                           |
+| `pnpm lint`                                                             | PASS                           |
+| `pnpm build`                                                            | PASS                           |
+| `pnpm test:sazo-views-browser`                                          | PASS — `sazo-views-browser-ok` |
+| scoped `prettier --check` / `git diff --check` / local asset hash check | PASS                           |
+
+### Remaining concern
+
+- 表示件数`全体 86個`は録画ラベルを再現したmock値で、local fixtureは12商品。filter動作はfixture範囲で決定的に検証している。
+- browser QA screenshotsは`/tmp/sazo-task5-*`にのみ生成し、repositoryへは追加していない。

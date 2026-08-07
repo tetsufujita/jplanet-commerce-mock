@@ -110,6 +110,49 @@ describe("SAZO captured view contracts", () => {
     ).toBe("grid");
   });
 
+  it("exposes the recorded mobile secondary destinations as real navigation", async () => {
+    const { container } = await renderWithI18n(<SazoCommercePage />);
+    const mobileShell =
+      container.querySelector<HTMLElement>('[data-shell="mobile"]') ?? container;
+    const secondary = within(mobileShell).getByRole("navigation", {
+      name: "モバイルサブメニュー",
+    });
+
+    expect(
+      within(secondary)
+        .getAllByRole("button")
+        .map((button) => button.textContent),
+    ).toEqual(["ホーム", "サービス紹介", "人気ブランド", "カテゴリー", "レビュー"]);
+
+    fireEvent.click(within(secondary).getByRole("button", { name: "人気ブランド" }));
+    expect(container.querySelector('[data-view-content="brands"]')).not.toBeNull();
+  });
+
+  it("filters the brand inventory from its active control", async () => {
+    const { container } = await renderWithI18n(<SazoCommercePage />);
+    const desktopNav = within(
+      container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
+    ).getByRole("navigation", { name: "メインメニュー" });
+
+    fireEvent.click(within(desktopNav).getByRole("button", { name: "人気ブランド" }));
+    fireEvent.click(screen.getByRole("button", { name: "ガジェット" }));
+
+    expect(screen.getByText("APPLE")).toBeTruthy();
+    expect(screen.queryByText("NIKE")).toBeNull();
+  });
+
+  it("uses the eight recorded brand logos as decorative local images", async () => {
+    const { container } = await renderWithI18n(<BrandsView dispatch={noDispatch} />);
+    const logos = Array.from(
+      container.querySelectorAll<HTMLImageElement>("img.sazo-brand-logo"),
+    );
+
+    expect(logos).toHaveLength(8);
+    expect(logos.every((logo) => logo.alt === "")).toBe(true);
+    expect(logos.every((logo) => logo.getAttribute("aria-hidden") === "true")).toBe(true);
+    expect(new Set(logos.map((logo) => logo.getAttribute("src"))).size).toBe(8);
+  });
+
   it("opens the catalog on the tab selected from the category directory", async () => {
     const { container } = await renderWithI18n(<SazoCommercePage />);
     const desktopNav = within(
@@ -123,6 +166,43 @@ describe("SAZO captured view contracts", () => {
     expect(
       screen.getByRole("tab", { name: "ベースメイク" }).getAttribute("aria-selected"),
     ).toBe("true");
+  });
+
+  it("maps a non-beauty child to its explicit catalog target", async () => {
+    const { container } = await renderWithI18n(<SazoCommercePage />);
+    const desktopNav = within(
+      container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
+    ).getByRole("navigation", { name: "メインメニュー" });
+
+    fireEvent.click(within(desktopNav).getByRole("button", { name: "カテゴリー" }));
+    fireEvent.click(screen.getByRole("button", { name: "レディース" }));
+    fireEvent.click(screen.getByRole("button", { name: "トップス" }));
+
+    expect(
+      screen.getByRole("tab", { name: "トップス" }).getAttribute("aria-selected"),
+    ).toBe("true");
+    expect(
+      screen.getByRole("tab", { name: "スキンケア" }).getAttribute("aria-selected"),
+    ).toBe("false");
+  });
+
+  it("filters catalog products with an active chip", async () => {
+    const { container } = await renderWithI18n(<SazoCommercePage />);
+    const mobileNav = within(
+      container.querySelector<HTMLElement>('[data-shell="mobile"]') ?? container,
+    ).getByRole("navigation", { name: "モバイルメニュー" });
+
+    fireEvent.click(within(mobileNav).getByRole("button", { name: "検索" }));
+    const initialCount = container.querySelectorAll(
+      ".sazo-catalog-products .sazo-product-card",
+    ).length;
+    const toner = screen.getByRole("button", { name: "化粧水" });
+    fireEvent.click(toner);
+
+    expect(toner.getAttribute("aria-pressed")).toBe("true");
+    expect(
+      container.querySelectorAll(".sazo-catalog-products .sazo-product-card").length,
+    ).toBeLessThan(initialCount);
   });
 
   it("falls back to the all-review chip after selecting a directory category", async () => {
@@ -140,7 +220,50 @@ describe("SAZO captured view contracts", () => {
     ).toBe("true");
   });
 
-  it("keeps the first FAQ expanded and toggles it through its native button", async () => {
+  it("uses captured ranking inventory and changes order by metric", async () => {
+    const { container } = await renderWithI18n(<SazoCommercePage />);
+
+    fireEvent.click(
+      within(container.querySelector(".sazo-ranking-section") ?? container).getByRole(
+        "button",
+        { name: "もっと見る" },
+      ),
+    );
+    const firstRankingName = () =>
+      container.querySelector(".sazo-ranked-product h3")?.textContent;
+
+    expect(firstRankingName()).toContain("プチプチ犬ヘッドピン");
+    expect(container.querySelector(".sazo-ranked-product img")?.getAttribute("src")).toBe(
+      "/sazo-commerce/ranking/01.webp",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "閲覧数" }));
+    expect(firstRankingName()).toContain("ポケモンキーリング人形");
+  });
+
+  it("uses captured review order and filters it by category", async () => {
+    const { container } = await renderWithI18n(<SazoCommercePage />);
+    const desktopNav = within(
+      container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
+    ).getByRole("navigation", { name: "メインメニュー" });
+
+    fireEvent.click(within(desktopNav).getByRole("button", { name: "レビュー" }));
+    const firstReview = container.querySelector(".sazo-review-tile");
+
+    expect(firstReview?.textContent).toContain("MKT");
+    expect(firstReview?.textContent).toContain("めちゃめちゃ良かったです");
+    expect(firstReview?.querySelector("img")?.getAttribute("src")).toBe(
+      "/sazo-commerce/editorial-reviews/01.webp",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "アイドル" }));
+
+    expect(container.querySelector(".sazo-review-tile")?.textContent).toContain(
+      "加藤奈実",
+    );
+    expect(container.textContent).not.toContain("めちゃめちゃ良かったです");
+  });
+
+  it("hides a closed FAQ panel and closes the focused item with Escape", async () => {
     await renderWithI18n(<ServiceView dispatch={noDispatch} />);
     const faqButton = screen.getByRole("button", {
       name: "韓国以外からも購入できますか？",
@@ -149,17 +272,24 @@ describe("SAZO captured view contracts", () => {
 
     expect(faqButton.getAttribute("aria-expanded")).toBe("true");
     expect(answerId).toBeTruthy();
-    expect(document.getElementById(answerId ?? "")?.getAttribute("data-expanded")).toBe(
-      "true",
-    );
+    const answer = document.getElementById(answerId ?? "");
+    expect(answer?.getAttribute("aria-hidden")).toBe("false");
 
+    faqButton.focus();
     fireEvent.click(faqButton);
 
     expect(faqButton.getAttribute("aria-expanded")).toBe("false");
-    expect(document.getElementById(answerId ?? "")?.getAttribute("data-expanded")).toBe(
-      "false",
-    );
-    expect(screen.getByText("よくある質問")).toBeTruthy();
+    expect(answer?.getAttribute("aria-hidden")).toBe("true");
+    expect(document.activeElement).toBe(faqButton);
+
+    fireEvent.click(faqButton);
+    expect(faqButton.getAttribute("aria-expanded")).toBe("true");
+    expect(answer?.getAttribute("aria-hidden")).toBe("false");
+
+    fireEvent.keyDown(faqButton, { key: "Escape" });
+    expect(faqButton.getAttribute("aria-expanded")).toBe("false");
+    expect(answer?.getAttribute("aria-hidden")).toBe("true");
+    expect(document.activeElement).toBe(faqButton);
   });
 
   it("gives each product favorite a local pressed state", async () => {

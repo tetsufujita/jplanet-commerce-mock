@@ -107,9 +107,13 @@ describe("SazoCommercePage shell", () => {
     async (shellName) => {
       const { container } = await renderSazoCommercePage();
       const shell = getShell(container, shellName);
+      const navigationLabel =
+        shellName === "desktop" ? "メインメニュー" : "モバイルメニュー";
 
       expect(within(shell).getByRole("banner")).toBeTruthy();
-      expect(within(shell).getByRole("navigation")).toBeTruthy();
+      expect(
+        within(shell).getByRole("navigation", { name: navigationLabel }),
+      ).toBeTruthy();
       expect(within(shell).getByRole("main")).toBeTruthy();
       expect(within(shell).getByRole("contentinfo")).toBeTruthy();
     },
@@ -195,7 +199,9 @@ describe("App route safety", () => {
     await waitFor(() => {
       expect(container.querySelector(".sazo-root")).not.toBeNull();
     });
-    expect(await screen.findByRole("button", { name: "人気ブランド" })).toBeTruthy();
+    expect(await screen.findAllByRole("button", { name: "人気ブランド" })).toHaveLength(
+      2,
+    );
   });
 
   it("keeps the existing localized home route reachable", async () => {

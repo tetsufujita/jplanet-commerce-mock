@@ -943,13 +943,57 @@
     z-index: 20;
     top: 0;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 58px;
-    padding: 8px 16px;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    min-height: 104px;
+    padding: 8px 0 0;
     border-bottom: 1px solid var(--sazo-line);
     background: var(--sazo-surface);
     order: 1;
+  }
+
+  .sazo-root .sazo-mobile-header-primary {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 16px;
+  }
+
+  .sazo-root .sazo-mobile-secondary-nav {
+    display: flex;
+    min-height: 48px;
+    overflow-x: auto;
+    border-top: 1px solid var(--sazo-line);
+    scrollbar-width: none;
+  }
+
+  .sazo-root .sazo-mobile-secondary-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sazo-root .sazo-mobile-secondary-button {
+    flex: 0 0 auto;
+    min-width: max-content;
+    min-height: 48px;
+    padding: 0 16px;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: var(--sazo-ink);
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .sazo-root .sazo-mobile-secondary-button[aria-pressed="true"] {
+    border-bottom-color: var(--sazo-pink);
+    color: var(--sazo-pink);
+  }
+
+  .sazo-root .sazo-mobile-secondary-button:focus-visible {
+    outline: 3px solid var(--sazo-pink);
+    outline-offset: -4px;
   }
 
   .sazo-root .sazo-content-main {
@@ -1350,16 +1394,11 @@
 }
 
 .sazo-root .sazo-brand-logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--sazo-ink);
-  color: var(--sazo-surface);
-  font-size: 18px;
-  font-weight: 900;
+  object-fit: cover;
 }
 
 .sazo-root .sazo-brand-row h2,
@@ -1551,6 +1590,12 @@
   font-size: 13px;
 }
 
+.sazo-root .sazo-catalog-chips button[aria-pressed="true"] {
+  border-color: var(--sazo-ink);
+  background: var(--sazo-ink);
+  color: var(--sazo-surface);
+}
+
 .sazo-root .sazo-catalog-toolbar {
   display: flex;
   align-items: center;
@@ -1705,15 +1750,18 @@
 }
 
 .sazo-root .sazo-review-masonry {
-  columns: 4 230px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: row dense;
+  grid-auto-rows: 1px;
   column-gap: 20px;
 }
 
 .sazo-root .sazo-review-tile {
-  display: inline-block;
+  align-self: start;
   width: 100%;
-  margin: 0 0 26px;
-  break-inside: avoid;
+  margin: 0;
+  padding-bottom: 26px;
 }
 
 .sazo-root .sazo-review-tile-media {
@@ -2348,12 +2396,12 @@
   }
 
   .sazo-root .sazo-review-masonry {
-    columns: 2 140px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 12px;
   }
 
   .sazo-root .sazo-review-tile {
-    margin-bottom: 20px;
+    padding-bottom: 20px;
   }
 
   .sazo-root .sazo-review-tile-media {

@@ -20,7 +20,7 @@ export function SazoCommercePage() {
     <SazoShell dispatch={dispatch} state={state}>
       {state.view === "home" ? <HomeView dispatch={dispatch} state={state} /> : null}
       {state.view === "service" ? <ServiceView dispatch={dispatch} /> : null}
-      {state.view === "brands" ? <BrandsView dispatch={dispatch} /> : null}
+      {state.view === "brands" ? <BrandsView dispatch={dispatch} state={state} /> : null}
       {state.view === "categories" ? (
         <CategoriesView dispatch={dispatch} state={state} />
       ) : null}

@@ -135,6 +135,7 @@
     "navigation": {
       "desktopLabel": "メインメニュー",
       "mobileLabel": "モバイルメニュー",
+      "mobileSecondaryLabel": "モバイルサブメニュー",
       "home": "ホーム",
       "service": "サービス紹介",
       "brands": "人気ブランド",

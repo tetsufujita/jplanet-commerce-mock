@@ -36,6 +36,27 @@ try {
   await desktopNavigation.getByRole("button", { name: "レビュー" }).click();
   await desktopPage.locator('[data-view-content="reviews"]').waitFor();
   assert.equal(await desktopPage.locator(".sazo-review-tile").count(), 8);
+  const reviewPositions = await desktopPage
+    .locator(".sazo-review-tile")
+    .evaluateAll((tiles) =>
+      tiles.map((tile) => {
+        const bounds = tile.getBoundingClientRect();
+
+        return {
+          author: tile.querySelector(".sazo-review-tile-media > span")?.textContent,
+          left: bounds.left,
+          top: bounds.top,
+        };
+      }),
+    );
+  const firstReviewTop = Math.min(...reviewPositions.map(({ top }) => top));
+  assert.deepEqual(
+    reviewPositions
+      .filter(({ top }) => Math.abs(top - firstReviewTop) < 2)
+      .sort((left, right) => left.left - right.left)
+      .map(({ author }) => author),
+    ["MKT", "加藤奈実", "あ", "かと"],
+  );
   await desktopPage.screenshot({ path: "/tmp/sazo-task5-desktop-reviews.png" });
 
   await desktopNavigation.getByRole("button", { name: "ホーム" }).click();
@@ -45,7 +66,11 @@ try {
     .click();
   await desktopPage.locator('[data-view-content="ranking"]').waitFor();
   assert.equal(await desktopPage.evaluate(() => window.scrollY), 0);
-  assert.equal(await desktopPage.locator(".sazo-ranked-product").count(), 12);
+  assert.equal(await desktopPage.locator(".sazo-ranked-product").count(), 8);
+  assert.match(
+    await desktopPage.locator(".sazo-ranked-product h3").first().innerText(),
+    /プチプチ犬ヘッドピン/,
+  );
   await desktopPage.screenshot({ path: "/tmp/sazo-task5-desktop-ranking.png" });
 
   await desktopNavigation.getByRole("button", { name: "サービス紹介" }).click();
@@ -60,6 +85,17 @@ try {
   assert.equal(await faq.getAttribute("aria-expanded"), "true");
   await desktopPage.keyboard.press("Enter");
   assert.equal(await faq.getAttribute("aria-expanded"), "false");
+  const faqAnswer = desktopPage.locator(
+    `#${String(await faq.getAttribute("aria-controls"))}`,
+  );
+  assert.equal(await faqAnswer.getAttribute("aria-hidden"), "true");
+  await desktopPage.keyboard.press("Enter");
+  assert.equal(await faq.getAttribute("aria-expanded"), "true");
+  assert.equal(await faqAnswer.getAttribute("aria-hidden"), "false");
+  await desktopPage.keyboard.press("Escape");
+  assert.equal(await faq.getAttribute("aria-expanded"), "false");
+  assert.equal(await faqAnswer.getAttribute("aria-hidden"), "true");
+  assert.equal(await faq.evaluate((element) => element === document.activeElement), true);
   await desktopPage.keyboard.press("Enter");
   assert.equal(await faq.getAttribute("aria-expanded"), "true");
   const expandedAnswer = desktopPage.locator('.sazo-faq-answer[data-expanded="true"]');
@@ -74,6 +110,7 @@ try {
   await desktopPage.screenshot({ path: "/tmp/sazo-task5-desktop-service.png" });
 
   const mobilePage = await browser.newPage({ viewport: { height: 844, width: 390 } });
+  mobilePage.setDefaultTimeout(3_000);
 
   await mobilePage.goto(baseUrl);
   const mobileNavigation = mobilePage.getByRole("navigation", {
@@ -92,24 +129,30 @@ try {
     await mobilePage.locator("[data-catalog-mode]").getAttribute("data-catalog-mode"),
     "grid",
   );
+  await mobilePage.locator("[data-view-back]").click();
 
-  const mobileDesktopNavigation = mobilePage.getByRole("navigation", {
-    name: "メインメニュー",
-    includeHidden: true,
+  const mobileSecondaryNavigation = mobilePage.getByRole("navigation", {
+    name: "モバイルサブメニュー",
   });
-  await mobileDesktopNavigation
-    .getByRole("button", { name: "人気ブランド", includeHidden: true })
-    .evaluate((element) => element.click());
+  await mobilePage.screenshot({ path: "/tmp/sazo-task5-mobile-secondary-nav.png" });
+  const mobileBrands = mobileSecondaryNavigation.getByRole("button", {
+    name: "人気ブランド",
+  });
+  assert.equal(await mobileBrands.isVisible(), true);
+  await mobileBrands.focus();
+  assert.equal(
+    await mobileBrands.evaluate((element) => element === document.activeElement),
+    true,
+  );
+  await mobileBrands.click();
   await mobilePage.locator('[data-view-content="brands"]').waitFor();
   await mobilePage.screenshot({ path: "/tmp/sazo-task5-mobile-brands.png" });
-  await mobileDesktopNavigation
-    .getByRole("button", { name: "カテゴリー", includeHidden: true })
-    .evaluate((element) => element.click());
+  await mobilePage.locator("[data-view-back]").click();
+  await mobileSecondaryNavigation.getByRole("button", { name: "カテゴリー" }).click();
   await mobilePage.locator('[data-view-content="categories"]').waitFor();
   await mobilePage.screenshot({ path: "/tmp/sazo-task5-mobile-categories.png" });
-  await mobileDesktopNavigation
-    .getByRole("button", { name: "サービス紹介", includeHidden: true })
-    .evaluate((element) => element.click());
+  await mobilePage.locator("[data-view-back]").click();
+  await mobileSecondaryNavigation.getByRole("button", { name: "サービス紹介" }).click();
   await mobilePage.locator('[data-view-content="service"]').waitFor();
   await mobilePage.screenshot({ path: "/tmp/sazo-task5-mobile-service.png" });
 

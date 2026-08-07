@@ -118,13 +118,24 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
                     onClick={() => {
                       setOpenFaq(expanded ? null : faqId);
                     }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Escape" && expanded) {
+                        setOpenFaq(null);
+                        event.currentTarget.focus();
+                      }
+                    }}
                     type="button"
                   >
                     <span>{t(`sazo.views.service.faq${faqId}Question`)}</span>
                     <ChevronDown aria-hidden size={22} />
                   </button>
                 </h3>
-                <div className="sazo-faq-answer" data-expanded={expanded} id={answerId}>
+                <div
+                  aria-hidden={!expanded}
+                  className="sazo-faq-answer"
+                  data-expanded={expanded}
+                  id={answerId}
+                >
                   <p>{t(`sazo.views.service.faq${faqId}Answer`)}</p>
                 </div>
               </article>
