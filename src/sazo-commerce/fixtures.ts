@@ -4,6 +4,7 @@ import type {
   DirectoryCategoryId,
   RankingMetric,
   ReviewCategoryId,
+  SazoHeroFeed,
 } from "@/sazo-commerce/model";
 
 export type SazoImagePath = `/sazo-commerce/${string}`;
@@ -31,6 +32,18 @@ export interface Product {
   price: string;
   image: SazoImagePath;
   badge?: string;
+}
+
+export interface RecordedMediaCrop {
+  controlBoundaryY: number;
+  crop: {
+    height: number;
+    width: number;
+    x: number;
+    y: number;
+  };
+  image: SazoImagePath;
+  sourceSecond: number;
 }
 
 export interface RankingKeyword {
@@ -122,6 +135,15 @@ export interface GramEntry {
   image: SazoImagePath;
 }
 
+export interface HomeGramEntry extends GramEntry {
+  product: {
+    discount?: string;
+    image: SazoImagePath;
+    name: string;
+    price: string;
+  };
+}
+
 export interface ReviewRecommendation {
   id: string;
   author: string;
@@ -187,6 +209,15 @@ export const heroSlides = [
     mobileWidth: 1200,
   },
   {
+    id: "new-benefits",
+    title: "新規特典がリニューアル クーポンパック登場！",
+    subtitle: "新規会員登録・アプリDL・LINE追加でお得にSAZOを利用できます！",
+    image: "/sazo-commerce/hero/slide-2.webp",
+    mobileHeight: 490,
+    mobileImage: "/sazo-commerce/hero/mobile/slide-2.webp",
+    mobileWidth: 794,
+  },
+  {
     id: "large-furniture",
     title: "大型家具、解禁。",
     subtitle: "30kg以上のソファーや棚も、お得な価格で手に入ります！",
@@ -213,16 +244,50 @@ export const heroSlides = [
     mobileImage: "/sazo-commerce/hero/mobile/slide-5.webp",
     mobileWidth: 794,
   },
-  {
-    id: "new-benefits",
-    title: "新規特典がリニューアル クーポンパック登場！",
-    subtitle: "新規会員登録・アプリDL・LINE追加でお得にSAZOを利用できます！",
-    image: "/sazo-commerce/hero/slide-2.webp",
-    mobileHeight: 490,
-    mobileImage: "/sazo-commerce/hero/mobile/slide-2.webp",
-    mobileWidth: 794,
-  },
 ] satisfies readonly HeroSlide[];
+
+const heroSlideIdsByFeed = {
+  natural: [
+    "delivery-line",
+    "new-benefits",
+    "large-furniture",
+    "cold-delivery",
+    "friend-invite",
+  ],
+  "cold-first": [
+    "cold-delivery",
+    "friend-invite",
+    "new-benefits",
+    "large-furniture",
+    "delivery-line",
+  ],
+  "delivery-last": [
+    "new-benefits",
+    "large-furniture",
+    "cold-delivery",
+    "friend-invite",
+    "delivery-line",
+  ],
+  "large-first": [
+    "large-furniture",
+    "cold-delivery",
+    "friend-invite",
+    "delivery-line",
+    "new-benefits",
+  ],
+} as const satisfies Record<SazoHeroFeed, readonly string[]>;
+
+export function getHeroSlidesForFeed(feed: SazoHeroFeed): readonly HeroSlide[] {
+  return heroSlideIdsByFeed[feed].map((id) => {
+    const slide = heroSlides.find((candidate) => candidate.id === id);
+
+    if (slide === undefined) {
+      throw new Error(`Missing SAZO hero slide: ${id}`);
+    }
+
+    return slide;
+  });
+}
 
 export const shortcuts = [
   { id: "feature", label: "SAZO特集", image: "/sazo-commerce/shortcuts/feature.png" },
@@ -332,6 +397,66 @@ export const products = [
     name: "優しい人形室 手編みマカロン綿糸",
     price: "¥104",
     image: "/sazo-commerce/products/12.webp",
+  },
+] satisfies readonly Product[];
+
+export const searchDiscoveryMediaCrops = [
+  {
+    controlBoundaryY: 744,
+    crop: { height: 464, width: 536, x: 350, y: 272 },
+    image: "/sazo-commerce/search-products/01.png",
+    sourceSecond: 37.5,
+  },
+  {
+    controlBoundaryY: 744,
+    crop: { height: 464, width: 536, x: 935, y: 272 },
+    image: "/sazo-commerce/search-products/02.png",
+    sourceSecond: 37.5,
+  },
+  {
+    controlBoundaryY: 744,
+    crop: { height: 464, width: 536, x: 1520, y: 272 },
+    image: "/sazo-commerce/search-products/03.png",
+    sourceSecond: 37.5,
+  },
+  {
+    controlBoundaryY: 744,
+    crop: { height: 464, width: 536, x: 2105, y: 272 },
+    image: "/sazo-commerce/search-products/04.png",
+    sourceSecond: 37.5,
+  },
+] as const satisfies readonly RecordedMediaCrop[];
+
+export const searchDiscoveryProducts = [
+  {
+    brand: "KREAM",
+    id: "recorded-search-01",
+    image: searchDiscoveryMediaCrops[0].image,
+    name: "防弾BTSマジックショップ マオタームードダウンポカ",
+    price: "¥1,152",
+  },
+  {
+    brand: "NAVER",
+    id: "recorded-search-02",
+    image: searchDiscoveryMediaCrops[1].image,
+    name: "休憩室待合室椅子 3人用ロビー教会長椅子",
+    price: "¥10,247",
+  },
+  {
+    badge: "12%",
+    brand: "NAVER",
+    id: "recorded-search-03",
+    image: searchDiscoveryMediaCrops[2].image,
+    name: "竹箸50個入り 木製の使い捨て調理箸",
+    price: "¥440",
+  },
+  {
+    badge: "25%",
+    brand: "NAVER",
+    id: "recorded-search-04",
+    image: searchDiscoveryMediaCrops[3].image,
+    name: "14k 18k ミニハートロック ドロップワンタッチイヤリング",
+    price: "¥90,146",
   },
 ] satisfies readonly Product[];
 
@@ -1035,15 +1160,45 @@ export const homeReviewIds = [
   "r05",
 ] as const satisfies readonly ReviewId[];
 
-export const homeReviews: readonly Review[] = homeReviewIds.map((id) => {
-  const review = reviews.find((candidate) => candidate.id === id);
+function mapReviewIds(ids: readonly ReviewId[], label: string): readonly Review[] {
+  return ids.map((id) => {
+    const review = reviews.find((candidate) => candidate.id === id);
 
-  if (!review) {
-    throw new Error(`Missing SAZO home review fixture: ${id}`);
-  }
+    if (!review) {
+      throw new Error(`Missing SAZO ${label} review fixture: ${id}`);
+    }
 
-  return review;
-});
+    return review;
+  });
+}
+
+export const recordedDesktopRankingReviewIds = [
+  "r05",
+  "r04",
+  "r03",
+  "r01",
+  "r02",
+  "r06",
+] as const satisfies readonly ReviewId[];
+
+export const recordedMobileProfileReviewIds = [
+  "r06",
+  "r02",
+  "r03",
+  "r01",
+  "r04",
+  "r05",
+] as const satisfies readonly ReviewId[];
+
+export const homeReviews = mapReviewIds(homeReviewIds, "home");
+export const recordedDesktopRankingReviews = mapReviewIds(
+  recordedDesktopRankingReviewIds,
+  "desktop ranking",
+);
+export const recordedMobileProfileReviews = mapReviewIds(
+  recordedMobileProfileReviewIds,
+  "mobile profile",
+);
 
 export const gramEntries = [
   {
@@ -1092,14 +1247,37 @@ export const homeGramEntryIds = [
   "g03",
 ] as const satisfies readonly GramEntryId[];
 
-export const homeGramEntries: readonly GramEntry[] = homeGramEntryIds.map((id) => {
+const homeGramProducts = {
+  g01: {
+    image: "/sazo-commerce/community/01.webp",
+    name: "[たまごっち]長袖パジャマ(Blue)_SPPPG49U09",
+    price: "￥4,594",
+  },
+  g02: {
+    image: "/sazo-commerce/gram/home/02-thumb.png",
+    name: "スノーイヤホン / Cタイプ",
+    price: "￥2,185",
+  },
+  g03: {
+    discount: "20%",
+    image: "/sazo-commerce/community/03.webp",
+    name: "ユアサマーグラスプレートセット（2p）",
+    price: "￥3,495",
+  },
+} as const satisfies Record<(typeof homeGramEntryIds)[number], HomeGramEntry["product"]>;
+
+export const homeGramEntries: readonly HomeGramEntry[] = homeGramEntryIds.map((id) => {
   const entry = gramEntries.find((candidate) => candidate.id === id);
 
   if (!entry) {
     throw new Error(`Missing SAZO home GRAM fixture: ${id}`);
   }
 
-  return entry;
+  return {
+    ...entry,
+    image: id === "g02" ? "/sazo-commerce/gram/home/02.png" : entry.image,
+    product: homeGramProducts[id],
+  };
 });
 
 export const reviewRecommendations = [

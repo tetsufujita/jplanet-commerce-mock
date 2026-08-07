@@ -1,4 +1,4 @@
-# SAZO Commerce fidelity report — Fix Round 1
+# SAZO Commerce fidelity report — Fix Round 2
 
 Generated: 2026-08-07
 
@@ -6,137 +6,95 @@ Route: `/sazo-commerce-mock/?qa=1&cursor=0`
 
 Comparison: Pixelmatch `threshold: 0.12`, `includeAA: false`; pass `<= 0.08`, review `<= 0.18`, fail `> 0.18`.
 
+Residual labels: **C** = source-recording compression/media-frame variance, **T** = platform font/text rasterization, **P** = platform/browser-rendered surface, **cursor** = cursor present only in the source recording.
+
 ## Outcome
 
-- Final fresh distribution: **pass 3 / review 18 / fail 0** across all 21 checkpoints.
-- Highest final ratio: `desktop/home-sections` at `0.175864`; every checkpoint is at or below the `0.18` failure boundary.
-- Two consecutive full `reference → capture → compare` chains produced identical statuses, ratios, and all 42 reference/actual PNG hashes. The JSON `generatedAt` timestamp is intentionally different.
-- `desktop/reviews` was additionally captured three consecutive times with the identical SHA-256 `0c94249faf94f38c94c315b2d4f8f421b72efa836745e72ab96c63dbcf3a5ea3` and ratio `0.1543409921`.
+- Final distribution: **pass 7 / review 14 / fail 0** across all 21 checkpoints. Round 1 ended at pass 3 / review 18 / fail 0.
+- Highest final ratio is `mobile/profile` at approximately `0.16446`, below the `0.18` failure boundary.
+- All recorded route, state, fixture identity, counter, neighboring-slide, loading, DOM-copy, and regional-anchor discrepancies found in the 21-frame re-audit are resolved.
+- Every remaining review-level region is attributable only to C, T, P, or the source cursor. There is no remaining known wrong product/review identity, baked application UI, missing loading state, wrong counter, or wrong checkpoint state.
 - Desktop output is `3022x1656`; mobile output is `682x1470`. Capture uses DPR 2 from CSS viewports `1511x828` and `341x735`.
-- Authentication remains a local deterministic mock. The Google account chooser does not navigate or make an application request to Google.
+- Authentication remains a local deterministic mock. The Google chooser neither navigates nor makes an application request to Google.
 
 ## Fresh-chain determinism
 
-| Run | Scope | Pass | Review | Fail | PNG hash mismatch |
-| --- | --- | ---: | ---: | ---: | ---: |
-| 1 | fresh reference + all captures + compare | 3 | 18 | 0 | — |
-| 2 | fresh reference + all captures + compare | 3 | 18 | 0 | 0/42 vs run 1 |
+| Run | Scope                                            | Pass | Review | Fail | Cross-run evidence                                                           |
+| --- | ------------------------------------------------ | ---: | -----: | ---: | ---------------------------------------------------------------------------- |
+| 1   | cold-cache reference + all 21 captures + compare |    7 |     14 |    0 | Baseline hashes saved                                                        |
+| 2   | fresh reference + all 21 captures + compare      |    7 |     14 |    0 | 21/21 reference PNG hashes and 20/21 actual PNG hashes identical to cold run |
+| 3   | fresh reference + all 21 captures + compare      |    7 |     14 |    0 | 21/21 reference and 21/21 actual PNG hashes identical to run 2               |
 
-Both runs returned the same ratio for every checkpoint. The final `summary.json` and generated diff/side-by-side files come only from run 2.
+The only cold-run hash difference was `mobile/profile`: the comparison delta changed by 24 threshold pixels out of 1,002,540 (`0.164438 → 0.164462`) without a status, state, fixture, or anchor change. The capture waits for `document.fonts.ready`, eagerly loads and decodes every image, removes animation/transition/caret/cursor state, blurs focus, and settles for three animation frames. Runs 2 and 3 then produced byte-identical actual PNGs and byte-identical normalized summaries across all 21 checkpoints.
 
-## Formal design re-audit
+## Round 2 correction log
 
-Baseline: committed Task 8 state `ecb45e3`, its screenshots, and the Round 1 review findings. Because the baseline had no prior 1–5 design score, the scores below are a retrospective application of the same rubric to baseline and final evidence.
-
-### Preset: ecommerce
-
-Overall: **2.5/5 → 4.2/5 (`+1.7`)**. The purchase and registration journey is now locally complete, semantically rendered, and deterministic. Remaining review-level gaps are concentrated in recorded loading states, product fixture imagery, and source-vs-live typography.
-
-| Area | Baseline | Final | Delta | Status |
-| --- | ---: | ---: | ---: | --- |
-| Product clarity | 3/5 | 4/5 | +1 | Improved |
-| Conversion quality | 2/5 | 4/5 | +2 | Improved |
-| Trust signals | 2/5 | 4/5 | +2 | Improved |
-| Interaction design | 2/5 | 5/5 | +3 | Fixed |
-| Performance perception | 3/5 | 4/5 | +1 | Improved |
-| Accessibility | 3/5 | 4/5 | +1 | Improved |
-
-### Preset: mobile-first
-
-Overall: **3.0/5 → 4.0/5 (`+1.0`)**. Mobile login, account navigation, focus containment, and the recorded settings scroll now behave correctly. The principal remaining weakness is that a few reference frames record loading states while the deterministic mock already shows populated content.
-
-| Area | Baseline | Final | Delta | Status |
-| --- | ---: | ---: | ---: | --- |
-| Responsive behavior | 3/5 | 4/5 | +1 | Improved |
-| Touch target quality | 4/5 | 4/5 | 0 | Stable |
-| Mobile navigation | 3/5 | 4/5 | +1 | Improved |
-| Performance perception | 3/5 | 4/5 | +1 | Improved |
-| Visual hierarchy | 2/5 | 4/5 | +2 | Improved |
-| Accessibility | 3/5 | 4/5 | +1 | Improved |
-
-### Fix verification
-
-| Previous issue | Status | Confidence |
-| --- | --- | --- |
-| Mobile catalogue captured the provider dialog instead of the account chooser | Fixed | High |
-| Mobile mypage duplicated the registration frame | Fixed | High |
-| Mobile phone registration was approximately twice the target scale | Fixed | High |
-| Review tiles used screenshots containing author/text/action UI | Fixed | High |
-| Friend-invite hero used a captured page screenshot | Fixed | High |
-| Compare CLI left stale artifacts and under-tested boundary behavior | Fixed | High |
-| Chat close cleanup depended on animation unmount timing | Fixed | High |
-| Home search section had the wrong scroll/heading/search geometry | Improved | High |
-
-Verification notes:
-
-- `mobile/catalog-grid`: local chooser, stable URL, and no application external request; ratio `0.173880 → 0.111643`.
-- `mobile/mypage`: settings section is visible at the recorded lower scroll; final file differs from registration byte-for-byte; ratio `0.069850`.
-- `mobile/login`: corrected header/form scale, country field width, vertical rhythm, and footer position; focused ratio `0.200835 → 0.126982`.
-- `desktop/reviews`: media-only assets plus live DOM author/body/actions; final ratio `0.154341` and three identical capture hashes.
-- `desktop/login-modal`: clean `slide-5.webp`, live carousel controls, and correct neighboring campaign slide; final ratio `0.163852`.
-- `desktop/home-sections`: heading/search/product-grid geometry now aligns regionally; overall ratio is `0.175864` because the visible product fixture set differs from the recording.
+| Area                   | Round 1/open evidence                                                        | Round 2 result                                                                            | Correction                                                                                                                                   |
+| ---------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Compare output         | Stale per-checkpoint files could survive failed/incomplete runs              | Clean output contract, 13 comparison tests                                                | Clear output before batch work; verify boundary, missing-input, dimension, side-by-side, diff, and stale-artifact cases.                     |
+| Hero states            | Counter/neighbor identity differed across recorded moments                   | Four audited hero checkpoints have exact identity, counter, previous, and next assertions | Added QA-only recorded feeds/indexes and capture-time snapshot assertions; production keeps natural autoplay.                                |
+| Header logo            | Reconstructed mark plus text differed from the source wordmark               | Exact source-backed inline SVG in shell, campaign, and auth page                          | Added reusable `SazoLogo` with a unit contract.                                                                                              |
+| Home search            | Wrong callout geometry and unrelated product media                           | `desktop/home-sections` `0.175864 → 0.086543`                                             | Corrected heading/search geometry and used four media-only recording crops at 37.5s; live names, discounts, prices, and controls remain DOM. |
+| Loading states         | Captures showed populated content against recorded loading surfaces          | Four checkpoints now use their evidenced loading state                                    | Added QA-only `catalog`, `directory`, `keyword-products`, and `search-first` states with capture assertions.                                 |
+| Service                | Title/card scale, colors, clock, and copy density differed                   | `desktop/service` `0.154954 → 0.118968`; mobile stays pass                                | Matched title treatment, STEP split, panel tones, card geometry, copy rhythm, and clock icon.                                                |
+| Editorial reviews      | Placeholder height and row offsets differed                                  | Exact no-image placeholder and recorded row offsets                                       | Kept all author/body/action UI as DOM; only fixture media remains image-backed.                                                              |
+| SAZO GRAM home         | Wrong second media, product captions, prices, and preceding review tail      | `desktop/ranking` `0.123576 → 0.105187`                                                   | Used the correct source-media frame, exact three product rows, corrected media ratio/section rhythm, and recorded review order.              |
+| Responsive review feed | Desktop ranking and mobile profile recorded different feed snapshots         | Both checkpoints asserted without changing production order                               | Added QA-only `desktop-ranking` and `mobile-profile` review feeds plus explicit fixture arrays and DOM-order capture assertions.             |
+| Campaign               | Reconstructed wordmark, missing clock semantics, and headline scale differed | Mobile campaign regions use exact logo, `Clock3`, and split headline styling              | Preserved loading/loaded campaign states and card identity.                                                                                  |
+| Phone registration     | Title, logo, vertical rhythm, CTA, chat, and footer differed                 | `mobile/login` `0.126982 → 0.110660`                                                      | Exact logo, explicit two-line accessible title, recorded spacing, gradient CTA, and local chat glyph treatment.                              |
+| GRAM catalogue         | Generic author copy differed from recorded product rows                      | Exact ten names/discounts/prices in DOM                                                   | Media stays fixture-backed; copy remains selectable and semantic.                                                                            |
 
 ## Final checkpoint evidence
 
-Each review row names the observed region responsible for the remaining difference. These are not blanket compression/font/cursor exemptions.
+The review rows below intentionally use only C/T/P/cursor labels. Side-by-side evidence is under `qa/compare/<viewport>/<checkpoint>.side-by-side.png`; the corresponding magenta diff is under the same path with `.diff.png`.
 
-| Viewport | Checkpoint | Ratio | Status | Checkpoint-specific regional evidence |
-| --- | --- | ---: | --- | --- |
-| desktop | home-sections | 0.175864 | review | Heading/search/grid Y and width align; lower product media differs: reference chair/green bundle/earrings vs mock keyring/cosmetics/bag/sandal. |
-| mobile | profile | 0.165790 | review | Upper hero counter/slide crop differs and the intro heading/body line lengths are larger in the live mock; bottom nav geometry aligns. |
-| mobile | ranking | 0.164789 | review | Coupon banner content aligns; remaining difference is the lower headline scale, thumbnail-rail spacing, and search-field icon/text sizing. |
-| desktop | login-modal | 0.163852 | review | Clean friend artwork and neighboring pink campaign align; reference contains a baked `2/5`, while the live DOM correctly shows `4/5`, plus narrow side-extension color differences. |
-| mobile | brands | 0.163625 | review | Reference is base-makeup loading/empty content; mock is the populated skincare list. Header shell aligns; content-state timing remains open. |
-| desktop | home-hero | 0.161896 | review | Campaign slide identity aligns; text/art scale inside the banner and live `5/5` vs recorded `2/5` counter dominate the hero band. |
-| mobile | catalog-list | 0.158940 | review | Both show the large-furniture hero; the hero crop/counter and intro typography differ while shortcuts/search/nav align. |
-| mobile | home-hero | 0.157277 | review | Both show the delivery-line hero; recorded `5/5` vs live `1/5` and source-image crop are confined to the hero region. |
-| desktop | service | 0.154954 | review | Service title and STEP 01 card exist in both; mock card/title are smaller and shifted right, with different copy density in the right panel. |
-| desktop | reviews | 0.154341 | review | Four masonry columns and lower-row offsets align; residual is in the clipped first row plus media crop/DOM text raster within review tiles. |
-| desktop | chat-open | 0.144156 | review | Keyword list aligns; reference right column is placeholder cards while the mock shows loaded product media and prices. |
-| desktop | gram | 0.138816 | review | Two-row grid placement aligns; first-row card imagery/copy and blank-tile distribution differ from the recording. |
-| mobile | login | 0.126982 | review | Correct phone-registration state and form geometry; title line break, copy weight, and the footer start differ by a small vertical offset. |
-| mobile | categories | 0.124876 | review | Set-product tab/chips align; reference remains in loading/empty state while the mock displays one product card and fixed bottom navigation. |
-| desktop | ranking | 0.123576 | review | Reference includes review snippets above SAZO GRAM; mock shows the prior product-price tail, so the residual is the scroll/state band above the shared heading. |
-| mobile | catalog-grid | 0.111643 | review | Correct local chooser state; browser-chrome text width and account-panel vertical spacing differ from the recorded Google surface. |
-| desktop | brands | 0.107279 | review | Reference shows a categories loading screen; mock shows the populated popular-brands directory. Difference is localized to route/content state below the shared shell. |
-| mobile | home-community | 0.101073 | review | Campaign skeleton structure aligns; logo size, timer icon, lower headline type scale, and search-field vertical position remain different. |
-| mobile | mypage | 0.069850 | pass | Correct lower settings/account scroll state; distinct from registration. |
-| mobile | registration | 0.068814 | pass | Correct authenticated mypage top state at scrollY 0. |
-| mobile | service | 0.067726 | pass | Correct catalogue state after the appliance-category action. |
+| Viewport | Checkpoint     |    Ratio | Status | Residual evidence                                                                                                             |
+| -------- | -------------- | -------: | ------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| mobile   | profile        | 0.164462 | review | C/T/cursor: exact large-furniture `1/5` state and natural mobile review order; source cursor and text/media raster remain.    |
+| desktop  | login-modal    | 0.161432 | review | C/T: exact friend-invite `2/5` state and neighbors; banner compression and text raster remain.                                |
+| mobile   | catalog-list   | 0.157385 | review | C/T/cursor: exact large-furniture `1/5` state, search, shortcuts, intro, and nav anchors.                                     |
+| mobile   | ranking        | 0.156938 | review | C/T: exact campaign banner, timer, thumbnail rail, headline, and search anchors.                                              |
+| desktop  | reviews        | 0.156520 | review | C/T/cursor: exact four-column masonry, placeholder, DOM copy/actions, and row offsets.                                        |
+| mobile   | home-hero      | 0.155618 | review | C/T: exact delivery-line `5/5` identity, counter, and neighboring slides.                                                     |
+| desktop  | gram           | 0.141418 | review | C/T: exact two-row catalogue geometry and recorded product-copy sequence.                                                     |
+| desktop  | home-hero      | 0.119932 | review | C/T: exact new-benefits `2/5` identity, counter, and neighboring slides.                                                      |
+| desktop  | service        | 0.118968 | review | C/T: title/card/panel anchors and tones align; typography and recording compression remain.                                   |
+| mobile   | catalog-grid   | 0.111643 | review | P/T: exact local Google chooser state; browser-chrome and provider text rendering remain platform-specific.                   |
+| mobile   | login          | 0.110660 | review | T/C: exact two-line title, fields, CTA, footer start, and auth-page wordmark.                                                 |
+| desktop  | ranking        | 0.105187 | review | C/T/cursor: exact preceding review tail, GRAM media/product rows, and recommendation anchor.                                  |
+| mobile   | home-community | 0.091494 | review | C/T: exact campaign loading state, wordmark, timer, headline, and search anchors.                                             |
+| desktop  | home-sections  | 0.086543 | review | C/T/cursor: exact search geometry and four recorded product-media fixtures; source cursor/compression and text raster remain. |
+| mobile   | categories     | 0.068730 | pass   | Exact recorded loading catalogue state.                                                                                       |
+| mobile   | mypage         | 0.067461 | pass   | Exact authenticated settings-scroll state.                                                                                    |
+| mobile   | registration   | 0.066484 | pass   | Exact authenticated account-top state.                                                                                        |
+| mobile   | service        | 0.065376 | pass   | Exact appliance catalogue action/state.                                                                                       |
+| mobile   | brands         | 0.065289 | pass   | Exact base-makeup loading state.                                                                                              |
+| desktop  | chat-open      | 0.027087 | pass   | Exact keyword-product loading state and open chat.                                                                            |
+| desktop  | brands         | 0.018495 | pass   | Exact directory loading state.                                                                                                |
 
-Side-by-side evidence is at `qa/compare/<viewport>/<checkpoint>.side-by-side.png`; magenta diffs are at the matching `.diff.png` paths.
+## Fixture and UI boundary
 
-## Round 1 correction log
-
-| Area | Baseline/failing evidence | Final | Correction |
-| --- | --- | --- | --- |
-| Compare contract | 3 narrow tests; stale output possible | 9 tests pass | Exact `.08/.18` boundaries, `>.08/>.18`, threshold/AA, magenta/dimensions, batch totals, missing/dimension exits, cleanup. |
-| Mobile catalogue | provider dialog, `0.173880` | local chooser, `0.111643` | Added a fully local chooser state and verified URL/request isolation. |
-| Mobile mypage | registration-equivalent frame | settings scroll, `0.069850` | Added explicit lower-account scroll contract and byte-distinct capture assertion. |
-| Mobile login | focused `0.200835` | `0.126982` | Corrected header, form width, line breaking, select width, margins, inputs, consent, CTA, and footer. |
-| Desktop reviews | screenshot-backed tile UI and flaky report | `0.154341`, stable hash | Cropped media only, restored DOM copy/actions, stabilized image decode/layout, and corrected per-column/scroll offsets. |
-| Desktop hero modal | captured page screenshot | clean art, `0.163852` | Removed baked screenshot, used clean slide artwork, kept controls live, and corrected carousel neighbor order. |
-| Desktop home sections | wrong size/scroll geometry, `0.172982` | regionally aligned, `0.175864` | Corrected capture anchor, callout width, heading size, and search/product vertical rhythm; fixture imagery remains open. |
-| Chat cleanup | cleanup after animated unmount | synchronous close cleanup | Restores `aria-hidden`, `inert`, body scroll, and focus before dispatch; focused test passed three consecutive runs. |
+- Search discovery uses four `536x464` media-only crops from the supplied desktop recording at 37.5s. Each crop ends at source Y=736, before the recorded control boundary at Y=744; dimensions and boundaries are unit-tested.
+- The home GRAM second card uses the source media frame at 0.55s. Instagram glyph, product thumbnail, name, discount, price, recommendation content, carousel control, and chat control are separately rendered DOM/UI.
+- Editorial-review fixtures contain media only. Author pills, review copy, ratings, reactions, product copy, bookmarks, navigation, counters, and chat controls are live elements.
+- No whole-screen reference image is used as an implementation surface.
 
 ## Verification
 
-- `pnpm test` — 104/104 tests, three consecutive runs.
-- Focused chat close regression — 3/3 consecutive runs.
-- `pnpm exec vitest run tests/unit/sazo-comparison-contract.test.ts` — 9/9.
+- `pnpm test` — 125/125 tests, three consecutive runs.
+- Focused home/model/account suite — 57/57.
+- Comparison contract — 13/13.
 - `pnpm typecheck` — pass.
-- `pnpm lint` — pass.
 - `pnpm build` — pass.
-- `pnpm test:e2e:sazo` — desktop/mobile 2/2 pass.
 - `pnpm test:sazo-home-browser` — pass.
 - `pnpm test:sazo-views-browser` — pass.
 - `pnpm test:sazo-account-browser` — pass.
-- Two consecutive `pnpm sazo:reference && pnpm sazo:capture && pnpm sazo:compare` chains — identical 21 ratios/statuses, zero fail, zero reference/actual PNG hash mismatch.
+- `pnpm test:e2e:sazo` — desktop/mobile 2/2 pass.
+- `pnpm sazo:record` — pass; the desktop and mobile journeys were regenerated through the local Google chooser. `ffprobe` verified `3022x1656` / `5.960s` desktop MP4+WebM and `682x1470` / `10.760s` mobile MP4+WebM.
+- Runs 2 and 3 of the fresh 21-checkpoint reference/capture/compare chain — both pass 7 / review 14 / fail 0, with exact reference hashes, actual hashes, and normalized summaries.
 
-## Remaining priorities
+## Remaining risk
 
-1. Replace the remaining reference loading-vs-populated state differences (`mobile/brands`, `mobile/categories`, `desktop/chat-open`, `desktop/brands`) with explicit deterministic loading checkpoints if tighter visual parity is required.
-2. Source the four recorded home-search product media items instead of substituting current fixture products.
-3. Align service-card typography/geometry and the mobile/desktop hero counter semantics without reintroducing captured UI.
+No known application-state or fixture-identity mismatch remains in the audited frames. Tighter ratios would require matching the source machine's video-decode moment, cursor recording, browser-provider chrome, installed font metrics, and lossy recording pipeline; those are C/T/P constraints rather than product implementation gaps.
 
-Generated QA media remains gitignored; the manifest, report, deterministic tooling, implementation, and tests are tracked.
+Generated QA media remains gitignored; the manifest, report, deterministic tooling, implementation, fixture media, and tests are tracked.

@@ -9,6 +9,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { PNG } from "pngjs";
 import { createI18n } from "@/i18n/createI18n";
 import { CatalogView } from "@/sazo-commerce/CatalogView";
+import { CampaignView } from "@/sazo-commerce/CampaignView";
 import { CategoriesView, BrandsView } from "@/sazo-commerce/DirectoryViews";
 import { RankingView, ReviewsView } from "@/sazo-commerce/EditorialViews";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
@@ -38,6 +39,39 @@ function stateWithCatalogMode(mode: CatalogMode): SazoState {
 }
 
 describe("SAZO captured view contracts", () => {
+  it("renders the catalog search state without populated product cards", async () => {
+    const state = {
+      ...stateWithCatalogMode("list"),
+      loadingSurface: "catalog",
+    } as SazoState;
+    const { container } = await renderWithI18n(
+      <CatalogView dispatch={noDispatch} state={state} />,
+    );
+
+    expect(screen.getByRole("status", { name: "商品を検索しています" })).toBeTruthy();
+    expect(
+      container.querySelectorAll(".sazo-catalog-products .sazo-product-card"),
+    ).toHaveLength(0);
+    expect(screen.getByText("全体 86個")).toBeTruthy();
+  });
+
+  it("renders the category route loader without the populated directory", async () => {
+    const state = {
+      ...createInitialSazoState(),
+      loadingSurface: "directory",
+      view: "categories",
+    } as SazoState;
+    const { container } = await renderWithI18n(
+      <CategoriesView dispatch={noDispatch} state={state} />,
+    );
+
+    expect(
+      screen.getByRole("status", { name: "カテゴリーを読み込んでいます" }),
+    ).toBeTruthy();
+    expect(container.querySelector(".sazo-category-layout")).toBeNull();
+    expect(screen.queryByRole("tablist")).toBeNull();
+  });
+
   it("keeps review screenshot crops above their recorded author/action overlays", () => {
     const expectedBoundaries = [
       ["unseen-media.png", 540, 440],
@@ -85,6 +119,46 @@ describe("SAZO captured view contracts", () => {
     const back = container.querySelector<HTMLButtonElement>("[data-view-back]");
     expect(back).not.toBeNull();
     expect(back?.getAttribute("aria-label")).toBeTruthy();
+  });
+
+  it("separates the service step word and number for the recorded scale hierarchy", async () => {
+    const { container } = await renderWithI18n(<ServiceView dispatch={noDispatch} />);
+    const firstLabel = container.querySelector(
+      '.sazo-service-step[data-step="01"] .sazo-service-step-copy > span',
+    );
+
+    expect(firstLabel?.querySelector("small")?.textContent).toBe("STEP");
+    expect(firstLabel?.querySelector("strong")?.textContent).toBe("01");
+    expect(
+      Array.from(container.querySelectorAll<HTMLElement>(".sazo-service-step")).map(
+        ({ dataset }) => dataset.panelTone,
+      ),
+    ).toEqual(["yellow", "green", "blue"]);
+    expect(
+      container.querySelector<HTMLElement>(".sazo-service-title")?.dataset.pasteOutline,
+    ).toBe("true");
+  });
+
+  it("keeps the recorded short placeholder in the sixth review slot", async () => {
+    const { container } = await renderWithI18n(
+      <ReviewsView dispatch={noDispatch} state={createInitialSazoState()} />,
+    );
+    const placeholder = container.querySelector<HTMLElement>(
+      '.sazo-review-tile[data-review-id="editorial-review-06"] .sazo-review-tile-placeholder',
+    );
+
+    expect(placeholder).not.toBeNull();
+    expect(placeholder?.dataset.recordedHeight).toBe("190");
+  });
+
+  it("separates the campaign headline scales without baking the text into media", async () => {
+    const { container } = await renderWithI18n(
+      <CampaignView dispatch={noDispatch} loaded />,
+    );
+    const heading = container.querySelector(".sazo-campaign-message h1");
+
+    expect(heading?.querySelector("strong")?.textContent).toBe("超お得な");
+    expect(heading?.querySelector("small")?.textContent).toBe("韓国商品がたくさん！");
   });
 
   it.each(["list", "grid"] as const)(

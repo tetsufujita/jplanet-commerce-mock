@@ -6,11 +6,16 @@ import {
   brands,
   categories,
   gramEntries,
+  getHeroSlidesForFeed,
   heroSlides,
   homeGramEntries,
   homeGramEntryIds,
   homeReviewIds,
   homeReviews,
+  recordedDesktopRankingReviewIds,
+  recordedDesktopRankingReviews,
+  recordedMobileProfileReviewIds,
+  recordedMobileProfileReviews,
   products,
   rankingKeywords,
   reviews,
@@ -19,6 +24,85 @@ import {
 import { createInitialSazoState, sazoReducer } from "@/sazo-commerce/model";
 
 describe("sazoReducer", () => {
+  it("starts with no forced loading surface", () => {
+    expect(createInitialSazoState()).toMatchObject({
+      heroFeed: "natural",
+      heroIndex: 0,
+      loadingSurface: "none",
+      reviewFeed: "natural",
+    });
+  });
+
+  it("accepts deterministic capture state only behind the QA query", () => {
+    expect(
+      createInitialSazoState(
+        "?qa=1&loading=directory&heroFeed=cold-first&heroIndex=1&reviewFeed=desktop-ranking",
+      ),
+    ).toMatchObject({
+      heroFeed: "cold-first",
+      heroIndex: 1,
+      loadingSurface: "directory",
+      reviewFeed: "desktop-ranking",
+    });
+    expect(createInitialSazoState("?qa=1&loading=search-first")).toMatchObject({
+      loadingSurface: "search-first",
+    });
+    expect(
+      createInitialSazoState(
+        "?loading=catalog&heroFeed=large-first&heroIndex=4&reviewFeed=desktop-ranking",
+      ),
+    ).toMatchObject({
+      heroFeed: "natural",
+      heroIndex: 0,
+      loadingSurface: "none",
+      reviewFeed: "natural",
+    });
+    expect(
+      createInitialSazoState(
+        "?qa=1&loading=unknown&heroFeed=unknown&heroIndex=99&reviewFeed=unknown",
+      ),
+    ).toMatchObject({
+      heroFeed: "natural",
+      heroIndex: 0,
+      loadingSurface: "none",
+      reviewFeed: "natural",
+    });
+  });
+
+  it("maps every recorded campaign-feed snapshot to the evidenced slide order", () => {
+    const ids = (feed: Parameters<typeof getHeroSlidesForFeed>[0]) =>
+      getHeroSlidesForFeed(feed).map(({ id }) => id);
+
+    expect(ids("natural")).toEqual([
+      "delivery-line",
+      "new-benefits",
+      "large-furniture",
+      "cold-delivery",
+      "friend-invite",
+    ]);
+    expect(ids("cold-first")).toEqual([
+      "cold-delivery",
+      "friend-invite",
+      "new-benefits",
+      "large-furniture",
+      "delivery-line",
+    ]);
+    expect(ids("delivery-last")).toEqual([
+      "new-benefits",
+      "large-furniture",
+      "cold-delivery",
+      "friend-invite",
+      "delivery-line",
+    ]);
+    expect(ids("large-first")).toEqual([
+      "large-furniture",
+      "cold-delivery",
+      "friend-invite",
+      "delivery-line",
+      "new-benefits",
+    ]);
+  });
+
   it("navigates catalog and preserves its display mode", () => {
     const state = createInitialSazoState();
     const catalog = sazoReducer(state, { type: "navigate", view: "catalog" });
@@ -230,10 +314,10 @@ describe("SAZO fixture asset contract", () => {
   it("uses only Task 4 and Task 5 delivery paths for fixture imagery", () => {
     expect(heroSlides.map(({ image }) => image)).toEqual([
       "/sazo-commerce/hero/slide-1.webp",
+      "/sazo-commerce/hero/slide-2.webp",
       "/sazo-commerce/hero/slide-3.webp",
       "/sazo-commerce/hero/slide-4.webp",
       "/sazo-commerce/hero/slide-5.webp",
-      "/sazo-commerce/hero/slide-2.webp",
     ]);
     expect(products.map(({ image }) => image)).toEqual([
       "/sazo-commerce/products/01.webp",
@@ -341,7 +425,34 @@ describe("SAZO fixture asset contract", () => {
       },
       { author: "코코", id: "r05", image: "/sazo-commerce/community/09.webp" },
     ]);
+    expect(recordedDesktopRankingReviewIds).toEqual([
+      "r05",
+      "r04",
+      "r03",
+      "r01",
+      "r02",
+      "r06",
+    ]);
+    expect(recordedDesktopRankingReviews.map(({ id }) => id)).toEqual(
+      recordedDesktopRankingReviewIds,
+    );
+    expect(recordedMobileProfileReviewIds).toEqual(homeReviewIds);
+    expect(recordedMobileProfileReviews.map(({ id }) => id)).toEqual(
+      recordedMobileProfileReviewIds,
+    );
     expect(homeGramEntryIds).toEqual(["g01", "g02", "g03"]);
     expect(homeGramEntries.map(({ id }) => id)).toEqual(homeGramEntryIds);
+    expect(
+      homeGramEntries.map(({ product }) => [
+        product.name,
+        product.discount ?? null,
+        product.price,
+      ]),
+    ).toEqual([
+      ["[たまごっち]長袖パジャマ(Blue)_SPPPG49U09", null, "￥4,594"],
+      ["スノーイヤホン / Cタイプ", null, "￥2,185"],
+      ["ユアサマーグラスプレートセット（2p）", "20%", "￥3,495"],
+    ]);
+    expect(homeGramEntries[1]?.image).toBe("/sazo-commerce/gram/home/02.png");
   });
 });

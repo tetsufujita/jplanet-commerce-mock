@@ -273,7 +273,7 @@ try {
 
   assert(phoneLabelBounds !== null);
   assert(
-    phoneLabelBounds.y >= 190 && phoneLabelBounds.y <= 205,
+    phoneLabelBounds.y >= 215 && phoneLabelBounds.y <= 225,
     `phone label y=${String(phoneLabelBounds.y)}`,
   );
   assert.deepEqual(await country.locator("option").allTextContents(), [

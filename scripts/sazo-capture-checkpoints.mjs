@@ -13,6 +13,78 @@ const localOrigin = `http://${host}:${String(port)}`;
 const routeUrl = `${localOrigin}/sazo-commerce-mock/?qa=1&cursor=0`;
 const actualRoot = resolve("design/reproductions/sazo-commerce/qa/actual");
 
+const checkpointStates = Object.freeze({
+  "desktop/brands": { loading: "directory" },
+  "desktop/chat-open": { loading: "keyword-products" },
+  "desktop/home-hero": {
+    heroFeed: "natural",
+    heroIndex: 1,
+    heroSnapshot: {
+      active: "new-benefits",
+      counter: "2/5",
+      next: "large-furniture",
+      previous: "delivery-line",
+    },
+  },
+  "desktop/home-sections": { loading: "search-first" },
+  "desktop/login-modal": {
+    heroFeed: "cold-first",
+    heroIndex: 1,
+    heroSnapshot: {
+      active: "friend-invite",
+      counter: "2/5",
+      next: "new-benefits",
+      previous: "cold-delivery",
+    },
+  },
+  "desktop/ranking": {
+    reviewFeed: "desktop-ranking",
+    reviewSnapshot: ["r05", "r04", "r03", "r01", "r02", "r06"],
+  },
+  "mobile/brands": { loading: "catalog" },
+  "mobile/categories": { loading: "catalog" },
+  "mobile/catalog-list": {
+    heroFeed: "large-first",
+    heroIndex: 0,
+    heroSnapshot: {
+      active: "large-furniture",
+      counter: "1/5",
+      next: "cold-delivery",
+      previous: "new-benefits",
+    },
+  },
+  "mobile/home-community": {
+    heroFeed: "natural",
+    heroIndex: 1,
+  },
+  "mobile/home-hero": {
+    heroFeed: "delivery-last",
+    heroIndex: 4,
+    heroSnapshot: {
+      active: "delivery-line",
+      counter: "5/5",
+      next: "new-benefits",
+      previous: "friend-invite",
+    },
+  },
+  "mobile/profile": {
+    heroFeed: "large-first",
+    heroIndex: 0,
+    heroSnapshot: {
+      active: "large-furniture",
+      counter: "1/5",
+      next: "cold-delivery",
+      previous: "new-benefits",
+    },
+    reviewFeed: "mobile-profile",
+    reviewSnapshot: ["r06", "r02", "r03", "r01", "r04", "r05"],
+  },
+  "mobile/ranking": {
+    heroFeed: "natural",
+    heroIndex: 1,
+  },
+});
+
 function parseArguments(arguments_) {
   const selection = { checkpoint: undefined, viewport: undefined };
 
@@ -44,8 +116,26 @@ async function waitForVisible(locator) {
   await locator.waitFor({ state: "visible" });
 }
 
-async function openHome(page) {
-  await page.goto(routeUrl, { waitUntil: "networkidle" });
+async function openHome(page, captureState) {
+  const url = new URL(routeUrl);
+
+  if (captureState.loading !== undefined) {
+    url.searchParams.set("loading", captureState.loading);
+  }
+
+  if (captureState.heroFeed !== undefined) {
+    url.searchParams.set("heroFeed", captureState.heroFeed);
+  }
+
+  if (captureState.heroIndex !== undefined) {
+    url.searchParams.set("heroIndex", String(captureState.heroIndex));
+  }
+
+  if (captureState.reviewFeed !== undefined) {
+    url.searchParams.set("reviewFeed", captureState.reviewFeed);
+  }
+
+  await page.goto(url.href, { waitUntil: "networkidle" });
   await waitForVisible(page.locator(".sazo-root"));
   await page.addStyleTag({
     content: `
@@ -133,20 +223,6 @@ async function openMobileView(page, name, expectedView) {
   await waitForVisible(page.locator(`[data-view-content="${expectedView}"]`));
 }
 
-async function advanceHero(page, count) {
-  const nextButton = page.locator(".sazo-hero-arrow-next");
-
-  for (let index = 0; index < count; index += 1) {
-    if (await nextButton.isVisible()) {
-      await nextButton.click();
-    } else {
-      await nextButton.evaluate((button) => {
-        button.click();
-      });
-    }
-  }
-}
-
 async function openMobileCatalog(page) {
   await openMobileView(page, "カテゴリー", "categories");
   const categories = page.locator('[data-view-content="categories"]');
@@ -169,7 +245,7 @@ async function openMobilePhoneRegistration(page) {
   const chooser = page.getByTestId("sazo-google-chooser");
   await waitForVisible(chooser);
   assert.equal(await chooser.getAttribute("data-local-google-chooser"), "true");
-  assert.equal(page.url(), routeUrl);
+  assert.equal(new URL(page.url()).pathname, "/sazo-commerce-mock/");
   await chooser
     .getByRole("button", {
       exact: true,
@@ -202,9 +278,7 @@ async function completeMobileRegistration(page) {
 }
 
 const desktopCaptures = Object.freeze({
-  "home-hero": async (page) => {
-    await advanceHero(page, 4);
-  },
+  "home-hero": async () => undefined,
   "home-sections": async (page) => {
     await scrollTo(page, ".sazo-search-discovery", 70);
   },
@@ -232,26 +306,22 @@ const desktopCaptures = Object.freeze({
   brands: async (page) => {
     await page
       .locator(".sazo-desktop-nav")
-      .getByRole("button", { exact: true, name: "人気ブランド" })
+      .getByRole("button", { exact: true, name: "カテゴリー" })
       .click();
-    await waitForVisible(page.locator('[data-view-content="brands"]'));
+    await waitForVisible(page.locator('[data-view-content="categories"]'));
   },
-  "login-modal": async (page) => {
-    await advanceHero(page, 3);
-  },
+  "login-modal": async () => undefined,
 });
 
 const mobileCaptures = Object.freeze({
   "home-hero": async () => undefined,
   "home-community": async (page) => {
-    await advanceHero(page, 4);
     await page
       .getByRole("button", { exact: true, name: "クーポンキャンペーンを見る" })
       .click();
     await waitForVisible(page.locator('[data-campaign-loaded="false"]'));
   },
   ranking: async (page) => {
-    await advanceHero(page, 4);
     await page
       .getByRole("button", { exact: true, name: "クーポンキャンペーンを見る" })
       .click();
@@ -266,6 +336,10 @@ const mobileCaptures = Object.freeze({
   },
   brands: async (page) => {
     await openMobileCatalog(page);
+    await page
+      .locator('[data-view-content="catalog"]')
+      .getByRole("tab", { exact: true, name: "ベースメイク" })
+      .click();
   },
   categories: async (page) => {
     await openMobileCatalog(page);
@@ -274,9 +348,7 @@ const mobileCaptures = Object.freeze({
       .getByRole("tab", { exact: true, name: "セット商品" })
       .click();
   },
-  "catalog-list": async (page) => {
-    await advanceHero(page, 1);
-  },
+  "catalog-list": async () => undefined,
   "catalog-grid": async (page) => {
     await page
       .getByRole("navigation", { exact: true, name: "モバイルメニュー" })
@@ -295,7 +367,7 @@ const mobileCaptures = Object.freeze({
   },
   login: async (page) => {
     await openMobilePhoneRegistration(page);
-    await page.getByLabel("電話番号", { exact: true }).fill("9012345678");
+    assert.equal(await page.getByLabel("電話番号", { exact: true }).inputValue(), "");
   },
   registration: async (page) => {
     await completeMobileRegistration(page);
@@ -319,7 +391,6 @@ const mobileCaptures = Object.freeze({
       .getByRole("button", { exact: true, name: "ホーム" })
       .click();
     await waitForVisible(page.locator("[data-home-view]"));
-    await advanceHero(page, 1);
     await page.evaluate(() => {
       window.scrollTo({ behavior: "instant", top: 136 });
     });
@@ -329,6 +400,7 @@ const mobileCaptures = Object.freeze({
 async function captureCheckpoint(browser, viewportName, viewport, checkpoint) {
   const captures = viewportName === "desktop" ? desktopCaptures : mobileCaptures;
   const prepare = captures[checkpoint.name];
+  const captureState = checkpointStates[`${viewportName}/${checkpoint.name}`] ?? {};
   const expectedCssViewport = {
     height: viewport.height / 2,
     width: viewport.width / 2,
@@ -357,9 +429,84 @@ async function captureCheckpoint(browser, viewportName, viewport, checkpoint) {
       expectedCssViewport.width,
       expectedCssViewport.height,
     ]);
-    await openHome(page);
+    await openHome(page, captureState);
     await prepare(page);
     await settle(page);
+    assert.equal(
+      await page.locator(".sazo-root").getAttribute("data-loading-surface"),
+      captureState.loading ?? "none",
+    );
+
+    assert.equal(
+      await page.locator(".sazo-root").getAttribute("data-review-feed"),
+      captureState.reviewFeed ?? "natural",
+    );
+
+    if (captureState.reviewSnapshot !== undefined) {
+      assert.deepEqual(
+        await page
+          .locator(".sazo-review-strip .sazo-review-card")
+          .evaluateAll((cards) =>
+            cards.map((card) => card.getAttribute("data-review-id")),
+          ),
+        captureState.reviewSnapshot,
+      );
+    }
+
+    if (captureState.heroSnapshot !== undefined) {
+      const { active, counter, next, previous } = captureState.heroSnapshot;
+
+      assert.equal(
+        await page.locator(".sazo-root").getAttribute("data-hero-feed"),
+        captureState.heroFeed,
+      );
+      assert.equal(
+        await page
+          .locator('.sazo-hero-slide[data-active="true"]')
+          .getAttribute("data-hero-slide"),
+        active,
+      );
+      assert.equal(await page.getByTestId("sazo-hero-counter").innerText(), counter);
+      assert.equal(
+        await page
+          .locator('.sazo-hero-slide[data-hero-offset="-1"]')
+          .getAttribute("data-hero-slide"),
+        previous,
+      );
+      assert.equal(
+        await page
+          .locator('.sazo-hero-slide[data-hero-offset="1"]')
+          .getAttribute("data-hero-slide"),
+        next,
+      );
+    }
+
+    if (captureState.loading === "catalog") {
+      await waitForVisible(page.getByRole("status", { name: "商品を検索しています" }));
+      assert.equal(await page.locator(".sazo-catalog-products").count(), 0);
+    } else if (captureState.loading === "directory") {
+      await waitForVisible(
+        page.getByRole("status", { name: "カテゴリーを読み込んでいます" }),
+      );
+      assert.equal(await page.locator(".sazo-category-layout").count(), 0);
+    } else if (captureState.loading === "keyword-products") {
+      assert.equal(await page.locator(".sazo-keyword-skeleton").count(), 5);
+      assert.equal(
+        await page.locator(".sazo-keyword-section .sazo-product-card").count(),
+        0,
+      );
+    } else if (captureState.loading === "search-first") {
+      const searchMedia = page.locator(".sazo-search-discovery .sazo-product-card-media");
+
+      assert.equal(await searchMedia.count(), 4);
+      assert.equal(await searchMedia.first().locator("img").count(), 0);
+      assert.equal(
+        await page
+          .locator(".sazo-search-discovery img.sazo-recorded-product-media")
+          .count(),
+        3,
+      );
+    }
     await mkdir(join(actualRoot, viewportName), { recursive: true });
     await page.screenshot({
       animations: "disabled",
@@ -425,9 +572,7 @@ try {
     }
 
     if (viewportName === "mobile" && selection.checkpoint === undefined) {
-      const registration = await readFile(
-        join(actualRoot, "mobile", "registration.png"),
-      );
+      const registration = await readFile(join(actualRoot, "mobile", "registration.png"));
       const mypage = await readFile(join(actualRoot, "mobile", "mypage.png"));
       assert.notDeepEqual(
         registration,

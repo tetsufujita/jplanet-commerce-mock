@@ -28,6 +28,7 @@ const footerLinks = [
   "privacy",
   "commerce",
 ] as const;
+const serviceStepTones = ["yellow", "green", "blue"] as const;
 
 export function ServiceView({ dispatch }: ViewDispatchProps) {
   const { t } = useTranslation();
@@ -37,7 +38,7 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
     <div className="sazo-service-view" data-view-content="service">
       <ViewHeader dispatch={dispatch} title={t("sazo.views.service.title")} />
       <section className="sazo-service-hero">
-        <div className="sazo-service-title">
+        <div className="sazo-service-title" data-paste-outline="true">
           <p>{t("sazo.views.service.eyebrow")}</p>
           <h1>{t("sazo.views.service.title")}</h1>
         </div>
@@ -63,8 +64,13 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
       <section className="sazo-service-steps">
         <h2>{t("sazo.views.service.stepsTitle")}</h2>
         <div className="sazo-service-step-list">
-          {serviceSteps.map((step) => (
-            <article className="sazo-service-step" data-step={step.id} key={step.id}>
+          {serviceSteps.map((step, index) => (
+            <article
+              className="sazo-service-step"
+              data-panel-tone={serviceStepTones[index]}
+              data-step={step.id}
+              key={step.id}
+            >
               <div className="sazo-service-step-image">
                 <img
                   alt=""
@@ -77,7 +83,10 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
                 />
               </div>
               <div className="sazo-service-step-copy">
-                <span>{t("sazo.views.service.stepLabel", { step: step.id })}</span>
+                <span aria-label={t("sazo.views.service.stepLabel", { step: step.id })}>
+                  <small>STEP</small>
+                  <strong>{step.id}</strong>
+                </span>
                 <h3>{t(`sazo.views.service.step${step.id}Title`)}</h3>
                 <strong>{t(`sazo.views.service.step${step.id}Summary`)}</strong>
                 <p>{t(`sazo.views.service.step${step.id}Body`)}</p>

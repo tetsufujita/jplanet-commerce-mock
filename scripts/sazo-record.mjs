@@ -44,6 +44,29 @@ const captureTimingMs = Object.freeze({
   }),
 });
 
+function parseViewportSelection(arguments_) {
+  if (arguments_.length === 0) {
+    return ["desktop", "mobile"];
+  }
+
+  assert.deepEqual(
+    arguments_.slice(0, 1),
+    ["--viewport"],
+    "Usage: node scripts/sazo-record.mjs [--viewport desktop|mobile]",
+  );
+  assert.equal(
+    arguments_.length,
+    2,
+    "Usage: node scripts/sazo-record.mjs [--viewport desktop|mobile]",
+  );
+  assert(
+    Object.hasOwn(viewports, arguments_[1]),
+    `Unknown recording viewport: ${String(arguments_[1])}`,
+  );
+
+  return [arguments_[1]];
+}
+
 function runCommand(command, args) {
   const result = spawnSync(command, args, { encoding: "utf8" });
 
@@ -169,6 +192,16 @@ async function replayMobile(page) {
   await capturePace(page, captureTimingMs.mobile.loginProvider);
   await provider.getByRole("button", { exact: true, name: "Googleで続ける" }).click();
 
+  const chooser = page.getByTestId("sazo-google-chooser");
+  await waitForVisible(chooser);
+  assert.equal(await chooser.getAttribute("data-local-google-chooser"), "true");
+  await chooser
+    .getByRole("button", {
+      exact: true,
+      name: "Tetsu Fujita tetsu.fujita@andes.global",
+    })
+    .click();
+
   await waitForVisible(
     page.getByRole("heading", {
       exact: true,
@@ -293,11 +326,21 @@ let browser;
 
 try {
   await server.listen();
-  browser = await chromium.launch({ channel: "chrome", headless: true });
-  const desktop = await recordScenario(browser, "desktop", replayDesktop);
-  const mobile = await recordScenario(browser, "mobile", replayMobile);
+  const scenarios = { desktop: replayDesktop, mobile: replayMobile };
+  const recordings = {};
 
-  for (const [name, recording] of Object.entries({ desktop, mobile })) {
+  for (const viewportName of parseViewportSelection(process.argv.slice(2))) {
+    browser = await chromium.launch({ channel: "chrome", headless: true });
+    recordings[viewportName] = await recordScenario(
+      browser,
+      viewportName,
+      scenarios[viewportName],
+    );
+    await browser.close();
+    browser = undefined;
+  }
+
+  for (const [name, recording] of Object.entries(recordings)) {
     process.stdout.write(
       `${name}: ${recording.webmPath} (${recording.webmDuration.toFixed(3)}s)\n`,
     );

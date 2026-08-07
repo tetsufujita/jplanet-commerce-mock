@@ -124,7 +124,11 @@ export function ReviewsView({ dispatch, state }: StatefulViewProps) {
         </div>
         <div className="sazo-review-masonry" ref={masonryRef}>
           {visibleReviews.map((review) => (
-            <article className="sazo-review-tile" key={review.id}>
+            <article
+              className="sazo-review-tile"
+              data-review-id={review.id}
+              key={review.id}
+            >
               <div className="sazo-review-tile-media">
                 {review.image ? (
                   <img
@@ -136,7 +140,11 @@ export function ReviewsView({ dispatch, state }: StatefulViewProps) {
                     width={390}
                   />
                 ) : (
-                  <div aria-hidden className="sazo-review-tile-placeholder" />
+                  <div
+                    aria-hidden
+                    className="sazo-review-tile-placeholder"
+                    data-recorded-height="190"
+                  />
                 )}
                 <span>{review.author}</span>
               </div>

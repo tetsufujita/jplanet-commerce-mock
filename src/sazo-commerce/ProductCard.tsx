@@ -4,24 +4,33 @@ import { useTranslation } from "react-i18next";
 import type { Product } from "@/sazo-commerce/fixtures";
 
 export interface ProductCardProps {
+  mediaHidden?: boolean;
   product: Product;
   variant?: "compact" | "standard";
 }
 
-export function ProductCard({ product, variant = "standard" }: ProductCardProps) {
+export function ProductCard({
+  mediaHidden = false,
+  product,
+  variant = "standard",
+}: ProductCardProps) {
   const { t } = useTranslation();
   const [favorite, setFavorite] = useState(false);
+  const recordedMedia = product.image.startsWith("/sazo-commerce/search-products/");
 
   return (
     <article className="sazo-product-card" data-variant={variant}>
       <div className="sazo-product-card-media">
-        <img
-          alt={product.name}
-          decoding="async"
-          height={640}
-          src={product.image}
-          width={640}
-        />
+        {mediaHidden ? null : (
+          <img
+            alt={product.name}
+            className={recordedMedia ? "sazo-recorded-product-media" : undefined}
+            decoding="async"
+            height={640}
+            src={product.image}
+            width={640}
+          />
+        )}
         <button
           aria-label={
             favorite

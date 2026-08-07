@@ -265,6 +265,70 @@ describe("SAZO PNG comparison CLI", () => {
     expect(existsSync(sideBySidePath)).toBe(false);
   });
 
+  it.each([
+    ["missing", false],
+    ["invalid", true],
+  ] as const)(
+    "removes every seeded pair output before reading %s input",
+    (scenario, writeInvalidInput) => {
+      const directory = makeTemporaryDirectory();
+      const referencePath = join(directory, "reference.png");
+      const actualPath = join(directory, "actual.png");
+      const outputPath = join(directory, "summary.json");
+      const diffPath = join(directory, "diff.png");
+      const sideBySidePath = join(directory, "side-by-side.png");
+
+      if (writeInvalidInput) {
+        writeFileSync(referencePath, "not-a-png");
+      }
+      writePng(actualPath, createPng(10, 10));
+      writeFileSync(outputPath, "STALE SUMMARY");
+      writeFileSync(diffPath, "STALE DIFF");
+      writeFileSync(sideBySidePath, "STALE SIDE");
+
+      const result = runPair(referencePath, actualPath, outputPath, {
+        diffPath,
+        sideBySidePath,
+      });
+
+      expect(result.status).toBe(1);
+      expect(existsSync(outputPath)).toBe(false);
+      expect(existsSync(diffPath)).toBe(false);
+      expect(existsSync(sideBySidePath)).toBe(false);
+    },
+  );
+
+  it.each([
+    ["missing", false],
+    ["malformed", true],
+  ] as const)(
+    "removes the seeded batch compare tree before reading a %s manifest",
+    (scenario, writeMalformedManifest) => {
+      const directory = makeTemporaryDirectory();
+      const qaRoot = join(directory, "qa");
+      const manifestPath = join(directory, "manifest.json");
+      const compareRoot = join(qaRoot, "compare");
+      mkdirSync(compareRoot, { recursive: true });
+      writeFileSync(join(compareRoot, "STALE.txt"), "stale");
+
+      if (writeMalformedManifest) {
+        writeFileSync(manifestPath, "{ this is not valid JSON");
+      }
+
+      const result = spawnSync("node", ["scripts/sazo-compare.mjs"], {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          SAZO_COMPARE_MANIFEST: manifestPath,
+          SAZO_QA_ROOT: qaRoot,
+        },
+      });
+
+      expect(result.status).toBe(1);
+      expect(existsSync(compareRoot)).toBe(false);
+    },
+  );
+
   it("clears stale batch output and fails missing and mismatched checkpoints", () => {
     const directory = makeTemporaryDirectory();
     const qaRoot = join(directory, "qa");
@@ -330,13 +394,11 @@ describe("SAZO PNG comparison CLI", () => {
     expect(existsSync(join(compareRoot, "tiny", "same.diff.png"))).toBe(true);
     expect(existsSync(join(compareRoot, "tiny", "same.side-by-side.png"))).toBe(true);
     expect(existsSync(join(compareRoot, "tiny", "missing.diff.png"))).toBe(false);
-    expect(existsSync(join(compareRoot, "tiny", "missing.side-by-side.png"))).toBe(
+    expect(existsSync(join(compareRoot, "tiny", "missing.side-by-side.png"))).toBe(false);
+    expect(existsSync(join(compareRoot, "tiny", "wrong-size.diff.png"))).toBe(false);
+    expect(existsSync(join(compareRoot, "tiny", "wrong-size.side-by-side.png"))).toBe(
       false,
     );
-    expect(existsSync(join(compareRoot, "tiny", "wrong-size.diff.png"))).toBe(false);
-    expect(
-      existsSync(join(compareRoot, "tiny", "wrong-size.side-by-side.png")),
-    ).toBe(false);
     expect(existsSync(join(compareRoot, "orphan.png"))).toBe(false);
   });
 });

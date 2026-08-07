@@ -12,13 +12,16 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
-  heroSlides,
+  getHeroSlidesForFeed,
   gramEntries,
   homeGramEntries,
   homeReviews,
   products,
   rankingKeywords,
   reviewRecommendations,
+  recordedDesktopRankingReviews,
+  recordedMobileProfileReviews,
+  searchDiscoveryProducts,
   shortcuts,
 } from "@/sazo-commerce/fixtures";
 import type { SazoAction, SazoState } from "@/sazo-commerce/model";
@@ -61,14 +64,15 @@ function SectionHeading({ onMore, title }: SectionHeadingProps) {
 
 function HeroCarousel({ dispatch, state }: HomeViewProps) {
   const { t } = useTranslation();
+  const visibleHeroSlides = getHeroSlidesForFeed(state.heroFeed);
   const goNext = useCallback(() => {
     dispatch({ type: "hero-next" });
   }, [dispatch]);
   const goPrevious = useCallback(() => {
-    for (let index = 1; index < heroSlides.length; index += 1) {
+    for (let index = 1; index < visibleHeroSlides.length; index += 1) {
       dispatch({ type: "hero-next" });
     }
-  }, [dispatch]);
+  }, [dispatch, visibleHeroSlides.length]);
 
   useSazoHero({
     intervalMs: 5_000,
@@ -84,8 +88,12 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
       data-testid="sazo-hero"
     >
       <div className="sazo-hero-viewport">
-        {heroSlides.map((slide, index) => {
-          const offset = getCircularHeroOffset(index, state.heroIndex, heroSlides.length);
+        {visibleHeroSlides.map((slide, index) => {
+          const offset = getCircularHeroOffset(
+            index,
+            state.heroIndex,
+            visibleHeroSlides.length,
+          );
           const style: HeroSlideStyle = {
             "--sazo-slide-left": `${String(50 + offset * 68)}%`,
             "--sazo-slide-left-mobile": `${String(50 + offset * 100)}%`,
@@ -111,6 +119,7 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
                 <img
                   alt=""
                   aria-hidden
+                  className="sazo-hero-artwork"
                   decoding="async"
                   fetchPriority={index === 0 ? "high" : "auto"}
                   height={490}
@@ -155,7 +164,7 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
 
         <div className="sazo-hero-status">
           <span data-testid="sazo-hero-counter">
-            {state.heroIndex + 1}/{heroSlides.length}
+            {state.heroIndex + 1}/{visibleHeroSlides.length}
           </span>
           <button
             aria-label={
@@ -204,8 +213,14 @@ function ShortcutRow() {
   );
 }
 
-function ReviewStrip({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+function ReviewStrip({ dispatch, state }: HomeViewProps) {
   const { t } = useTranslation();
+  const displayedReviews =
+    state.reviewFeed === "desktop-ranking"
+      ? recordedDesktopRankingReviews
+      : state.reviewFeed === "mobile-profile"
+        ? recordedMobileProfileReviews
+        : homeReviews;
 
   return (
     <section className="sazo-home-section sazo-review-section">
@@ -216,8 +231,12 @@ function ReviewStrip({ dispatch }: Pick<HomeViewProps, "dispatch">) {
         title={t("sazo.home.reviewsTitle")}
       />
       <div className="sazo-horizontal-strip sazo-review-strip">
-        {homeReviews.map((review) => (
-          <article className="sazo-review-card" key={review.id}>
+        {displayedReviews.map((review) => (
+          <article
+            className="sazo-review-card"
+            data-review-id={review.id}
+            key={review.id}
+          >
             <div className="sazo-review-media">
               <img
                 alt={review.productName}
@@ -255,8 +274,23 @@ function GramStrip() {
               />
               <Camera aria-hidden size={22} strokeWidth={2.2} />
             </div>
-            <h3>{entry.caption}</h3>
-            <p>{entry.author}</p>
+            <div className="sazo-home-gram-product">
+              <img
+                alt=""
+                aria-hidden
+                decoding="async"
+                height={40}
+                src={entry.product.image}
+                width={40}
+              />
+              <div>
+                <h3>{entry.product.name}</h3>
+                <p>
+                  {entry.product.discount ? <b>{entry.product.discount}</b> : null}
+                  <strong>{entry.product.price}</strong>
+                </p>
+              </div>
+            </div>
           </article>
         ))}
       </div>
@@ -265,30 +299,76 @@ function GramStrip() {
 }
 
 const gramCatalogEntries = [
-  gramEntries[3],
-  gramEntries[4],
-  gramEntries[5],
-  null,
-  null,
-  null,
   {
-    author: "KREAM",
-    caption: "REMINI Plush キャラぬいキーリング",
-    id: "g-catalog-02",
-    image: "/sazo-commerce/gram/list-02.png",
-  },
-  null,
-  {
-    author: "MUSINSA",
-    caption: "rd check pants スウェットパンツまとめ",
-    id: "g-catalog-04",
-    image: "/sazo-commerce/gram/list-04.png",
+    discount: "50%",
+    entry: gramEntries[3],
+    name: "バニーバニートートバッグ",
+    price: "¥9,719",
   },
   {
-    author: "KREAM",
-    caption: "夏の韓国トレンドまとめ",
-    id: "g-catalog-05",
-    image: "/sazo-commerce/gram/list-05.png",
+    discount: "42%",
+    entry: gramEntries[4],
+    name: "サブアークケル Thin バッグ",
+    price: "¥2,280",
+  },
+  {
+    entry: gramEntries[5],
+    name: "マイメロディードール",
+    price: "¥110",
+  },
+  {
+    discount: "24%",
+    entry: null,
+    name: "スピアソ ARVO デニム",
+    price: "¥11,272",
+  },
+  {
+    entry: null,
+    name: "購入代行依頼",
+    price: "¥1",
+  },
+  {
+    discount: "77%",
+    entry: null,
+    name: "[20%無制限] バイミー",
+    price: "¥703",
+  },
+  {
+    discount: "10%",
+    entry: {
+      author: "KREAM",
+      caption: "REMINI Plush キャラぬいキーリング",
+      id: "g-catalog-02",
+      image: "/sazo-commerce/gram/list-02.png",
+    },
+    name: "REMINI Plush キャラぬいキーリング",
+    price: "¥4,914",
+  },
+  {
+    entry: null,
+    name: "購入代行依頼",
+    price: "¥1",
+  },
+  {
+    discount: "50%",
+    entry: {
+      author: "MUSINSA",
+      caption: "rd check pants スウェットパンツまとめ",
+      id: "g-catalog-04",
+      image: "/sazo-commerce/gram/list-04.png",
+    },
+    name: "rd check pants スウェットパンツまとめ",
+    price: "¥12,469",
+  },
+  {
+    entry: {
+      author: "KREAM",
+      caption: "夏の韓国トレンドまとめ",
+      id: "g-catalog-05",
+      image: "/sazo-commerce/gram/list-05.png",
+    },
+    name: "[@xanaduany SET] 夏の韓国トレンドまとめ",
+    price: "¥12,160",
   },
 ] as const;
 
@@ -296,27 +376,27 @@ function GramCatalog() {
   return (
     <section aria-label="SAZO GRAM 一覧" className="sazo-gram-catalog-section">
       <div className="sazo-gram-catalog-grid">
-        {gramCatalogEntries.map((entry, index) => (
+        {gramCatalogEntries.map((item, index) => (
           <article
             className="sazo-gram-catalog-card"
-            data-placeholder={entry === null}
-            key={entry?.id ?? `gram-placeholder-${String(index)}`}
+            data-placeholder={item.entry === null}
+            key={item.entry?.id ?? `gram-placeholder-${String(index)}`}
           >
             <div className="sazo-gram-catalog-media">
-              {entry ? (
+              {item.entry ? (
                 <img
-                  alt={entry.caption}
+                  alt={item.entry.caption}
                   decoding="async"
                   height={500}
                   loading="lazy"
-                  src={entry.image}
+                  src={item.entry.image}
                   width={390}
                 />
               ) : null}
             </div>
             <div className="sazo-gram-catalog-copy">
-              <strong>{entry?.caption ?? "購入代行依頼"}</strong>
-              <span>{entry?.author ?? "¥1"}</span>
+              <strong>{item.name}</strong>
+              <span>{`${"discount" in item ? item.discount : ""}${item.price}`}</span>
             </div>
           </article>
         ))}
@@ -368,7 +448,7 @@ function ProductGrid({ end, start = 0 }: { end: number; start?: number }) {
   );
 }
 
-function ProductDiscovery({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+function ProductDiscovery({ dispatch, state }: HomeViewProps) {
   const { t } = useTranslation();
 
   return (
@@ -389,10 +469,19 @@ function ProductDiscovery({ dispatch }: Pick<HomeViewProps, "dispatch">) {
               </li>
             ))}
           </ol>
-          <div className="sazo-keyword-products">
-            {products.slice(0, 5).map((product) => (
-              <ProductCard key={product.id} product={product} variant="compact" />
-            ))}
+          <div
+            className="sazo-keyword-products"
+            data-loading={state.loadingSurface === "keyword-products"}
+          >
+            {state.loadingSurface === "keyword-products"
+              ? Array.from({ length: 5 }, (_, index) => (
+                  <span aria-hidden className="sazo-keyword-skeleton" key={index} />
+                ))
+              : products
+                  .slice(0, 5)
+                  .map((product) => (
+                    <ProductCard key={product.id} product={product} variant="compact" />
+                  ))}
           </div>
         </div>
       </section>
@@ -419,12 +508,12 @@ function ProductDiscovery({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   );
 }
 
-function SearchDiscovery() {
+function SearchDiscovery({ state }: Pick<HomeViewProps, "state">) {
   const { t } = useTranslation();
 
   return (
     <section className="sazo-home-section sazo-search-discovery">
-      <div className="sazo-search-callout">
+      <div className="sazo-search-callout" data-guidance-arrow="true">
         <h2>{t("sazo.home.searchTitle")}</h2>
         <div className="sazo-large-search" role="search">
           <Search aria-hidden size={24} strokeWidth={2} />
@@ -434,7 +523,15 @@ function SearchDiscovery() {
         <p>{t("sazo.home.searchHint")}</p>
       </div>
       <SectionHeading title={t("sazo.home.searchedTitle")} />
-      <ProductGrid end={9} start={5} />
+      <div className="sazo-product-grid">
+        {searchDiscoveryProducts.map((product, index) => (
+          <ProductCard
+            key={product.id}
+            mediaHidden={state.loadingSurface === "search-first" && index === 0}
+            product={product}
+          />
+        ))}
+      </div>
     </section>
   );
 }
@@ -460,11 +557,11 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
         </button>
       </section>
 
-      <ReviewStrip dispatch={dispatch} />
+      <ReviewStrip dispatch={dispatch} state={state} />
       <GramStrip />
       <RecommendedReviews />
-      <ProductDiscovery dispatch={dispatch} />
-      <SearchDiscovery />
+      <ProductDiscovery dispatch={dispatch} state={state} />
+      <SearchDiscovery state={state} />
       <GramCatalog />
     </div>
   );

@@ -19,7 +19,9 @@ import { createInitialSazoState, sazoReducer } from "@/sazo-commerce/model";
 import "@/sazo-commerce/sazo.css";
 
 export function SazoCommercePage() {
-  const [state, dispatch] = useReducer(sazoReducer, undefined, createInitialSazoState);
+  const [state, dispatch] = useReducer(sazoReducer, undefined, () =>
+    createInitialSazoState(window.location.search),
+  );
   const [headerCollapsed, setHeaderCollapsed] = useState(false);
   const authPageActive = state.authStep !== "provider" && state.view === "home";
 
@@ -60,7 +62,10 @@ export function SazoCommercePage() {
       className="sazo-root"
       data-auth-step={state.authStep}
       data-header-collapsed={headerCollapsed}
+      data-hero-feed={state.heroFeed}
+      data-loading-surface={state.loadingSurface}
       data-overlay={state.overlay}
+      data-review-feed={state.reviewFeed}
       data-view={state.view}
     >
       {authPageActive ? (

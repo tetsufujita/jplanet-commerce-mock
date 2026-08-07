@@ -129,12 +129,12 @@ try {
     await page
       .locator(".sazo-service-title h1")
       .evaluate((element) => getComputedStyle(element).fontSize),
-    "42px",
+    "54px",
   );
 
   await page.reload();
   await page.locator("[data-home-view]").waitFor();
-  for (let index = 0; index < 3; index += 1) {
+  for (let index = 0; index < 4; index += 1) {
     await page.getByRole("button", { name: "次のバナー" }).click();
   }
   await page.waitForTimeout(500);
@@ -168,9 +168,9 @@ try {
           };
         }),
       );
-  const friendAtFour = await centerOf("friend-invite");
-  const nextAtFour = await centerOf("new-benefits");
-  const slotWidth = nextAtFour - friendAtFour;
+  const friendBeforeWrap = await centerOf("friend-invite");
+  const deliveryBeforeWrap = await centerOf("delivery-line");
+  const slotWidth = deliveryBeforeWrap - friendBeforeWrap;
 
   await page.getByRole("button", { name: "次のバナー" }).click();
   await page.waitForTimeout(45);
@@ -186,18 +186,18 @@ try {
     ),
   );
   await page.waitForTimeout(500);
-  const friendAtFive = await centerOf("friend-invite");
-  const nextAtFive = await centerOf("new-benefits");
+  const friendAfterWrap = await centerOf("friend-invite");
+  const deliveryAfterWrap = await centerOf("delivery-line");
 
-  assert(Math.abs(friendAtFive - friendAtFour + slotWidth) < 2);
-  assert(Math.abs(nextAtFive - nextAtFour + slotWidth) < 2);
+  assert(Math.abs(friendAfterWrap - friendBeforeWrap + slotWidth) < 2);
+  assert(Math.abs(deliveryAfterWrap - deliveryBeforeWrap + slotWidth) < 2);
 
   await page.getByRole("button", { name: "前のバナー" }).click();
   await page.waitForTimeout(45);
   assert.deepEqual((await visibleHeroSlides()).sort(), [
     "cold-delivery",
+    "delivery-line",
     "friend-invite",
-    "new-benefits",
   ]);
   assert(
     (await farHeroSlideStyles()).every(
@@ -236,8 +236,8 @@ try {
 
   assert(reviewPlaceholderBounds !== null && reviewPlaceholderMediaBounds !== null);
   assert(Math.abs(reviewPlaceholderBounds.width - 270) < 4);
-  assert(Math.abs(reviewPlaceholderBounds.height - 270) < 4);
-  assert(Math.abs(reviewPlaceholderMediaBounds.height - 270) < 4);
+  assert(Math.abs(reviewPlaceholderBounds.height - 190) < 4);
+  assert(Math.abs(reviewPlaceholderMediaBounds.height - 190) < 4);
   assert.deepEqual(
     await page
       .locator(".sazo-review-tile")
@@ -246,9 +246,9 @@ try {
       ),
     [
       "matrix(1, 0, 0, 1, 0, 16)",
-      "matrix(1, 0, 0, 1, 0, -43)",
+      "matrix(1, 0, 0, 1, 0, 37)",
       "matrix(1, 0, 0, 1, 0, 15)",
-      "matrix(1, 0, 0, 1, 0, -40)",
+      "matrix(1, 0, 0, 1, 0, -50)",
     ],
   );
 
@@ -324,7 +324,7 @@ try {
   assert(Math.abs(mobileReviewCardBounds.y - 668) < 4);
   assert(Math.abs(mobileShortcutIconBounds.width - 42) < 2);
   assert(Math.abs(mobileNavigationBounds.height - 44) < 2);
-  assert(Math.abs(mobileChatBounds.width - 44) < 2);
+  assert(Math.abs(mobileChatBounds.width - 36) < 2);
   assert(Math.abs(mobileChatBounds.y + mobileChatBounds.height - 705) < 3);
   assert.equal(
     await mobilePage
@@ -402,11 +402,9 @@ try {
   assert.equal(mobileMetrics.naturalHeight, 490);
   assert(Math.abs(mobileMetrics.displayRatio - 2) < 0.01);
 
-  for (let index = 0; index < 4; index += 1) {
-    await mobilePage.locator(".sazo-hero-arrow-next").evaluate((button) => {
-      button.click();
-    });
-  }
+  await mobilePage.locator(".sazo-hero-arrow-next").evaluate((button) => {
+    button.click();
+  });
   await mobilePage.getByRole("button", { name: "クーポンキャンペーンを見る" }).click();
   await mobilePage.locator('[data-campaign-loaded="true"]').waitFor();
   const campaignBannerBounds = await mobilePage

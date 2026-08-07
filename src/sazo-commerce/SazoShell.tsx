@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { SazoAction, SazoState, SazoView } from "@/sazo-commerce/model";
+import { SazoLogo } from "@/sazo-commerce/SazoLogo";
 
 interface NavigationItem {
   icon?: LucideIcon;
@@ -119,10 +120,9 @@ function ControlButton({
 interface WordmarkProps {
   dispatch: Dispatch<SazoAction>;
   homeLabel: string;
-  wordmark: string;
 }
 
-function Wordmark({ dispatch, homeLabel, wordmark }: WordmarkProps) {
+function Wordmark({ dispatch, homeLabel }: WordmarkProps) {
   return (
     <button
       aria-label={homeLabel}
@@ -132,8 +132,7 @@ function Wordmark({ dispatch, homeLabel, wordmark }: WordmarkProps) {
       }}
       type="button"
     >
-      <img alt="" aria-hidden height={34} src="/sazo-commerce/logo-mark.svg" width={34} />
-      <span>{wordmark}</span>
+      <SazoLogo />
     </button>
   );
 }
@@ -161,11 +160,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
     <div className="sazo-shell-background" data-overlay-background="true">
       <div className="sazo-desktop-shell" data-shell="desktop">
         <header className="sazo-desktop-header">
-          <Wordmark
-            dispatch={dispatch}
-            homeLabel={t("sazo.brand.homeLabel")}
-            wordmark={t("sazo.brand.wordmark")}
-          />
+          <Wordmark dispatch={dispatch} homeLabel={t("sazo.brand.homeLabel")} />
 
           <div className="sazo-search" role="search">
             <label className="sazo-visually-hidden" htmlFor="sazo-desktop-search">
@@ -257,11 +252,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
       <div className="sazo-mobile-shell" data-shell="mobile">
         <header className="sazo-mobile-header">
           <div className="sazo-mobile-header-primary">
-            <Wordmark
-              dispatch={dispatch}
-              homeLabel={t("sazo.brand.homeLabel")}
-              wordmark={t("sazo.brand.wordmark")}
-            />
+            <Wordmark dispatch={dispatch} homeLabel={t("sazo.brand.homeLabel")} />
             <div
               aria-label="モバイルヘッダー操作"
               className="sazo-mobile-header-actions"

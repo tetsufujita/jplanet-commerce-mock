@@ -19,6 +19,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { sazoCountryOptions } from "@/sazo-commerce/fixtures";
 import type { SazoAction, SazoAuthStep } from "@/sazo-commerce/model";
+import { SazoLogo } from "@/sazo-commerce/SazoLogo";
 
 const focusableSelector = [
   "button:not([disabled])",
@@ -71,14 +72,7 @@ function AuthPageChrome({ children, dispatch, step }: AuthPageChromeProps) {
     >
       <header className="sazo-auth-page-header">
         <div aria-label={t("sazo.brand.homeLabel")} className="sazo-auth-page-brand">
-          <img
-            alt=""
-            aria-hidden
-            height={34}
-            src="/sazo-commerce/logo-mark.svg"
-            width={34}
-          />
-          <strong>{t("sazo.brand.wordmark")}</strong>
+          <SazoLogo />
         </div>
         <div className="sazo-auth-page-actions">
           <button aria-label={t("sazo.actions.language")} type="button">
@@ -153,28 +147,35 @@ function GoogleChooser({ dispatch }: Pick<AuthFlowProps, "dispatch">) {
         <p>「SAZO Inc.」に移動</p>
         <div className="sazo-google-account-list">
           <button onClick={continueToBirthday} type="button">
-            <span aria-hidden className="sazo-google-avatar">T</span>
+            <span aria-hidden className="sazo-google-avatar">
+              T
+            </span>
             <span>
               <strong>Tetsu Fujita</strong>
               <small>tetsu.fujita@andes.global</small>
             </span>
           </button>
           <button onClick={continueToBirthday} type="button">
-            <span aria-hidden className="sazo-google-avatar">徹</span>
+            <span aria-hidden className="sazo-google-avatar">
+              徹
+            </span>
             <span>
               <strong>藤田徹</strong>
               <small>tetsu.fujita@np.japan.1997@gmail.com</small>
             </span>
           </button>
           <button onClick={continueToBirthday} type="button">
-            <span aria-hidden className="sazo-google-avatar">＋</span>
+            <span aria-hidden className="sazo-google-avatar">
+              ＋
+            </span>
             <span>
               <strong>別のアカウントを使用</strong>
             </span>
           </button>
         </div>
         <p className="sazo-google-privacy">
-          このアプリを使用する前に、SAZO Inc. のプライバシーポリシーと利用規約をご確認ください。
+          このアプリを使用する前に、SAZO Inc.
+          のプライバシーポリシーと利用規約をご確認ください。
         </p>
       </section>
     </main>
@@ -183,6 +184,8 @@ function GoogleChooser({ dispatch }: Pick<AuthFlowProps, "dispatch">) {
 
 export function AuthFlow({ authStep, dispatch }: AuthFlowProps) {
   const { t } = useTranslation();
+  const phoneTitle = t("sazo.auth.phone.title");
+  const phoneTitleBreak = phoneTitle.indexOf("入力");
   const dialogRef = useRef<HTMLDivElement>(null);
   const [birthday, setBirthday] = useState("");
   const [country, setCountry] = useState("JP");
@@ -321,7 +324,16 @@ export function AuthFlow({ authStep, dispatch }: AuthFlowProps) {
     return (
       <AuthPageChrome dispatch={dispatch} step="phone">
         <form className="sazo-auth-content sazo-auth-form" onSubmit={handlePhoneSubmit}>
-          <h1>{t("sazo.auth.phone.title")}</h1>
+          <h1 aria-label={phoneTitle} className="sazo-auth-phone-title">
+            {phoneTitleBreak > 0 ? (
+              <>
+                <span>{phoneTitle.slice(0, phoneTitleBreak)}</span>
+                <span>{phoneTitle.slice(phoneTitleBreak)}</span>
+              </>
+            ) : (
+              phoneTitle
+            )}
+          </h1>
           <p className="sazo-auth-progress">{t("sazo.auth.phone.progress")}</p>
           <p className="sazo-auth-explanation">{t("sazo.auth.phone.explanation")}</p>
 

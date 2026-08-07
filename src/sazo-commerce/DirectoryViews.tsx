@@ -3,7 +3,9 @@ import {
   ArrowLeft,
   Bookmark,
   ChevronRight,
+  Heart,
   Home,
+  Plane,
   Search,
   ShoppingCart,
 } from "lucide-react";
@@ -194,67 +196,82 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
   return (
     <div className="sazo-directory-view" data-view-content="categories">
       <ViewHeader dispatch={dispatch} title={t("sazo.views.categories.title")} />
-      <div className="sazo-category-tabs" role="tablist">
-        <button
-          aria-selected="false"
-          onClick={() => {
-            dispatch({ type: "navigate", view: "brands" });
-          }}
-          role="tab"
-          type="button"
+      {state.loadingSurface === "directory" ? (
+        <div
+          aria-label="カテゴリーを読み込んでいます"
+          className="sazo-directory-loading"
+          role="status"
         >
-          {t("sazo.views.categories.brandsTab")}
-        </button>
-        <button aria-selected="true" role="tab" type="button">
-          {t("sazo.views.categories.categoriesTab")}
-        </button>
-      </div>
-      <div className="sazo-category-layout">
-        <nav
-          aria-label={t("sazo.views.categories.title")}
-          className="sazo-category-parent-list"
-        >
-          {categoryDirectory.map((category) => (
+          <span aria-hidden>
+            <Plane size={44} strokeWidth={2.8} />
+            <Heart fill="currentColor" size={16} strokeWidth={2.8} />
+          </span>
+        </div>
+      ) : (
+        <>
+          <div className="sazo-category-tabs" role="tablist">
             <button
-              aria-current={selected.id === category.id ? "page" : undefined}
-              key={category.id}
+              aria-selected="false"
               onClick={() => {
-                dispatch({
-                  type: "select-directory-category",
-                  category: category.id,
-                });
+                dispatch({ type: "navigate", view: "brands" });
               }}
+              role="tab"
               type="button"
             >
-              {category.name}
+              {t("sazo.views.categories.brandsTab")}
             </button>
-          ))}
-        </nav>
-        <section className="sazo-category-children">
-          <div className="sazo-category-children-heading">
-            <h2>{selected.name}</h2>
-            <button type="button">{t("sazo.views.categories.more")}</button>
+            <button aria-selected="true" role="tab" type="button">
+              {t("sazo.views.categories.categoriesTab")}
+            </button>
           </div>
-          <div className="sazo-category-child-list">
-            {selected.children.map((child) => (
-              <button
-                key={child.id}
-                onClick={() => {
-                  dispatch({
-                    type: "select-catalog-tab",
-                    tab: child.targetCatalogId,
-                  });
-                  dispatch({ type: "navigate", view: "catalog" });
-                }}
-                type="button"
-              >
-                <span>{child.label}</span>
-                <ChevronRight aria-hidden size={20} />
-              </button>
-            ))}
+          <div className="sazo-category-layout">
+            <nav
+              aria-label={t("sazo.views.categories.title")}
+              className="sazo-category-parent-list"
+            >
+              {categoryDirectory.map((category) => (
+                <button
+                  aria-current={selected.id === category.id ? "page" : undefined}
+                  key={category.id}
+                  onClick={() => {
+                    dispatch({
+                      type: "select-directory-category",
+                      category: category.id,
+                    });
+                  }}
+                  type="button"
+                >
+                  {category.name}
+                </button>
+              ))}
+            </nav>
+            <section className="sazo-category-children">
+              <div className="sazo-category-children-heading">
+                <h2>{selected.name}</h2>
+                <button type="button">{t("sazo.views.categories.more")}</button>
+              </div>
+              <div className="sazo-category-child-list">
+                {selected.children.map((child) => (
+                  <button
+                    key={child.id}
+                    onClick={() => {
+                      dispatch({
+                        type: "select-catalog-tab",
+                        tab: child.targetCatalogId,
+                      });
+                      dispatch({ type: "navigate", view: "catalog" });
+                    }}
+                    type="button"
+                  >
+                    <span>{child.label}</span>
+                    <ChevronRight aria-hidden size={20} />
+                  </button>
+                ))}
+              </div>
+            </section>
           </div>
-        </section>
-      </div>
+        </>
+      )}
     </div>
   );
 }

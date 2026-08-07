@@ -94,8 +94,12 @@ describe("SAZO local authentication", () => {
 
     fireEvent.click(within(provider).getByRole("button", { name: "Googleで続ける" }));
     const chooser = screen.getByTestId("sazo-google-chooser");
-    expect(within(chooser).getByRole("heading", { name: "アカウントを選択してください" })).toBeTruthy();
-    expect(within(chooser).getByText("accounts.google.com/v3/signin/accountchooser")).toBeTruthy();
+    expect(
+      within(chooser).getByRole("heading", { name: "アカウントを選択してください" }),
+    ).toBeTruthy();
+    expect(
+      within(chooser).getByText("accounts.google.com/v3/signin/accountchooser"),
+    ).toBeTruthy();
     expect(container.querySelector("a[href^='http']")).toBeNull();
     fireEvent.click(
       within(chooser).getByRole("button", {
@@ -162,6 +166,11 @@ describe("SAZO local authentication", () => {
       }),
     ).toBeTruthy();
     expect(within(birthdayPage).getByRole("banner")).toBeTruthy();
+    expect(
+      within(birthdayPage)
+        .getByRole("banner")
+        .querySelector("svg[data-sazo-wordmark='true']"),
+    ).toBeTruthy();
     expect(within(birthdayPage).getByRole("contentinfo")).toBeTruthy();
     for (const link of [
       "会社紹介",

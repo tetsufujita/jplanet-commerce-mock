@@ -82,11 +82,22 @@ export function CatalogView({ dispatch, state }: StatefulViewProps) {
           </button>
         </div>
       </div>
-      <div className="sazo-catalog-products" data-catalog-mode={state.catalogMode}>
-        {visibleEntries.map(({ product }) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      {state.loadingSurface === "catalog" ? (
+        <div
+          aria-label="商品を検索しています"
+          className="sazo-catalog-loading"
+          role="status"
+        >
+          <span aria-hidden />
+          <strong>商品を検索しています</strong>
+        </div>
+      ) : (
+        <div className="sazo-catalog-products" data-catalog-mode={state.catalogMode}>
+          {visibleEntries.map(({ product }) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

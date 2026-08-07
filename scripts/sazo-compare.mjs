@@ -1,10 +1,4 @@
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import pixelmatch from "pixelmatch";
@@ -12,13 +6,13 @@ import { PNG } from "pngjs";
 
 const projectRoot = fileURLToPath(new URL("..", import.meta.url));
 const qaRoot = resolve(
-  process.env.SAZO_QA_ROOT ??
-    join(projectRoot, "design/reproductions/sazo-commerce/qa"),
+  process.env.SAZO_QA_ROOT ?? join(projectRoot, "design/reproductions/sazo-commerce/qa"),
 );
 const manifestPath = resolve(
   process.env.SAZO_COMPARE_MANIFEST ??
     join(projectRoot, "design/reproductions/sazo-commerce/reference-manifest.json"),
 );
+const compareRoot = join(qaRoot, "compare");
 const pixelmatchOptions = Object.freeze({
   diffColor: [255, 0, 255],
   diffColorAlt: [255, 0, 255],
@@ -32,6 +26,29 @@ function usage() {
     "  node scripts/sazo-compare.mjs",
     "  node scripts/sazo-compare.mjs --pair <reference.png> <actual.png> --out <summary.json> [--diff <diff.png> --side-by-side <side-by-side.png>]",
   ].join("\n");
+}
+
+function clearRequestedOutputs(arguments_) {
+  if (arguments_.length === 0) {
+    rmSync(compareRoot, { force: true, recursive: true });
+    return;
+  }
+
+  if (arguments_[0] !== "--pair") {
+    return;
+  }
+
+  for (let index = 3; index < arguments_.length; index += 1) {
+    if (!["--diff", "--out", "--side-by-side"].includes(arguments_[index])) {
+      continue;
+    }
+
+    const target = arguments_[index + 1];
+
+    if (target !== undefined && !target.startsWith("--")) {
+      rmSync(resolve(target), { force: true });
+    }
+  }
 }
 
 function parseArguments(arguments_) {
@@ -60,10 +77,7 @@ function parseArguments(arguments_) {
     options.set(flag, value);
   }
 
-  if (
-    !options.has("--out") ||
-    options.has("--diff") !== options.has("--side-by-side")
-  ) {
+  if (!options.has("--out") || options.has("--diff") !== options.has("--side-by-side")) {
     throw new Error(usage());
   }
 
@@ -209,20 +223,14 @@ function runPairMode(command) {
 
 function runBatchMode() {
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-  const compareRoot = join(qaRoot, "compare");
   const checkpoints = [];
-
-  rmSync(compareRoot, { force: true, recursive: true });
 
   for (const [viewport, recording] of Object.entries(manifest)) {
     for (const checkpoint of recording.checkpoints) {
       const artifactDirectory = join(compareRoot, viewport);
       const artifactPaths = {
         diffPath: join(artifactDirectory, `${checkpoint.name}.diff.png`),
-        sideBySidePath: join(
-          artifactDirectory,
-          `${checkpoint.name}.side-by-side.png`,
-        ),
+        sideBySidePath: join(artifactDirectory, `${checkpoint.name}.side-by-side.png`),
       };
       const referencePath = join(qaRoot, "reference", viewport, `${checkpoint.name}.png`);
       const actualPath = join(qaRoot, "actual", viewport, `${checkpoint.name}.png`);
@@ -283,7 +291,9 @@ function runBatchMode() {
 }
 
 try {
-  const command = parseArguments(process.argv.slice(2));
+  const arguments_ = process.argv.slice(2);
+  clearRequestedOutputs(arguments_);
+  const command = parseArguments(arguments_);
   process.exitCode = command.mode === "pair" ? runPairMode(command) : runBatchMode();
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);

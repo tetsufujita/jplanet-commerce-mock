@@ -1,7 +1,8 @@
 import type { Dispatch } from "react";
-import { Search } from "lucide-react";
+import { Clock3, Search } from "lucide-react";
 import { products } from "@/sazo-commerce/fixtures";
 import type { SazoAction } from "@/sazo-commerce/model";
+import { SazoLogo } from "@/sazo-commerce/SazoLogo";
 
 const campaignThumbnails = [
   "/sazo-commerce/campaign/thumb-01.png",
@@ -34,8 +35,7 @@ function CampaignWordmark({ dispatch }: Pick<CampaignViewProps, "dispatch">) {
       }}
       type="button"
     >
-      <img alt="" aria-hidden src="/sazo-commerce/logo-mark.svg" />
-      <span>SAZO</span>
+      <SazoLogo />
     </button>
   );
 }
@@ -80,7 +80,10 @@ export function CampaignView({ dispatch, loaded }: CampaignViewProps) {
         <div className="sazo-campaign-banner sazo-campaign-banner-loading">
           <strong>8.31（月）</strong>
           <div>
-            <span>◷ 終了まであと…</span>
+            <span>
+              <Clock3 aria-hidden size={18} strokeWidth={2.4} />
+              終了まであと…
+            </span>
             <span>24日 15時間 27分 39秒</span>
           </div>
         </div>
@@ -91,7 +94,7 @@ export function CampaignView({ dispatch, loaded }: CampaignViewProps) {
       <section className="sazo-campaign-message">
         <span>購入代行の面倒さゼロ！</span>
         <h1>
-          超お得な
+          <strong>超お得な</strong>
           <br />
           <small>韓国商品がたくさん！</small>
         </h1>

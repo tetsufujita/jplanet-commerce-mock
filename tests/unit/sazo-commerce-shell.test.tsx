@@ -62,6 +62,21 @@ function getShell(container: HTMLElement, shell: "desktop" | "mobile") {
 }
 
 describe("SazoCommercePage shell", () => {
+  it("renders the source-backed SAZO vector wordmark in both responsive shells", async () => {
+    const { container } = await renderSazoCommercePage();
+    const wordmarks = Array.from(
+      container.querySelectorAll<SVGSVGElement>(".sazo-wordmark svg[data-sazo-wordmark]"),
+    );
+
+    expect(wordmarks).toHaveLength(2);
+    expect(
+      wordmarks.every((wordmark) => wordmark.getAttribute("viewBox") === "0 0 101 24"),
+    ).toBe(true);
+    expect(
+      container.querySelectorAll(".sazo-wordmark img, .sazo-wordmark > span"),
+    ).toHaveLength(0);
+  });
+
   it("renders the complete captured desktop and mobile control inventory", async () => {
     const { container } = await renderSazoCommercePage();
     const desktopShell = getShell(container, "desktop");

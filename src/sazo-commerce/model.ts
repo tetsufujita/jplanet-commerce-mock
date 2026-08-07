@@ -14,6 +14,14 @@ export type SazoView =
 
 export type SazoOverlay = "none" | "login" | "chat";
 export type SazoAuthStep = "provider" | "google" | "birthday" | "phone";
+export type SazoLoadingSurface =
+  | "none"
+  | "catalog"
+  | "directory"
+  | "keyword-products"
+  | "search-first";
+export type SazoHeroFeed = "natural" | "cold-first" | "delivery-last" | "large-first";
+export type SazoReviewFeed = "natural" | "desktop-ranking" | "mobile-profile";
 export type CatalogMode = "list" | "grid";
 export type BrandFilterId =
   | "all"
@@ -90,10 +98,13 @@ export interface SazoState {
   brandFilter: BrandFilterId;
   reviewCategory: ReviewCategoryId;
   rankingMetric: RankingMetric;
+  heroFeed: SazoHeroFeed;
   heroIndex: number;
   heroPaused: boolean;
   campaignLoaded: boolean;
   authenticated: boolean;
+  loadingSurface: SazoLoadingSurface;
+  reviewFeed: SazoReviewFeed;
 }
 
 export type SazoAction =
@@ -118,8 +129,27 @@ export type SazoAction =
 
 const heroSlideCount = 5;
 
-export function createInitialSazoState(): SazoState {
-  return {
+const qaLoadingSurfaces = new Set<SazoLoadingSurface>([
+  "none",
+  "catalog",
+  "directory",
+  "keyword-products",
+  "search-first",
+]);
+const qaHeroFeeds = new Set<SazoHeroFeed>([
+  "natural",
+  "cold-first",
+  "delivery-last",
+  "large-first",
+]);
+const qaReviewFeeds = new Set<SazoReviewFeed>([
+  "natural",
+  "desktop-ranking",
+  "mobile-profile",
+]);
+
+export function createInitialSazoState(search = ""): SazoState {
+  const state: SazoState = {
     view: "home",
     overlay: "none",
     authStep: "provider",
@@ -130,11 +160,43 @@ export function createInitialSazoState(): SazoState {
     brandFilter: "all",
     reviewCategory: "all",
     rankingMetric: "purchases",
+    heroFeed: "natural",
     heroIndex: 0,
     heroPaused: false,
     campaignLoaded: false,
     authenticated: false,
+    loadingSurface: "none",
+    reviewFeed: "natural",
   };
+
+  const parameters = new URLSearchParams(search);
+
+  if (parameters.get("qa") !== "1") {
+    return state;
+  }
+
+  const loadingSurface = parameters.get("loading") as SazoLoadingSurface | null;
+  const heroFeed = parameters.get("heroFeed") as SazoHeroFeed | null;
+  const reviewFeed = parameters.get("reviewFeed") as SazoReviewFeed | null;
+  const heroIndex = Number(parameters.get("heroIndex"));
+
+  if (loadingSurface !== null && qaLoadingSurfaces.has(loadingSurface)) {
+    state.loadingSurface = loadingSurface;
+  }
+
+  if (heroFeed !== null && qaHeroFeeds.has(heroFeed)) {
+    state.heroFeed = heroFeed;
+  }
+
+  if (reviewFeed !== null && qaReviewFeeds.has(reviewFeed)) {
+    state.reviewFeed = reviewFeed;
+  }
+
+  if (Number.isInteger(heroIndex) && heroIndex >= 0 && heroIndex < heroSlideCount) {
+    state.heroIndex = heroIndex;
+  }
+
+  return state;
 }
 
 export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
