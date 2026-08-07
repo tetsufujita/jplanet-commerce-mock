@@ -57,17 +57,67 @@ try {
 
       return bounds.left + bounds.width / 2;
     });
+  const visibleHeroSlides = () =>
+    page
+      .locator("[data-hero-slide]")
+      .evaluateAll((elements) =>
+        elements
+          .filter(
+            (element) => Number.parseFloat(getComputedStyle(element).opacity) > 0.01,
+          )
+          .map((element) => element.getAttribute("data-hero-slide")),
+      );
+  const farHeroSlideStyles = () =>
+    page
+      .locator('[data-hero-offset="-2"], [data-hero-offset="2"]')
+      .evaluateAll((elements) =>
+        elements.map((element) => {
+          const styles = getComputedStyle(element);
+
+          return {
+            opacity: styles.opacity,
+            pointerEvents: styles.pointerEvents,
+            transitionDuration: styles.transitionDuration,
+          };
+        }),
+      );
   const fifthAtFive = await centerOf("friend-invite");
   const firstAtFive = await centerOf("delivery-line");
   const slotWidth = firstAtFive - fifthAtFive;
 
   await page.getByRole("button", { name: "次のバナー" }).click();
+  await page.waitForTimeout(45);
+  assert.deepEqual((await visibleHeroSlides()).sort(), [
+    "delivery-line",
+    "friend-invite",
+    "new-benefits",
+  ]);
+  assert(
+    (await farHeroSlideStyles()).every(
+      ({ opacity, pointerEvents, transitionDuration }) =>
+        opacity === "0" && pointerEvents === "none" && transitionDuration === "0s",
+    ),
+  );
   await page.waitForTimeout(500);
   const fifthAtOne = await centerOf("friend-invite");
   const firstAtOne = await centerOf("delivery-line");
 
   assert(Math.abs(fifthAtOne - fifthAtFive + slotWidth) < 2);
   assert(Math.abs(firstAtOne - firstAtFive + slotWidth) < 2);
+
+  await page.getByRole("button", { name: "前のバナー" }).click();
+  await page.waitForTimeout(45);
+  assert.deepEqual((await visibleHeroSlides()).sort(), [
+    "cold-delivery",
+    "delivery-line",
+    "friend-invite",
+  ]);
+  assert(
+    (await farHeroSlideStyles()).every(
+      ({ opacity, pointerEvents, transitionDuration }) =>
+        opacity === "0" && pointerEvents === "none" && transitionDuration === "0s",
+    ),
+  );
 
   const mobilePage = await browser.newPage({ viewport: { height: 844, width: 390 } });
 

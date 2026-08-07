@@ -4,6 +4,10 @@ import {
   categories,
   gramEntries,
   heroSlides,
+  homeGramEntries,
+  homeGramEntryIds,
+  homeReviewIds,
+  homeReviews,
   products,
   rankingKeywords,
   reviews,
@@ -169,10 +173,43 @@ describe("SAZO fixture asset contract", () => {
     expect(imagePaths.every((image) => image.endsWith(".webp"))).toBe(true);
     expect(
       imagePaths.every((image) =>
-        /^\/sazo-commerce\/(hero\/slide-0?[1-5]|products\/(0[1-9]|1[0-2])|brands\/0[1-8]|community\/0[1-6])\.webp$/.test(
+        /^\/sazo-commerce\/(hero\/slide-0?[1-5]|products\/(0[1-9]|1[0-2])|brands\/0[1-8]|community\/(0[1-9]|1[0-4]))\.webp$/.test(
           image,
         ),
       ),
     ).toBe(true);
+  });
+
+  it("keeps review and GRAM fixture content distinct instead of padding counts", () => {
+    const reviewSignatures = reviews.map(
+      ({ author, comment, image, productName }) =>
+        `${author}|${productName}|${comment}|${image}`,
+    );
+    const gramSignatures = gramEntries.map(
+      ({ author, caption, image }) => `${author}|${caption}|${image}`,
+    );
+
+    expect(new Set(reviewSignatures).size).toBe(8);
+    expect(new Set(reviews.map(({ image }) => image)).size).toBe(8);
+    expect(new Set(gramSignatures).size).toBe(6);
+    expect(new Set(gramEntries.map(({ image }) => image)).size).toBe(6);
+  });
+
+  it("maps the home subsets by explicit fixture IDs with stable content associations", () => {
+    expect(homeReviewIds).toEqual(["r01", "r02", "r03", "r04", "r05", "r06"]);
+    expect(homeReviews.map(({ author, id, image }) => ({ author, id, image }))).toEqual([
+      { author: "mm", id: "r01", image: "/sazo-commerce/community/04.webp" },
+      { author: "なー", id: "r02", image: "/sazo-commerce/community/07.webp" },
+      { author: "T", id: "r03", image: "/sazo-commerce/community/05.webp" },
+      {
+        author: "村上ラッペ",
+        id: "r04",
+        image: "/sazo-commerce/community/08.webp",
+      },
+      { author: "코코", id: "r05", image: "/sazo-commerce/community/09.webp" },
+      { author: "17♡", id: "r06", image: "/sazo-commerce/community/06.webp" },
+    ]);
+    expect(homeGramEntryIds).toEqual(["g01", "g02", "g03"]);
+    expect(homeGramEntries.map(({ id }) => id)).toEqual(homeGramEntryIds);
   });
 });

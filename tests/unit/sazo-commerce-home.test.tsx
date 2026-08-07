@@ -116,8 +116,23 @@ describe("SAZO home composition", () => {
 
     expect(sectionImages("みんなの口コミ")).toEqual([
       "/sazo-commerce/community/04.webp",
+      "/sazo-commerce/community/07.webp",
       "/sazo-commerce/community/05.webp",
+      "/sazo-commerce/community/08.webp",
+      "/sazo-commerce/community/09.webp",
       "/sazo-commerce/community/06.webp",
+    ]);
+    const reviewSection = screen
+      .getByRole("heading", { name: "みんなの口コミ" })
+      .closest("section");
+
+    includesInOrder(reviewSection?.textContent ?? "", [
+      "mm",
+      "なー",
+      "T",
+      "村上ラッペ",
+      "코코",
+      "17♡",
     ]);
     expect(sectionImages("SAZO GRAM")).toEqual([
       "/sazo-commerce/community/01.webp",

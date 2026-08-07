@@ -125,3 +125,51 @@ pnpm test:sazo-home-browser
 - Chrome 390×844でmobile sourceのnatural/display ratioがともに約1.62、`object-fit: cover`であることを確認した。
 - home全体で口コミ3枚、GRAM 3枚、recommendation 2枚のassetと文字データが各source checkpointどおり対応することを確認した。
 - 旧報告の「transparent hit target」と「pause artworkが切り替わらない」懸念は解消した。LINE heroがmobile録画crop由来で他slideより低解像度という既存制約だけが残る。
+
+## Fix Round 2
+
+### 対応内容
+
+- 5枚heroのうちoffset `-2 / 2`を常時`opacity: 0`、`pointer-events: none`、`transition: none`にした。wrap時に遠方slideが反対側へ横断するghostを除き、transition対象をoffset `-1 / 0 / 1`の3枚だけに限定した。
+- desktop録画13秒の口コミを6件すべて再取得し、`mm / なー / T / 村上ラッペ / 코코 / 17♡`の表示順と固有画像を復元した。
+- 公開`reviews` 8件、`gramEntries` 6件を固有の本文・画像へ置き換えた。home subsetは`homeReviewIds`と`homeGramEntryIds`のtyped ID配列から明示的に選択し、TSX側の文字列推論を使わないfixture contractにした。
+- community assetを`07–14.webp`まで追加した。全8枚は390×500、最大34,690 bytesで、既存を含むcommunity 14枚のSHA-1はすべて一意だった。
+
+### TDD RED
+
+```bash
+pnpm vitest run tests/unit/sazo-commerce-home.test.tsx tests/unit/sazo-commerce-model.test.ts
+pnpm test:sazo-home-browser
+```
+
+- focused unit: 2件が期待どおりFAIL。home口コミが3件のままで6件のasset順を満たさず、公開口コミfixtureの実質一意件数が3件だった。
+- Chrome behavior: 5→1切替45ms時点で5枚すべてのcomputed opacityが可視となり、期待する3枚だけの集合に一致せずFAILした。
+
+### TDD GREEN
+
+```bash
+pnpm vitest run tests/unit/sazo-commerce-home.test.tsx tests/unit/sazo-commerce-model.test.ts
+pnpm test:sazo-home-browser
+```
+
+- focused unit: PASS — 2 files / 23 tests。
+- Chrome behavior: PASS — 5→1と1→5の両方向で、切替45ms時点の可視slideが3枚だけ、遠方2枚のcomputed styleが`opacity: 0 / pointer-events: none / transition-duration: 0s`であることを確認した。
+
+### Verification
+
+| Command                       | Result                               |
+| ----------------------------- | ------------------------------------ |
+| `pnpm test:sazo-home-browser` | PASS — `sazo-home-browser-ok`        |
+| focused Vitest                | PASS — 2 files / 23 tests            |
+| `pnpm test`                   | PASS — 7 files / 51 tests            |
+| `pnpm typecheck`              | PASS                                 |
+| `pnpm lint`                   | PASS                                 |
+| `pnpm build`                  | PASS — 2,207 modules transformed     |
+| asset dimensions              | PASS — 新規8枚すべて390×500          |
+| asset uniqueness / 350 KB     | PASS — community 14枚固有 / 超過なし |
+| `git diff --check`            | PASS                                 |
+
+### Concerns
+
+- LINE heroがmobile録画crop由来で、他4枚より文字の解像感が低い既存制約は残る。
+- 公開review追加2件とGRAM追加3件は別checkpointの録画cropを使用している。元サイト更新後の永続的なfixture IDではなく、今回の承認済み録画に対する再現用fixtureである。

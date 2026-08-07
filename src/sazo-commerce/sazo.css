@@ -294,6 +294,13 @@
   opacity: 1;
 }
 
+.sazo-root .sazo-hero-slide[data-hero-offset="-2"],
+.sazo-root .sazo-hero-slide[data-hero-offset="2"] {
+  opacity: 0;
+  pointer-events: none;
+  transition: none;
+}
+
 .sazo-root .sazo-hero-slide picture,
 .sazo-root .sazo-hero-slide img {
   display: block;

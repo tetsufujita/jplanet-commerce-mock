@@ -266,7 +266,7 @@ export const categories = [
   { id: "sale", name: "セール", image: "/sazo-commerce/products/02.webp" },
 ] satisfies readonly Category[];
 
-export const homeReviews = [
+export const reviews = [
   {
     id: "r01",
     author: "mm",
@@ -278,42 +278,37 @@ export const homeReviews = [
   },
   {
     id: "r02",
-    author: "T",
-    productName: "レアフォトカード",
+    author: "なー",
+    productName: "アーティストグッズ",
     comment:
-      "初めて利用しましたが、日本で出回りがなくレアなカードがゲットできて嬉しいです。",
-    rating: 4,
-    image: "/sazo-commerce/community/05.webp",
+      "代行なので遅いかと思ったけど、結構早くてびっくりしました！ありがとうございました。",
+    rating: 5,
+    image: "/sazo-commerce/community/07.webp",
   },
   {
     id: "r03",
-    author: "17♡",
-    productName: "キャラクターグッズ",
-    comment: "好きなアイドルのグッズを購入しました！とても満足しています。",
-    rating: 5,
-    image: "/sazo-commerce/community/06.webp",
-  },
-] satisfies readonly Review[];
-
-export const reviews = [
-  ...homeReviews,
-  {
-    id: "r04",
-    author: "mm",
-    productName: "SicSunday キーリング",
-    comment:
-      "SNSで見かけてからどうしても欲しくて探していたところ、このサイトを見つけました。",
-    rating: 5,
-    image: "/sazo-commerce/community/04.webp",
-  },
-  {
-    id: "r05",
     author: "T",
     productName: "レアフォトカード",
     comment:
       "初めて利用しましたが、日本で出回りがなくレアなカードがゲットできて嬉しいです。",
     rating: 4,
     image: "/sazo-commerce/community/05.webp",
+  },
+  {
+    id: "r04",
+    author: "村上ラッペ",
+    productName: "韓国スナック",
+    comment: "美味しそうです！ありがとうございました。",
+    rating: 5,
+    image: "/sazo-commerce/community/08.webp",
+  },
+  {
+    id: "r05",
+    author: "코코",
+    productName: "韓国ファッション",
+    comment: "サイズ感もオーバーで、自分が欲しかったサイズ感で満足です！",
+    rating: 5,
+    image: "/sazo-commerce/community/09.webp",
   },
   {
     id: "r06",
@@ -325,25 +320,44 @@ export const reviews = [
   },
   {
     id: "r07",
-    author: "mm",
-    productName: "SicSunday キーリング",
-    comment:
-      "SNSで見かけてからどうしても欲しくて探していたところ、このサイトを見つけました。",
+    author: "ちか",
+    productName: "ITZY アルバム",
+    comment: "ITZYのアルバム付いてきてました笑笑 綺麗な状態で届きましたー！！",
     rating: 5,
-    image: "/sazo-commerce/community/04.webp",
+    image: "/sazo-commerce/community/10.webp",
   },
   {
     id: "r08",
-    author: "T",
-    productName: "レアフォトカード",
-    comment:
-      "初めて利用しましたが、日本で出回りがなくレアなカードがゲットできて嬉しいです。",
-    rating: 4,
-    image: "/sazo-commerce/community/05.webp",
+    author: "YU",
+    productName: "S.COUPS × MINGYU アルバム",
+    comment: "ありがとうございました( ; ; )",
+    rating: 5,
+    image: "/sazo-commerce/community/11.webp",
   },
 ] satisfies readonly Review[];
 
-export const homeGramEntries = [
+type ReviewId = (typeof reviews)[number]["id"];
+
+export const homeReviewIds = [
+  "r01",
+  "r02",
+  "r03",
+  "r04",
+  "r05",
+  "r06",
+] as const satisfies readonly ReviewId[];
+
+export const homeReviews: readonly Review[] = homeReviewIds.map((id) => {
+  const review = reviews.find((candidate) => candidate.id === id);
+
+  if (!review) {
+    throw new Error(`Missing SAZO home review fixture: ${id}`);
+  }
+
+  return review;
+});
+
+export const gramEntries = [
   {
     id: "g01",
     author: "sazo_staff",
@@ -362,29 +376,43 @@ export const homeGramEntries = [
     caption: "韓国スタバ新作 2026夏グッズ発売！",
     image: "/sazo-commerce/community/03.webp",
   },
-] satisfies readonly GramEntry[];
-
-export const gramEntries = [
-  ...homeGramEntries,
   {
     id: "g04",
     author: "sazo_staff",
-    caption: "SPAO×たまごっち 待望のコラボ登場！",
-    image: "/sazo-commerce/community/01.webp",
+    caption: "平成女児風 おすすめ推し活バッグ",
+    image: "/sazo-commerce/community/12.webp",
   },
   {
     id: "g05",
     author: "sazo_editor",
-    caption: "韓国ブランドの有線イヤホンが可愛すぎる",
-    image: "/sazo-commerce/community/02.webp",
+    caption: "ILLITメンバーのリアル購入品！",
+    image: "/sazo-commerce/community/13.webp",
   },
   {
     id: "g06",
     author: "sazo_staff",
-    caption: "韓国スタバ新作 2026夏グッズ発売！",
-    image: "/sazo-commerce/community/03.webp",
+    caption: "韓国ダイソー新作 キティ＆マイメログッズ",
+    image: "/sazo-commerce/community/14.webp",
   },
 ] satisfies readonly GramEntry[];
+
+type GramEntryId = (typeof gramEntries)[number]["id"];
+
+export const homeGramEntryIds = [
+  "g01",
+  "g02",
+  "g03",
+] as const satisfies readonly GramEntryId[];
+
+export const homeGramEntries: readonly GramEntry[] = homeGramEntryIds.map((id) => {
+  const entry = gramEntries.find((candidate) => candidate.id === id);
+
+  if (!entry) {
+    throw new Error(`Missing SAZO home GRAM fixture: ${id}`);
+  }
+
+  return entry;
+});
 
 export const reviewRecommendations = [
   {
