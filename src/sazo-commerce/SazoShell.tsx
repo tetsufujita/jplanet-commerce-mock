@@ -118,7 +118,8 @@ function Wordmark({ dispatch, homeLabel, wordmark }: WordmarkProps) {
       }}
       type="button"
     >
-      {wordmark}
+      <img alt="" aria-hidden height={34} src="/sazo-commerce/logo-mark.svg" width={34} />
+      <span>{wordmark}</span>
     </button>
   );
 }
@@ -225,7 +226,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
           ))}
         </nav>
 
-        <main className="sazo-main">{children}</main>
+        <main className="sazo-main sazo-content-main">{children}</main>
         <ShellFooter copyright={t("sazo.footer.copyright")} />
       </div>
 
@@ -238,7 +239,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
           />
         </header>
 
-        <main className="sazo-main">{children}</main>
+        <main className="sazo-main sazo-mobile-main" />
         <ShellFooter copyright={t("sazo.footer.copyright")} />
 
         <nav

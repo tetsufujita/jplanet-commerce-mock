@@ -154,6 +154,35 @@
       "language": "言語",
       "topActionsLabel": "ユーザーメニュー"
     },
+    "home": {
+      "heroLabel": "キャンペーンバナー",
+      "previousBanner": "前のバナー",
+      "nextBanner": "次のバナー",
+      "pauseBanner": "バナーを一時停止",
+      "playBanner": "バナーを再生",
+      "mobileSearchPlaceholder": "何を注文しますか？",
+      "shortcutLabel": "SAZOショートカット",
+      "introTitle": "日本最大級\n韓国直輸入ショップ",
+      "introBody": "SAZOは韓国の大手・人気サイトからの直輸入で、韓国限定品も購入可能",
+      "firstGuide": "SAZOを初めてご利用ですか？",
+      "more": "もっと見る",
+      "reviewsTitle": "みんなの口コミ",
+      "gramTitle": "SAZO GRAM",
+      "reviewRecommendations": "レビュー高評価のおすすめ",
+      "picksTitle": "SAZO's PICK",
+      "popularKeywords": "人気検索キーワード",
+      "rankingTitle": "SAZO RANKING",
+      "purchaseCount": "購入数",
+      "viewCount": "閲覧数",
+      "week": "週間",
+      "searchTitle": "まだ、ピンとくる商品に\n出会えていませんか？",
+      "searchPlaceholder": "キーワードまたはURLを入力",
+      "searchButton": "検索",
+      "searchHint": "欲しい商品の「名前」か「URL」をここに入力！",
+      "searchedTitle": "今、検索されているもの",
+      "rating": "5点中{{rating}}点",
+      "favoriteProduct": "{{product}}をお気に入りに追加"
+    },
     "footer": {
       "copyright": "© SAZO"
     }
