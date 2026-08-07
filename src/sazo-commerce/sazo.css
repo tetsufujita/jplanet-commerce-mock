@@ -294,10 +294,14 @@
   opacity: 1;
 }
 
+.sazo-root .sazo-hero-slide picture,
 .sazo-root .sazo-hero-slide img {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.sazo-root .sazo-hero-slide img {
   object-fit: cover;
 }
 
@@ -363,12 +367,6 @@
 .sazo-root .sazo-hero-status button {
   min-width: 42px;
   width: 42px;
-}
-
-/* Slides 2–5 already carry the captured counter artwork. Keep the real
-   controls on top as hit targets without drawing a second status cluster. */
-.sazo-root .sazo-hero:not([data-hero-index="0"]) .sazo-hero-status {
-  opacity: 0;
 }
 
 .sazo-root .sazo-hero-search {
@@ -1027,7 +1025,7 @@
   }
 
   .sazo-root .sazo-hero-slide img {
-    object-fit: fill;
+    object-fit: cover;
   }
 
   .sazo-root .sazo-hero-arrow {

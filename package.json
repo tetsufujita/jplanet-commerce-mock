@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:sazo-home-browser": "node scripts/sazo-commerce-home-browser.mjs",
     "sazo:reference": "node scripts/sazo-extract-reference.mjs",
     "format": "prettier --write ."
   },

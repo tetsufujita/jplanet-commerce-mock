@@ -101,6 +101,35 @@ describe("SAZO home composition", () => {
     expect(container.querySelectorAll("[data-home-view]")).toHaveLength(1);
     expect(screen.getAllByRole("button", { name: "次のバナー" })).toHaveLength(1);
   });
+
+  it("keeps GRAM, customer review, and recommendation assets in their captured sections", async () => {
+    const { container } = await renderHomePage();
+    const sectionImages = (heading: string) => {
+      const section = screen.getByRole("heading", { name: heading }).closest("section");
+
+      expect(section).not.toBeNull();
+
+      return Array.from(section?.querySelectorAll<HTMLImageElement>("img") ?? []).map(
+        ({ src }) => new URL(src).pathname,
+      );
+    };
+
+    expect(sectionImages("みんなの口コミ")).toEqual([
+      "/sazo-commerce/community/04.webp",
+      "/sazo-commerce/community/05.webp",
+      "/sazo-commerce/community/06.webp",
+    ]);
+    expect(sectionImages("SAZO GRAM")).toEqual([
+      "/sazo-commerce/community/01.webp",
+      "/sazo-commerce/community/02.webp",
+      "/sazo-commerce/community/03.webp",
+    ]);
+    expect(sectionImages("レビュー高評価のおすすめ")).toEqual([
+      "/sazo-commerce/recommendations/01.webp",
+      "/sazo-commerce/recommendations/02.webp",
+    ]);
+    expect(container.querySelectorAll(".sazo-recommendation")).toHaveLength(2);
+  });
 });
 
 describe("SAZO hero controls", () => {
@@ -130,6 +159,80 @@ describe("SAZO hero controls", () => {
     });
     expect(counter.textContent).toBe("2/5");
     expect(screen.getByRole("button", { name: "バナーを再生" })).toBeTruthy();
+  });
+
+  it("keeps the live pause control visible, focusable, and visually stateful on every slide", async () => {
+    installReducedMotion(false);
+    vi.useFakeTimers();
+    await renderHomePage();
+
+    fireEvent.click(screen.getByRole("button", { name: "次のバナー" }));
+    const pause = screen.getByRole("button", { name: "バナーを一時停止" });
+    const status = screen.getByTestId("sazo-hero-counter").parentElement;
+
+    pause.focus();
+    expect(document.activeElement).toBe(pause);
+    expect(status).not.toBeNull();
+    expect(pause.querySelector(".lucide-pause")).not.toBeNull();
+
+    fireEvent.click(pause);
+    const play = screen.getByRole("button", { name: "バナーを再生" });
+    expect(play.querySelector(".lucide-play")).not.toBeNull();
+  });
+
+  it("uses one-slot circular neighbors at both wrap boundaries", async () => {
+    installReducedMotion(false);
+    vi.useFakeTimers();
+    const { container } = await renderHomePage();
+    const offsetFor = (slide: string) =>
+      container
+        .querySelector(`[data-hero-slide="${slide}"]`)
+        ?.getAttribute("data-hero-offset");
+
+    expect(offsetFor("delivery-line")).toBe("0");
+    expect(offsetFor("new-benefits")).toBe("1");
+    expect(offsetFor("friend-invite")).toBe("-1");
+
+    fireEvent.click(screen.getByRole("button", { name: "前のバナー" }));
+    expect(screen.getByTestId("sazo-hero-counter").textContent).toBe("5/5");
+    expect(offsetFor("friend-invite")).toBe("0");
+    expect(offsetFor("cold-delivery")).toBe("-1");
+    expect(offsetFor("delivery-line")).toBe("1");
+
+    fireEvent.click(screen.getByRole("button", { name: "次のバナー" }));
+    expect(screen.getByTestId("sazo-hero-counter").textContent).toBe("1/5");
+    expect(offsetFor("friend-invite")).toBe("-1");
+    expect(offsetFor("delivery-line")).toBe("0");
+    expect(offsetFor("new-benefits")).toBe("1");
+  });
+
+  it("provides isotropic mobile hero sources at the rendered 1.62 ratio", async () => {
+    const { container } = await renderHomePage();
+    const sources = Array.from(
+      container.querySelectorAll<HTMLSourceElement>(
+        '.sazo-hero-slide source[media="(max-width: 767px)"]',
+      ),
+    );
+
+    expect(sources).toHaveLength(5);
+    expect(
+      sources.map((source) => ({
+        height: source.getAttribute("height"),
+        srcSet: source.getAttribute("srcset"),
+        width: source.getAttribute("width"),
+      })),
+    ).toEqual([
+      {
+        height: "278",
+        srcSet: "/sazo-commerce/hero/mobile/slide-1.webp",
+        width: "450",
+      },
+      ...[2, 3, 4, 5].map((slide) => ({
+        height: "490",
+        srcSet: `/sazo-commerce/hero/mobile/slide-${String(slide)}.webp`,
+        width: "794",
+      })),
+    ]);
   });
 });
 

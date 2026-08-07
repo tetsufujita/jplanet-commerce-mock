@@ -5,6 +5,9 @@ export interface HeroSlide {
   title: string;
   subtitle: string;
   image: SazoImagePath;
+  mobileHeight: number;
+  mobileImage: SazoImagePath;
+  mobileWidth: number;
 }
 
 export interface Shortcut {
@@ -55,36 +58,59 @@ export interface GramEntry {
   image: SazoImagePath;
 }
 
+export interface ReviewRecommendation {
+  id: string;
+  author: string;
+  comment: string;
+  rating: number;
+  product: Product;
+}
+
 export const heroSlides = [
   {
     id: "delivery-line",
     title: "配送状況をLINEでお届け！",
     subtitle: "配送料50%OFF クーポンプレゼント！",
     image: "/sazo-commerce/hero/slide-1.webp",
+    mobileHeight: 278,
+    mobileImage: "/sazo-commerce/hero/mobile/slide-1.webp",
+    mobileWidth: 450,
   },
   {
     id: "new-benefits",
     title: "新規特典がリニューアル クーポンパック登場！",
     subtitle: "新規会員登録・アプリDL・LINE追加でお得にSAZOを利用できます！",
     image: "/sazo-commerce/hero/slide-2.webp",
+    mobileHeight: 490,
+    mobileImage: "/sazo-commerce/hero/mobile/slide-2.webp",
+    mobileWidth: 794,
   },
   {
     id: "large-furniture",
     title: "大型家具、解禁。",
     subtitle: "30kg以上のソファーや棚も、お得な価格で手に入ります！",
     image: "/sazo-commerce/hero/slide-3.webp",
+    mobileHeight: 490,
+    mobileImage: "/sazo-commerce/hero/mobile/slide-3.webp",
+    mobileWidth: 794,
   },
   {
     id: "cold-delivery",
     title: "冷蔵食品・香水など配送可能に",
     subtitle: "配送の幅が広がり、狙っていた商品を手に入れられるチャンス！",
     image: "/sazo-commerce/hero/slide-4.webp",
+    mobileHeight: 490,
+    mobileImage: "/sazo-commerce/hero/mobile/slide-4.webp",
+    mobileWidth: 794,
   },
   {
     id: "friend-invite",
     title: "友達招待でお得！",
     subtitle: "友達招待で友達もあなたも送料無料クーポンをゲット！",
     image: "/sazo-commerce/hero/slide-5.webp",
+    mobileHeight: 490,
+    mobileImage: "/sazo-commerce/hero/mobile/slide-5.webp",
+    mobileWidth: 794,
   },
 ] satisfies readonly HeroSlide[];
 
@@ -240,7 +266,7 @@ export const categories = [
   { id: "sale", name: "セール", image: "/sazo-commerce/products/02.webp" },
 ] satisfies readonly Category[];
 
-export const reviews = [
+export const homeReviews = [
   {
     id: "r01",
     author: "mm",
@@ -252,15 +278,6 @@ export const reviews = [
   },
   {
     id: "r02",
-    author: "なー",
-    productName: "アーティストグッズ",
-    comment:
-      "代行なので遅いかと思ったけど、結構早くてびっくりしました！ありがとうございました。",
-    rating: 5,
-    image: "/sazo-commerce/community/02.webp",
-  },
-  {
-    id: "r03",
     author: "T",
     productName: "レアフォトカード",
     comment:
@@ -269,20 +286,34 @@ export const reviews = [
     image: "/sazo-commerce/community/05.webp",
   },
   {
-    id: "r04",
-    author: "村上ラッペ",
-    productName: "韓国スナック",
-    comment: "美味しそうです！ありがとうございました。",
+    id: "r03",
+    author: "17♡",
+    productName: "キャラクターグッズ",
+    comment: "好きなアイドルのグッズを購入しました！とても満足しています。",
     rating: 5,
-    image: "/sazo-commerce/community/01.webp",
+    image: "/sazo-commerce/community/06.webp",
+  },
+] satisfies readonly Review[];
+
+export const reviews = [
+  ...homeReviews,
+  {
+    id: "r04",
+    author: "mm",
+    productName: "SicSunday キーリング",
+    comment:
+      "SNSで見かけてからどうしても欲しくて探していたところ、このサイトを見つけました。",
+    rating: 5,
+    image: "/sazo-commerce/community/04.webp",
   },
   {
     id: "r05",
-    author: "코코",
-    productName: "韓国ファッション",
-    comment: "サイズ感もオーバーで、自分が欲しかったサイズ感で満足です！",
+    author: "T",
+    productName: "レアフォトカード",
+    comment:
+      "初めて利用しましたが、日本で出回りがなくレアなカードがゲットできて嬉しいです。",
     rating: 4,
-    image: "/sazo-commerce/community/03.webp",
+    image: "/sazo-commerce/community/05.webp",
   },
   {
     id: "r06",
@@ -294,25 +325,25 @@ export const reviews = [
   },
   {
     id: "r07",
-    author: "RIEKO",
-    productName: "ハート宝くじアレンジ＆オブジェ",
+    author: "mm",
+    productName: "SicSunday キーリング",
     comment:
-      "無事、手元に届きました。ありがとうございました！大切に使わせていただきます♪",
+      "SNSで見かけてからどうしても欲しくて探していたところ、このサイトを見つけました。",
     rating: 5,
-    image: "/sazo-commerce/products/06.webp",
+    image: "/sazo-commerce/community/04.webp",
   },
   {
     id: "r08",
-    author: "RIEKO",
-    productName: "魔術棒スクレーパー",
+    author: "T",
+    productName: "レアフォトカード",
     comment:
-      "無事、手元に届きました。ありがとうございました！大切に使わせていただきます♪",
-    rating: 5,
-    image: "/sazo-commerce/products/07.webp",
+      "初めて利用しましたが、日本で出回りがなくレアなカードがゲットできて嬉しいです。",
+    rating: 4,
+    image: "/sazo-commerce/community/05.webp",
   },
 ] satisfies readonly Review[];
 
-export const gramEntries = [
+export const homeGramEntries = [
   {
     id: "g01",
     author: "sazo_staff",
@@ -331,22 +362,57 @@ export const gramEntries = [
     caption: "韓国スタバ新作 2026夏グッズ発売！",
     image: "/sazo-commerce/community/03.webp",
   },
+] satisfies readonly GramEntry[];
+
+export const gramEntries = [
+  ...homeGramEntries,
   {
     id: "g04",
-    author: "mm",
-    caption: "韓国限定キーリングを見つけました",
-    image: "/sazo-commerce/community/04.webp",
+    author: "sazo_staff",
+    caption: "SPAO×たまごっち 待望のコラボ登場！",
+    image: "/sazo-commerce/community/01.webp",
   },
   {
     id: "g05",
-    author: "T",
-    caption: "日本では見つからないレアアイテム",
-    image: "/sazo-commerce/community/05.webp",
+    author: "sazo_editor",
+    caption: "韓国ブランドの有線イヤホンが可愛すぎる",
+    image: "/sazo-commerce/community/02.webp",
   },
   {
     id: "g06",
-    author: "17♡",
-    caption: "推しのキャラクターグッズ",
-    image: "/sazo-commerce/community/06.webp",
+    author: "sazo_staff",
+    caption: "韓国スタバ新作 2026夏グッズ発売！",
+    image: "/sazo-commerce/community/03.webp",
   },
 ] satisfies readonly GramEntry[];
+
+export const reviewRecommendations = [
+  {
+    id: "recommendation-01",
+    author: "RIEKO",
+    comment:
+      "無事、手元に届きました。ありがとうございました！大切に使わせていただきます♪",
+    rating: 5,
+    product: {
+      id: "recommendation-heart",
+      brand: "NAVER",
+      name: "ハート宝くじアレンジ＆オブジェ",
+      price: "¥1,843",
+      image: "/sazo-commerce/recommendations/01.webp",
+    },
+  },
+  {
+    id: "recommendation-02",
+    author: "RIEKO",
+    comment:
+      "無事、手元に届きました。ありがとうございました！大切に使わせていただきます♪",
+    rating: 5,
+    product: {
+      id: "recommendation-magic-stick",
+      brand: "NAVER",
+      name: "魔術棒スクレーパー、ロータリー式",
+      price: "¥922",
+      image: "/sazo-commerce/recommendations/02.webp",
+    },
+  },
+] satisfies readonly ReviewRecommendation[];

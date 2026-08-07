@@ -17,11 +17,12 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
-  gramEntries,
   heroSlides,
+  homeGramEntries,
+  homeReviews,
   products,
   rankingKeywords,
-  reviews,
+  reviewRecommendations,
   shortcuts,
 } from "@/sazo-commerce/fixtures";
 import type { SazoAction, SazoState } from "@/sazo-commerce/model";
@@ -48,6 +49,12 @@ export interface HomeViewProps {
 
 interface SectionHeadingProps {
   title: string;
+}
+
+function getCircularHeroOffset(index: number, activeIndex: number, total: number) {
+  const forwardOffset = (index - activeIndex + total) % total;
+
+  return forwardOffset > total / 2 ? forwardOffset - total : forwardOffset;
 }
 
 function SectionHeading({ title }: SectionHeadingProps) {
@@ -88,7 +95,7 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
     >
       <div className="sazo-hero-viewport">
         {heroSlides.map((slide, index) => {
-          const offset = index - state.heroIndex;
+          const offset = getCircularHeroOffset(index, state.heroIndex, heroSlides.length);
           const style: HeroSlideStyle = {
             "--sazo-slide-left": `${String(50 + offset * 68)}%`,
             "--sazo-slide-left-mobile": `${String(50 + offset * 100)}%`,
@@ -99,19 +106,29 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
               aria-hidden={index !== state.heroIndex}
               className="sazo-hero-slide"
               data-active={index === state.heroIndex}
+              data-hero-offset={offset}
+              data-hero-slide={slide.id}
               key={slide.id}
               style={style}
             >
-              <img
-                alt=""
-                aria-hidden
-                decoding="async"
-                fetchPriority={index === 0 ? "high" : "auto"}
-                height={490}
-                loading={index === 0 ? "eager" : "lazy"}
-                src={slide.image}
-                width={1200}
-              />
+              <picture>
+                <source
+                  height={slide.mobileHeight}
+                  media="(max-width: 767px)"
+                  srcSet={slide.mobileImage}
+                  width={slide.mobileWidth}
+                />
+                <img
+                  alt=""
+                  aria-hidden
+                  decoding="async"
+                  fetchPriority={index === 0 ? "high" : "auto"}
+                  height={490}
+                  loading={index === 0 ? "eager" : "lazy"}
+                  src={slide.image}
+                  width={1200}
+                />
+              </picture>
               <span className="sazo-visually-hidden">
                 {slide.title} {slide.subtitle}
               </span>
@@ -208,7 +225,7 @@ function ReviewStrip() {
     <section className="sazo-home-section sazo-review-section">
       <SectionHeading title={t("sazo.home.reviewsTitle")} />
       <div className="sazo-horizontal-strip sazo-review-strip">
-        {reviews.slice(0, 6).map((review) => (
+        {homeReviews.map((review) => (
           <article className="sazo-review-card" key={review.id}>
             <div className="sazo-review-media">
               <img
@@ -235,7 +252,7 @@ function GramStrip() {
     <section className="sazo-home-section">
       <SectionHeading title={t("sazo.home.gramTitle")} />
       <div className="sazo-horizontal-strip sazo-gram-strip">
-        {gramEntries.map((entry) => (
+        {homeGramEntries.map((entry) => (
           <article className="sazo-gram-card" key={entry.id}>
             <div className="sazo-gram-media">
               <img
@@ -263,35 +280,27 @@ function RecommendedReviews() {
     <section className="sazo-home-section sazo-recommended-reviews">
       <h2>{t("sazo.home.reviewRecommendations")}</h2>
       <div className="sazo-recommendation-track">
-        {reviews.slice(6, 8).map((review) => {
-          const product = products.find(({ id }) => id === review.id.replace("r", "p"));
-
-          if (product === undefined) {
-            return null;
-          }
-
-          return (
-            <article className="sazo-recommendation" key={review.id}>
-              <div
-                aria-label={t("sazo.home.rating", { rating: review.rating })}
-                className="sazo-rating"
-              >
-                {Array.from({ length: review.rating }, (_, starIndex) => (
-                  <Star
-                    aria-hidden
-                    fill="currentColor"
-                    key={`${review.id}-${String(starIndex)}`}
-                    size={20}
-                    strokeWidth={1.8}
-                  />
-                ))}
-              </div>
-              <blockquote>{review.comment}</blockquote>
-              <p className="sazo-review-author">{review.author}</p>
-              <ProductCard product={product} variant="compact" />
-            </article>
-          );
-        })}
+        {reviewRecommendations.map((review) => (
+          <article className="sazo-recommendation" key={review.id}>
+            <div
+              aria-label={t("sazo.home.rating", { rating: review.rating })}
+              className="sazo-rating"
+            >
+              {Array.from({ length: review.rating }, (_, starIndex) => (
+                <Star
+                  aria-hidden
+                  fill="currentColor"
+                  key={`${review.id}-${String(starIndex)}`}
+                  size={20}
+                  strokeWidth={1.8}
+                />
+              ))}
+            </div>
+            <blockquote>{review.comment}</blockquote>
+            <p className="sazo-review-author">{review.author}</p>
+            <ProductCard product={review.product} variant="compact" />
+          </article>
+        ))}
       </div>
     </section>
   );
