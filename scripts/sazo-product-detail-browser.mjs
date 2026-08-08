@@ -835,10 +835,12 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
     const currentIcon = element.querySelector(
       'li[data-state="current"] .sazo-product-detail-stage-icon',
     );
+    const currentLabel = element.querySelector('li[data-state="current"] strong');
     const pendingIcon = element.querySelector(
       'li[data-state="pending"] .sazo-product-detail-stage-icon',
     );
     const detailsLink = element.querySelector(".sazo-product-order-flow-heading a");
+    const timeline = element.querySelector(".sazo-product-detail-timeline");
     const resolveColorToken = (token) => {
       const probe = document.createElement("span");
 
@@ -852,8 +854,12 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
     };
     const completeStyle = completeIcon === null ? null : getComputedStyle(completeIcon);
     const currentStyle = currentIcon === null ? null : getComputedStyle(currentIcon);
+    const currentLabelStyle =
+      currentLabel === null ? null : getComputedStyle(currentLabel);
     const pendingStyle = pendingIcon === null ? null : getComputedStyle(pendingIcon);
     const detailsStyle = detailsLink === null ? null : getComputedStyle(detailsLink);
+    const timelineProgressStyle =
+      timeline === null ? null : getComputedStyle(timeline, "::before");
 
     return {
       cardBackground: getComputedStyle(element).backgroundColor,
@@ -865,11 +871,13 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
       currentBackground: currentStyle?.backgroundColor ?? null,
       currentBorder: currentStyle?.borderColor ?? null,
       currentColor: currentStyle?.color ?? null,
+      currentLabelColor: currentLabelStyle?.color ?? null,
       detailsDecorationColor: detailsStyle?.textDecorationColor ?? null,
       detailsDecorationLine: detailsStyle?.textDecorationLine ?? null,
       pendingBackground: pendingStyle?.backgroundColor ?? null,
       pendingBorder: pendingStyle?.borderColor ?? null,
       pendingColor: pendingStyle?.color ?? null,
+      progressBackgroundImage: timelineProgressStyle?.backgroundImage ?? null,
       tokens: {
         blueSoft: resolveColorToken("--jplanet-blue-soft"),
         line: resolveColorToken("--jplanet-line"),
@@ -917,6 +925,26 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
     orderFlowStyles.currentColor,
     orderFlowStyles.tokens.surface,
     `${label} current stage surface icon`,
+  );
+  assert.match(
+    orderFlowStyles.progressBackgroundImage ?? "",
+    /^linear-gradient\(to right,/u,
+    `${label} order progress line gradient`,
+  );
+  assert.equal(
+    orderFlowStyles.progressBackgroundImage?.includes(orderFlowStyles.tokens.sakura),
+    true,
+    `${label} order progress line includes resolved sakura token gradient=${String(orderFlowStyles.progressBackgroundImage)}`,
+  );
+  assert.match(
+    orderFlowStyles.progressBackgroundImage ?? "",
+    /20%.*20%.*40%.*40%/u,
+    `${label} order progress complete/current/pending segment contract gradient=${String(orderFlowStyles.progressBackgroundImage)}`,
+  );
+  assert.equal(
+    orderFlowStyles.currentLabelColor,
+    orderFlowStyles.tokens.sakura,
+    `${label} current stage sakura label`,
   );
   assert.equal(
     orderFlowStyles.completeBackground,

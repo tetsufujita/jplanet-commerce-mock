@@ -257,8 +257,88 @@ describe("J-Planet product detail experience", () => {
       screen.getAllByTestId("product-total-value").map((node) => node.textContent),
     ).toEqual(["¥7,948", "¥7,948"]);
 
+    const heroRequest = within(heroForm).getByLabelText<HTMLTextAreaElement>("ご要望");
+    const stickyRequest =
+      within(stickyForm).getByLabelText<HTMLTextAreaElement>("ご要望");
+    fireEvent.change(stickyRequest, {
+      target: { value: "ブラジル配送前に外箱を補強してください" },
+    });
+    expect(heroRequest.value).toBe("ブラジル配送前に外箱を補強してください");
+
+    const heroImageCheck = within(heroForm).getByRole<HTMLInputElement>("checkbox", {
+      name: "画像にチェック",
+    });
+    const stickyImageCheck = within(stickyForm).getByRole<HTMLInputElement>("checkbox", {
+      name: "画像にチェック",
+    });
+    fireEvent.click(stickyImageCheck);
+    expect(heroImageCheck.checked).toBe(true);
+    expect(stickyImageCheck.checked).toBe(true);
+
+    const heroGuideButton = within(heroForm).getByRole("button", {
+      name: "ご要望の書き方",
+    });
+    const stickyGuideButton = within(stickyForm).getByRole("button", {
+      name: "ご要望の書き方",
+    });
+    expect(heroGuideButton.getAttribute("aria-controls")).toBe(
+      "sazo-product-request-guide-hero",
+    );
+    expect(stickyGuideButton.getAttribute("aria-controls")).toBe(
+      "sazo-product-request-guide-sticky",
+    );
+    fireEvent.click(stickyGuideButton);
+    expect(heroGuideButton.getAttribute("aria-expanded")).toBe("true");
+    expect(stickyGuideButton.getAttribute("aria-expanded")).toBe("true");
+    expect(heroRequest.getAttribute("aria-describedby")).toBe(
+      "sazo-product-request-guide-hero",
+    );
+    expect(stickyRequest.getAttribute("aria-describedby")).toBe(
+      "sazo-product-request-guide-sticky",
+    );
+    expect(within(heroForm).getByText(/色・サイズ・仕様/).id).toBe(
+      "sazo-product-request-guide-hero",
+    );
+    expect(within(stickyForm).getByText(/色・サイズ・仕様/).id).toBe(
+      "sazo-product-request-guide-sticky",
+    );
+
+    fireEvent.click(within(stickyForm).getByRole("button", { name: "選択を解除" }));
+    expect((heroSelect as HTMLSelectElement).value).toBe("");
+    expect((stickySelect as HTMLSelectElement).value).toBe("");
+    expect(
+      screen.getAllByTestId("product-total-value").map((node) => node.textContent),
+    ).toEqual(["0", "0"]);
+    fireEvent.change(heroSelect, { target: { value: "標準" } });
+    expect(
+      screen.getAllByTestId("product-quantity").map((node) => node.textContent),
+    ).toEqual(["1", "1"]);
+
     const ids = Array.from(container.querySelectorAll("[id]"), (node) => node.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("focuses the hero option after an invalid mobile purchase action", async () => {
+    const { container } = await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+    );
+    const heroForm = container.querySelector<HTMLFormElement>(
+      "form[data-product-purchase-form]",
+    );
+    const mobileActions = container.querySelector<HTMLElement>(
+      ".sazo-product-mobile-purchase",
+    );
+
+    if (heroForm === null || mobileActions === null) {
+      throw new Error("Missing hero form or mobile purchase actions");
+    }
+
+    const heroOption = within(heroForm).getByLabelText("商品オプション");
+    fireEvent.click(
+      within(mobileActions).getByRole("button", { name: "カートに入れる" }),
+    );
+
+    expect(document.activeElement).toBe(heroOption);
   });
 
   it("announces shared purchase feedback once while rendering it in both panels", async () => {

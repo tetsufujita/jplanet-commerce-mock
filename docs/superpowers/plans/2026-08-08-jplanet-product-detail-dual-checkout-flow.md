@@ -46,7 +46,7 @@
 - `idPrefix` is a required non-empty string. This task uses exact values `hero` and `sticky`.
 - `showMobileActions` is true only for the hero instance.
 
-- [ ] **Step 1: Add the failing synchronized-panel test**
+- [x] **Step 1: Add the failing synchronized-panel test**
 
 Add a focused test to `tests/unit/sazo-product-detail.test.tsx`:
 
@@ -68,14 +68,12 @@ it("shares one purchase state across hero and lower checkout forms", async () =>
   expect(stickySelect).toHaveValue("標準");
 
   fireEvent.click(within(forms[1]).getByRole("button", { name: "数量を増やす" }));
-  expect(screen.getAllByTestId("product-quantity").map((node) => node.textContent)).toEqual([
-    "2",
-    "2",
-  ]);
-  expect(screen.getAllByTestId("product-total-value").map((node) => node.textContent)).toEqual([
-    "¥7,948",
-    "¥7,948",
-  ]);
+  expect(
+    screen.getAllByTestId("product-quantity").map((node) => node.textContent),
+  ).toEqual(["2", "2"]);
+  expect(
+    screen.getAllByTestId("product-total-value").map((node) => node.textContent),
+  ).toEqual(["¥7,948", "¥7,948"]);
 
   const ids = Array.from(container.querySelectorAll("[id]"), (node) => node.id);
   expect(new Set(ids).size).toBe(ids.length);
@@ -84,7 +82,7 @@ it("shares one purchase state across hero and lower checkout forms", async () =>
 
 Update existing purchase tests so they scope desktop actions to the hero form or lower form instead of using page-global single-form queries.
 
-- [ ] **Step 2: Run the focused test and verify RED**
+- [x] **Step 2: Run the focused test and verify RED**
 
 Run:
 
@@ -94,7 +92,7 @@ pnpm vitest run tests/unit/sazo-product-detail.test.tsx
 
 Expected: the new test fails because only one purchase form exists and its state is local to `ProductPurchasePanel`.
 
-- [ ] **Step 3: Create the shared controller hook**
+- [x] **Step 3: Create the shared controller hook**
 
 Create `src/sazo-commerce/useProductPurchaseController.ts` with this public contract:
 
@@ -155,7 +153,7 @@ const formattedTotal = totalAmount === 0 ? String(totalAmount) : formatYen(total
 
 `purchase("cart", focusInvalid)` retains cart feedback. `purchase("buy", focusInvalid)` retains `dispatch({ type: "open-login" })`. When no option is selected, set the translated error feedback and call the supplied focus callback.
 
-- [ ] **Step 4: Convert `ProductPurchasePanel` into a controlled view**
+- [x] **Step 4: Convert `ProductPurchasePanel` into a controlled view**
 
 Use the required props:
 
@@ -188,7 +186,7 @@ controller.purchase("buy", () => selectRef.current?.focus());
 
 Render `.sazo-product-mobile-purchase` only when `showMobileActions` is true.
 
-- [ ] **Step 5: Mount both controlled panels in `ProductDetailView`**
+- [x] **Step 5: Mount both controlled panels in `ProductDetailView`**
 
 Create the controller once after `detail` is resolved:
 
@@ -210,7 +208,7 @@ At the end of `.sazo-product-detail-purchase-panel`, after shared feedback/sourc
 
 Keep the existing lower checkout instance but pass `idPrefix="sticky"` and omit `showMobileActions`.
 
-- [ ] **Step 6: Add only the Task 1 structural CSS**
+- [x] **Step 6: Add only the Task 1 structural CSS**
 
 Add:
 
@@ -230,7 +228,7 @@ Add:
 
 Do not change the lower-grid/recommendation ordering in this task.
 
-- [ ] **Step 7: Run focused and affected verification**
+- [x] **Step 7: Run focused and affected verification**
 
 Run:
 
@@ -242,7 +240,7 @@ pnpm lint
 
 Expected: all affected tests pass. Verify p01 remains `¥4,149` at quantity 1 and `¥7,948` at quantity 2 in both panels.
 
-- [ ] **Step 8: Commit Task 1**
+- [x] **Step 8: Commit Task 1**
 
 ```bash
 git add src/sazo-commerce/useProductPurchaseController.ts src/sazo-commerce/ProductPurchasePanel.tsx src/sazo-commerce/ProductDetailView.tsx src/sazo-commerce/sazo.css tests/unit/sazo-product-detail.test.tsx
@@ -270,7 +268,7 @@ git commit -m "feat: synchronize dual product checkout panels"
 - `ProductOrderFlow({ compact?: boolean })` preserves its public signature and produces six `li[data-stage][data-state]` elements.
 - Exact `data-state` sequence: `complete`, `complete`, `current`, `pending`, `pending`, `pending`.
 
-- [ ] **Step 1: Add failing hierarchy and delivery-state tests**
+- [x] **Step 1: Add failing hierarchy and delivery-state tests**
 
 Replace the existing hierarchy expectation with:
 
@@ -296,7 +294,7 @@ expect(stages.map((stage) => stage.getAttribute("data-state"))).toEqual([
 
 Also require the Japanese heading text `注文配送の流れ` and `一目で見る`.
 
-- [ ] **Step 2: Run focused test and verify RED**
+- [x] **Step 2: Run focused test and verify RED**
 
 ```bash
 pnpm vitest run tests/unit/sazo-product-detail.test.tsx
@@ -304,7 +302,7 @@ pnpm vitest run tests/unit/sazo-product-detail.test.tsx
 
 Expected: hierarchy fails because recommendations are inside the left flow, and stage expectations fail because the current component has five unstated stages.
 
-- [ ] **Step 3: Move recommendations before the lower commerce grid**
+- [x] **Step 3: Move recommendations before the lower commerce grid**
 
 Cut the existing `ProductRecommendationRail` call out of `.sazo-product-detail-left-flow` and place it immediately before `.sazo-product-detail-commerce-grid`. Do not change the internal markup of the existing information, review, cautions, or benefits sections in this step.
 
@@ -314,9 +312,7 @@ The resulting direct-child order is verified with this exact structure assertion
 expect(recommendation?.nextElementSibling).toBe(commerceGrid);
 expect(commerceGrid?.children[0]).toHaveClass("sazo-product-detail-checkout-rail");
 expect(commerceGrid?.children[1]).toBe(leftFlow);
-expect(
-  Array.from(leftFlow?.children ?? [], (node) => node.className),
-).toEqual([
+expect(Array.from(leftFlow?.children ?? [], (node) => node.className)).toEqual([
   expect.stringContaining("sazo-product-detail-information"),
   expect.stringContaining("sazo-product-campaign"),
   expect.stringContaining("sazo-product-detail-review"),
@@ -327,7 +323,7 @@ expect(
 
 Keep checkout first in the commerce-grid DOM so the mobile contract remains predictable even though this duplicate is CSS-hidden at mobile.
 
-- [ ] **Step 4: Expand the order flow to six stateful stages**
+- [x] **Step 4: Expand the order flow to six stateful stages**
 
 Define:
 
@@ -380,7 +376,7 @@ Give the section an accessible heading relationship and render the two-line titl
 </section>
 ```
 
-- [ ] **Step 5: Add matching locale keys and exact Japanese copy**
+- [x] **Step 5: Add matching locale keys and exact Japanese copy**
 
 In all three locales add `order.subtitle` and `order.stages.warehouseArrived` with identical structure.
 
@@ -400,7 +396,7 @@ English equivalents: `Order delivery flow`, `At a glance`, `Arrived at Japan war
 
 Portuguese equivalents: `Fluxo de entrega do pedido`, `Veja de relance`, `Chegou ao armazém no Japão`, `Envio internacional e alfândega`, `Entregue no Brasil`.
 
-- [ ] **Step 6: Rebuild the desktop delivery card and post-recommendation grid CSS**
+- [x] **Step 6: Rebuild the desktop delivery card and post-recommendation grid CSS**
 
 Use existing tokens only. The required structural rules are:
 
@@ -433,7 +429,7 @@ Add one progress line behind the icons. Style `[data-state="complete"]`, `[data-
 
 At `max-width: 767px`, keep the lower checkout hidden, keep commerce grid one column, reduce flow padding, and let only `.sazo-product-detail-timeline-scroll` overflow horizontally.
 
-- [ ] **Step 7: Run focused, locale, and affected tests**
+- [x] **Step 7: Run focused, locale, and affected tests**
 
 ```bash
 pnpm vitest run tests/unit/sazo-product-detail.test.tsx tests/unit/sazo-commerce-views.test.tsx
@@ -443,7 +439,7 @@ pnpm lint
 
 Verify all six stages, the exact state sequence, and recommendation-before-grid hierarchy pass.
 
-- [ ] **Step 8: Commit Task 2**
+- [x] **Step 8: Commit Task 2**
 
 ```bash
 git add src/sazo-commerce/ProductDetailView.tsx src/sazo-commerce/ProductOrderFlow.tsx src/sazo-commerce/sazo.css src/i18n/locales/ja.json src/i18n/locales/en.json src/i18n/locales/pt-BR.json tests/unit/sazo-product-detail.test.tsx
