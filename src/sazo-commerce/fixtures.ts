@@ -46,12 +46,32 @@ export interface ProductDetail {
   gallery: readonly SazoImagePath[];
   originalName: string;
   categoryLabel: string;
-  originalUrl?: string;
+  originalUrl: string;
+  unitPriceAmount: number;
+  localDistributionFeeAmount: number;
+  purchaseTypeId: "direct" | "marketplace";
+  deliveryEstimateDays: number;
   optionLabel: string;
   options: readonly string[];
   purchaseNote: string;
   information: string;
   recommendationIds: readonly string[];
+}
+
+export function parseYenPrice(price: string): number {
+  return Number.parseInt(price.replace(/[^0-9]/g, ""), 10) || 0;
+}
+
+export function formatYen(amount: number): string {
+  return `¥${new Intl.NumberFormat("ja-JP").format(amount)}`;
+}
+
+export function calculateProductTotal(
+  unitPriceAmount: number,
+  quantity: number,
+  localDistributionFeeAmount: number,
+): number {
+  return unitPriceAmount * Math.max(1, quantity) + localDistributionFeeAmount;
 }
 
 export interface RecordedMediaCrop {
@@ -1349,6 +1369,11 @@ const productDetailOverrides = new Map<string, Omit<ProductDetail, "product">>([
       ],
       originalName: "NCT WISH - STEADY Mini Keyring",
       categoryLabel: "K-POP・アイドル",
+      originalUrl: "https://example.com/jplanet/source/p01",
+      unitPriceAmount: 3799,
+      localDistributionFeeAmount: 350,
+      purchaseTypeId: "direct",
+      deliveryEstimateDays: 9,
       optionLabel: "商品オプション",
       options: ["標準", "ギフト包装"],
       purchaseNote: "日本で検品後、ブラジルへ国際配送します。",
@@ -1365,6 +1390,11 @@ function createGeneratedProductDetail(product: Product): ProductDetail {
     gallery: [product.image],
     originalName: product.name,
     categoryLabel: "J-Planet セレクション",
+    originalUrl: `https://example.com/jplanet/source/${encodeURIComponent(product.id)}`,
+    unitPriceAmount: parseYenPrice(product.price),
+    localDistributionFeeAmount: 350,
+    purchaseTypeId: "direct",
+    deliveryEstimateDays: 9,
     optionLabel: "商品オプション",
     options: ["標準"],
     purchaseNote: "日本で検品後、ブラジルへ国際配送します。",

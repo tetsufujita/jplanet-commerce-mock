@@ -355,7 +355,18 @@
         },
         "source": {
           "label": "日本の販売サイト · {{brand}}",
-          "openOriginal": "販売元の商品ページを開く"
+          "openOriginal": "元のページへ"
+        },
+        "metadata": {
+          "purchaseType": "購入方法",
+          "purchaseTypes": {
+            "direct": "J-Planet直輸入商品",
+            "marketplace": "マーケットプレイス商品"
+          },
+          "deliveryEstimate": "お届け目安",
+          "deliveryEstimateValue": "ご注文日から平均{{days}}日",
+          "support": "J-Planet配送サポート",
+          "details": "日本で購入・検品後、ブラジルまで国際配送でお届けします"
         },
         "actions": {
           "share": "商品情報を共有",

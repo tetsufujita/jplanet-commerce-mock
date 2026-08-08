@@ -355,7 +355,18 @@
         },
         "source": {
           "label": "Japanese retailer · {{brand}}",
-          "openOriginal": "Open retailer product page"
+          "openOriginal": "Go to original page"
+        },
+        "metadata": {
+          "purchaseType": "Purchase type",
+          "purchaseTypes": {
+            "direct": "Direct import by J-Planet",
+            "marketplace": "Marketplace item"
+          },
+          "deliveryEstimate": "Estimated delivery",
+          "deliveryEstimateValue": "Average {{days}} days from order",
+          "support": "J-Planet delivery support",
+          "details": "Purchased and inspected in Japan, then delivered to Brazil internationally"
         },
         "actions": {
           "share": "Share product information",

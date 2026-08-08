@@ -6,7 +6,6 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleDollarSign,
-  ExternalLink,
   Heart,
   Home,
   ImageOff,
@@ -23,6 +22,7 @@ import {
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
+import { ProductSourceLink } from "@/sazo-commerce/ProductSourceLink";
 import {
   catalogInventory,
   getProductDetail,
@@ -421,6 +421,11 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
         </section>
 
         <aside className="sazo-product-detail-purchase-panel">
+          <ProductSourceLink
+            brand={product.brand}
+            href={detail.originalUrl}
+            label={t("sazo.views.productDetail.source.openOriginal")}
+          />
           <div className="sazo-product-detail-source-row">
             <div>
               <span className="sazo-product-detail-eyebrow">
@@ -431,16 +436,6 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
               <span className="sazo-product-detail-category">{detail.categoryLabel}</span>
             </div>
             <div className="sazo-product-detail-quick-actions">
-              {detail.originalUrl === undefined ? null : (
-                <a
-                  aria-label={t("sazo.views.productDetail.source.openOriginal")}
-                  href={detail.originalUrl}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <ExternalLink aria-hidden size={19} strokeWidth={1.9} />
-                </a>
-              )}
               <button
                 aria-label={t("sazo.views.productDetail.actions.share")}
                 onClick={handleShare}
@@ -477,6 +472,38 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
             <Sparkles aria-hidden size={18} strokeWidth={1.9} />
             {t("sazo.views.productDetail.directPurchase")}
           </p>
+
+          <div className="sazo-product-detail-metadata">
+            <div className="sazo-product-detail-metadata-row">
+              <Store aria-hidden size={19} strokeWidth={1.9} />
+              <div>
+                <span>{t("sazo.views.productDetail.metadata.purchaseType")}</span>
+                <strong>
+                  {t(
+                    `sazo.views.productDetail.metadata.purchaseTypes.${detail.purchaseTypeId}`,
+                  )}
+                </strong>
+              </div>
+            </div>
+            <div className="sazo-product-detail-metadata-row">
+              <Truck aria-hidden size={19} strokeWidth={1.9} />
+              <div>
+                <span>{t("sazo.views.productDetail.metadata.deliveryEstimate")}</span>
+                <strong>
+                  {t("sazo.views.productDetail.metadata.deliveryEstimateValue", {
+                    days: detail.deliveryEstimateDays,
+                  })}
+                </strong>
+              </div>
+            </div>
+            <div className="sazo-product-detail-metadata-row">
+              <ShieldCheck aria-hidden size={19} strokeWidth={1.9} />
+              <div>
+                <span>{t("sazo.views.productDetail.metadata.support")}</span>
+                <strong>{t("sazo.views.productDetail.metadata.details")}</strong>
+              </div>
+            </div>
+          </div>
 
           <form
             aria-labelledby="sazo-product-purchase-heading"

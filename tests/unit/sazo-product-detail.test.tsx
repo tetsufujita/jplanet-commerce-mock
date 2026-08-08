@@ -17,7 +17,7 @@ import { createI18n } from "@/i18n/createI18n";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 import { ProductDetailView } from "@/sazo-commerce/ProductDetailView";
 import { SazoCommercePage } from "@/sazo-commerce/SazoCommercePage";
-import { products } from "@/sazo-commerce/fixtures";
+import { getProductDetail, products } from "@/sazo-commerce/fixtures";
 
 afterEach(() => {
   cleanup();
@@ -180,6 +180,34 @@ describe("SAZO product detail navigation", () => {
 });
 
 describe("J-Planet product detail experience", () => {
+  it("renders a marketplace badge and original-page link for every product", async () => {
+    const detail = getProductDetail("p01");
+
+    await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId={detail.product.id} />,
+    );
+
+    const sourceLink = screen.getByRole("link", { name: /元のページへ/ });
+    expect(sourceLink.getAttribute("href")).toBe(
+      "https://example.com/jplanet/source/p01",
+    );
+    expect(sourceLink.getAttribute("target")).toBe("_blank");
+    expect(sourceLink.getAttribute("rel")).toContain("noreferrer");
+    expect(screen.getByTestId("product-source-badge").textContent).toBe("11D");
+    expect(screen.getByText("J-Planet直輸入商品")).toBeTruthy();
+    expect(screen.getByText("ご注文日から平均9日")).toBeTruthy();
+  });
+
+  it("resolves deterministic commerce metadata for generated details", () => {
+    const detail = getProductDetail("p02");
+
+    expect(detail.originalUrl).toBe("https://example.com/jplanet/source/p02");
+    expect(detail.unitPriceAmount).toBe(4012);
+    expect(detail.localDistributionFeeAmount).toBe(350);
+    expect(detail.purchaseTypeId).toBe("direct");
+    expect(detail.deliveryEstimateDays).toBe(9);
+  });
+
   it("renders the complete Japan-to-Brazil information hierarchy", async () => {
     const product = products[0];
 

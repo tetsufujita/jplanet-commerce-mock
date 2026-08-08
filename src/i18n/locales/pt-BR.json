@@ -355,7 +355,18 @@
         },
         "source": {
           "label": "Loja japonesa · {{brand}}",
-          "openOriginal": "Abrir página do produto na loja"
+          "openOriginal": "Ir para a página original"
+        },
+        "metadata": {
+          "purchaseType": "Tipo de compra",
+          "purchaseTypes": {
+            "direct": "Importação direta pela J-Planet",
+            "marketplace": "Item de marketplace"
+          },
+          "deliveryEstimate": "Previsão de entrega",
+          "deliveryEstimateValue": "Média de {{days}} dias após o pedido",
+          "support": "Suporte de entrega J-Planet",
+          "details": "Comprado e inspecionado no Japão, depois entregue internacionalmente ao Brasil"
         },
         "actions": {
           "share": "Compartilhar informações do produto",
