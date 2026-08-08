@@ -206,30 +206,48 @@ async function assertJplanetTheme(page, label) {
       )
       .join(" ");
   });
-  const visibleControlCopy = await root.locator("input, textarea").evaluateAll((elements) =>
-    elements
-      .filter((element) => {
-        const style = getComputedStyle(element);
-        return style.display !== "none" && style.visibility === "visible";
-      })
-      .map((element) => `${element.getAttribute("placeholder") ?? ""} ${element.value ?? ""}`)
-      .join(" "),
-  );
+  const visibleControlCopy = await root
+    .locator("input, textarea")
+    .evaluateAll((elements) =>
+      elements
+        .filter((element) => {
+          const style = getComputedStyle(element);
+          return style.display !== "none" && style.visibility === "visible";
+        })
+        .map(
+          (element) =>
+            `${element.getAttribute("placeholder") ?? ""} ${element.value ?? ""}`,
+        )
+        .join(" "),
+    );
   const visibleCopy = normalizeRenderedCopy(
     `${renderedText} ${pseudoElementCopy} ${visibleControlCopy}`,
   );
 
   for (const forbiddenCopy of forbiddenRouteCopy) {
-    assert.equal(visibleCopy.includes(forbiddenCopy), false, `${label} legacy route copy: ${forbiddenCopy}`);
+    assert.equal(
+      visibleCopy.includes(forbiddenCopy),
+      false,
+      `${label} legacy route copy: ${forbiddenCopy}`,
+    );
   }
-  assert.equal(forbiddenBrandPattern.test(visibleCopy), false, `${label} legacy brand copy`);
+  assert.equal(
+    forbiddenBrandPattern.test(visibleCopy),
+    false,
+    `${label} legacy brand copy`,
+  );
 
   for (const selector of forbiddenLogoSelectors) {
-    assert.equal(await root.locator(selector).count(), 0, `${label} legacy logo selector: ${selector}`);
+    assert.equal(
+      await root.locator(selector).count(),
+      0,
+      `${label} legacy logo selector: ${selector}`,
+    );
   }
 
-  const imageAudit = await root.locator("img").evaluateAll(
-    (images, forbiddenFragments) => {
+  const imageAudit = await root
+    .locator("img")
+    .evaluateAll((images, forbiddenFragments) => {
       const failures = [];
       const forbiddenAssets = [];
 
@@ -240,15 +258,15 @@ async function assertJplanetTheme(page, label) {
             `${source} complete=${String(image.complete)} size=${String(image.naturalWidth)}x${String(image.naturalHeight)}`,
           );
         }
-        if (forbiddenFragments.some((fragment) => source.toLowerCase().includes(fragment))) {
+        if (
+          forbiddenFragments.some((fragment) => source.toLowerCase().includes(fragment))
+        ) {
           forbiddenAssets.push(source);
         }
       }
 
       return { count: images.length, failures, forbiddenAssets };
-    },
-    forbiddenAssetFragments,
-  );
+    }, forbiddenAssetFragments);
 
   assert.deepEqual(imageAudit.failures, [], `${label} image load failures`);
   assert.deepEqual(imageAudit.forbiddenAssets, [], `${label} legacy brand assets`);
@@ -264,7 +282,11 @@ async function assertJplanetTheme(page, label) {
 async function assertMobileTopPlacement(page, view, width) {
   const label = `mobile-${String(width)}/${view}`;
   const desktopBand = page.locator(".sazo-desktop-header-band");
-  assert.equal(await desktopBand.evaluate((element) => getComputedStyle(element).display), "none", `${label} desktop band display`);
+  assert.equal(
+    await desktopBand.evaluate((element) => getComputedStyle(element).display),
+    "none",
+    `${label} desktop band display`,
+  );
   assert.equal(await desktopBand.boundingBox(), null, `${label} desktop band bounds`);
 
   const contentBounds = await page.locator(contentSelector(view)).boundingBox();
@@ -273,12 +295,21 @@ async function assertMobileTopPlacement(page, view, width) {
   if (view === "home") {
     const mobileHeaderBounds = await page.locator(".sazo-mobile-header").boundingBox();
     assert(mobileHeaderBounds !== null, `${label} mobile header bounds`);
-    assert.ok(Math.abs(mobileHeaderBounds.y) <= 1, `${label} mobile header y=${String(mobileHeaderBounds.y)}`);
-    assert.ok(Math.abs(contentBounds.y - 76) <= 1, `${label} home content y=${String(contentBounds.y)}`);
+    assert.ok(
+      Math.abs(mobileHeaderBounds.y) <= 1,
+      `${label} mobile header y=${String(mobileHeaderBounds.y)}`,
+    );
+    assert.ok(
+      Math.abs(contentBounds.y - 76) <= 1,
+      `${label} home content y=${String(contentBounds.y)}`,
+    );
     return;
   }
 
-  assert.ok(Math.abs(contentBounds.y) <= 1, `${label} content y=${String(contentBounds.y)}`);
+  assert.ok(
+    Math.abs(contentBounds.y) <= 1,
+    `${label} content y=${String(contentBounds.y)}`,
+  );
 }
 
 let browser;
@@ -314,7 +345,9 @@ try {
         );
       }
       if (view === "service") {
-        const serviceHeading = page.locator('[data-view-content="service"] .sazo-service-hero h1');
+        const serviceHeading = page.locator(
+          '[data-view-content="service"] .sazo-service-hero h1',
+        );
         const routeHeading = page.locator(
           '[data-view-content="service"] .sazo-service-hero-outline',
         );
@@ -382,7 +415,9 @@ try {
     for (const authStep of authSteps) {
       await page.goto(`${baseUrl}?qa=1&auth=${authStep}`, { waitUntil: "networkidle" });
       const selector =
-        authStep === "google" ? '[data-testid="sazo-google-chooser"]' : "[data-testid=sazo-auth-page]";
+        authStep === "google"
+          ? '[data-testid="sazo-google-chooser"]'
+          : "[data-testid=sazo-auth-page]";
       await page.locator(selector).waitFor();
       const audit = await assertJplanetTheme(page, `${viewport.label}/auth-${authStep}`);
       auditedImages += audit.imageCount;
@@ -439,7 +474,11 @@ try {
   const serviceStepSources = await servicePage
     .locator(".sazo-service-step-image img")
     .evaluateAll((images) => images.map((image) => new URL(image.currentSrc).pathname));
-  assert.deepEqual(serviceStepSources, approvedServiceStepAssets, "service approved step assets");
+  assert.deepEqual(
+    serviceStepSources,
+    approvedServiceStepAssets,
+    "service approved step assets",
+  );
   await servicePage.close();
 
   assert.equal(auditedStates, 36, "browser audit state count");

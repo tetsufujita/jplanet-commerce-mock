@@ -164,12 +164,10 @@ describe("SAZO home composition", () => {
       name: "J-Planetショートカット",
     });
 
-    expect(
-      screen.getByRole("button", { name: "J-Planet特集" }),
-    ).toBeTruthy();
-    expect(
-      shortcutGroup.querySelectorAll("img[data-jplanet-sakura-mark]"),
-    ).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "J-Planet特集" })).toBeTruthy();
+    expect(shortcutGroup.querySelectorAll("img[data-jplanet-sakura-mark]")).toHaveLength(
+      1,
+    );
     expect(
       shortcutGroup.querySelectorAll("svg[data-jplanet-shortcut-icon]"),
     ).toHaveLength(4);

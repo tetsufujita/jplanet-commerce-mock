@@ -24,11 +24,13 @@
 ### Task 1: Add product-detail state and fixture resolution
 
 **Files:**
+
 - Modify: `src/sazo-commerce/model.ts`
 - Modify: `src/sazo-commerce/fixtures.ts`
 - Modify: `tests/unit/sazo-commerce-model.test.ts`
 
 **Interfaces:**
+
 - Consumes: existing `SazoView`, `SazoState`, `SazoAction`, `Product`, `products`, `searchDiscoveryProducts`, `catalogInventory`, and `reviewRecommendations`.
 - Produces: `ProductDetail`, `getProductDetail(productId: string | null): ProductDetail`, `open-product`, `close-product`, `selectedProductId`, and `productReturnView`.
 
@@ -120,8 +122,7 @@ export interface SazoState {
 
 export type SazoAction =
   // existing actions remain unchanged
-  | { type: "open-product"; productId: string }
-  | { type: "close-product" };
+  { type: "open-product"; productId: string } | { type: "close-product" };
 ```
 
 Initialize `selectedProductId` to `null` and `productReturnView` to `"home"`. Add `product` to `qaViews`; when `?qa=1&view=product` is accepted, read `product` and default to `products[0].id` indirectly through the view layer when absent. Reducer behavior must preserve the old return view when `state.view === "product"`:
@@ -167,7 +168,7 @@ export interface ProductDetail {
 After all product-bearing fixture arrays are declared, build a deduplicated product registry from `products`, `searchDiscoveryProducts`, `catalogInventory.map(({ product }) => product)`, and `reviewRecommendations.map(({ product }) => product)`. Add a rich `p01` override with three local gallery images from `/sazo-commerce/products/01.webp` through `/03.webp`, option choices `標準` and `ギフト包装`, and Japan-to-Brazil copy. Export:
 
 ```ts
-export function getProductDetail(productId: string | null): ProductDetail
+export function getProductDetail(productId: string | null): ProductDetail;
 ```
 
 The fallback must select the requested registered product, otherwise `products[0]`, use a one-image gallery, `商品オプション`, option `標準`, no fabricated external URL, and recommendation IDs from other registered products.
@@ -195,6 +196,7 @@ git commit -m "feat: add product detail state and fixtures"
 ### Task 2: Make every ProductCard open and return from a basic detail view
 
 **Files:**
+
 - Create: `src/sazo-commerce/ProductDetailView.tsx`
 - Modify: `src/sazo-commerce/ProductCard.tsx`
 - Modify: `src/sazo-commerce/HomeView.tsx`
@@ -205,6 +207,7 @@ git commit -m "feat: add product detail state and fixtures"
 - Create: `tests/unit/sazo-product-detail.test.tsx`
 
 **Interfaces:**
+
 - Consumes: Task 1 `open-product`, `close-product`, `getProductDetail`, `selectedProductId`, and `SazoState`.
 - Produces: `ProductDetailView`, `data-view-content="product"`, `data-product-detail`, and accessible `ProductCard` open controls.
 
@@ -312,11 +315,13 @@ git commit -m "feat: open product detail from commerce cards"
 ### Task 3: Build the complete interactive product detail page
 
 **Files:**
+
 - Modify: `src/sazo-commerce/ProductDetailView.tsx`
 - Modify: `src/sazo-commerce/sazo.css`
 - Modify: `tests/unit/sazo-product-detail.test.tsx`
 
 **Interfaces:**
+
 - Consumes: Task 1 `ProductDetail`; Task 2 `ProductDetailViewProps` and product navigation.
 - Produces: gallery, purchase form, recommendation rail, order timeline, tabs, reviews, caution content, J-Planet benefit cards, and mobile purchase bar.
 
@@ -338,9 +343,9 @@ Add gallery and purchase behavior:
 ```tsx
 const secondThumbnail = screen.getByRole("button", { name: "画像2を表示" });
 fireEvent.click(secondThumbnail);
-expect(
-  screen.getByRole("img", { name: products[0]!.name }).getAttribute("src"),
-).toBe("/sazo-commerce/products/02.webp");
+expect(screen.getByRole("img", { name: products[0]!.name }).getAttribute("src")).toBe(
+  "/sazo-commerce/products/02.webp",
+);
 
 fireEvent.click(screen.getAllByRole("button", { name: "カートに入れる" })[0]!);
 expect(screen.getByRole("alert").textContent).toContain("商品オプションを選択");
@@ -437,12 +442,14 @@ git commit -m "feat: reproduce J-Planet product detail experience"
 ### Task 4: Add real-browser product QA and complete the rollout
 
 **Files:**
+
 - Create: `scripts/sazo-product-detail-browser.mjs`
 - Modify: `scripts/sazo-jplanet-theme-browser.mjs`
 - Modify: `package.json`
 - Modify: `docs/superpowers/plans/2026-08-08-jplanet-product-detail.md`
 
 **Interfaces:**
+
 - Consumes: `data-view-content="product"`, `data-product-detail`, `.sazo-product-open`, `.sazo-product-mobile-purchase`, and QA product parameters.
 - Produces: desktop/390px/320px screenshots, origin-return interaction proof, fixed-bar bounds proof, and expanded whole-site theme audit.
 

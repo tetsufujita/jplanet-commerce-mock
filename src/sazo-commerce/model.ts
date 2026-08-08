@@ -169,12 +169,7 @@ const qaViews = new Set<SazoView>([
   "cards",
   "product",
 ]);
-const qaAuthSteps = new Set<SazoAuthStep>([
-  "provider",
-  "google",
-  "birthday",
-  "phone",
-]);
+const qaAuthSteps = new Set<SazoAuthStep>(["provider", "google", "birthday", "phone"]);
 
 export function createInitialSazoState(search = ""): SazoState {
   const state: SazoState = {
