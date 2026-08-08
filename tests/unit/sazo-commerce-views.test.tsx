@@ -286,7 +286,15 @@ describe("SAZO captured view contracts", () => {
       name: "レビュー高評価のおすすめ",
     });
 
-    expect(container.querySelectorAll(".sazo-review-tile").length).toBeGreaterThan(0);
+    const editorialTiles = container.querySelectorAll(".sazo-review-tile");
+
+    expect(editorialTiles).toHaveLength(12);
+    expect(
+      container.querySelector('[data-review-id="editorial-review-09"]')?.textContent,
+    ).toContain("丁寧な梱包で届きました。ありがとうございました。");
+    expect(
+      container.querySelector('[data-review-id="editorial-review-12"]')?.textContent,
+    ).toContain("とても綺麗な状態で届きました。");
     const recommendationButton = within(recommendations)
       .getAllByRole("button", { name: /商品詳細を開く/ })
       .at(0);

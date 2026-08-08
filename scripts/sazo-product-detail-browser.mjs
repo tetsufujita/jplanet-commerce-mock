@@ -8,7 +8,8 @@ const viewports = [
   { label: "mobile", width: 390, height: 844 },
   { label: "mobile-320", width: 320, height: 844 },
 ];
-const forbiddenProductCopy = ["SAZO", "韓国", "KOREA", "TO JAPAN"];
+const forbiddenProductCopy = [/sazo/i, /韓国/, /korea/i, /to\s+japan/i];
+const notoFontRequest = /\/sazo-commerce\/fonts\/noto-sans-jp\/files\/.*\.woff2(?:\?|$)/i;
 
 const server = await createServer({
   logLevel: "error",
@@ -26,6 +27,34 @@ function rectanglesOverlap(first, second) {
     first.y + first.height <= second.y ||
     second.y + second.height <= first.y
   );
+}
+
+async function setUpNotoFontAudit(page) {
+  const failures = [];
+
+  page.on("requestfailed", (request) => {
+    if (notoFontRequest.test(request.url())) {
+      failures.push(
+        `${request.url()} requestfailed=${request.failure()?.errorText ?? "unknown"}`,
+      );
+    }
+  });
+  page.on("response", (response) => {
+    const status = response.status();
+    const successfulResponse = response.ok() || status === 304;
+
+    if (notoFontRequest.test(response.url()) && !successfulResponse) {
+      failures.push(`${response.url()} status=${String(response.status())}`);
+    }
+  });
+
+  if (process.env.SAZO_QA_ABORT_FONTS === "1") {
+    await page.route(notoFontRequest, async (route) => {
+      await route.abort("failed");
+    });
+  }
+
+  return failures;
 }
 
 async function assertDetailImages(page, label) {
@@ -51,8 +80,7 @@ async function assertDetailImages(page, label) {
     count: images.length,
     failures: images
       .filter(
-        (image) =>
-          !image.complete || image.naturalWidth <= 0 || image.naturalHeight <= 0,
+        (image) => !image.complete || image.naturalWidth <= 0 || image.naturalHeight <= 0,
       )
       .map((image) => {
         const source = image.currentSrc || image.getAttribute("src") || "<missing-src>";
@@ -73,12 +101,18 @@ async function assertMobilePurchaseGeometry(page, viewport, label) {
 
   assert(purchaseBounds !== null, `${label} fixed purchase bar bounds`);
   assert(chatBounds !== null, `${label} chat launcher bounds`);
-  assert.ok(purchaseBounds.x >= -1, `${label} fixed purchase x=${String(purchaseBounds.x)}`);
+  assert.ok(
+    purchaseBounds.x >= -1,
+    `${label} fixed purchase x=${String(purchaseBounds.x)}`,
+  );
   assert.ok(
     purchaseBounds.x + purchaseBounds.width <= viewport.width + 1,
     `${label} fixed purchase right=${String(purchaseBounds.x + purchaseBounds.width)}`,
   );
-  assert.ok(purchaseBounds.y >= -1, `${label} fixed purchase y=${String(purchaseBounds.y)}`);
+  assert.ok(
+    purchaseBounds.y >= -1,
+    `${label} fixed purchase y=${String(purchaseBounds.y)}`,
+  );
   assert.ok(
     purchaseBounds.y + purchaseBounds.height <= viewport.height + 1,
     `${label} fixed purchase bottom=${String(purchaseBounds.y + purchaseBounds.height)}`,
@@ -97,7 +131,10 @@ async function assertMobilePurchaseGeometry(page, viewport, label) {
       ) <= 2,
   );
 
-  const footerContent = page.locator(".sazo-mobile-shell .sazo-footer").locator("a, button, small").last();
+  const footerContent = page
+    .locator(".sazo-mobile-shell .sazo-footer")
+    .locator("a, button, small")
+    .last();
   const footerBounds = await footerContent.boundingBox();
   const bottomPurchaseBounds = await purchaseBar.boundingBox();
   const bottomChatBounds = await chatButton.boundingBox();
@@ -116,10 +153,77 @@ async function assertMobilePurchaseGeometry(page, viewport, label) {
   );
 }
 
+async function assertReviewRailClearance(page, label) {
+  const reviewView = page.locator('[data-view-content="reviews"]');
+  const reviewImages = reviewView.locator(".sazo-review-tile img");
+
+  await reviewImages.evaluateAll(async (images) => {
+    await Promise.all(
+      images.map(async (image) => {
+        image.loading = "eager";
+        if (image.complete) return;
+
+        await new Promise((resolve) => {
+          const finish = () => resolve();
+          image.addEventListener("error", finish, { once: true });
+          image.addEventListener("load", finish, { once: true });
+          setTimeout(finish, 8_000);
+        });
+      }),
+    );
+  });
+  await page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      }),
+  );
+
+  const geometry = await reviewView.evaluate((element) => {
+    const rail = element.querySelector(".sazo-review-product-recommendations");
+    assertElement(rail);
+    const railTop = rail.getBoundingClientRect().top;
+    const tiles = [...element.querySelectorAll(".sazo-review-tile")]
+      .map((tile) => {
+        const bounds = tile.getBoundingClientRect();
+        return {
+          bottom: bounds.bottom,
+          id: tile.getAttribute("data-review-id") ?? "<missing-id>",
+          visible: bounds.width > 0 && bounds.height > 0,
+        };
+      })
+      .filter(({ visible }) => visible);
+
+    return {
+      overlaps: tiles
+        .filter(({ bottom }) => bottom > railTop + 1)
+        .map(({ bottom, id }) => ({ bottom, id, overlap: bottom - railTop })),
+      railTop,
+      tileCount: tiles.length,
+    };
+
+    function assertElement(value) {
+      if (!(value instanceof HTMLElement)) {
+        throw new Error("Reviews recommendation rail was not rendered");
+      }
+    }
+  });
+
+  assert.ok(geometry.tileCount > 0, `${label} visible editorial review tiles`);
+  assert.deepEqual(
+    geometry.overlaps,
+    [],
+    `${label} reviews rail overlaps editorial tiles at railTop=${String(geometry.railTop)}`,
+  );
+}
+
 async function assertOriginReturn(page, baseUrl, origin, label) {
   await page.goto(`${baseUrl}?qa=1&view=${origin}`, { waitUntil: "networkidle" });
   const originContent = page.locator(contentSelector(origin));
   await originContent.waitFor();
+  if (origin === "reviews") {
+    await assertReviewRailClearance(page, label);
+  }
   await originContent.locator(".sazo-product-open").first().click();
   await page.locator("[data-product-detail]").waitFor();
   await page.getByRole("button", { exact: true, name: "戻る" }).click();
@@ -131,7 +235,7 @@ async function assertOriginReturn(page, baseUrl, origin, label) {
   );
 }
 
-async function auditProductViewport(page, baseUrl, viewport) {
+async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures) {
   const label = viewport.label;
 
   await page.goto(`${baseUrl}?qa=1&view=product&product=p01`, {
@@ -139,17 +243,55 @@ async function auditProductViewport(page, baseUrl, viewport) {
   });
   const detail = page.locator("[data-product-detail]");
   await detail.waitFor();
-  await page.evaluate(() => document.fonts.ready);
 
-  const fontFamily = await detail.evaluate((element) => getComputedStyle(element).fontFamily);
+  const fontFamily = await detail.evaluate(
+    (element) => getComputedStyle(element).fontFamily,
+  );
   assert.match(fontFamily, /Noto Sans JP/i, `${label} computed font`);
 
+  const fontAudit = await detail.evaluate(async () => {
+    const descriptor = '400 16px "Noto Sans JP Variable"';
+    const sample = "日本の商品をブラジルへ";
+    let loadError = null;
+    let loadedFaces = [];
+
+    try {
+      loadedFaces = await document.fonts.load(descriptor, sample);
+    } catch (error) {
+      loadError = error instanceof Error ? error.message : String(error);
+    }
+
+    await document.fonts.ready;
+    const matchingFaces = [...document.fonts].filter(
+      (face) => face.family.replaceAll(/["']/g, "") === "Noto Sans JP Variable",
+    );
+
+    return {
+      check: document.fonts.check(descriptor, sample),
+      loadError,
+      loadedFaceCount: loadedFaces.length,
+      matchingLoadedCount: matchingFaces.filter(({ status }) => status === "loaded")
+        .length,
+      matchingStatuses: [...new Set(matchingFaces.map(({ status }) => status))],
+    };
+  });
+
+  assert.equal(fontAudit.loadError, null, `${label} Noto explicit load error`);
+  assert.ok(fontAudit.loadedFaceCount > 0, `${label} Noto explicit load result`);
+  assert.ok(fontAudit.matchingLoadedCount > 0, `${label} loaded Noto FontFace`);
+  assert.equal(fontAudit.check, true, `${label} document.fonts.check`);
+  assert.deepEqual(
+    fontNetworkFailures,
+    [],
+    `${label} Noto font network failures statuses=${fontAudit.matchingStatuses.join(",")}`,
+  );
+
   const renderedCopy = (await detail.innerText()).normalize("NFKC").replace(/\s+/g, " ");
-  for (const forbiddenCopy of forbiddenProductCopy) {
+  for (const forbiddenPattern of forbiddenProductCopy) {
     assert.equal(
-      renderedCopy.includes(forbiddenCopy),
+      forbiddenPattern.test(renderedCopy),
       false,
-      `${label} forbidden product copy: ${forbiddenCopy}`,
+      `${label} forbidden product copy: ${forbiddenPattern.source}`,
     );
   }
   assert.equal(
@@ -181,7 +323,11 @@ async function auditProductViewport(page, baseUrl, viewport) {
   const cautionTab = page.getByRole("tab", { name: "注意事項" });
   const informationTab = page.getByRole("tab", { name: "商品情報" });
   await cautionTab.click();
-  assert.equal(await cautionTab.getAttribute("aria-selected"), "true", `${label} caution tab`);
+  assert.equal(
+    await cautionTab.getAttribute("aria-selected"),
+    "true",
+    `${label} caution tab`,
+  );
   await informationTab.click();
   assert.equal(
     await informationTab.getAttribute("aria-selected"),
@@ -227,13 +373,19 @@ try {
       viewport: { height: viewport.height, width: viewport.width },
     });
     page.setDefaultTimeout(10_000);
+    const fontNetworkFailures = await setUpNotoFontAudit(page);
 
     for (const origin of origins) {
       await assertOriginReturn(page, baseUrl, origin, viewport.label);
       auditedOriginStates += 1;
     }
 
-    auditedImages += await auditProductViewport(page, baseUrl, viewport);
+    auditedImages += await auditProductViewport(
+      page,
+      baseUrl,
+      viewport,
+      fontNetworkFailures,
+    );
     await page.close();
   }
 

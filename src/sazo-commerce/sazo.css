@@ -3780,6 +3780,14 @@
   column-gap: 24px;
 }
 
+.sazo-root .sazo-review-product-recommendations {
+  display: flow-root;
+}
+
+.sazo-root .sazo-review-product-recommendations > h2 {
+  margin: 0 0 24px;
+}
+
 .sazo-root .sazo-review-tile {
   align-self: start;
   width: 100%;
@@ -3836,6 +3844,10 @@
     left: -9px;
     width: min(1152px, calc(100% - 48px));
     position: relative;
+  }
+
+  .sazo-root .sazo-review-masonry {
+    padding-bottom: 32px;
   }
 
   .sazo-root .sazo-review-tile:nth-child(5) {
