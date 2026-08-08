@@ -28,6 +28,7 @@
 - Modify `src/sazo-commerce/model.ts`: QA時だけビューと認証状態を直接指定できるようにする。
 - Modify `src/sazo-commerce/sazo.css`: 全ページのJ-Planetトークン、ポップなアイコン、旧SAZO色を置換する。
 - Modify `tests/unit/sazo-commerce-home.test.tsx`: 表示ラベルとDOM種別をJ-Planet仕様へ更新する。
+- Modify `tests/unit/sazo-commerce-account.test.tsx`: 認証ページのロゴ契約をJ-Planetへ更新する。
 - Modify `tests/unit/sazo-commerce-model.test.ts`: QAビュー指定と画像fixture契約を更新する。
 - Modify `tests/unit/sazo-reference-manifest.test.ts`: 廃止する旧ショートカットPNGの参照契約を更新する。
 
@@ -38,9 +39,24 @@
 **Files:**
 - Create: `tests/unit/sazo-jplanet-theme.test.ts`
 - Modify: `src/sazo-commerce/sazo.css:1-15`
+- Modify: `tests/unit/sazo-commerce-account.test.tsx:168-174`
 
 **Interfaces:**
 - Produces: `--jplanet-navy`, `--jplanet-deep-navy`, `--jplanet-sakura`, `--jplanet-sakura-soft`, `--jplanet-blue-soft`, `--jplanet-ink`, `--jplanet-muted`, `--jplanet-line`, `--jplanet-surface`, `--jplanet-soft`, `--jplanet-shadow`。
+
+- [ ] **Step 0: 既存J-Planetロゴに追従して基準テストを直す**
+
+```ts
+expect(
+  within(birthdayPage)
+    .getByRole("banner")
+    .querySelector("img[data-jplanet-wordmark='true']"),
+).toBeTruthy();
+```
+
+Run: `pnpm vitest run tests/unit/sazo-commerce-account.test.tsx`
+
+Expected: 17 tests PASS。
 
 - [ ] **Step 1: ブランドトークンの失敗テストを書く**
 
