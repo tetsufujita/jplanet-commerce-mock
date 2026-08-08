@@ -43,7 +43,7 @@ describe("sazoReducer", () => {
 
   it("keeps the original return view when another recommendation is opened", () => {
     const first = sazoReducer(
-      { ...createInitialSazoState(), view: "ranking" } as SazoState,
+      { ...createInitialSazoState(), view: "ranking" },
       { type: "open-product", productId: "p01" },
     );
     const second = sazoReducer(first, { type: "open-product", productId: "p02" });
