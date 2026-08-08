@@ -1,0 +1,14 @@
+<svg viewBox="0 0 1440 640" role="img" aria-labelledby="title desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="title">日本からブラジルへの直送ルート</title>
+  <desc id="desc">日本で購入・検品した商品を国際配送し、ブラジルへ届ける流れ</desc>
+  <rect width="1440" height="640" rx="48" fill="#ffffff"/>
+  <circle cx="220" cy="330" r="118" fill="#f3f6fb"/>
+  <circle cx="1220" cy="330" r="118" fill="#fff4f5"/>
+  <path d="M275 290 C560 35 930 35 1165 290" fill="none" stroke="#fea2ac" stroke-width="12" stroke-linecap="round"/>
+  <path d="M1165 290 l-32 -8 18 28 z" fill="#fea2ac"/>
+  <text x="650" y="104" fill="#1f3864" font-size="54" font-weight="800">✈</text>
+  <text x="220" y="342" text-anchor="middle" fill="#1f3864" font-size="46" font-weight="800">JAPAN</text>
+  <text x="1220" y="342" text-anchor="middle" fill="#1f3864" font-size="46" font-weight="800">BRAZIL</text>
+  <text x="220" y="500" text-anchor="middle" fill="#667085" font-size="30">購入・検品</text>
+  <text x="1220" y="500" text-anchor="middle" fill="#667085" font-size="30">ブラジルへお届け</text>
+</svg>

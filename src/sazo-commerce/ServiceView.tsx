@@ -1,25 +1,165 @@
 import { useState } from "react";
 import {
-  AtSign,
+  ArrowRight,
+  ArrowUp,
   Camera,
-  ChevronDown,
   MessageCircle,
-  PackageCheck,
-  ReceiptText,
+  Minus,
+  Plus,
   Search,
-  ShieldCheck,
-  Truck,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ViewHeader, type ViewDispatchProps } from "@/sazo-commerce/DirectoryViews";
 import { serviceSteps } from "@/sazo-commerce/fixtures";
+import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
 
-const faqIds = ["01", "02", "03", "04"] as const;
-const trustItems = [
-  { icon: ReceiptText, key: "trust01" },
-  { icon: PackageCheck, key: "trust02" },
-  { icon: Truck, key: "trust03" },
+const problemItems = [
+  {
+    body: "日本の通販サイトで会員登録や購入手続きが難しい。",
+    image: "/sazo-commerce/service-lp/problem-1.svg",
+    title: "日本のショップで購入できない",
+  },
+  {
+    body: "日本国内向けの決済方法にしか対応していない。",
+    image: "/sazo-commerce/service-lp/problem-2.svg",
+    title: "ブラジルから決済できない",
+  },
+  {
+    body: "海外配送に未対応の場合が多く、ブラジルで受け取れない。",
+    image: "/sazo-commerce/service-lp/problem-3.svg",
+    title: "ブラジルまで発送できない",
+  },
 ] as const;
+
+const heroReviews = [
+  {
+    author: "チャンユカ",
+    body: "日本の新作を早く欲しくてJ-Planetで購入しました！",
+    image: "/sazo-commerce/service-lp/review-00.jpg",
+  },
+  {
+    author: "Yu",
+    body: "日本の商品をブラジルから安心して購入できました。",
+    image: "/sazo-commerce/service-lp/review-01.jpg",
+  },
+  {
+    author: "りの",
+    body: "日本での購入からブラジルに届くまで安心できました。",
+    image: "/sazo-commerce/service-lp/review-02.jpg",
+  },
+  {
+    author: "Allen Ng",
+    body: "日本のショップでも不安なく購入できました！",
+    image: "/sazo-commerce/service-lp/review-03.jpg",
+  },
+  {
+    author: "Yu",
+    body: "日本限定の商品を購入できて大満足です。",
+    image: "/sazo-commerce/service-lp/review-04.jpg",
+  },
+  {
+    author: "ノンダム",
+    body: "欲しかった日本の商品を購入できました！",
+    image: "/sazo-commerce/service-lp/review-05.jpg",
+  },
+  {
+    author: "Rinka",
+    body: "日本の商品を買ってみたら大正解でした！",
+    image: "/sazo-commerce/service-lp/review-06.jpg",
+  },
+  {
+    author: "Nn",
+    body: "検品後の状態も良くてすごくいい買い物でした!!",
+    image: "/sazo-commerce/service-lp/review-07.jpg",
+  },
+  {
+    author: "ゆのん",
+    body: "日本の通販商品も簡単に買えて良かったです！",
+    image: "/sazo-commerce/service-lp/review-08.jpg",
+  },
+  {
+    author: "dx ux",
+    body: "잘 받았습니다",
+    image: "/sazo-commerce/service-lp/review-09.jpg",
+  },
+] as const;
+
+const shippingSteps = [
+  "受付",
+  "日本国内購入",
+  "日本倉庫で検品",
+  "国際配送・通関",
+  "ブラジルへお届け",
+] as const;
+
+const partnerLogos = [
+  ["AliExpress", "logo-aliexpress.png"],
+  ["번개장터", "logo-bungae.png"],
+  ["coupang", "logo-coupang.png"],
+  ["Gmarket", "logo-gmarket.png"],
+  ["WEBTOON FRIENDS", "logo-webtoonfriends.png"],
+  ["tumblbug", "logo-tumblbug.png"],
+  ["TOY LAND", "logo-toyland.png"],
+  ["smile24", "logo-smile24.png"],
+] as const;
+
+const trustItems = [
+  {
+    body: "日本での購入内容を確認後、費用をわかりやすくご案内します。",
+    finePrint:
+      "※商品価格、重量やサイズ、通関に必要な費用により金額が変動する場合がございます。",
+    image: "/sazo-commerce/service-lp/trust-1.png",
+    title: "確定後の追加請求なし",
+  },
+  {
+    body: "日本での購入から国際配送、ブラジルでのお届けまで状況を追跡できます。",
+    image: "/sazo-commerce/service-lp/trust-2.png",
+    title: "細かく追跡可能",
+  },
+  {
+    body: "日本で購入・検品した商品を、ブラジルまで国際配送します。",
+    image: "/sazo-commerce/service-lp/trust-3.png",
+    title: "日本からブラジルへ配送",
+  },
+  {
+    body: "輸出に適した安全な梱包で、国際配送に備えます。",
+    image: "/sazo-commerce/service-lp/trust-4.png",
+    title: "しっかり梱包",
+  },
+  {
+    body: "J-Planetが日本で購入するため、日本のECサイトにお客様情報を登録する必要がありません。",
+    image: "/sazo-commerce/service-lp/trust-5.png",
+    title: "海外への情報流出なし",
+  },
+] as const;
+
+const faqItems = [
+  {
+    answer:
+      "日本の商品について確認したい場合は、カスタマーサポートへご相談ください。J-Planetが販売者への確認を代行します。",
+    id: "01",
+    question: "日本の販売者に問い合わせることはできますか？",
+  },
+  {
+    answer:
+      "日本からブラジルへの送料は、商品の重量とサイズに応じて計算されます。カートと決済画面でご確認いただけます。",
+    id: "02",
+    question: "送料はいくらですか？",
+  },
+  {
+    answer:
+      "ブラジルでの配送日の指定は承っておりません。発送後は追跡情報から配送状況をご確認いただけます。",
+    id: "03",
+    question: "配送日の指定は可能ですか",
+  },
+  {
+    answer:
+      "商品や申告額によりブラジルで関税が発生する場合があります。必要な費用は注文時の合計金額でご確認いただけます。",
+    id: "04",
+    question: "関税は発生しますか？",
+  },
+] as const;
+
 const footerLinks = [
   "company",
   "careers",
@@ -30,39 +170,154 @@ const footerLinks = [
 ] as const;
 const serviceStepTones = ["yellow", "green", "blue"] as const;
 
+function ServiceUrlSearch({ id }: { id: string }) {
+  return (
+    <div className="sazo-service-url-search">
+      <p>ここに欲しい商品のURLを入力してショッピングをしましょう！</p>
+      <div className="sazo-service-url-entry" role="search">
+        <label className="sazo-visually-hidden" htmlFor={id}>
+          日本のショップURL
+        </label>
+        <input id={id} placeholder="日本のショップURL" type="url" />
+        <button type="button">
+          <Search aria-hidden size={30} strokeWidth={2.1} />
+          <span>検索</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function ServiceView({ dispatch }: ViewDispatchProps) {
   const { t } = useTranslation();
-  const [openFaq, setOpenFaq] = useState<(typeof faqIds)[number] | null>("01");
+  const [openFaq, setOpenFaq] = useState<string | null>(null);
 
   return (
     <div className="sazo-service-view" data-view-content="service">
       <ViewHeader dispatch={dispatch} title={t("sazo.views.service.title")} />
+
       <section className="sazo-service-hero">
-        <div className="sazo-service-title" data-paste-outline="true">
-          <p>{t("sazo.views.service.eyebrow")}</p>
-          <h1>{t("sazo.views.service.title")}</h1>
+        <div className="sazo-service-hero-grid">
+          <img
+            alt="プレゼントを持つ女性"
+            className="sazo-service-hero-image"
+            height={621}
+            src="/sazo-commerce/service-lp/main-image.png"
+            width={720}
+          />
+          <div className="sazo-service-hero-copy">
+            <span aria-hidden className="sazo-service-hero-outline">
+              FROM
+              <br />
+              JAPAN
+              <br />
+              TO BRAZIL
+            </span>
+            <h1>日本代行</h1>
+            <div className="sazo-service-zero">
+              <span>手数料</span>
+              <strong>0</strong>
+              <b>
+                円<sup>*</sup>
+              </b>
+            </div>
+            <h2>日本の商品をブラジルへ直送</h2>
+            <small>*代行手数料に限って0円</small>
+          </div>
+          <ServiceUrlSearch id="sazo-service-hero-url" />
         </div>
-        <div className="sazo-service-url-card">
-          <p>{t("sazo.views.service.urlHint")}</p>
-          <div className="sazo-service-url-entry" role="search">
-            <label className="sazo-visually-hidden" htmlFor="sazo-service-url">
-              {t("sazo.views.service.urlLabel")}
-            </label>
-            <input
-              id="sazo-service-url"
-              placeholder={t("sazo.views.service.urlPlaceholder")}
-              type="url"
+      </section>
+
+      <section aria-label="利用レビュー" className="sazo-service-review-rail">
+        <div className="sazo-service-review-track">
+          {[...heroReviews, ...heroReviews].map((review, index) => (
+            <article
+              className="sazo-service-review-card"
+              key={`${review.author}-${String(index)}`}
+            >
+              <img alt="" aria-hidden height={340} src={review.image} width={320} />
+              <strong>● {review.author}</strong>
+              <p>{review.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="sazo-service-problem">
+        <div className="sazo-service-problem-inner">
+          <header>
+            <img
+              alt=""
+              aria-hidden
+              height={250}
+              src="/sazo-commerce/service-lp/struggling.png"
+              width={240}
             />
-            <button type="button">
-              <Search aria-hidden size={24} />
-              {t("sazo.views.service.search")}
-            </button>
+            <div>
+              <span>PROBLEM</span>
+              <p>🇯🇵 日本の通販で</p>
+              <h2>欲しいものがあっても…</h2>
+            </div>
+          </header>
+          <div className="sazo-service-problem-grid">
+            {problemItems.map((item) => (
+              <article className="sazo-service-problem-card" key={item.title}>
+                <img alt="" aria-hidden height={160} src={item.image} width={160} />
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </article>
+            ))}
+          </div>
+          <img
+            alt=""
+            aria-hidden
+            className="sazo-service-red-polygon"
+            height={96}
+            src="/sazo-commerce/service-lp/red-polygon.svg"
+            width={164}
+          />
+          <div className="sazo-service-solution-copy">
+            <p>
+              URL入力だけで <strong>J-Planet</strong> が
+            </p>
+            <h2>
+              <em>J-Planetが日本で購入、ブラジルまで発送</em>
+            </h2>
+          </div>
+          <div className="sazo-service-benefits">
+            <span>さらに!</span>
+            <article>
+              <h3>代行手数料</h3>
+              <p>
+                <strong>0</strong>円
+              </p>
+            </article>
+            <article>
+              <h3>会員登録で</h3>
+              <p>
+                <strong>送料無料</strong>
+                <br />
+                クーポンGET
+              </p>
+              <small>*2000円まで</small>
+            </article>
+            <img
+              alt=""
+              aria-hidden
+              height={280}
+              src="/sazo-commerce/service-lp/car.png"
+              width={270}
+            />
           </div>
         </div>
       </section>
 
       <section className="sazo-service-steps">
-        <h2>{t("sazo.views.service.stepsTitle")}</h2>
+        <div className="sazo-service-title" data-paste-outline="true">
+          <span>HOW TO USE</span>
+          <p>{t("sazo.views.service.eyebrow")}</p>
+          <h2>{t("sazo.views.service.title")}</h2>
+        </div>
         <div className="sazo-service-step-list">
           {serviceSteps.map((step, index) => (
             <article
@@ -72,15 +327,7 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
               key={step.id}
             >
               <div className="sazo-service-step-image">
-                <img
-                  alt=""
-                  aria-hidden
-                  decoding="async"
-                  height={530}
-                  loading="lazy"
-                  src={step.image}
-                  width={720}
-                />
+                <img alt="" aria-hidden height={1000} src={step.image} width={1100} />
               </div>
               <div className="sazo-service-step-copy">
                 <span aria-label={t("sazo.views.service.stepLabel", { step: step.id })}>
@@ -96,36 +343,102 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
         </div>
       </section>
 
-      <section className="sazo-service-trust">
-        <div className="sazo-service-trust-heading">
-          <ShieldCheck aria-hidden size={34} />
-          <h2>{t("sazo.views.service.trustTitle")}</h2>
+      <section className="sazo-service-shipping">
+        <div className="sazo-service-section-title">
+          <span>SHIPPING</span>
+          <p>迅速な対応で安心できる！</p>
+          <h2>購入後の流れ</h2>
         </div>
-        <div className="sazo-service-trust-grid">
-          {trustItems.map(({ icon: Icon, key }) => (
-            <article key={key}>
-              <Icon aria-hidden size={38} strokeWidth={1.7} />
-              <h3>{t(`sazo.views.service.${key}`)}</h3>
-            </article>
+        <div className="sazo-service-shipping-panel">
+          <img
+            alt="日本からブラジルへ商品を直送"
+            className="sazo-service-shipping-map"
+            src="/sazo-commerce/service-lp/shipping-japan-brazil.svg"
+          />
+          <div className="sazo-service-shipping-steps">
+            {shippingSteps.map((label, index) => (
+              <article className="sazo-service-shipping-step" key={label}>
+                <img
+                  alt=""
+                  aria-hidden
+                  height={112}
+                  src={`/sazo-commerce/service-lp/shipping-step-${String(index + 1)}.svg`}
+                  width={112}
+                />
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <strong>{label}</strong>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="sazo-service-try">
+        <div className="sazo-service-try-inner">
+          <h2>まずはコピペしてみよう！</h2>
+          <ServiceUrlSearch id="sazo-service-try-url" />
+        </div>
+      </section>
+
+      <section className="sazo-service-partners">
+        <h2>
+          <small>フリマ・クラファンなど</small>日本の<span>どの通販</span>でも！
+        </h2>
+        <div className="sazo-service-partner-grid">
+          {partnerLogos.map(([name, image]) => (
+            <img
+              alt={name}
+              height={180}
+              key={name}
+              src={`/sazo-commerce/service-lp/${image}`}
+              width={460}
+            />
           ))}
         </div>
       </section>
 
-      <section className="sazo-service-faq">
-        <h2>{t("sazo.views.service.faqTitle")}</h2>
-        <div className="sazo-faq-list">
-          {faqIds.map((faqId) => {
-            const expanded = faqId === openFaq;
-            const answerId = `sazo-service-faq-${faqId}`;
+      <section className="sazo-service-trust">
+        <div className="sazo-service-trust-heading">
+          <span>TRUST POINT</span>
+          <h2>J-Planetの安心ポイント</h2>
+        </div>
+        <div className="sazo-service-trust-grid">
+          {trustItems.map((item) => (
+            <article className="sazo-service-trust-card" key={item.title}>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+              {"finePrint" in item ? <small>{item.finePrint}</small> : null}
+              <img alt="" aria-hidden height={190} src={item.image} width={190} />
+            </article>
+          ))}
+        </div>
+        <div className="sazo-service-coupon">
+          <h2>
+            今登録すると<span>送料無料クーポン</span>GET!
+          </h2>
+          <button type="button">
+            今すぐアプリをダウンロード <ArrowRight aria-hidden size={20} />
+          </button>
+        </div>
+      </section>
 
+      <section className="sazo-service-faq">
+        <header>
+          <span>FAQ</span>
+          <h2>よくある質問</h2>
+        </header>
+        <div className="sazo-faq-list">
+          {faqItems.map((item) => {
+            const expanded = item.id === openFaq;
+            const answerId = `sazo-service-faq-${item.id}`;
             return (
-              <article className="sazo-faq-item" key={faqId}>
+              <article className="sazo-faq-item" key={item.id}>
                 <h3>
                   <button
                     aria-controls={answerId}
                     aria-expanded={expanded}
                     onClick={() => {
-                      setOpenFaq(expanded ? null : faqId);
+                      setOpenFaq(expanded ? null : item.id);
                     }}
                     onKeyDown={(event) => {
                       if (event.key === "Escape" && expanded) {
@@ -135,8 +448,13 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
                     }}
                     type="button"
                   >
-                    <span>{t(`sazo.views.service.faq${faqId}Question`)}</span>
-                    <ChevronDown aria-hidden size={22} />
+                    <b>Q</b>
+                    <span>{item.question}</span>
+                    {expanded ? (
+                      <Minus aria-hidden size={22} />
+                    ) : (
+                      <Plus aria-hidden size={22} />
+                    )}
                   </button>
                 </h3>
                 <div
@@ -145,7 +463,7 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
                   data-expanded={expanded}
                   id={answerId}
                 >
-                  <p>{t(`sazo.views.service.faq${faqId}Answer`)}</p>
+                  <p>{item.answer}</p>
                 </div>
               </article>
             );
@@ -153,28 +471,47 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
         </div>
       </section>
 
+      <button
+        aria-label="ページ上部へ戻る"
+        className="sazo-service-scroll-top"
+        onClick={() => {
+          window.scrollTo({ behavior: "smooth", top: 0 });
+        }}
+        type="button"
+      >
+        <ArrowUp aria-hidden size={32} />
+      </button>
+
       <section className="sazo-service-support">
-        <img
-          alt=""
-          aria-hidden
-          height={34}
-          src="/sazo-commerce/logo-mark.svg"
-          width={34}
-        />
-        <div className="sazo-support-socials">
-          <button aria-label={t("sazo.views.service.supportX")} type="button">
-            <AtSign aria-hidden size={22} />
-          </button>
-          <button aria-label={t("sazo.views.service.supportInstagram")} type="button">
-            <Camera aria-hidden size={22} />
-          </button>
-          <button aria-label={t("sazo.views.service.supportLine")} type="button">
-            <MessageCircle aria-hidden size={22} />
-          </button>
+        <div className="sazo-service-support-brand">
+          <div className="sazo-service-footer-logo">
+            <JplanetLogo />
+          </div>
+          <div className="sazo-support-socials">
+            <button aria-label="X" type="button">
+              X
+            </button>
+            <button aria-label="Instagram" type="button">
+              <Camera aria-hidden size={21} />
+            </button>
+            <button aria-label="LINE" type="button">
+              <MessageCircle aria-hidden size={21} />
+            </button>
+          </div>
         </div>
-        <h2>{t("sazo.views.service.supportTitle")}</h2>
-        <strong>{t("sazo.views.service.supportHours")}</strong>
-        <p>{t("sazo.views.service.supportBody")}</p>
+        <div className="sazo-service-support-copy">
+          <h2>カスタマーサポート</h2>
+          <strong>
+            平日：10:00〜18:00
+            <br />
+            土日祝：15:00〜18:00
+          </strong>
+          <p>
+            チャットよりお問い合わせください
+            <br />
+            24時間以内に担当者が回答いたします
+          </p>
+        </div>
         <nav className="sazo-service-footer-links">
           {footerLinks.map((link) => (
             <button key={link} type="button">
@@ -182,6 +519,9 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
             </button>
           ))}
         </nav>
+        <small>
+          © 2024-2026 J-Planet 1-2-32 Tsurumai, Showa-ku, Nagoya-shi, Aichi, Japan
+        </small>
       </section>
     </div>
   );

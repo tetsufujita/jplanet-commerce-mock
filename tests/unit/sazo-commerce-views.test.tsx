@@ -103,7 +103,7 @@ describe("SAZO captured view contracts", () => {
     ],
     [
       "ranking",
-      "SAZO RANKING",
+      "J-Planet RANKING",
       <RankingView dispatch={noDispatch} state={createInitialSazoState()} />,
     ],
     [
@@ -144,12 +144,57 @@ describe("SAZO captured view contracts", () => {
     const serviceHeading = container.querySelector(".sazo-service-hero h1");
     const routeHeading = container.querySelector(".sazo-service-hero-outline");
     const serviceSubheading = container.querySelector(".sazo-service-hero h2");
+    const shippingMap = container.querySelector<HTMLImageElement>(
+      ".sazo-service-shipping-map",
+    );
 
     expect(serviceHeading?.textContent).toBe("日本代行");
-    expect(routeHeading?.textContent?.replace(/\s+/g, " ").trim()).toBe(
-      "FROM JAPAN TO BRAZIL",
+    expect(routeHeading?.textContent?.replace(/\s+/g, "")).toBe("FROMJAPANTOBRAZIL");
+    expect(serviceSubheading?.textContent).toBe("日本の商品をブラジルへ直送");
+    expect(screen.getAllByLabelText("日本のショップURL")).toHaveLength(2);
+    expect(screen.getAllByPlaceholderText("日本のショップURL")).toHaveLength(2);
+    expect(shippingMap?.alt).toBe("日本からブラジルへ商品を直送");
+    expect(shippingMap?.getAttribute("src")).toBe(
+      "/sazo-commerce/service-lp/shipping-japan-brazil.svg",
     );
-    expect(serviceSubheading?.textContent).toBe("ブラジルへお届け");
+    expect(
+      Array.from(container.querySelectorAll(".sazo-service-shipping-step strong")).map(
+        (step) => step.textContent,
+      ),
+    ).toEqual([
+      "受付",
+      "日本国内購入",
+      "日本倉庫で検品",
+      "国際配送・通関",
+      "ブラジルへお届け",
+    ]);
+  });
+
+  it("renders the complete forwarding landing-page sequence from the recording", async () => {
+    const { container } = await renderWithI18n(<ServiceView dispatch={noDispatch} />);
+
+    expect(container.querySelector(".sazo-service-hero h1")?.textContent).toBe("日本代行");
+    expect(screen.getByText("手数料")).toBeTruthy();
+    expect(screen.getByText("日本の商品をブラジルへ直送")).toBeTruthy();
+    expect(screen.getAllByPlaceholderText("日本のショップURL")).toHaveLength(2);
+    expect(container.querySelectorAll(".sazo-service-problem-card")).toHaveLength(3);
+    expect(container.querySelectorAll(".sazo-service-shipping-step")).toHaveLength(5);
+    expect(container.querySelectorAll(".sazo-service-trust-card")).toHaveLength(5);
+    expect(screen.getByText("購入後の流れ")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /日本の.*どの通販.*でも/ })).toBeTruthy();
+  });
+
+  it("opens and closes each recorded service FAQ row", async () => {
+    await renderWithI18n(<ServiceView dispatch={noDispatch} />);
+    const question = screen.getByRole("button", {
+      name: /日本の販売者に問い合わせることはできますか/,
+    });
+
+    expect(question.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(question);
+    expect(question.getAttribute("aria-expanded")).toBe("true");
+    fireEvent.click(question);
+    expect(question.getAttribute("aria-expanded")).toBe("false");
   });
 
   it("keeps the recorded short placeholder in the sixth review slot", async () => {
@@ -368,9 +413,9 @@ describe("SAZO captured view contracts", () => {
     expect(
       capturedReviewTiles.map((tile) => tile.querySelector("img")?.getAttribute("src")),
     ).toEqual([
-      "/sazo-commerce/community/10.webp",
+      "/sazo-commerce/review-media/r07.jpg",
       undefined,
-      "/sazo-commerce/community/11.webp",
+      "/sazo-commerce/review-media/r08.jpg",
       "/sazo-commerce/reviews/unseen-media.png",
       "/sazo-commerce/reviews/tail-01.png",
       "/sazo-commerce/reviews/tail-03-media.png",
@@ -398,21 +443,25 @@ describe("SAZO captured view contracts", () => {
   it("hides a closed FAQ panel and closes the focused item with Escape", async () => {
     await renderWithI18n(<ServiceView dispatch={noDispatch} />);
     const faqButton = screen.getByRole("button", {
-      name: "韓国以外からも購入できますか？",
+      name: /日本の販売者に問い合わせることはできますか/,
     });
     const answerId = faqButton.getAttribute("aria-controls");
 
-    expect(faqButton.getAttribute("aria-expanded")).toBe("true");
+    expect(faqButton.getAttribute("aria-expanded")).toBe("false");
     expect(answerId).toBeTruthy();
     const answer = document.getElementById(answerId ?? "");
-    expect(answer?.getAttribute("aria-hidden")).toBe("false");
+    expect(answer?.getAttribute("aria-hidden")).toBe("true");
 
     faqButton.focus();
     fireEvent.click(faqButton);
 
+    expect(faqButton.getAttribute("aria-expanded")).toBe("true");
+    expect(answer?.getAttribute("aria-hidden")).toBe("false");
+    expect(document.activeElement).toBe(faqButton);
+
+    fireEvent.click(faqButton);
     expect(faqButton.getAttribute("aria-expanded")).toBe("false");
     expect(answer?.getAttribute("aria-hidden")).toBe("true");
-    expect(document.activeElement).toBe(faqButton);
 
     fireEvent.click(faqButton);
     expect(faqButton.getAttribute("aria-expanded")).toBe("true");
