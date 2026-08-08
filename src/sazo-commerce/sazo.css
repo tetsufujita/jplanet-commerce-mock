@@ -1274,6 +1274,10 @@
   scroll-snap-align: start;
 }
 
+.sazo-root .sazo-product-card {
+  position: relative;
+}
+
 .sazo-root .sazo-review-media,
 .sazo-root .sazo-gram-media {
   position: relative;
@@ -1525,6 +1529,17 @@
   background: var(--jplanet-soft);
 }
 
+.sazo-root .sazo-product-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
 .sazo-root .sazo-product-card-media img {
   display: block;
   width: 100%;
@@ -1550,6 +1565,63 @@
   border-radius: 50%;
   background: color-mix(in srgb, var(--jplanet-surface) 82%, transparent);
   cursor: pointer;
+  z-index: 1;
+}
+
+.sazo-root .sazo-product-detail {
+  width: min(980px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 56px 0 96px;
+}
+
+.sazo-root .sazo-product-detail-basic {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr);
+  gap: 36px;
+  align-items: start;
+}
+
+.sazo-root .sazo-product-detail-back {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  justify-self: start;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--jplanet-ink);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.sazo-root .sazo-product-detail-image {
+  display: block;
+  width: 100%;
+  border-radius: 20px;
+}
+
+.sazo-root .sazo-product-detail-copy {
+  padding-top: 8px;
+}
+
+.sazo-root .sazo-product-detail-copy > span {
+  color: var(--jplanet-muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.sazo-root .sazo-product-detail-copy h1 {
+  margin: 10px 0;
+  font-size: clamp(24px, 3vw, 38px);
+  line-height: 1.35;
+}
+
+.sazo-root .sazo-product-detail-copy p {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 800;
 }
 
 .sazo-root .sazo-product-copy {
@@ -2934,13 +3006,16 @@
 }
 
 .sazo-root .sazo-catalog-products[data-catalog-mode="list"] .sazo-product-card {
-  display: grid;
-  grid-template-columns: 176px minmax(0, 1fr);
-  align-items: start;
-  gap: 18px;
   padding: 14px;
   border: 1px solid var(--jplanet-line);
   border-radius: 16px;
+}
+
+.sazo-root .sazo-catalog-products[data-catalog-mode="list"] .sazo-product-open {
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
 }
 
 .sazo-root .sazo-catalog-products[data-catalog-mode="list"] .sazo-product-copy {

@@ -126,7 +126,14 @@ describe("SAZO home composition", () => {
     expect(cards).toHaveLength(4);
     expect(cards[0]?.querySelector("img")).toBeNull();
     expect(container.querySelectorAll(".sazo-search-discovery img")).toHaveLength(3);
-    expect(cards[0]?.querySelector("button.sazo-product-favorite")).not.toBeNull();
+    const firstCard = cards[0]?.closest(".sazo-product-card");
+
+    expect(
+      firstCard?.querySelector(":scope > button.sazo-product-favorite"),
+    ).not.toBeNull();
+    expect(
+      firstCard?.querySelector(".sazo-product-open .sazo-product-favorite"),
+    ).toBeNull();
   });
 
   it("renders the captured home sections and fixture content in order", async () => {

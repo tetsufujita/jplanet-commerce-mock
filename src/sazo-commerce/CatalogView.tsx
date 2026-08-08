@@ -94,7 +94,13 @@ export function CatalogView({ dispatch, state }: StatefulViewProps) {
       ) : (
         <div className="sazo-catalog-products" data-catalog-mode={state.catalogMode}>
           {visibleEntries.map(({ product }) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard
+              key={product.id}
+              onOpen={(productId) => {
+                dispatch({ type: "open-product", productId });
+              }}
+              product={product}
+            />
           ))}
         </div>
       )}

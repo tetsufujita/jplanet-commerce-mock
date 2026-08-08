@@ -416,7 +416,7 @@ function GramCatalog() {
   );
 }
 
-function RecommendedReviews() {
+function RecommendedReviews({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
 
   return (
@@ -441,7 +441,13 @@ function RecommendedReviews() {
             </div>
             <blockquote>{review.comment}</blockquote>
             <p className="sazo-review-author">{review.author}</p>
-            <ProductCard product={review.product} variant="compact" />
+            <ProductCard
+              onOpen={(productId) => {
+                dispatch({ type: "open-product", productId });
+              }}
+              product={review.product}
+              variant="compact"
+            />
           </article>
         ))}
       </div>
@@ -449,11 +455,21 @@ function RecommendedReviews() {
   );
 }
 
-function ProductGrid({ end, start = 0 }: { end: number; start?: number }) {
+function ProductGrid({
+  dispatch,
+  end,
+  start = 0,
+}: Pick<HomeViewProps, "dispatch"> & { end: number; start?: number }) {
   return (
     <div className="sazo-product-grid">
       {products.slice(start, end).map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard
+          key={product.id}
+          onOpen={(productId) => {
+            dispatch({ type: "open-product", productId });
+          }}
+          product={product}
+        />
       ))}
     </div>
   );
@@ -466,7 +482,7 @@ function ProductDiscovery({ dispatch, state }: HomeViewProps) {
     <>
       <section className="sazo-home-section">
         <SectionHeading title={t("sazo.home.picksTitle")} />
-        <ProductGrid end={10} start={6} />
+        <ProductGrid dispatch={dispatch} end={10} start={6} />
       </section>
 
       <section className="sazo-home-section sazo-keyword-section">
@@ -488,11 +504,16 @@ function ProductDiscovery({ dispatch, state }: HomeViewProps) {
               ? Array.from({ length: 5 }, (_, index) => (
                   <span aria-hidden className="sazo-keyword-skeleton" key={index} />
                 ))
-              : products
-                  .slice(0, 5)
-                  .map((product) => (
-                    <ProductCard key={product.id} product={product} variant="compact" />
-                  ))}
+              : products.slice(0, 5).map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    onOpen={(productId) => {
+                      dispatch({ type: "open-product", productId });
+                    }}
+                    product={product}
+                    variant="compact"
+                  />
+                ))}
           </div>
         </div>
       </section>
@@ -513,13 +534,13 @@ function ProductDiscovery({ dispatch, state }: HomeViewProps) {
           </button>
           <span>{t("sazo.home.week")}</span>
         </div>
-        <ProductGrid end={12} start={9} />
+        <ProductGrid dispatch={dispatch} end={12} start={9} />
       </section>
     </>
   );
 }
 
-function SearchDiscovery({ state }: Pick<HomeViewProps, "state">) {
+function SearchDiscovery({ dispatch, state }: Pick<HomeViewProps, "dispatch" | "state">) {
   const { t } = useTranslation();
 
   return (
@@ -539,6 +560,9 @@ function SearchDiscovery({ state }: Pick<HomeViewProps, "state">) {
           <ProductCard
             key={product.id}
             mediaHidden={state.loadingSurface === "search-first" && index === 0}
+            onOpen={(productId) => {
+              dispatch({ type: "open-product", productId });
+            }}
             product={product}
           />
         ))}
@@ -570,9 +594,9 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
 
       <ReviewStrip dispatch={dispatch} state={state} />
       <GramStrip />
-      <RecommendedReviews />
+      <RecommendedReviews dispatch={dispatch} />
       <ProductDiscovery dispatch={dispatch} state={state} />
-      <SearchDiscovery state={state} />
+      <SearchDiscovery dispatch={dispatch} state={state} />
       <GramCatalog />
     </div>
   );

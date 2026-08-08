@@ -568,7 +568,7 @@ describe("SAZO captured view contracts", () => {
       throw new Error("Missing SAZO product test fixture");
     }
 
-    await renderWithI18n(<ProductCard product={product} />);
+    await renderWithI18n(<ProductCard onOpen={() => undefined} product={product} />);
     const favorite = screen.getByRole("button", {
       name: `${product.name}をお気に入りに追加`,
     });

@@ -5,12 +5,14 @@ import type { Product } from "@/sazo-commerce/fixtures";
 
 export interface ProductCardProps {
   mediaHidden?: boolean;
+  onOpen: (productId: string) => void;
   product: Product;
   variant?: "compact" | "standard";
 }
 
 export function ProductCard({
   mediaHidden = false,
+  onOpen,
   product,
   variant = "standard",
 }: ProductCardProps) {
@@ -20,48 +22,57 @@ export function ProductCard({
 
   return (
     <article className="sazo-product-card" data-variant={variant}>
-      <div className="sazo-product-card-media">
-        {mediaHidden ? null : (
-          <img
-            alt={product.name}
-            className={recordedMedia ? "sazo-recorded-product-media" : undefined}
-            decoding="async"
-            height={640}
-            src={product.image}
-            width={640}
-          />
-        )}
-        <button
-          aria-label={
-            favorite
-              ? t("sazo.views.common.favoriteProductRemove", { product: product.name })
-              : t("sazo.home.favoriteProduct", { product: product.name })
-          }
-          aria-pressed={favorite}
-          className="sazo-product-favorite"
-          onClick={() => {
-            setFavorite((current) => !current);
-          }}
-          type="button"
-        >
-          <Bookmark
-            aria-hidden
-            fill={favorite ? "currentColor" : "none"}
-            size={20}
-            strokeWidth={1.7}
-          />
-        </button>
-      </div>
-      <div className="sazo-product-copy">
-        <span className="sazo-product-brand">{product.brand}</span>
-        <h3>{product.name}</h3>
-        <p className="sazo-product-price">
-          {product.badge === undefined ? null : (
-            <span className="sazo-product-badge">{product.badge}</span>
+      <button
+        aria-label={`商品詳細を開く: ${product.name}`}
+        className="sazo-product-open"
+        onClick={() => {
+          onOpen(product.id);
+        }}
+        type="button"
+      >
+        <div className="sazo-product-card-media">
+          {mediaHidden ? null : (
+            <img
+              alt={product.name}
+              className={recordedMedia ? "sazo-recorded-product-media" : undefined}
+              decoding="async"
+              height={640}
+              src={product.image}
+              width={640}
+            />
           )}
-          {product.price}
-        </p>
-      </div>
+        </div>
+        <div className="sazo-product-copy">
+          <span className="sazo-product-brand">{product.brand}</span>
+          <h3>{product.name}</h3>
+          <p className="sazo-product-price">
+            {product.badge === undefined ? null : (
+              <span className="sazo-product-badge">{product.badge}</span>
+            )}
+            {product.price}
+          </p>
+        </div>
+      </button>
+      <button
+        aria-label={
+          favorite
+            ? t("sazo.views.common.favoriteProductRemove", { product: product.name })
+            : t("sazo.home.favoriteProduct", { product: product.name })
+        }
+        aria-pressed={favorite}
+        className="sazo-product-favorite"
+        onClick={() => {
+          setFavorite((current) => !current);
+        }}
+        type="button"
+      >
+        <Bookmark
+          aria-hidden
+          fill={favorite ? "currentColor" : "none"}
+          size={20}
+          strokeWidth={1.7}
+        />
+      </button>
     </article>
   );
 }

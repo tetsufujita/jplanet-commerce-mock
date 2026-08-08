@@ -13,6 +13,7 @@ import { ChatPanel } from "@/sazo-commerce/ChatPanel";
 import { BrandsView, CategoriesView } from "@/sazo-commerce/DirectoryViews";
 import { RankingView, ReviewsView } from "@/sazo-commerce/EditorialViews";
 import { HomeView } from "@/sazo-commerce/HomeView";
+import { ProductDetailView } from "@/sazo-commerce/ProductDetailView";
 import { SazoShell } from "@/sazo-commerce/SazoShell";
 import { ServiceView } from "@/sazo-commerce/ServiceView";
 import { createInitialSazoState, sazoReducer } from "@/sazo-commerce/model";
@@ -91,6 +92,9 @@ export function SazoCommercePage() {
           ) : null}
           {state.view === "reviews" ? (
             <ReviewsView dispatch={dispatch} state={state} />
+          ) : null}
+          {state.view === "product" ? (
+            <ProductDetailView dispatch={dispatch} productId={state.selectedProductId} />
           ) : null}
           {state.view === "mypage" ? <MyPageView dispatch={dispatch} /> : null}
           {state.view === "favorites" ? <FavoritesView dispatch={dispatch} /> : null}

@@ -45,7 +45,12 @@ export function RankingView({ dispatch, state }: StatefulViewProps) {
           {rankingProducts.map((product, index) => (
             <div className="sazo-ranked-product" key={product.id}>
               <strong aria-hidden>{index + 1}</strong>
-              <ProductCard product={product} />
+              <ProductCard
+                onOpen={(productId) => {
+                  dispatch({ type: "open-product", productId });
+                }}
+                product={product}
+              />
             </div>
           ))}
         </div>
