@@ -414,15 +414,17 @@
         },
         "order": {
           "eyebrow": "ORDER FLOW",
-          "title": "From order to delivery",
+          "title": "Order delivery flow",
+          "subtitle": "At a glance",
           "listLabel": "Order and delivery progress",
           "detailsLink": "View delivery details",
           "step": "STEP {{step}}",
           "stages": {
             "received": "Order received",
             "purchased": "Purchased in Japan",
+            "warehouseArrived": "Arrived at Japan warehouse",
             "inspected": "Inspected at our Japan warehouse",
-            "shipping": "International shipping and customs",
+            "shipping": "International shipping & customs",
             "delivered": "Delivered in Brazil"
           }
         },

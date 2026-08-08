@@ -420,7 +420,7 @@ describe("J-Planet product detail experience", () => {
     expect(productVisibleText).not.toMatch(/SAZO|韓国|KOREA|TO JAPAN/i);
   });
 
-  it("matches the approved reference hierarchy with one sticky checkout rail", async () => {
+  it("places recommendations before the commerce grid and renders the six-stage delivery flow", async () => {
     const detail = getProductDetail("p01");
     const { container } = await renderWithI18n(
       <ProductDetailView dispatch={vi.fn()} productId="p01" />,
@@ -429,9 +429,9 @@ describe("J-Planet product detail experience", () => {
     const commerceGrid = container.querySelector(".sazo-product-detail-commerce-grid");
     const checkout = container.querySelector(".sazo-product-detail-checkout-rail");
     const leftFlow = container.querySelector(".sazo-product-detail-left-flow");
-    const recommendation = screen.getByRole("region", {
-      name: "この商品はいかがですか？",
-    });
+    const recommendation = container.querySelector<HTMLElement>(
+      ".sazo-product-detail-recommendations",
+    );
     const campaign = screen.getByRole("region", {
       name: "J-Planet 日本からブラジルへ",
     });
@@ -439,11 +439,49 @@ describe("J-Planet product detail experience", () => {
     expect(commerceGrid).not.toBeNull();
     expect(checkout).not.toBeNull();
     expect(leftFlow).not.toBeNull();
-    expect(commerceGrid?.children[0]).toBe(checkout);
+    expect(recommendation?.nextElementSibling).toBe(commerceGrid);
+    expect(
+      leftFlow?.firstElementChild?.classList.contains(
+        "sazo-product-detail-information",
+      ),
+    ).toBe(true);
+    expect(
+      commerceGrid?.children[0]?.classList.contains(
+        "sazo-product-detail-checkout-rail",
+      ),
+    ).toBe(true);
     expect(commerceGrid?.children[1]).toBe(leftFlow);
+    expect(
+      Array.from(leftFlow?.children ?? [], (node) => node.className),
+    ).toEqual([
+      expect.stringContaining("sazo-product-detail-information"),
+      expect.stringContaining("sazo-product-campaign"),
+      expect.stringContaining("sazo-product-detail-review"),
+      expect.stringContaining("sazo-product-detail-cautions"),
+      expect.stringContaining("sazo-product-detail-benefits"),
+    ]);
+
+    const stages = Array.from(
+      container.querySelectorAll(".sazo-product-order-flow li"),
+    );
+    expect(stages).toHaveLength(6);
+    expect(stages.map((stage) => stage.getAttribute("data-state"))).toEqual([
+      "complete",
+      "complete",
+      "current",
+      "pending",
+      "pending",
+      "pending",
+    ]);
+    expect(screen.getByRole("heading", { name: "注文配送の流れ 一目で見る" })).toBeTruthy();
+    expect(screen.getByText("一目で見る")).toBeTruthy();
     expect(detail.recommendationIds).toHaveLength(6);
     expect(new Set(detail.recommendationIds)).toHaveProperty("size", 6);
     expect(detail.recommendationIds).not.toContain(detail.product.id);
+    if (recommendation === null) {
+      throw new Error("Missing product recommendation region");
+    }
+
     expect(
       within(recommendation).getAllByRole("button", { name: /商品詳細を開く/ }),
     ).toHaveLength(6);
@@ -451,18 +489,6 @@ describe("J-Planet product detail experience", () => {
     expect(campaign.textContent).toContain("日本の販売サイトから直接購入");
     expect(campaign.textContent).toContain("ブラジルへお届け");
     expect(campaign.textContent).not.toMatch(/SAZO|韓国|KOREA|TO JAPAN/i);
-
-    const leftFlowSections = Array.from(leftFlow?.children ?? []).map(
-      (section) => section.className,
-    );
-    expect(leftFlowSections).toEqual([
-      expect.stringContaining("sazo-product-detail-recommendations"),
-      expect.stringContaining("sazo-product-detail-information"),
-      expect.stringContaining("sazo-product-campaign"),
-      expect.stringContaining("sazo-product-detail-review"),
-      expect.stringContaining("sazo-product-detail-cautions"),
-      expect.stringContaining("sazo-product-detail-benefits"),
-    ]);
   });
 
   it("scrolls the recommendation rail by most of its visible width", async () => {
@@ -629,7 +655,7 @@ describe("J-Planet product detail experience", () => {
     );
   });
 
-  it("keeps the five delivery stages only inside the information tab", async () => {
+  it("keeps the six delivery stages only inside the information tab", async () => {
     await renderWithI18n(<ProductDetailView dispatch={vi.fn()} productId="p01" />);
 
     const informationTab = screen.getByRole("tab", { name: "商品情報" });
@@ -639,9 +665,10 @@ describe("J-Planet product detail experience", () => {
     const orderList = within(informationPanel).getByRole("list", {
       name: "注文からお届けまで",
     });
-    expect(orderList.querySelectorAll("li[data-stage]")).toHaveLength(5);
+    expect(orderList.querySelectorAll("li[data-stage]")).toHaveLength(6);
     expect(within(informationPanel).getByText("注文受付")).toBeTruthy();
     expect(within(informationPanel).getByText("日本で購入")).toBeTruthy();
+    expect(within(informationPanel).getByText("日本倉庫へ到着")).toBeTruthy();
     expect(within(informationPanel).getByText("日本倉庫で検品")).toBeTruthy();
     expect(within(informationPanel).getByText("国際配送・通関")).toBeTruthy();
     expect(within(informationPanel).getByText("ブラジルへお届け")).toBeTruthy();

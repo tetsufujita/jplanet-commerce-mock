@@ -480,6 +480,8 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
         </aside>
       </div>
 
+      <ProductRecommendationRail dispatch={dispatch} products={recommendations} />
+
       <div className="sazo-product-detail-commerce-grid">
         <aside className="sazo-product-detail-checkout-rail">
           <ProductPurchasePanel
@@ -491,8 +493,6 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
         </aside>
 
         <div className="sazo-product-detail-left-flow">
-          <ProductRecommendationRail dispatch={dispatch} products={recommendations} />
-
           <section className="sazo-product-detail-section sazo-product-detail-information">
             <div
               aria-label={t("sazo.views.productDetail.tabs.label")}

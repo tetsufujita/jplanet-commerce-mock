@@ -414,16 +414,18 @@
         },
         "order": {
           "eyebrow": "FLUXO DO PEDIDO",
-          "title": "Do pedido à entrega",
+          "title": "Fluxo de entrega do pedido",
+          "subtitle": "Veja de relance",
           "listLabel": "Etapas do pedido e da entrega",
           "detailsLink": "Ver detalhes da entrega",
           "step": "ETAPA {{step}}",
           "stages": {
             "received": "Pedido recebido",
             "purchased": "Compra no Japão",
+            "warehouseArrived": "Chegou ao armazém no Japão",
             "inspected": "Inspeção no armazém do Japão",
             "shipping": "Envio internacional e alfândega",
-            "delivered": "Entrega no Brasil"
+            "delivered": "Entregue no Brasil"
           }
         },
         "campaign": {

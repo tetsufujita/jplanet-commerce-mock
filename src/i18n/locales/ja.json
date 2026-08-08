@@ -414,13 +414,15 @@
         },
         "order": {
           "eyebrow": "ORDER FLOW",
-          "title": "ご注文からお届けまで",
+          "title": "注文配送の流れ",
+          "subtitle": "一目で見る",
           "listLabel": "注文からお届けまで",
           "detailsLink": "配送の詳細を見る",
           "step": "STEP {{step}}",
           "stages": {
             "received": "注文受付",
             "purchased": "日本で購入",
+            "warehouseArrived": "日本倉庫へ到着",
             "inspected": "日本倉庫で検品",
             "shipping": "国際配送・通関",
             "delivered": "ブラジルへお届け"
