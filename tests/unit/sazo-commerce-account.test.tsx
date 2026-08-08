@@ -172,6 +172,9 @@ describe("SAZO local authentication", () => {
         .querySelector("img[data-jplanet-wordmark='true']"),
     ).toBeTruthy();
     expect(within(birthdayPage).getByRole("contentinfo")).toBeTruthy();
+    expect(within(birthdayPage).getByText("© 2024-2026 J-Planet Brasil")).toBeTruthy();
+    expect(within(birthdayPage).getByText("São Paulo - SP, Brasil")).toBeTruthy();
+    expect(birthdayPage.textContent).not.toMatch(/SAJWO|Republic of Korea|韓国/i);
     for (const link of [
       "会社紹介",
       "採用情報",

@@ -39,19 +39,15 @@ function normalizeRenderedCopy(text) {
   return text.normalize("NFKC").replace(/\s+/g, " ").trim();
 }
 
-const forbiddenRouteCopy = ["韓国", "KOREA", "TO JAPAN", "韓国代行", "日本まで発送"];
-const forbiddenBrandPattern = /\bSAZO(?:SHOP)?\b/i;
+const forbiddenVisibleBrandPatterns = [
+  /\bsazo(?:[\s._-]*shop)?\b/iu,
+  /\bkorea\b/iu,
+  /韓国/u,
+  /\bto[\s._-]+japan\b/iu,
+  /日本まで発送/u,
+];
 const forbiddenLogoSelectors = ["[data-sazo-wordmark]", ".sazo-logo"];
-const forbiddenBrandAssetBasename =
-  /^(?:(?:sazo|sazoshop)(?:[-_.](?:logo|wordmark)(?:[-_.][a-z0-9]+)*)?|(?:logo|wordmark)[-_.](?:sazo|sazoshop)(?:[-_.][a-z0-9]+)*)(?:@[1-9][0-9]*x)?\.(?:avif|gif|jpe?g|png|svg|webp)$/i;
-const forbiddenRouteAssetBasename = /(?:korea|to[-_]?japan)/i;
-const forbiddenAssetFragments = [
-  "/sazo-logo",
-  "/logo-sazo",
-  "/sazo-wordmark",
-  "korea",
-  "to-japan",
-  "to_japan",
+const forbiddenLegacyAssetPaths = [
   "/sazo-commerce/campaign/coupon-banner.png",
   "/sazo-commerce/service-lp/how-to-use-1.png",
   "/sazo-commerce/service-lp/how-to-use-2.png",
@@ -60,8 +56,29 @@ const forbiddenAssetFragments = [
 const themeBrandAssetPredicateCases = [
   { expected: true, source: "/assets/sazo.png" },
   { expected: true, source: "/assets/sazoshop.webp" },
+  { expected: true, source: "/assets/sazo-banner.png" },
+  { expected: true, source: "/assets/sazo-shop.png" },
+  { expected: true, source: "/assets/brand-sazo.png" },
+  { expected: true, source: "/assets/SAZO.png?cache=1#hero" },
+  {
+    expected: true,
+    source: "https://cdn.example.test/assets/brand-sazo.webp?v=2#card",
+  },
   { expected: false, source: "/sazo-commerce/products/01.webp" },
   { expected: false, source: "/sazo-commerce/jplanet-sakura-mark.png" },
+  { expected: false, source: "/assets/sazonic.png" },
+  { expected: false, source: "/assets/brand-sazora.webp" },
+];
+const themeVisibleBrandPredicateCases = [
+  { expected: true, value: "SAZO" },
+  { expected: true, value: "sazo shop" },
+  { expected: true, value: "Sazo-Shop" },
+  { expected: true, value: "Republic of Korea" },
+  { expected: true, value: "韓国" },
+  { expected: true, value: "TO   JAPAN" },
+  { expected: true, value: "TO-JAPAN" },
+  { expected: false, value: "J-Planet 日本からブラジルへ" },
+  { expected: false, value: "Japan to Brazil" },
 ];
 const approvedServiceStepAssets = [
   "/sazo-commerce/service-lp/jplanet-how-to-use-1.svg",
@@ -70,13 +87,45 @@ const approvedServiceStepAssets = [
 ];
 
 function isForbiddenBrandAssetSource(source) {
-  const normalizedSource = source.toLowerCase();
-  const basename = normalizedSource.split(/[?#]/u)[0]?.split("/").pop() ?? "";
+  let pathname;
+
+  try {
+    pathname = new URL(source, "https://jplanet.example").pathname;
+  } catch {
+    pathname = source.split(/[?#]/u)[0] ?? "";
+  }
+
+  const normalizedPathname = pathname.toLowerCase();
+  const encodedBasename = normalizedPathname.split("/").pop() ?? "";
+  let basename;
+
+  try {
+    basename = decodeURIComponent(encodedBasename);
+  } catch {
+    basename = encodedBasename;
+  }
+
+  const tokens = basename.split(/[-_.\s]+/u).filter(Boolean);
 
   return (
-    forbiddenBrandAssetBasename.test(basename) ||
-    forbiddenRouteAssetBasename.test(basename) ||
-    forbiddenAssetFragments.some((fragment) => normalizedSource.includes(fragment))
+    tokens.includes("sazo") ||
+    tokens.includes("sazoshop") ||
+    tokens.includes("korea") ||
+    tokens.includes("tojapan") ||
+    tokens.some((token, index) => token === "to" && tokens[index + 1] === "japan") ||
+    forbiddenLegacyAssetPaths.some((path) => normalizedPathname.endsWith(path))
+  );
+}
+
+function isForbiddenVisibleBrandCopy(value) {
+  return forbiddenVisibleBrandPatterns.some((pattern) => pattern.test(value));
+}
+
+for (const { expected, value } of themeVisibleBrandPredicateCases) {
+  assert.equal(
+    isForbiddenVisibleBrandCopy(value),
+    expected,
+    `theme visible brand predicate: ${value}`,
   );
 }
 
@@ -256,17 +305,10 @@ async function assertJplanetTheme(page, label) {
     `${renderedText} ${pseudoElementCopy} ${visibleControlCopy}`,
   );
 
-  for (const forbiddenCopy of forbiddenRouteCopy) {
-    assert.equal(
-      visibleCopy.includes(forbiddenCopy),
-      false,
-      `${label} legacy route copy: ${forbiddenCopy}`,
-    );
-  }
   assert.equal(
-    forbiddenBrandPattern.test(visibleCopy),
+    isForbiddenVisibleBrandCopy(visibleCopy),
     false,
-    `${label} legacy brand copy`,
+    `${label} legacy route/brand copy`,
   );
 
   for (const selector of forbiddenLogoSelectors) {

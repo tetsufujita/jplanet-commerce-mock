@@ -225,6 +225,9 @@ describe("J-Planet product detail experience", () => {
     fireEvent.change(screen.getByLabelText("商品オプション"), {
       target: { value: "標準" },
     });
+    expect(
+      container.querySelector(".sazo-product-detail-selected-product")?.tagName,
+    ).toBe("DIV");
     expect(screen.getByTestId("product-total-value").textContent).toBe("¥4,149");
 
     fireEvent.click(screen.getByRole("button", { name: "数量を増やす" }));

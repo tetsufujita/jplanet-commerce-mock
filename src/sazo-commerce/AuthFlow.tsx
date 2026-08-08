@@ -98,8 +98,8 @@ function AuthPageChrome({ children, dispatch, step }: AuthPageChromeProps) {
           <a href="#sazo-press">{t("sazo.auth.page.press")}</a>
         </nav>
         <div className="sazo-auth-page-company-copy">
-          <p>{t("sazo.auth.page.koreaCopyright")}</p>
-          <p>{t("sazo.auth.page.koreaAddress")}</p>
+          <p>{t("sazo.auth.page.brazilCopyright")}</p>
+          <p>{t("sazo.auth.page.brazilAddress")}</p>
           <p>{t("sazo.auth.page.japanCopyright")}</p>
           <p>{t("sazo.auth.page.japanAddress")}</p>
         </div>

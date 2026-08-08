@@ -565,8 +565,8 @@ git commit -m "test: verify complete product detail reference"
 #### Task 4 measured evidence — 2026-08-08
 
 - RED: `pnpm qa:sazo-product-detail` failed at the obsolete `.sazo-product-detail-purchase-panel .sazo-product-detail-cart-button` locator with a 10,000 ms timeout before the new assertions were implemented.
-- Product browser GREEN: `viewports=3 originStates=12 images=33`; source controls measured `330x64`, `328x52`, and `272x52`, and every quantity control measured `44x44` at 1512, 390, and 320 px respectively.
-- Geometry GREEN: desktop grid measured `766px 390px`, sticky checkout height `850px` at `top=112px`, and did not overlap the left flow; mobile grids measured one column (`362px` and `300px`) with static checkout rails and no page overflow.
+- Product browser GREEN: `viewports=3 originStates=12 images=33`; source controls measured `400x64`, `328x52`, and `272x52`, and every quantity control measured `44x44` at 1512, 390, and 320 px respectively.
+- Geometry GREEN: desktop grid measured `974px 390px`; all six recommendation cards measured `150px` and fit fully within track bounds `52–1026px`, while the sticky checkout occupied `1070–1460px` at `top=112px` without overlap. Mobile grids measured one column (`362px` and `300px`) with static checkout rails and exact page/viewport widths `390/390px` and `320/320px`.
 - Interaction/content GREEN: deterministic source href, exactly one purchase form, shared cart actions, option `標準`, quantity `2`, total `¥7,948`, six recommendation cards, tabs/order flow, campaign, mobile fixed CTA/footer/chat clearance, and forbidden visible/image-source branding all passed.
 - Whole-site browser GREEN: `states=36 mobileTopStates=26 images=546`, including product requirements for `元のページへ`, `日本の販売サイトから直接購入`, and `ブラジルへお届け`.
 - Full verification GREEN: lint, typecheck, 14 Vitest files / 169 tests, production build (2,223 modules), required Prettier check, both Node syntax checks, both browser audits, forbidden-copy scan (no matches), live route HTTP 200, and `git diff --check`.
@@ -579,3 +579,11 @@ git commit -m "test: verify complete product detail reference"
 - Fix: both audits now evaluate a narrow image basename predicate that rejects standalone `sazo` / `sazoshop` files and their logo/wordmark variants while allowing ordinary assets under the legitimate `/sazo-commerce/` namespace. Existing Korea/TO JAPAN and theme legacy-asset checks remain active.
 - Focused boundary fixtures cover rejected `/assets/sazo.png` and `/assets/sazoshop.webp` plus allowed `/sazo-commerce/products/01.webp` and `/sazo-commerce/jplanet-sakura-mark.png`.
 - GREEN: product QA remained `viewports=3 originStates=12 images=33`; whole-site audit remained `states=36 mobileTopStates=26 images=546`.
+
+#### Senior final fix wave — 2026-08-08
+
+- Geometry RED reproduced 4/6 fully visible desktop recommendation cards with track `clientWidth=766`, `scrollWidth=974`; production width was then increased to `1408px` and the browser contract upgraded from DOM count to all-six bounds containment plus `149–171px` card-width checks.
+- Semantic/auth REDs reproduced `SECTION !== DIV` and missing J-Planet Brasil company copy. The selected-product wrapper is now non-sectioning, and semantically renamed `brazilCopyright` / `brazilAddress` locale keys replace the legacy Korea company fields in ja/en/pt-BR with identical locale structure.
+- Guard REDs reproduced false passes for `sazo-banner.png`, product visible `TO-JAPAN`, and theme visible `Republic of Korea`. Both audits now use case-insensitive visible token patterns and basename-only asset tokenization shared by their positive/negative fixtures.
+- Final browser GREEN: desktop recommendation track `52–1026px`, six cards `54–1024px` at `150px` each, checkout `1070–1460px` at `112–962px`, and page `1512/1512px`; mobile page widths remained `390/390px` and `320/320px` with two fully visible recommendation cards plus the intended partial next card.
+- Final verification GREEN: focused product 20/20, focused auth 17/17, full Vitest 14 files / 169 tests, typecheck, lint, production build, Prettier, Node syntax, product browser `3/12/33`, theme browser `36/26/546`, forbidden scans, auth locale parity, live HTTP 200, and `git diff --check`.

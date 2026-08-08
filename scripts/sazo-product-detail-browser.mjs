@@ -14,24 +14,82 @@ const screenshotPaths = {
   mobile: "/tmp/jplanet-product-reference-mobile.png",
   "mobile-320": "/tmp/jplanet-product-reference-mobile-320.png",
 };
-const forbiddenProductCopy = [/sazo/i, /韓国/, /korea/i, /to\s+japan/i];
-const forbiddenBrandAssetBasename =
-  /^(?:(?:sazo|sazoshop)(?:[-_.](?:logo|wordmark)(?:[-_.][a-z0-9]+)*)?|(?:logo|wordmark)[-_.](?:sazo|sazoshop)(?:[-_.][a-z0-9]+)*)(?:@[1-9][0-9]*x)?\.(?:avif|gif|jpe?g|png|svg|webp)$/i;
-const forbiddenRouteAssetBasename = /(?:korea|to[-_]?japan)/i;
+const forbiddenVisibleBrandPatterns = [
+  /\bsazo(?:[\s._-]*shop)?\b/iu,
+  /\bkorea\b/iu,
+  /韓国/u,
+  /\bto[\s._-]+japan\b/iu,
+];
 const productBrandAssetPredicateCases = [
   { expected: true, source: "/assets/sazo.png" },
   { expected: true, source: "/assets/sazoshop.webp" },
+  { expected: true, source: "/assets/sazo-banner.png" },
+  { expected: true, source: "/assets/sazo-shop.png" },
+  { expected: true, source: "/assets/brand-sazo.png" },
+  { expected: true, source: "/assets/SAZO.png?cache=1#hero" },
+  {
+    expected: true,
+    source: "https://cdn.example.test/assets/brand-sazo.webp?v=2#card",
+  },
   { expected: false, source: "/sazo-commerce/products/01.webp" },
   { expected: false, source: "/sazo-commerce/jplanet-sakura-mark.png" },
+  { expected: false, source: "/assets/sazonic.png" },
+  { expected: false, source: "/assets/brand-sazora.webp" },
+];
+const productVisibleBrandPredicateCases = [
+  { expected: true, value: "SAZO" },
+  { expected: true, value: "sazo shop" },
+  { expected: true, value: "Sazo-Shop" },
+  { expected: true, value: "Republic of Korea" },
+  { expected: true, value: "韓国" },
+  { expected: true, value: "TO   JAPAN" },
+  { expected: true, value: "TO-JAPAN" },
+  { expected: false, value: "J-Planet 日本からブラジルへ" },
+  { expected: false, value: "Japan to Brazil" },
 ];
 const notoFontRequest = /\/sazo-commerce\/fonts\/noto-sans-jp\/files\/.*\.woff2(?:\?|$)/i;
 
 function isForbiddenBrandAssetSource(source) {
-  const basename = source.split(/[?#]/u)[0]?.split("/").pop() ?? "";
+  let pathname;
+
+  try {
+    pathname = new URL(source, "https://jplanet.example").pathname;
+  } catch {
+    pathname = source.split(/[?#]/u)[0] ?? "";
+  }
+
+  const encodedBasename = pathname.split("/").pop() ?? "";
+  let basename;
+
+  try {
+    basename = decodeURIComponent(encodedBasename);
+  } catch {
+    basename = encodedBasename;
+  }
+
+  const tokens = basename
+    .toLowerCase()
+    .split(/[-_.\s]+/u)
+    .filter(Boolean);
 
   return (
-    forbiddenBrandAssetBasename.test(basename) ||
-    forbiddenRouteAssetBasename.test(basename)
+    tokens.includes("sazo") ||
+    tokens.includes("sazoshop") ||
+    tokens.includes("korea") ||
+    tokens.includes("tojapan") ||
+    tokens.some((token, index) => token === "to" && tokens[index + 1] === "japan")
+  );
+}
+
+function isForbiddenVisibleBrandCopy(value) {
+  return forbiddenVisibleBrandPatterns.some((pattern) => pattern.test(value));
+}
+
+for (const { expected, value } of productVisibleBrandPredicateCases) {
+  assert.equal(
+    isForbiddenVisibleBrandCopy(value),
+    expected,
+    `product visible brand predicate: ${value}`,
   );
 }
 
@@ -367,13 +425,11 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
   );
 
   const renderedCopy = (await detail.innerText()).normalize("NFKC").replace(/\s+/g, " ");
-  for (const forbiddenPattern of forbiddenProductCopy) {
-    assert.equal(
-      forbiddenPattern.test(renderedCopy),
-      false,
-      `${label} forbidden product copy: ${forbiddenPattern.source}`,
-    );
-  }
+  assert.equal(
+    isForbiddenVisibleBrandCopy(renderedCopy),
+    false,
+    `${label} forbidden product copy`,
+  );
   assert.equal(
     renderedCopy.includes("日本の販売サイトから直接購入"),
     true,
@@ -408,6 +464,48 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
     6,
     `${label} recommendation card count`,
   );
+  const recommendationGeometry = await recommendationRegion
+    .locator(".sazo-product-detail-recommendation-track")
+    .evaluate((track) => {
+      const trackBounds = track.getBoundingClientRect();
+      const cardBounds = [...track.querySelectorAll(".sazo-product-card")].map((card) => {
+        const bounds = card.getBoundingClientRect();
+
+        return {
+          left: bounds.left,
+          right: bounds.right,
+          width: bounds.width,
+        };
+      });
+
+      return {
+        cardBounds,
+        clientWidth: track.clientWidth,
+        scrollWidth: track.scrollWidth,
+        trackLeft: trackBounds.left,
+        trackRight: trackBounds.right,
+      };
+    });
+
+  if (label === "desktop") {
+    const fullyVisibleCards = recommendationGeometry.cardBounds.filter(
+      ({ left, right }) =>
+        left >= recommendationGeometry.trackLeft - 1 &&
+        right <= recommendationGeometry.trackRight + 1,
+    );
+
+    assert.equal(
+      fullyVisibleCards.length,
+      6,
+      `${label} fully visible recommendation cards geometry=${JSON.stringify(recommendationGeometry)}`,
+    );
+    for (const [index, { width }] of recommendationGeometry.cardBounds.entries()) {
+      assert.ok(
+        width >= 149 && width <= 171,
+        `${label} recommendation card ${String(index + 1)} width=${String(width)}`,
+      );
+    }
+  }
   await assertMinimumTapTarget(
     recommendationRegion.getByRole("button", { name: "次の商品" }),
     `${label} recommendation next`,
@@ -471,10 +569,14 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
   );
 
   const imageCount = await assertDetailImages(page, label);
+  const overflowGeometry = await page.evaluate(() => ({
+    innerWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
   assert.equal(
-    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+    overflowGeometry.scrollWidth <= overflowGeometry.innerWidth + 1,
     true,
-    `${label} horizontal overflow`,
+    `${label} horizontal overflow geometry=${JSON.stringify(overflowGeometry)}`,
   );
 
   const commerceGrid = page.locator(".sazo-product-detail-commerce-grid");
@@ -550,10 +652,34 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
 
   return {
     campaignHeight: Math.round(campaignBounds.height),
-    checkoutHeight: Math.round(checkoutBounds.height),
+    checkout: {
+      bottom: Math.round(checkoutBounds.y + checkoutBounds.height),
+      height: Math.round(checkoutBounds.height),
+      left: Math.round(checkoutBounds.x),
+      right: Math.round(checkoutBounds.x + checkoutBounds.width),
+      top: Math.round(checkoutBounds.y),
+      width: Math.round(checkoutBounds.width),
+    },
     columns: gridGeometry.columns,
     imageCount,
+    overflow: overflowGeometry,
     quantityControl: `${Math.round(increaseBounds.width)}x${Math.round(increaseBounds.height)}`,
+    recommendation: {
+      cards: recommendationGeometry.cardBounds.map(({ left, right, width }) => ({
+        left: Math.round(left),
+        right: Math.round(right),
+        width: Math.round(width),
+      })),
+      clientWidth: recommendationGeometry.clientWidth,
+      fullyVisible: recommendationGeometry.cardBounds.filter(
+        ({ left, right }) =>
+          left >= recommendationGeometry.trackLeft - 1 &&
+          right <= recommendationGeometry.trackRight + 1,
+      ).length,
+      scrollWidth: recommendationGeometry.scrollWidth,
+      trackLeft: Math.round(recommendationGeometry.trackLeft),
+      trackRight: Math.round(recommendationGeometry.trackRight),
+    },
     sourceControl: `${Math.round(sourceBounds.width)}x${Math.round(sourceBounds.height)}`,
   };
 }

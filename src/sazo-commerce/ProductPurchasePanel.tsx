@@ -121,7 +121,7 @@ export function ProductPurchasePanel({
         </select>
 
         {selectedOption === "" ? null : (
-          <section className="sazo-product-detail-selected-product">
+          <div className="sazo-product-detail-selected-product">
             <div className="sazo-product-detail-selected-product-copy">
               <span>{t("sazo.views.productDetail.purchase.selectedProduct")}</span>
               <strong>{product.name}</strong>
@@ -163,7 +163,7 @@ export function ProductPurchasePanel({
             >
               <X aria-hidden size={18} strokeWidth={2} />
             </button>
-          </section>
+          </div>
         )}
 
         <div className="sazo-product-detail-request-heading">
