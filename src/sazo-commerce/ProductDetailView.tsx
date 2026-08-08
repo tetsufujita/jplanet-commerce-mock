@@ -470,6 +470,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
           )}
 
           <ProductPurchasePanel
+            announceFeedback
             controller={purchaseController}
             detail={detail}
             idPrefix="hero"

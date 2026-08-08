@@ -7,6 +7,7 @@ import type { ProductDetail } from "@/sazo-commerce/fixtures";
 import type { ProductPurchaseController } from "@/sazo-commerce/useProductPurchaseController";
 
 export interface ProductPurchasePanelProps {
+  announceFeedback?: boolean;
   controller: ProductPurchaseController;
   detail: ProductDetail;
   idPrefix: string;
@@ -15,6 +16,7 @@ export interface ProductPurchasePanelProps {
 }
 
 export function ProductPurchasePanel({
+  announceFeedback = false,
   controller,
   detail,
   idPrefix,
@@ -204,7 +206,13 @@ export function ProductPurchasePanel({
             data-kind={controller.feedback.kind}
             initial={reduceMotion ? false : { opacity: 0, y: 5 }}
             key={`${controller.feedback.kind}-${controller.feedback.message}`}
-            role={controller.feedback.kind === "error" ? "alert" : "status"}
+            role={
+              announceFeedback
+                ? controller.feedback.kind === "error"
+                  ? "alert"
+                  : "status"
+                : undefined
+            }
             transition={{ duration: reduceMotion ? 0 : 0.18 }}
           >
             {controller.feedback.message}

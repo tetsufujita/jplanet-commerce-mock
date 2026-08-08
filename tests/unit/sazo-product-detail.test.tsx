@@ -266,6 +266,36 @@ describe("J-Planet product detail experience", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it("announces shared purchase feedback once while rendering it in both panels", async () => {
+    const { container } = await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+    );
+    const forms = Array.from(
+      container.querySelectorAll<HTMLFormElement>("form[data-product-purchase-form]"),
+    );
+    const stickyForm = forms[1];
+
+    if (stickyForm === undefined) {
+      throw new Error("Missing sticky purchase form");
+    }
+
+    const stickyOption = within(stickyForm).getByLabelText("商品オプション");
+    fireEvent.click(
+      within(stickyForm).getByRole("button", { name: "カートに入れる" }),
+    );
+
+    const visualFeedback = Array.from(
+      container.querySelectorAll<HTMLElement>(".sazo-product-detail-feedback"),
+      (node) => node.textContent,
+    );
+    expect(visualFeedback).toEqual([
+      expect.stringContaining("商品オプションを選択"),
+      expect.stringContaining("商品オプションを選択"),
+    ]);
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
+    expect(document.activeElement).toBe(stickyOption);
+  });
+
   it("updates the selected product quantity and deterministic total", async () => {
     const { container } = await renderWithI18n(
       <ProductDetailView dispatch={vi.fn()} productId="p01" />,
@@ -506,9 +536,10 @@ describe("J-Planet product detail experience", () => {
     });
     const stickyOption = within(stickyForm).getByLabelText("商品オプション");
     fireEvent.click(stickyCartButton);
-    expect(within(stickyForm).getByRole("alert").textContent).toContain(
-      "商品オプションを選択",
-    );
+    expect(
+      stickyForm.querySelector(".sazo-product-detail-feedback")?.textContent,
+    ).toContain("商品オプションを選択");
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
     expect(document.activeElement).toBe(stickyOption);
 
     fireEvent.change(within(heroForm).getByLabelText("商品オプション"), {
