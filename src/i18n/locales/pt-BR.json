@@ -419,6 +419,11 @@
           "listLabel": "Etapas do pedido e da entrega",
           "detailsLink": "Ver detalhes da entrega",
           "step": "ETAPA {{step}}",
+          "status": {
+            "complete": "Concluído",
+            "current": "Etapa atual",
+            "pending": "Pendente"
+          },
           "stages": {
             "received": "Pedido recebido",
             "purchased": "Compra no Japão",

@@ -160,9 +160,8 @@ describe("SAZO product detail navigation", () => {
       throw new Error("Missing next hero purchase form");
     }
 
-    const option = within(nextHeroForm).getByLabelText<HTMLSelectElement>(
-      "商品オプション",
-    );
+    const option =
+      within(nextHeroForm).getByLabelText<HTMLSelectElement>("商品オプション");
     const request = within(nextHeroForm).getByLabelText<HTMLTextAreaElement>("ご要望");
     const imageCheck = within(nextHeroForm).getByRole<HTMLInputElement>("checkbox", {
       name: "画像にチェック",
@@ -181,9 +180,7 @@ describe("SAZO product detail navigation", () => {
       screen.getByRole("tab", { name: "商品情報" }).getAttribute("aria-selected"),
     ).toBe("true");
     expect(screen.queryByRole("status")).toBeNull();
-    expect(within(nextHeroForm).getByTestId("product-total-value").textContent).toBe(
-      "0",
-    );
+    expect(within(nextHeroForm).getByTestId("product-total-value").textContent).toBe("0");
 
     const nextCartButton = within(nextHeroForm).getByRole("button", {
       name: "カートに入れる",
@@ -253,14 +250,12 @@ describe("J-Planet product detail experience", () => {
     expect((stickySelect as HTMLSelectElement).value).toBe("標準");
 
     fireEvent.click(within(stickyForm).getByRole("button", { name: "数量を増やす" }));
-    expect(screen.getAllByTestId("product-quantity").map((node) => node.textContent)).toEqual([
-      "2",
-      "2",
-    ]);
-    expect(screen.getAllByTestId("product-total-value").map((node) => node.textContent)).toEqual([
-      "¥7,948",
-      "¥7,948",
-    ]);
+    expect(
+      screen.getAllByTestId("product-quantity").map((node) => node.textContent),
+    ).toEqual(["2", "2"]);
+    expect(
+      screen.getAllByTestId("product-total-value").map((node) => node.textContent),
+    ).toEqual(["¥7,948", "¥7,948"]);
 
     const ids = Array.from(container.querySelectorAll("[id]"), (node) => node.id);
     expect(new Set(ids).size).toBe(ids.length);
@@ -280,9 +275,7 @@ describe("J-Planet product detail experience", () => {
     }
 
     const stickyOption = within(stickyForm).getByLabelText("商品オプション");
-    fireEvent.click(
-      within(stickyForm).getByRole("button", { name: "カートに入れる" }),
-    );
+    fireEvent.click(within(stickyForm).getByRole("button", { name: "カートに入れる" }));
 
     const visualFeedback = Array.from(
       container.querySelectorAll<HTMLElement>(".sazo-product-detail-feedback"),
@@ -441,19 +434,13 @@ describe("J-Planet product detail experience", () => {
     expect(leftFlow).not.toBeNull();
     expect(recommendation?.nextElementSibling).toBe(commerceGrid);
     expect(
-      leftFlow?.firstElementChild?.classList.contains(
-        "sazo-product-detail-information",
-      ),
+      leftFlow?.firstElementChild?.classList.contains("sazo-product-detail-information"),
     ).toBe(true);
     expect(
-      commerceGrid?.children[0]?.classList.contains(
-        "sazo-product-detail-checkout-rail",
-      ),
+      commerceGrid?.children[0]?.classList.contains("sazo-product-detail-checkout-rail"),
     ).toBe(true);
     expect(commerceGrid?.children[1]).toBe(leftFlow);
-    expect(
-      Array.from(leftFlow?.children ?? [], (node) => node.className),
-    ).toEqual([
+    expect(Array.from(leftFlow?.children ?? [], (node) => node.className)).toEqual([
       expect.stringContaining("sazo-product-detail-information"),
       expect.stringContaining("sazo-product-campaign"),
       expect.stringContaining("sazo-product-detail-review"),
@@ -461,9 +448,7 @@ describe("J-Planet product detail experience", () => {
       expect.stringContaining("sazo-product-detail-benefits"),
     ]);
 
-    const stages = Array.from(
-      container.querySelectorAll(".sazo-product-order-flow li"),
-    );
+    const stages = Array.from(container.querySelectorAll(".sazo-product-order-flow li"));
     expect(stages).toHaveLength(6);
     expect(stages.map((stage) => stage.getAttribute("data-state"))).toEqual([
       "complete",
@@ -473,7 +458,22 @@ describe("J-Planet product detail experience", () => {
       "pending",
       "pending",
     ]);
-    expect(screen.getByRole("heading", { name: "注文配送の流れ 一目で見る" })).toBeTruthy();
+    expect(stages.map((stage) => stage.getAttribute("aria-current"))).toEqual([
+      null,
+      null,
+      "step",
+      null,
+      null,
+      null,
+    ]);
+    expect(
+      stages.map(
+        (stage) => stage.querySelector(".sazo-visually-hidden")?.textContent ?? null,
+      ),
+    ).toEqual(["完了", "完了", "現在のステップ", "未完了", "未完了", "未完了"]);
+    expect(
+      screen.getByRole("heading", { name: "注文配送の流れ 一目で見る" }),
+    ).toBeTruthy();
     expect(screen.getByText("一目で見る")).toBeTruthy();
     expect(detail.recommendationIds).toHaveLength(6);
     expect(new Set(detail.recommendationIds)).toHaveProperty("size", 6);
@@ -669,7 +669,7 @@ describe("J-Planet product detail experience", () => {
     expect(within(informationPanel).getByText("注文受付")).toBeTruthy();
     expect(within(informationPanel).getByText("日本で購入")).toBeTruthy();
     expect(within(informationPanel).getByText("日本倉庫へ到着")).toBeTruthy();
-    expect(within(informationPanel).getByText("日本倉庫で検品")).toBeTruthy();
+    expect(within(informationPanel).getByText("検品完了")).toBeTruthy();
     expect(within(informationPanel).getByText("国際配送・通関")).toBeTruthy();
     expect(within(informationPanel).getByText("ブラジルへお届け")).toBeTruthy();
 
@@ -691,6 +691,31 @@ describe("J-Planet product detail experience", () => {
     expect(screen.getByRole("tab", { name: "Product information" })).toBeTruthy();
     expect(screen.getAllByRole("button", { name: "Buy now" })).toHaveLength(3);
     expect(screen.getByRole("heading", { name: "Why J-Planet?" })).toBeTruthy();
+  });
+
+  it.each([
+    ["ja", ["完了", "完了", "現在のステップ", "未完了", "未完了", "未完了"]],
+    ["en", ["Completed", "Completed", "Current step", "Pending", "Pending", "Pending"]],
+    [
+      "pt-BR",
+      ["Concluído", "Concluído", "Etapa atual", "Pendente", "Pendente", "Pendente"],
+    ],
+  ])("localizes accessible delivery status text for %s", async (locale, statuses) => {
+    const { container } = await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+      locale,
+    );
+    const stages = Array.from(container.querySelectorAll(".sazo-product-order-flow li"));
+
+    expect(
+      stages.map(
+        (stage) => stage.querySelector(".sazo-visually-hidden")?.textContent ?? null,
+      ),
+    ).toEqual(statuses);
+    expect(
+      stages.filter((stage) => stage.getAttribute("aria-current") === "step"),
+    ).toHaveLength(1);
+    expect(stages[2]?.getAttribute("aria-current")).toBe("step");
   });
 
   it("applies the vendored Noto Sans JP stack to product detail", () => {

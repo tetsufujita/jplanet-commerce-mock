@@ -38,7 +38,15 @@ export function ProductOrderFlow({ compact = false }: ProductOrderFlowProps) {
           className="sazo-product-detail-timeline"
         >
           {orderStages.map(({ icon: Icon, labelKey, state }, index) => (
-            <li data-stage={index + 1} data-state={state} key={labelKey}>
+            <li
+              aria-current={state === "current" ? "step" : undefined}
+              data-stage={index + 1}
+              data-state={state}
+              key={labelKey}
+            >
+              <span className="sazo-visually-hidden">
+                {t(`sazo.views.productDetail.order.status.${state}`)}
+              </span>
               <span className="sazo-product-detail-stage-icon">
                 <Icon aria-hidden size={23} strokeWidth={1.9} />
               </span>

@@ -419,11 +419,16 @@
           "listLabel": "注文からお届けまで",
           "detailsLink": "配送の詳細を見る",
           "step": "STEP {{step}}",
+          "status": {
+            "complete": "完了",
+            "current": "現在のステップ",
+            "pending": "未完了"
+          },
           "stages": {
             "received": "注文受付",
             "purchased": "日本で購入",
             "warehouseArrived": "日本倉庫へ到着",
-            "inspected": "日本倉庫で検品",
+            "inspected": "検品完了",
             "shipping": "国際配送・通関",
             "delivered": "ブラジルへお届け"
           }

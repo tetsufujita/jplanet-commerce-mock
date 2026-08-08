@@ -2430,6 +2430,7 @@
   font-size: 12px;
   font-weight: 850;
   text-decoration-color: var(--jplanet-sakura);
+  text-decoration-line: underline;
   text-underline-offset: 4px;
 }
 
@@ -2484,21 +2485,27 @@
   box-shadow: 0 8px 20px color-mix(in srgb, var(--jplanet-shadow) 72%, transparent);
 }
 
-.sazo-root .sazo-product-detail-timeline li[data-state="complete"]
+.sazo-root
+  .sazo-product-detail-timeline
+  li[data-state="complete"]
   .sazo-product-detail-stage-icon {
   border-color: var(--jplanet-navy);
   background: var(--jplanet-surface);
   color: var(--jplanet-navy);
 }
 
-.sazo-root .sazo-product-detail-timeline li[data-state="current"]
+.sazo-root
+  .sazo-product-detail-timeline
+  li[data-state="current"]
   .sazo-product-detail-stage-icon {
   border-color: var(--jplanet-sakura);
   background: var(--jplanet-sakura);
   color: var(--jplanet-surface);
 }
 
-.sazo-root .sazo-product-detail-timeline li[data-state="pending"]
+.sazo-root
+  .sazo-product-detail-timeline
+  li[data-state="pending"]
   .sazo-product-detail-stage-icon {
   border-color: var(--jplanet-line);
   background: var(--jplanet-blue-soft);
@@ -2513,12 +2520,16 @@
   letter-spacing: 0.1em;
 }
 
-.sazo-root .sazo-product-detail-timeline li[data-state="complete"]
+.sazo-root
+  .sazo-product-detail-timeline
+  li[data-state="complete"]
   .sazo-product-detail-stage-number {
   color: var(--jplanet-navy);
 }
 
-.sazo-root .sazo-product-detail-timeline li[data-state="current"]
+.sazo-root
+  .sazo-product-detail-timeline
+  li[data-state="current"]
   .sazo-product-detail-stage-number {
   color: var(--jplanet-sakura);
 }

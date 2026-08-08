@@ -419,6 +419,11 @@
           "listLabel": "Order and delivery progress",
           "detailsLink": "View delivery details",
           "step": "STEP {{step}}",
+          "status": {
+            "complete": "Completed",
+            "current": "Current step",
+            "pending": "Pending"
+          },
           "stages": {
             "received": "Order received",
             "purchased": "Purchased in Japan",
