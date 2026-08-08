@@ -85,6 +85,10 @@ function isForbiddenVisibleBrandCopy(value) {
   return forbiddenVisibleBrandPatterns.some((pattern) => pattern.test(value));
 }
 
+function normalizeComputedCssImage(value) {
+  return value.replace(/\s+/gu, " ").trim();
+}
+
 for (const { expected, value } of productVisibleBrandPredicateCases) {
   assert.equal(
     isForbiddenVisibleBrandCopy(value),
@@ -926,20 +930,11 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
     orderFlowStyles.tokens.surface,
     `${label} current stage surface icon`,
   );
-  assert.match(
-    orderFlowStyles.progressBackgroundImage ?? "",
-    /^linear-gradient\(to right,/u,
-    `${label} order progress line gradient`,
-  );
+  const expectedProgressBackgroundImage = `linear-gradient(to right, ${orderFlowStyles.tokens.navy} 0px, ${orderFlowStyles.tokens.navy} 20%, ${orderFlowStyles.tokens.sakura} 20%, ${orderFlowStyles.tokens.sakura} 40%, ${orderFlowStyles.tokens.line} 40%, ${orderFlowStyles.tokens.line} 100%)`;
   assert.equal(
-    orderFlowStyles.progressBackgroundImage?.includes(orderFlowStyles.tokens.sakura),
-    true,
-    `${label} order progress line includes resolved sakura token gradient=${String(orderFlowStyles.progressBackgroundImage)}`,
-  );
-  assert.match(
-    orderFlowStyles.progressBackgroundImage ?? "",
-    /20%.*20%.*40%.*40%/u,
-    `${label} order progress complete/current/pending segment contract gradient=${String(orderFlowStyles.progressBackgroundImage)}`,
+    normalizeComputedCssImage(orderFlowStyles.progressBackgroundImage ?? ""),
+    normalizeComputedCssImage(expectedProgressBackgroundImage),
+    `${label} exact order progress complete/current/pending token-stop contract`,
   );
   assert.equal(
     orderFlowStyles.currentLabelColor,
