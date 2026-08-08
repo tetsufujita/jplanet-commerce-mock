@@ -19,7 +19,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { sazoCountryOptions } from "@/sazo-commerce/fixtures";
 import type { SazoAction, SazoAuthStep } from "@/sazo-commerce/model";
-import { SazoLogo } from "@/sazo-commerce/SazoLogo";
+import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
 
 const focusableSelector = [
   "button:not([disabled])",
@@ -72,7 +72,7 @@ function AuthPageChrome({ children, dispatch, step }: AuthPageChromeProps) {
     >
       <header className="sazo-auth-page-header">
         <div aria-label={t("sazo.brand.homeLabel")} className="sazo-auth-page-brand">
-          <SazoLogo />
+          <JplanetLogo />
         </div>
         <div className="sazo-auth-page-actions">
           <button aria-label={t("sazo.actions.language")} type="button">
@@ -144,7 +144,7 @@ function GoogleChooser({ dispatch }: Pick<AuthFlowProps, "dispatch">) {
       <div className="sazo-google-brand">Google でログイン</div>
       <section className="sazo-google-account-panel">
         <h1>アカウントを選択してください</h1>
-        <p>「SAZO Inc.」に移動</p>
+        <p>「J-Planet」に移動</p>
         <div className="sazo-google-account-list">
           <button onClick={continueToBirthday} type="button">
             <span aria-hidden className="sazo-google-avatar">
@@ -174,7 +174,7 @@ function GoogleChooser({ dispatch }: Pick<AuthFlowProps, "dispatch">) {
           </button>
         </div>
         <p className="sazo-google-privacy">
-          このアプリを使用する前に、SAZO Inc.
+          このアプリを使用する前に、J-Planet
           のプライバシーポリシーと利用規約をご確認ください。
         </p>
       </section>

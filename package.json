@@ -19,6 +19,7 @@
     "sazo:reference": "node scripts/sazo-extract-reference.mjs",
     "sazo:capture": "node scripts/sazo-capture-checkpoints.mjs",
     "sazo:compare": "node scripts/sazo-compare.mjs",
+    "sazo:determinism": "node scripts/sazo-verify-determinism.mjs",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@fontsource-variable/noto-sans-jp": "5.3.0",
     "@playwright/test": "^1.60.0",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^20.19.25",

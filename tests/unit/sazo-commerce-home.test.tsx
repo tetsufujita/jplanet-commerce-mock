@@ -82,7 +82,7 @@ describe("SAZO home composition", () => {
     const introHeading = container.querySelector(".sazo-home-intro h1");
     const introBody = container.querySelector(".sazo-home-intro p");
 
-    expect(introHeading?.textContent?.trim().split("\n")).toEqual([
+    expect(introHeading?.textContent.trim().split("\n")).toEqual([
       "ブラジル最大級",
       "日本直輸入ショップ",
     ]);

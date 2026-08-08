@@ -79,7 +79,7 @@ const heroReviews = [
   },
   {
     author: "dx ux",
-    body: "잘 받았습니다",
+    body: "日本からブラジルまで無事に届きました。",
     image: "/sazo-commerce/service-lp/review-09.jpg",
   },
 ] as const;
@@ -230,16 +230,28 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
 
       <section aria-label="利用レビュー" className="sazo-service-review-rail">
         <div className="sazo-service-review-track">
-          {[...heroReviews, ...heroReviews].map((review, index) => (
-            <article
-              className="sazo-service-review-card"
-              key={`${review.author}-${String(index)}`}
-            >
-              <img alt="" aria-hidden height={340} src={review.image} width={320} />
-              <strong>● {review.author}</strong>
-              <p>{review.body}</p>
-            </article>
-          ))}
+          <div className="sazo-service-review-set" data-service-review-set>
+            {heroReviews.map((review) => (
+              <article className="sazo-service-review-card" key={review.author}>
+                <img alt="" aria-hidden height={340} src={review.image} width={320} />
+                <strong>● {review.author}</strong>
+                <p>{review.body}</p>
+              </article>
+            ))}
+          </div>
+          <div
+            aria-hidden="true"
+            className="sazo-service-review-set"
+            data-service-review-set
+          >
+            {heroReviews.map((review) => (
+              <article className="sazo-service-review-card" key={review.author}>
+                <img alt="" aria-hidden height={340} src={review.image} width={320} />
+                <strong>● {review.author}</strong>
+                <p>{review.body}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

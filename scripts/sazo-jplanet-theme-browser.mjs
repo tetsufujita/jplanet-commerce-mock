@@ -39,6 +39,13 @@ function normalizeRenderedCopy(text) {
 }
 
 const forbiddenRouteCopy = ["韓国", "KOREA", "TO JAPAN", "韓国代行", "日本まで発送"];
+const forbiddenBrandPattern = /\bSAZO(?:SHOP)?\b/i;
+const forbiddenLogoSelectors = ["[data-sazo-wordmark]", ".sazo-logo"];
+const forbiddenAssetFragments = [
+  "/sazo-logo",
+  "/logo-sazo",
+  "/sazo-commerce/campaign/coupon-banner.png",
+];
 
 function contentSelector(view) {
   return view === "home" ? "[data-home-view]" : `[data-view-content="${view}"]`;
@@ -46,6 +53,21 @@ function contentSelector(view) {
 
 async function assertJplanetTheme(page, label) {
   const root = page.locator(".sazo-root");
+  await root.locator("img").evaluateAll(async (images) => {
+    await Promise.all(
+      images.map(async (image) => {
+        image.loading = "eager";
+        if (image.complete) return;
+
+        await new Promise((resolve) => {
+          const finish = () => resolve();
+          image.addEventListener("error", finish, { once: true });
+          image.addEventListener("load", finish, { once: true });
+          setTimeout(finish, 8_000);
+        });
+      }),
+    );
+  });
   const palette = await root.evaluate((element) => {
     const style = getComputedStyle(element);
 
@@ -84,7 +106,9 @@ async function assertJplanetTheme(page, label) {
           style.borderRightColor,
           style.borderTopColor,
           style.color,
+          style.fill,
           style.outlineColor,
+          style.stroke,
         ];
 
         for (const value of values) {
@@ -161,26 +185,64 @@ async function assertJplanetTheme(page, label) {
       )
       .join(" ");
   });
-  const visibleCopy = normalizeRenderedCopy(`${renderedText} ${pseudoElementCopy}`);
+  const visibleControlCopy = await root.locator("input, textarea").evaluateAll((elements) =>
+    elements
+      .filter((element) => {
+        const style = getComputedStyle(element);
+        return style.display !== "none" && style.visibility === "visible";
+      })
+      .map((element) => `${element.getAttribute("placeholder") ?? ""} ${element.value ?? ""}`)
+      .join(" "),
+  );
+  const visibleCopy = normalizeRenderedCopy(
+    `${renderedText} ${pseudoElementCopy} ${visibleControlCopy}`,
+  );
 
   for (const forbiddenCopy of forbiddenRouteCopy) {
     assert.equal(visibleCopy.includes(forbiddenCopy), false, `${label} legacy route copy: ${forbiddenCopy}`);
   }
-  assert.equal(
-    renderedText.includes("SAZO"),
-    false,
-    `${label} legacy brand copy`,
+  assert.equal(forbiddenBrandPattern.test(visibleCopy), false, `${label} legacy brand copy`);
+
+  for (const selector of forbiddenLogoSelectors) {
+    assert.equal(await root.locator(selector).count(), 0, `${label} legacy logo selector: ${selector}`);
+  }
+
+  const imageAudit = await root.locator("img").evaluateAll(
+    (images, forbiddenFragments) => {
+      const failures = [];
+      const forbiddenAssets = [];
+
+      for (const image of images) {
+        const source = image.currentSrc || image.getAttribute("src") || "<missing-src>";
+        if (!image.complete || image.naturalWidth <= 0 || image.naturalHeight <= 0) {
+          failures.push(
+            `${source} complete=${String(image.complete)} size=${String(image.naturalWidth)}x${String(image.naturalHeight)}`,
+          );
+        }
+        if (forbiddenFragments.some((fragment) => source.toLowerCase().includes(fragment))) {
+          forbiddenAssets.push(source);
+        }
+      }
+
+      return { count: images.length, failures, forbiddenAssets };
+    },
+    forbiddenAssetFragments,
   );
+
+  assert.deepEqual(imageAudit.failures, [], `${label} image load failures`);
+  assert.deepEqual(imageAudit.forbiddenAssets, [], `${label} legacy brand assets`);
   assert.equal(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
     true,
     `${label} horizontal overflow`,
   );
 
-  return visibleCopy;
+  return { imageCount: imageAudit.count, visibleCopy };
 }
 
 let browser;
+let auditedImages = 0;
+let auditedStates = 0;
 
 try {
   await server.listen();
@@ -238,10 +300,12 @@ try {
         );
       }
 
-      const visibleCopy = await assertJplanetTheme(page, `${viewport.label}/${view}`);
+      const audit = await assertJplanetTheme(page, `${viewport.label}/${view}`);
+      auditedImages += audit.imageCount;
+      auditedStates += 1;
       if (view === "campaign") {
         assert.equal(
-          visibleCopy.includes("FROM JAPAN TO BRAZIL"),
+          audit.visibleCopy.includes("FROM JAPAN TO BRAZIL"),
           true,
           `${viewport.label}/${view} campaign pseudo-element copy`,
         );
@@ -257,7 +321,9 @@ try {
       const selector =
         authStep === "google" ? '[data-testid="sazo-google-chooser"]' : "[data-testid=sazo-auth-page]";
       await page.locator(selector).waitFor();
-      await assertJplanetTheme(page, `${viewport.label}/auth-${authStep}`);
+      const audit = await assertJplanetTheme(page, `${viewport.label}/auth-${authStep}`);
+      auditedImages += audit.imageCount;
+      auditedStates += 1;
       await page.screenshot({
         fullPage: true,
         path: `/tmp/sazo-jplanet-${viewport.label}-auth-${authStep}.png`,
@@ -268,7 +334,12 @@ try {
     const visibleShell = page.locator(`[data-shell="${viewport.label}"]`);
     await visibleShell.getByRole("button", { name: "ログイン" }).click();
     await page.getByTestId("sazo-auth-backdrop").waitFor();
-    await assertJplanetTheme(page, `${viewport.label}/auth-provider`);
+    const providerAudit = await assertJplanetTheme(
+      page,
+      `${viewport.label}/auth-provider`,
+    );
+    auditedImages += providerAudit.imageCount;
+    auditedStates += 1;
     await page.screenshot({
       path: `/tmp/sazo-jplanet-${viewport.label}-auth-provider.png`,
     });
@@ -276,13 +347,18 @@ try {
     await page.locator(".sazo-auth-dialog .sazo-overlay-close").click();
     await page.getByTestId("chat-launcher").click();
     await page.getByTestId("sazo-chat-backdrop").waitFor();
-    await assertJplanetTheme(page, `${viewport.label}/chat`);
+    const chatAudit = await assertJplanetTheme(page, `${viewport.label}/chat`);
+    auditedImages += chatAudit.imageCount;
+    auditedStates += 1;
     await page.screenshot({ path: `/tmp/sazo-jplanet-${viewport.label}-chat.png` });
 
     await page.close();
   }
 
-  process.stdout.write("sazo-jplanet-theme-browser-ok\n");
+  assert.equal(auditedStates, 34, "browser audit state count");
+  process.stdout.write(
+    `sazo-jplanet-theme-browser-ok states=${String(auditedStates)} images=${String(auditedImages)}\n`,
+  );
 } finally {
   await browser?.close();
   await server.close();

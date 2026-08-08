@@ -75,15 +75,55 @@ try {
 
   await desktopNavigation.getByRole("button", { name: "サービス紹介" }).click();
   await desktopPage.locator('[data-view-content="service"]').waitFor();
+  await desktopPage.setViewportSize({ height: 1264, width: 1726 });
   assert.equal(await desktopPage.evaluate(() => window.scrollY), 0);
+  await desktopPage.waitForFunction(() =>
+    document.fonts.check('700 24px "Noto Sans JP Variable"', "韓国商品"),
+  );
+  const serviceEntry = desktopPage.locator(".sazo-service-url-entry").first();
+  const serviceInput = serviceEntry.locator("input");
+  const serviceButton = serviceEntry.locator("button");
+  const serviceButtonIcon = serviceButton.locator("svg");
+  const entryBounds = await serviceEntry.boundingBox();
+  assert(entryBounds !== null);
+  assert.ok(Math.abs(entryBounds.height - 100) <= 2);
+  assert.ok(Math.abs(entryBounds.width - 1154) <= 2);
+  const serviceButtonIconBounds = await serviceButtonIcon.boundingBox();
+  assert(serviceButtonIconBounds !== null);
+  assert.ok(Math.abs(serviceButtonIconBounds.width - 30) <= 1);
+  assert.ok(Math.abs(serviceButtonIconBounds.height - 30) <= 1);
+  assert.match(
+    await serviceInput.evaluate((element) => getComputedStyle(element).fontFamily),
+    /^"?Noto Sans JP Variable"?/,
+  );
+  await serviceInput.focus();
+  await desktopPage.waitForTimeout(200);
+  assert.match(
+    await serviceEntry.evaluate((element) => getComputedStyle(element).boxShadow),
+    /0px 0px 0px 4px/,
+  );
+  const restingButtonColor = await serviceButton.evaluate(
+    (element) => getComputedStyle(element).backgroundColor,
+  );
+  await serviceButton.hover();
+  assert.notEqual(
+    await serviceButton.evaluate((element) => getComputedStyle(element).backgroundColor),
+    restingButtonColor,
+  );
   await desktopPage.screenshot({ path: "/tmp/sazo-task5-desktop-service-top.png" });
+  await desktopPage.locator(".sazo-service-problem").scrollIntoViewIfNeeded();
+  await desktopPage.screenshot({ path: "/tmp/sazo-task5-desktop-service-problem.png" });
+  await desktopPage
+    .locator('.sazo-service-step[data-step="03"]')
+    .scrollIntoViewIfNeeded();
+  await desktopPage.screenshot({ path: "/tmp/sazo-task5-desktop-service-step-03.png" });
+  await desktopPage.locator(".sazo-service-trust").scrollIntoViewIfNeeded();
+  await desktopPage.screenshot({ path: "/tmp/sazo-task5-desktop-service-trust.png" });
   const faq = desktopPage.getByRole("button", {
-    name: "韓国以外からも購入できますか？",
+    name: /販売者に問い合わせることはできますか/,
   });
   await faq.scrollIntoViewIfNeeded();
   await faq.focus();
-  assert.equal(await faq.getAttribute("aria-expanded"), "true");
-  await desktopPage.keyboard.press("Enter");
   assert.equal(await faq.getAttribute("aria-expanded"), "false");
   const faqAnswer = desktopPage.locator(
     `#${String(await faq.getAttribute("aria-controls"))}`,
@@ -98,6 +138,7 @@ try {
   assert.equal(await faq.evaluate((element) => element === document.activeElement), true);
   await desktopPage.keyboard.press("Enter");
   assert.equal(await faq.getAttribute("aria-expanded"), "true");
+  await desktopPage.waitForTimeout(320);
   const expandedAnswer = desktopPage.locator('.sazo-faq-answer[data-expanded="true"]');
   assert.notEqual(
     await expandedAnswer.evaluate((element) => getComputedStyle(element).maxHeight),
@@ -154,6 +195,18 @@ try {
   await mobilePage.locator("[data-view-back]").click();
   await mobileSecondaryNavigation.getByRole("button", { name: "サービス紹介" }).click();
   await mobilePage.locator('[data-view-content="service"]').waitFor();
+  await mobilePage.setViewportSize({ height: 844, width: 320 });
+  const mobileServiceEntry = mobilePage.locator(".sazo-service-url-entry").first();
+  const mobileEntryBounds = await mobileServiceEntry.boundingBox();
+  assert(mobileEntryBounds !== null);
+  assert.ok(mobileEntryBounds.x >= 0);
+  assert.ok(mobileEntryBounds.x + mobileEntryBounds.width <= 320);
+  assert.equal(
+    await mobilePage.locator('[data-view-content="service"]').evaluate(
+      (element) => element.scrollWidth <= element.clientWidth,
+    ),
+    true,
+  );
   await mobilePage.screenshot({ path: "/tmp/sazo-task5-mobile-service.png" });
 
   process.stdout.write("sazo-views-browser-ok\n");

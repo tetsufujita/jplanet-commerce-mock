@@ -136,7 +136,7 @@ describe("SAZO local authentication", () => {
     expect(screen.getByLabelText("電話番号").getAttribute("type")).toBe("tel");
     expect(
       screen.getByRole("checkbox", {
-        name: "SAZOからのお得な情報を受け取らない",
+        name: "J-Planetからのお得な情報を受け取らない",
       }),
     ).toBeTruthy();
   });
@@ -169,7 +169,7 @@ describe("SAZO local authentication", () => {
     expect(
       within(birthdayPage)
         .getByRole("banner")
-        .querySelector("svg[data-sazo-wordmark='true']"),
+        .querySelector("img[data-jplanet-wordmark='true']"),
     ).toBeTruthy();
     expect(within(birthdayPage).getByRole("contentinfo")).toBeTruthy();
     for (const link of [
@@ -195,7 +195,7 @@ describe("SAZO local authentication", () => {
     fireEvent.click(authChatLauncher);
     fireEvent.click(screen.getByRole("button", { name: "チャットを閉じる" }));
     await waitFor(() => {
-      expect(screen.queryByRole("dialog", { name: "SAZOチャット" })).toBeNull();
+      expect(screen.queryByRole("dialog", { name: "J-Planetチャット" })).toBeNull();
     });
     expect(screen.getByTestId("sazo-auth-page")).toBeTruthy();
 
@@ -386,7 +386,7 @@ describe("SAZO local chat overlay", () => {
     launcher.focus();
     fireEvent.click(launcher);
 
-    const dialog = screen.getByRole("dialog", { name: "SAZOチャット" });
+    const dialog = screen.getByRole("dialog", { name: "J-Planetチャット" });
     const close = within(dialog).getByRole("button", { name: "チャットを閉じる" });
     const message = within(dialog).getByRole("textbox", { name: "メッセージ" });
     const root = container.querySelector<HTMLElement>(".sazo-root");
@@ -413,7 +413,7 @@ describe("SAZO local chat overlay", () => {
     expect(document.body.style.overflow).toBe("");
     expect(document.activeElement).toBe(launcher);
     await waitFor(() => {
-      expect(screen.queryByRole("dialog", { name: "SAZOチャット" })).toBeNull();
+      expect(screen.queryByRole("dialog", { name: "J-Planetチャット" })).toBeNull();
     });
     expect(background?.hasAttribute("aria-hidden")).toBe(false);
     expect(background?.hasAttribute("inert")).toBe(false);
@@ -428,15 +428,15 @@ describe("SAZO local chat overlay", () => {
     fireEvent.click(launcher);
     fireEvent.mouseDown(screen.getByTestId("sazo-chat-backdrop"));
     await waitFor(() => {
-      expect(screen.queryByRole("dialog", { name: "SAZOチャット" })).toBeNull();
+      expect(screen.queryByRole("dialog", { name: "J-Planetチャット" })).toBeNull();
     });
 
     fireEvent.click(launcher);
-    fireEvent.keyDown(screen.getByRole("dialog", { name: "SAZOチャット" }), {
+    fireEvent.keyDown(screen.getByRole("dialog", { name: "J-Planetチャット" }), {
       key: "Escape",
     });
     await waitFor(() => {
-      expect(screen.queryByRole("dialog", { name: "SAZOチャット" })).toBeNull();
+      expect(screen.queryByRole("dialog", { name: "J-Planetチャット" })).toBeNull();
     });
   });
 
@@ -467,7 +467,7 @@ describe("SAZO local chat overlay", () => {
       installMatchMedia({ mobile, reducedMotion });
       await renderWithI18n(<ChatPanel dispatch={noDispatch} />);
 
-      const panel = screen.getByRole("dialog", { name: "SAZOチャット" });
+      const panel = screen.getByRole("dialog", { name: "J-Planetチャット" });
       expect(panel.getAttribute("data-motion-duration")).toBe(duration);
       expect(panel.getAttribute("data-motion-mode")).toBe(mode);
     },

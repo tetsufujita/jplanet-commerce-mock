@@ -31,7 +31,7 @@
 - Consumes: the existing `SazoCommercePage`, `data-home-view`, and `data-view-content` selectors.
 - Produces: browser assertions that reject legacy route copy on all desktop and mobile views.
 
-- [ ] **Step 1: Write failing home and service assertions**
+- [x] **Step 1: Write failing home and service assertions**
 
 Update the home composition test to require the new heading:
 
@@ -49,7 +49,7 @@ expect(container.textContent).toContain("FROMJAPANTOBRAZIL");
 expect(container.textContent).toContain("ブラジルへお届け");
 ```
 
-- [ ] **Step 2: Extend the browser route audit**
+- [x] **Step 2: Extend the browser route audit**
 
 Inside `assertJplanetTheme`, normalize the rendered text and reject legacy direction copy:
 
@@ -73,7 +73,7 @@ if (view === "service") {
 }
 ```
 
-- [ ] **Step 3: Run the tests and prove RED**
+- [x] **Step 3: Run the tests and prove RED**
 
 Run:
 
@@ -84,7 +84,7 @@ node scripts/sazo-jplanet-theme-browser.mjs
 
 Expected: failures show the old Korean-to-Japan copy.
 
-- [ ] **Step 4: Commit the failing contract**
+- [x] **Step 4: Commit the failing contract**
 
 ```bash
 git add tests/unit/sazo-commerce-home.test.tsx tests/unit/sazo-commerce-views.test.tsx scripts/sazo-jplanet-theme-browser.mjs
@@ -105,7 +105,7 @@ git commit -m "test: define Japan to Brazil commerce copy"
 - Consumes: existing `sazo.home.*` and `sazo.views.service.*` translation keys.
 - Produces: Japan-to-Brazil text for every component without changing translation key names.
 
-- [ ] **Step 1: Replace the home and service locale values in all three locale files**
+- [x] **Step 1: Replace the home and service locale values in all three locale files**
 
 Use the same Japanese mock copy in `ja`, `en`, and `pt-BR`, matching the current locale structure:
 
@@ -122,7 +122,7 @@ Use the same Japanese mock copy in `ja`, `en`, and `pt-BR`, matching the current
 }
 ```
 
-- [ ] **Step 2: Update visible fixture and home catalog copy**
+- [x] **Step 2: Update visible fixture and home catalog copy**
 
 Apply these semantic replacements in fixture values and hardcoded catalog entries:
 
@@ -137,7 +137,7 @@ Apply these semantic replacements in fixture values and hardcoded catalog entrie
 夏の韓国トレンド → 夏の日本トレンド
 ```
 
-- [ ] **Step 3: Update campaign search copy**
+- [x] **Step 3: Update campaign search copy**
 
 Change the campaign labels to:
 
@@ -146,7 +146,7 @@ Change the campaign labels to:
 <span>日本のショップURLを入力してね</span>
 ```
 
-- [ ] **Step 4: Run focused tests**
+- [x] **Step 4: Run focused tests**
 
 Run:
 
@@ -156,7 +156,7 @@ pnpm vitest run tests/unit/sazo-commerce-home.test.tsx tests/unit/sazo-commerce-
 
 Expected: home and fixture tests pass; service assertions may remain red until Task 3.
 
-- [ ] **Step 5: Commit the global copy change**
+- [x] **Step 5: Commit the global copy change**
 
 ```bash
 git add src/i18n/locales/ja.json src/i18n/locales/en.json src/i18n/locales/pt-BR.json src/sazo-commerce/fixtures.ts src/sazo-commerce/HomeView.tsx src/sazo-commerce/CampaignView.tsx tests/unit/sazo-commerce-home.test.tsx
@@ -174,7 +174,7 @@ git commit -m "feat: reframe J-Planet for Brazil delivery"
 - Consumes: the existing service page layout and `JplanetLogo`.
 - Produces: a service page whose route, benefits, reviews, FAQ, and shipping graphic all describe Japan-to-Brazil delivery.
 
-- [ ] **Step 1: Create the local route artwork**
+- [x] **Step 1: Create the local route artwork**
 
 Create an SVG with a white background, navy Japan and Brazil endpoint discs, a sakura flight arc, a small plane marker, and visible `JAPAN` / `BRAZIL` labels. Use this accessible metadata:
 
@@ -195,7 +195,7 @@ Create an SVG with a white background, navy Japan and Brazil endpoint discs, a s
 </svg>
 ```
 
-- [ ] **Step 2: Replace all hardcoded service direction copy**
+- [x] **Step 2: Replace all hardcoded service direction copy**
 
 Use these exact key phrases:
 
@@ -209,7 +209,7 @@ Use these exact key phrases:
 
 Change the search label and placeholder to `日本のショップURL`; change the solution to `J-Planetが日本で購入、ブラジルまで発送`; and change the partner heading to `日本のどの通販でも！`.
 
-- [ ] **Step 3: Replace service problems, reviews, trust, FAQ, and shipping steps**
+- [x] **Step 3: Replace service problems, reviews, trust, FAQ, and shipping steps**
 
 Use this shipping sequence:
 
@@ -225,7 +225,7 @@ const shippingSteps = [
 
 The trust copy must describe Japan-side purchasing and inspection, international tracking, secure export packaging, and delivery in Brazil without naming an unverified carrier.
 
-- [ ] **Step 4: Replace the shipping image**
+- [x] **Step 4: Replace the shipping image**
 
 ```tsx
 <img
@@ -235,7 +235,7 @@ The trust copy must describe Japan-side purchasing and inspection, international
 />
 ```
 
-- [ ] **Step 5: Run the service and view tests**
+- [x] **Step 5: Run the service and view tests**
 
 Run:
 
@@ -245,7 +245,7 @@ pnpm vitest run tests/unit/sazo-commerce-views.test.tsx tests/unit/sazo-service-
 
 Expected: all tests pass and the service contract finds `日本代行`, `FROMJAPANTOBRAZIL`, and `ブラジルへお届け`.
 
-- [ ] **Step 6: Commit the service change**
+- [x] **Step 6: Commit the service change**
 
 ```bash
 git add public/sazo-commerce/service-lp/shipping-japan-brazil.svg src/sazo-commerce/ServiceView.tsx tests/unit/sazo-commerce-views.test.tsx

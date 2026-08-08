@@ -69,6 +69,18 @@ describe("sazoReducer", () => {
     });
   });
 
+  it("opens every commerce view and auth page only through QA parameters", () => {
+    expect(createInitialSazoState("?qa=1&view=service").view).toBe("service");
+    expect(createInitialSazoState("?qa=1&view=cards").view).toBe("cards");
+    expect(createInitialSazoState("?qa=1&auth=phone").authStep).toBe("phone");
+    expect(createInitialSazoState("?qa=1&view=unknown").view).toBe("home");
+    expect(createInitialSazoState("?qa=1&auth=unknown").authStep).toBe("provider");
+    expect(createInitialSazoState("?view=service&auth=phone")).toMatchObject({
+      authStep: "provider",
+      view: "home",
+    });
+  });
+
   it("maps every recorded campaign-feed snapshot to the evidenced slide order", () => {
     const ids = (feed: Parameters<typeof getHeroSlidesForFeed>[0]) =>
       getHeroSlidesForFeed(feed).map(({ id }) => id);
@@ -376,7 +388,6 @@ describe("SAZO fixture asset contract", () => {
   it("keeps every fixture image under the local SAZO asset prefix", () => {
     const imagePaths = [
       ...heroSlides,
-      ...shortcuts,
       ...products,
       ...brands,
       ...categories,
@@ -384,16 +395,27 @@ describe("SAZO fixture asset contract", () => {
       ...gramEntries,
     ].map(({ image }) => image);
 
-    expect(imagePaths).toHaveLength(58);
+    expect(imagePaths).toHaveLength(53);
     expect(imagePaths.every((image) => image.startsWith("/sazo-commerce/"))).toBe(true);
-    expect(imagePaths.every((image) => /\.(?:png|webp)$/.test(image))).toBe(true);
+    expect(imagePaths.every((image) => /\.(?:jpe?g|png|webp)$/.test(image))).toBe(true);
     expect(
       imagePaths.every((image) =>
-        /^\/sazo-commerce\/(?:(?:hero\/slide-0?[1-5]|products\/(0[1-9]|1[0-2])|brands\/0[1-8]|community\/(0[1-9]|1[0-4]))\.webp|(?:shortcuts\/(?:feature|limited|flea-market|cosmetics|k-pop))\.png)$/.test(
+        /^\/sazo-commerce\/(?:(?:hero\/slide-0?[1-5]|products\/(0[1-9]|1[0-2])|brands\/0[1-8]|community\/(0[1-9]|1[0-4]))\.webp|review-media\/r0[1-8]\.jpg)$/.test(
           image,
         ),
       ),
     ).toBe(true);
+  });
+
+  it("keeps J-Planet shortcut icon identifiers unique", () => {
+    expect(shortcuts.map(({ id }) => id)).toEqual([
+      "feature",
+      "limited",
+      "flea-market",
+      "cosmetics",
+      "k-pop",
+    ]);
+    expect(new Set(shortcuts.map(({ id }) => id)).size).toBe(shortcuts.length);
   });
 
   it("keeps review and GRAM fixture content distinct instead of padding counts", () => {
@@ -414,16 +436,28 @@ describe("SAZO fixture asset contract", () => {
   it("maps the home subsets by explicit fixture IDs with stable content associations", () => {
     expect(homeReviewIds).toEqual(["r06", "r02", "r03", "r01", "r04", "r05"]);
     expect(homeReviews.map(({ author, id, image }) => ({ author, id, image }))).toEqual([
-      { author: "17♡", id: "r06", image: "/sazo-commerce/community/06.webp" },
-      { author: "なー", id: "r02", image: "/sazo-commerce/community/07.webp" },
-      { author: "T", id: "r03", image: "/sazo-commerce/community/05.webp" },
-      { author: "mm", id: "r01", image: "/sazo-commerce/community/04.webp" },
+      {
+        author: "17♡",
+        id: "r06",
+        image: "/sazo-commerce/review-media/r06.jpg",
+      },
+      {
+        author: "なー",
+        id: "r02",
+        image: "/sazo-commerce/review-media/r02.jpg",
+      },
+      { author: "T", id: "r03", image: "/sazo-commerce/review-media/r03.jpg" },
+      { author: "mm", id: "r01", image: "/sazo-commerce/review-media/r01.jpg" },
       {
         author: "村上ラッペ",
         id: "r04",
-        image: "/sazo-commerce/community/08.webp",
+        image: "/sazo-commerce/review-media/r04.jpg",
       },
-      { author: "코코", id: "r05", image: "/sazo-commerce/community/09.webp" },
+      {
+        author: "코코",
+        id: "r05",
+        image: "/sazo-commerce/review-media/r05.jpg",
+      },
     ]);
     expect(recordedDesktopRankingReviewIds).toEqual([
       "r05",

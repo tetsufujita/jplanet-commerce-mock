@@ -20,6 +20,11 @@ try {
   await page.goto(`http://127.0.0.1:${String(address.port)}/sazo-commerce-mock/`);
   await page.locator("[data-home-view]").waitFor();
 
+  const desktopHeaderBand = page.locator(".sazo-desktop-header-band");
+  const desktopHeaderBandBounds = await desktopHeaderBand.boundingBox();
+  const desktopHeaderCardBounds = await page
+    .locator(".sazo-desktop-header-card")
+    .boundingBox();
   const desktopHeaderBounds = await page.locator(".sazo-desktop-header").boundingBox();
   const desktopNavBounds = await page.locator(".sazo-desktop-nav").boundingBox();
   const desktopHeroBounds = await page
@@ -43,8 +48,14 @@ try {
     .locator(".sazo-home-intro > button")
     .boundingBox();
   const desktopLogin = page.getByTestId("login-launcher");
+  const desktopLanguageFlag = page.locator(".sazo-language-flag");
 
-  assert(desktopHeaderBounds !== null && desktopNavBounds !== null);
+  assert(
+    desktopHeaderBandBounds !== null &&
+      desktopHeaderCardBounds !== null &&
+      desktopHeaderBounds !== null &&
+      desktopNavBounds !== null,
+  );
   assert(
     desktopHeroBounds !== null &&
       desktopHomeSectionBounds !== null &&
@@ -53,17 +64,29 @@ try {
       desktopSearchBounds !== null &&
       desktopIntroButtonBounds !== null,
   );
-  assert(Math.abs(desktopHeaderBounds.x - 171) < 12);
-  assert(Math.abs(desktopHeaderBounds.width - 1170) < 24);
-  assert(Math.abs(desktopNavBounds.x - 171) < 12);
-  assert(Math.abs(desktopNavBounds.width - 1170) < 24);
-  assert(Math.abs(desktopHeroBounds.y - 165) < 3);
+  assert(Math.abs(desktopHeaderBandBounds.x) < 1);
+  assert(Math.abs(desktopHeaderBandBounds.width - 1511) < 1);
+  assert(Math.abs(desktopHeaderBandBounds.height - 116) < 1);
+  assert.equal(
+    await desktopHeaderBand.evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    ),
+    "rgb(255, 255, 255)",
+  );
+  assert(Math.abs(desktopHeaderCardBounds.x - 179.5) < 3);
+  assert(Math.abs(desktopHeaderCardBounds.width - 1152) < 3);
+  assert(Math.abs(desktopHeaderCardBounds.height - 116) < 3);
+  assert.equal(desktopHeaderBounds.x, desktopHeaderCardBounds.x);
+  assert.equal(desktopHeaderBounds.width, desktopHeaderCardBounds.width);
+  assert.equal(desktopNavBounds.x, desktopHeaderCardBounds.x);
+  assert.equal(desktopNavBounds.width, desktopHeaderCardBounds.width);
+  assert(Math.abs(desktopHeroBounds.y - 157) < 3);
   assert(Math.abs(desktopHeroBounds.width / desktopHeroBounds.height - 3) < 0.01);
   assert(Math.abs(desktopHomeSectionBounds.x - 171) < 12);
   assert(Math.abs(desktopHomeSectionBounds.width - 1170) < 24);
   assert(Math.abs(desktopGramCardBounds.width - 214) < 3);
   assert(
-    Math.abs(desktopIntroHeadingBounds.y - 717) < 10,
+    Math.abs(desktopIntroHeadingBounds.y - 709) < 10,
     `desktop intro heading y=${String(desktopIntroHeadingBounds.y)}`,
   );
   assert.equal(
@@ -72,13 +95,35 @@ try {
       .evaluate((element) => getComputedStyle(element).fontSize),
     "40px",
   );
-  assert(desktopSearchBounds.width > 680);
+  assert(desktopSearchBounds.width > 700);
+  assert(Math.abs(desktopSearchBounds.height - 48) < 2);
+  assert.equal(
+    await page
+      .locator(".sazo-desktop-header .sazo-search")
+      .evaluate((element) => getComputedStyle(element).borderStyle),
+    "solid",
+  );
+  assert.equal(
+    await page
+      .locator("#sazo-desktop-search")
+      .evaluate((element) => getComputedStyle(element).textAlign),
+    "center",
+  );
   assert(Math.abs(desktopIntroButtonBounds.x - 1000) < 20);
   assert(Math.abs(desktopIntroButtonBounds.width - 340) < 4);
-  assert.notEqual(
+  assert.equal(
     await desktopLogin.evaluate((element) => getComputedStyle(element).backgroundColor),
     "rgba(0, 0, 0, 0)",
   );
+  assert.equal(await desktopLanguageFlag.isVisible(), true);
+  await page.screenshot({ path: "/tmp/sazo-header-refined.png" });
+  await page.evaluate(() => window.scrollTo(0, 700));
+  await page.waitForTimeout(100);
+  const scrolledHeaderBandBounds = await desktopHeaderBand.boundingBox();
+  assert(scrolledHeaderBandBounds !== null);
+  assert(Math.abs(scrolledHeaderBandBounds.y) < 1);
+  await page.screenshot({ path: "/tmp/sazo-header-band-scrolled.png" });
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.getByRole("button", { name: "次のバナー" }).click();
   await assert.doesNotReject(() =>
     page.getByTestId("sazo-hero-counter").getByText("2/5").waitFor(),
@@ -220,9 +265,9 @@ try {
   );
 
   assert.deepEqual(reviewGeometry, [
-    { image: "/sazo-commerce/community/10.webp", x: 171 },
+    { image: "/sazo-commerce/review-media/r07.jpg", x: 171 },
     { image: undefined, x: 759 },
-    { image: "/sazo-commerce/community/11.webp", x: 1053 },
+    { image: "/sazo-commerce/review-media/r08.jpg", x: 1053 },
     { image: "/sazo-commerce/reviews/unseen-media.png", x: 465 },
   ]);
   const reviewPlaceholderBounds = await page

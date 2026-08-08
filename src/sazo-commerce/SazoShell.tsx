@@ -2,7 +2,8 @@ import type { Dispatch, ReactNode } from "react";
 import {
   Bell,
   Bookmark,
-  Globe2,
+  ChevronDown,
+  ClipboardPaste,
   Heart,
   Home,
   MessageCircle,
@@ -13,7 +14,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { SazoAction, SazoState, SazoView } from "@/sazo-commerce/model";
-import { SazoLogo } from "@/sazo-commerce/SazoLogo";
+import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
 
 interface NavigationItem {
   icon?: LucideIcon;
@@ -132,7 +133,7 @@ function Wordmark({ dispatch, homeLabel }: WordmarkProps) {
       }}
       type="button"
     >
-      <SazoLogo />
+      <JplanetLogo />
     </button>
   );
 }
@@ -159,91 +160,101 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
   return (
     <div className="sazo-shell-background" data-overlay-background="true">
       <div className="sazo-desktop-shell" data-shell="desktop">
-        <header className="sazo-desktop-header">
-          <Wordmark dispatch={dispatch} homeLabel={t("sazo.brand.homeLabel")} />
+        <div className="sazo-desktop-header-band">
+          <div className="sazo-desktop-header-card">
+            <header className="sazo-desktop-header">
+              <Wordmark dispatch={dispatch} homeLabel={t("sazo.brand.homeLabel")} />
 
-          <div className="sazo-search" role="search">
-            <label className="sazo-visually-hidden" htmlFor="sazo-desktop-search">
-              {t("sazo.search.label")}
-            </label>
-            <Search aria-hidden size={20} strokeWidth={1.8} />
-            <input
-              id="sazo-desktop-search"
-              placeholder={t("sazo.search.placeholder")}
-              type="search"
-            />
+              <div className="sazo-search" role="search">
+                <label className="sazo-visually-hidden" htmlFor="sazo-desktop-search">
+                  {t("sazo.search.label")}
+                </label>
+                <ClipboardPaste aria-hidden size={21} strokeWidth={1.7} />
+                <input
+                  id="sazo-desktop-search"
+                  placeholder={t("sazo.search.placeholder")}
+                  type="search"
+                />
+                <ChevronDown aria-hidden size={14} strokeWidth={2} />
+                <Search aria-hidden size={23} strokeWidth={1.8} />
+              </div>
+
+              <div
+                aria-label={t("sazo.actions.topActionsLabel")}
+                className="sazo-top-actions"
+                role="group"
+              >
+                <NavigationButton
+                  className="sazo-top-action"
+                  dispatch={dispatch}
+                  icon={Bookmark}
+                  label={t("sazo.navigation.favorites")}
+                  state={state}
+                  view="favorites"
+                />
+                <ControlButton
+                  className="sazo-top-action"
+                  icon={ShoppingCart}
+                  label={t("sazo.actions.cart")}
+                />
+                <ControlButton
+                  className="sazo-top-action"
+                  icon={Bell}
+                  label={t("sazo.navigation.notification")}
+                />
+                {accountAvailable ? (
+                  <NavigationButton
+                    className="sazo-top-action"
+                    dispatch={dispatch}
+                    icon={UserRound}
+                    label={t("sazo.navigation.mypage")}
+                    state={state}
+                    view="mypage"
+                  />
+                ) : (
+                  <ControlButton
+                    className="sazo-top-action"
+                    expanded={loginExpanded}
+                    icon={UserRound}
+                    label={t("sazo.actions.login")}
+                    onPress={() => {
+                      dispatch({ type: "open-login" });
+                    }}
+                    testId="login-launcher"
+                  />
+                )}
+                <button
+                  aria-label={t("sazo.actions.language")}
+                  className="sazo-top-action sazo-language-action"
+                  type="button"
+                >
+                  <span aria-hidden className="sazo-language-flag">
+                    🇯🇵
+                  </span>
+                </button>
+              </div>
+            </header>
+
+            <nav
+              aria-hidden={serviceView}
+              aria-label={t("sazo.navigation.desktopLabel")}
+              className="sazo-desktop-nav"
+              data-behavior="sticky"
+            >
+              {desktopNavigation.map((item) => (
+                <NavigationButton
+                  className="sazo-secondary-button"
+                  dispatch={dispatch}
+                  key={item.translationKey}
+                  label={t(item.translationKey)}
+                  state={state}
+                  testId={item.view === "reviews" ? "nav-reviews" : undefined}
+                  view={item.view}
+                />
+              ))}
+            </nav>
           </div>
-
-          <div
-            aria-label={t("sazo.actions.topActionsLabel")}
-            className="sazo-top-actions"
-            role="group"
-          >
-            <NavigationButton
-              className="sazo-top-action"
-              dispatch={dispatch}
-              icon={Bookmark}
-              label={t("sazo.navigation.favorites")}
-              state={state}
-              view="favorites"
-            />
-            <ControlButton
-              className="sazo-top-action"
-              icon={ShoppingCart}
-              label={t("sazo.actions.cart")}
-            />
-            <ControlButton
-              className="sazo-top-action"
-              icon={Bell}
-              label={t("sazo.navigation.notification")}
-            />
-            {accountAvailable ? (
-              <NavigationButton
-                className="sazo-top-action"
-                dispatch={dispatch}
-                icon={UserRound}
-                label={t("sazo.navigation.mypage")}
-                state={state}
-                view="mypage"
-              />
-            ) : (
-              <ControlButton
-                className="sazo-top-action"
-                expanded={loginExpanded}
-                icon={UserRound}
-                label={t("sazo.actions.login")}
-                onPress={() => {
-                  dispatch({ type: "open-login" });
-                }}
-                testId="login-launcher"
-              />
-            )}
-            <ControlButton
-              className="sazo-top-action"
-              icon={Globe2}
-              label={t("sazo.actions.language")}
-            />
-          </div>
-        </header>
-
-        <nav
-          aria-hidden={serviceView}
-          aria-label={t("sazo.navigation.desktopLabel")}
-          className="sazo-desktop-nav"
-          data-behavior="sticky"
-        >
-          {desktopNavigation.map((item) => (
-            <NavigationButton
-              className="sazo-secondary-button"
-              dispatch={dispatch}
-              key={item.translationKey}
-              label={t(item.translationKey)}
-              state={state}
-              testId={item.view === "reviews" ? "nav-reviews" : undefined}
-              view={item.view}
-            />
-          ))}
-        </nav>
+        </div>
 
         <main className="sazo-main sazo-content-main">{children}</main>
         <ShellFooter copyright={t("sazo.footer.copyright")} />

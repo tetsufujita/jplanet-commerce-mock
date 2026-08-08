@@ -1,0 +1,35 @@
+<svg viewBox="0 0 1364 466" role="img" aria-labelledby="title desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="title">J-Planet 初回限定クーポン</title>
+  <desc id="desc">日本の商品をブラジルへ届ける買い物に使える三種類のクーポン</desc>
+  <rect width="1364" height="466" fill="#1f2e4f"/>
+  <circle cx="1210" cy="60" r="230" fill="#fea2ac" opacity=".22"/>
+  <circle cx="120" cy="430" r="250" fill="#fea2ac" opacity=".14"/>
+  <path d="M0 368C224 294 394 421 610 354c240-75 390-9 754-105v217H0Z" fill="#ffffff" opacity=".08"/>
+  <text x="682" y="86" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="7">WELCOME COUPONS</text>
+  <text x="682" y="127" text-anchor="middle" fill="#fea2ac" font-family="Arial, sans-serif" font-size="20" font-weight="700">日本の商品をブラジルへ。初回のお買い物をもっとお得に。</text>
+  <g transform="translate(192 166)">
+    <rect width="280" height="190" rx="24" fill="#ffffff"/>
+    <circle cx="0" cy="95" r="17" fill="#1f2e4f"/>
+    <circle cx="280" cy="95" r="17" fill="#1f2e4f"/>
+    <text x="140" y="48" text-anchor="middle" fill="#1f3864" font-family="Arial, sans-serif" font-size="18" font-weight="700">商品クーポン</text>
+    <text x="140" y="111" text-anchor="middle" fill="#1f2e4f" font-family="Arial, sans-serif" font-size="50" font-weight="800">R$ 20</text>
+    <text x="140" y="153" text-anchor="middle" fill="#667085" font-family="Arial, sans-serif" font-size="15">初回購入限定</text>
+  </g>
+  <g transform="translate(542 166)">
+    <rect width="280" height="190" rx="24" fill="#fff4f5"/>
+    <circle cx="0" cy="95" r="17" fill="#1f2e4f"/>
+    <circle cx="280" cy="95" r="17" fill="#1f2e4f"/>
+    <text x="140" y="48" text-anchor="middle" fill="#1f3864" font-family="Arial, sans-serif" font-size="18" font-weight="700">配送料クーポン</text>
+    <text x="140" y="111" text-anchor="middle" fill="#1f2e4f" font-family="Arial, sans-serif" font-size="50" font-weight="800">50% OFF</text>
+    <text x="140" y="153" text-anchor="middle" fill="#667085" font-family="Arial, sans-serif" font-size="15">初回購入限定</text>
+  </g>
+  <g transform="translate(892 166)">
+    <rect width="280" height="190" rx="24" fill="#ffffff"/>
+    <circle cx="0" cy="95" r="17" fill="#1f2e4f"/>
+    <circle cx="280" cy="95" r="17" fill="#1f2e4f"/>
+    <text x="140" y="48" text-anchor="middle" fill="#1f3864" font-family="Arial, sans-serif" font-size="18" font-weight="700">まとめ買いクーポン</text>
+    <text x="140" y="111" text-anchor="middle" fill="#1f2e4f" font-family="Arial, sans-serif" font-size="50" font-weight="800">R$ 30</text>
+    <text x="140" y="153" text-anchor="middle" fill="#667085" font-family="Arial, sans-serif" font-size="15">初回購入限定</text>
+  </g>
+  <text x="682" y="410" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="18" font-weight="700">8月31日まで</text>
+</svg>

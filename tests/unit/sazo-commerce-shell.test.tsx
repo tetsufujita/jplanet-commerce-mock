@@ -62,18 +62,23 @@ function getShell(container: HTMLElement, shell: "desktop" | "mobile") {
 }
 
 describe("SazoCommercePage shell", () => {
-  it("renders the source-backed SAZO vector wordmark in both responsive shells", async () => {
+  it("renders the official J-Planet wordmark in both responsive shells", async () => {
     const { container } = await renderSazoCommercePage();
     const wordmarks = Array.from(
-      container.querySelectorAll<SVGSVGElement>(".sazo-wordmark svg[data-sazo-wordmark]"),
+      container.querySelectorAll<HTMLImageElement>(
+        ".sazo-wordmark img[data-jplanet-wordmark]",
+      ),
     );
 
     expect(wordmarks).toHaveLength(2);
     expect(
-      wordmarks.every((wordmark) => wordmark.getAttribute("viewBox") === "0 0 101 24"),
+      wordmarks.every(
+        (wordmark) =>
+          wordmark.getAttribute("src") === "/sazo-commerce/jplanet-wordmark.png",
+      ),
     ).toBe(true);
     expect(
-      container.querySelectorAll(".sazo-wordmark img, .sazo-wordmark > span"),
+      container.querySelectorAll(".sazo-wordmark svg[data-sazo-wordmark]"),
     ).toHaveLength(0);
   });
 
@@ -115,6 +120,53 @@ describe("SazoCommercePage shell", () => {
     for (const label of ["ホーム", "通知", "検索", "お気に入り", "ログイン"]) {
       expect(within(mobileNav).getByRole("button", { name: label })).toBeTruthy();
     }
+  });
+
+  it("groups the desktop search, icon actions, and navigation in one header card", async () => {
+    const { container } = await renderSazoCommercePage();
+    const desktopShell = getShell(container, "desktop");
+    const headerCard = desktopShell.querySelector<HTMLElement>(
+      ".sazo-desktop-header-card",
+    );
+
+    expect(headerCard).not.toBeNull();
+    if (headerCard === null) return;
+
+    const header = within(headerCard).getByRole("banner");
+    const navigation = within(headerCard).getByRole("navigation", {
+      name: "メインメニュー",
+    });
+    const search = within(header).getByRole("search");
+    const login = within(header).getByRole("button", { name: "ログイン" });
+    const language = within(header).getByRole("button", { name: "言語" });
+
+    expect(headerCard.contains(header)).toBe(true);
+    expect(headerCard.contains(navigation)).toBe(true);
+    expect(search.querySelector(".lucide-clipboard-paste")).not.toBeNull();
+    expect(search.querySelector(".lucide-chevron-down")).not.toBeNull();
+    expect(login.querySelector(".lucide-user-round")).not.toBeNull();
+    expect(language.querySelector(".sazo-language-flag")?.textContent).toBe("🇯🇵");
+  });
+
+  it("backs the centered desktop header card with a full-width band", async () => {
+    const { container } = await renderSazoCommercePage();
+    const desktopShell = getShell(container, "desktop");
+    const headerBand = desktopShell.querySelector<HTMLElement>(
+      ".sazo-desktop-header-band",
+    );
+
+    expect(headerBand).not.toBeNull();
+    if (headerBand === null) return;
+
+    const headerCard = headerBand.querySelector<HTMLElement>(
+      ".sazo-desktop-header-card",
+    );
+
+    expect(headerCard).not.toBeNull();
+    expect(within(headerBand).getByRole("banner")).toBeTruthy();
+    expect(
+      within(headerBand).getByRole("navigation", { name: "メインメニュー" }),
+    ).toBeTruthy();
   });
 
   it.each(["desktop", "mobile"] as const)(

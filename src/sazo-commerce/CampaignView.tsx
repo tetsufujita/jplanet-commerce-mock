@@ -71,11 +71,16 @@ export function CampaignView({ dispatch, loaded }: CampaignViewProps) {
       </header>
 
       {loaded ? (
-        <img
-          alt="8月31日まで、初回限定のお得な3つのクーポン"
-          className="sazo-campaign-banner"
-          src="/sazo-commerce/campaign/coupon-banner.png"
-        />
+        <div className="sazo-campaign-banner">
+          <img
+            alt="8月31日まで、初回限定のお得な3つのJ-Planetクーポン"
+            className="sazo-campaign-banner-artwork"
+            src="/sazo-commerce/campaign/jplanet-coupon-banner.svg"
+          />
+          <span className="sazo-campaign-banner-wordmark">
+            <JplanetLogo />
+          </span>
+        </div>
       ) : (
         <div className="sazo-campaign-banner sazo-campaign-banner-loading">
           <strong>8.31（月）</strong>

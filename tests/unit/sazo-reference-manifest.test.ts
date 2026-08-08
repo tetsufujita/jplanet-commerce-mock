@@ -35,7 +35,7 @@ const approvedManifest = {
       { name: "ranking", second: 240 },
       { name: "service", second: 312 },
       { name: "brands", second: 384 },
-      { name: "login-modal", second: 438 },
+      { name: "login-modal", second: 420 },
     ],
   },
   mobile: {

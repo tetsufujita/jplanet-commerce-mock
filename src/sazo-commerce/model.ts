@@ -147,6 +147,26 @@ const qaReviewFeeds = new Set<SazoReviewFeed>([
   "desktop-ranking",
   "mobile-profile",
 ]);
+const qaViews = new Set<SazoView>([
+  "home",
+  "service",
+  "brands",
+  "categories",
+  "catalog",
+  "campaign",
+  "reviews",
+  "ranking",
+  "mypage",
+  "favorites",
+  "profile",
+  "cards",
+]);
+const qaAuthSteps = new Set<SazoAuthStep>([
+  "provider",
+  "google",
+  "birthday",
+  "phone",
+]);
 
 export function createInitialSazoState(search = ""): SazoState {
   const state: SazoState = {
@@ -178,6 +198,8 @@ export function createInitialSazoState(search = ""): SazoState {
   const loadingSurface = parameters.get("loading") as SazoLoadingSurface | null;
   const heroFeed = parameters.get("heroFeed") as SazoHeroFeed | null;
   const reviewFeed = parameters.get("reviewFeed") as SazoReviewFeed | null;
+  const view = parameters.get("view") as SazoView | null;
+  const authStep = parameters.get("auth") as SazoAuthStep | null;
   const heroIndex = Number(parameters.get("heroIndex"));
 
   if (loadingSurface !== null && qaLoadingSurfaces.has(loadingSurface)) {
@@ -190,6 +212,14 @@ export function createInitialSazoState(search = ""): SazoState {
 
   if (reviewFeed !== null && qaReviewFeeds.has(reviewFeed)) {
     state.reviewFeed = reviewFeed;
+  }
+
+  if (view !== null && qaViews.has(view)) {
+    state.view = view;
+  }
+
+  if (authStep !== null && qaAuthSteps.has(authStep)) {
+    state.authStep = authStep;
   }
 
   if (Number.isInteger(heroIndex) && heroIndex >= 0 && heroIndex < heroSlideCount) {

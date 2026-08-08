@@ -103,7 +103,7 @@ describe("SAZO captured view contracts", () => {
     ],
     [
       "ranking",
-      "SAZO RANKING",
+      "J-Planet RANKING",
       <RankingView dispatch={noDispatch} state={createInitialSazoState()} />,
     ],
     [
@@ -149,7 +149,7 @@ describe("SAZO captured view contracts", () => {
     );
 
     expect(serviceHeading?.textContent).toBe("日本代行");
-    expect(routeHeading?.textContent?.replace(/\s+/g, "")).toBe("FROMJAPANTOBRAZIL");
+    expect(routeHeading?.textContent.replace(/\s+/g, "")).toBe("FROMJAPANTOBRAZIL");
     expect(serviceSubheading?.textContent).toBe("日本の商品をブラジルへ直送");
     expect(screen.getAllByLabelText("日本のショップURL")).toHaveLength(2);
     expect(screen.getAllByPlaceholderText("日本のショップURL")).toHaveLength(2);
@@ -186,6 +186,26 @@ describe("SAZO captured view contracts", () => {
     expect(container.querySelectorAll(".sazo-service-partner-grid img")).toHaveLength(0);
     expect(container.querySelector(".sazo-service-view")?.textContent).not.toMatch(
       /韓国|KOREA|TO JAPAN|韓国代行|日本まで発送/,
+    );
+  });
+
+  it("exposes one semantic review set and hides the scrolling clone", async () => {
+    const { container } = await renderWithI18n(<ServiceView dispatch={noDispatch} />);
+    const reviewSets = Array.from(
+      container.querySelectorAll<HTMLElement>("[data-service-review-set]"),
+    );
+
+    expect(reviewSets).toHaveLength(2);
+    expect(reviewSets[0]?.getAttribute("aria-hidden")).toBeNull();
+    expect(reviewSets[0]?.querySelectorAll(".sazo-service-review-card")).toHaveLength(
+      10,
+    );
+    expect(reviewSets[1]?.getAttribute("aria-hidden")).toBe("true");
+    expect(reviewSets[1]?.querySelectorAll(".sazo-service-review-card")).toHaveLength(
+      10,
+    );
+    expect(reviewSets[0]?.textContent).toContain(
+      "日本からブラジルまで無事に届きました。",
     );
   });
 
@@ -236,6 +256,26 @@ describe("SAZO captured view contracts", () => {
 
     expect(heading?.querySelector("strong")?.textContent).toBe("超お得な");
     expect(heading?.querySelector("small")?.textContent).toBe("日本の商品がたくさん！");
+  });
+
+  it("uses the approved J-Planet coupon artwork and current wordmark", async () => {
+    const { container } = await renderWithI18n(
+      <CampaignView dispatch={noDispatch} loaded />,
+    );
+    const artwork = container.querySelector<HTMLImageElement>(
+      ".sazo-campaign-banner-artwork",
+    );
+    const wordmark = container.querySelector<HTMLImageElement>(
+      ".sazo-campaign-banner img[data-jplanet-wordmark]",
+    );
+
+    expect(artwork?.getAttribute("src")).toBe(
+      "/sazo-commerce/campaign/jplanet-coupon-banner.svg",
+    );
+    expect(wordmark?.getAttribute("src")).toBe(
+      "/sazo-commerce/jplanet-wordmark.png",
+    );
+    expect(container.querySelector('img[src$="coupon-banner.png"]')).toBeNull();
   });
 
   it.each(["list", "grid"] as const)(
@@ -432,9 +472,9 @@ describe("SAZO captured view contracts", () => {
     expect(
       capturedReviewTiles.map((tile) => tile.querySelector("img")?.getAttribute("src")),
     ).toEqual([
-      "/sazo-commerce/community/10.webp",
+      "/sazo-commerce/review-media/r07.jpg",
       undefined,
-      "/sazo-commerce/community/11.webp",
+      "/sazo-commerce/review-media/r08.jpg",
       "/sazo-commerce/reviews/unseen-media.png",
       "/sazo-commerce/reviews/tail-01.png",
       "/sazo-commerce/reviews/tail-03-media.png",

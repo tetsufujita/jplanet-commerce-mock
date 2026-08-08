@@ -553,7 +553,11 @@ let browser;
 
 try {
   await server.listen();
-  browser = await chromium.launch({ channel: "chrome", headless: true });
+  browser = await chromium.launch({
+    args: ["--disable-gpu"],
+    channel: "chrome",
+    headless: true,
+  });
 
   for (const [viewportName, recording] of selectedRecordings) {
     const outputDirectory = join(actualRoot, viewportName);
