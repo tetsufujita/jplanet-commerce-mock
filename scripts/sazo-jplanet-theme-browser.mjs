@@ -107,15 +107,60 @@ async function assertJplanetTheme(page, label) {
 
   assert.deepEqual(legacyHits, [], `${label} legacy color hits`);
   const renderedText = normalizeRenderedCopy(await root.innerText());
-  const pseudoElementCopy = await root.locator("*").evaluateAll((elements) =>
-    elements
-      .flatMap((element) => [
-        getComputedStyle(element, "::before").content,
-        getComputedStyle(element, "::after").content,
-      ])
-      .filter((content) => content !== "none" && content !== "normal")
-      .join(" "),
-  );
+  const pseudoElementCopy = await root.evaluate((rootElement) => {
+    const hasZeroClip = (style) => {
+      const clip = style.clip.replace(/\s/g, "");
+      const inset = style.clipPath.match(/^inset\((.+)\)$/);
+      const values = inset?.[1].trim().split(/\s+/) ?? [];
+      const [top, right = top, bottom = top, left = right] = values;
+      const percentage = (value) =>
+        value?.endsWith("%") ? Number.parseFloat(value) : Number.NaN;
+      const zeroInset =
+        Number.isFinite(percentage(top)) &&
+        Number.isFinite(percentage(right)) &&
+        Number.isFinite(percentage(bottom)) &&
+        Number.isFinite(percentage(left)) &&
+        (percentage(top) + percentage(bottom) >= 100 ||
+          percentage(left) + percentage(right) >= 100);
+
+      return (
+        /^rect\(0px,0px,0px,0px\)$/.test(clip) ||
+        zeroInset ||
+        style.clipPath.startsWith("circle(0px") ||
+        style.clipPath.startsWith("circle(0%")
+      );
+    };
+    const isHidden = (style) =>
+      style.display === "none" ||
+      style.visibility !== "visible" ||
+      Number.parseFloat(style.opacity) <= 0 ||
+      style.contentVisibility === "hidden" ||
+      hasZeroClip(style);
+    const isRendered = (element) => {
+      for (let current = element; current; current = current.parentElement) {
+        if (isHidden(getComputedStyle(current))) {
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    return [rootElement, ...rootElement.querySelectorAll("*")]
+      .flatMap((element) =>
+        ["::before", "::after"].flatMap((pseudo) => {
+          const style = getComputedStyle(element, pseudo);
+
+          return isRendered(element) &&
+            !isHidden(style) &&
+            style.content !== "none" &&
+            style.content !== "normal"
+            ? [style.content]
+            : [];
+        }),
+      )
+      .join(" ");
+  });
   const visibleCopy = normalizeRenderedCopy(`${renderedText} ${pseudoElementCopy}`);
 
   for (const forbiddenCopy of forbiddenRouteCopy) {
@@ -131,6 +176,8 @@ async function assertJplanetTheme(page, label) {
     true,
     `${label} horizontal overflow`,
   );
+
+  return visibleCopy;
 }
 
 let browser;
@@ -191,7 +238,14 @@ try {
         );
       }
 
-      await assertJplanetTheme(page, `${viewport.label}/${view}`);
+      const visibleCopy = await assertJplanetTheme(page, `${viewport.label}/${view}`);
+      if (view === "campaign") {
+        assert.equal(
+          visibleCopy.includes("FROM JAPAN TO BRAZIL"),
+          true,
+          `${viewport.label}/${view} campaign pseudo-element copy`,
+        );
+      }
       await page.screenshot({
         fullPage: true,
         path: `/tmp/sazo-jplanet-${viewport.label}-${view}.png`,
