@@ -1,0 +1,43 @@
+<svg viewBox="0 0 1100 1000" role="img" aria-labelledby="title desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="title">日本からブラジルまで配送を追跡</title>
+  <desc id="desc">J-Planetが日本で購入と検品を行い、ブラジルへ発送する進捗画面</desc>
+  <defs>
+    <linearGradient id="bg" x1="70" y1="40" x2="1030" y2="960" gradientUnits="userSpaceOnUse"><stop stop-color="#fff4f5"/><stop offset=".55" stop-color="#ffffff"/><stop offset="1" stop-color="#f3f6fb"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#1f3864" flood-opacity=".14"/></filter>
+  </defs>
+  <rect width="1100" height="1000" rx="64" fill="url(#bg)"/>
+  <circle cx="130" cy="148" r="96" fill="#fea2ac" opacity=".14"/>
+  <circle cx="970" cy="850" r="130" fill="#1f3864" opacity=".07"/>
+  <g filter="url(#shadow)"><rect x="116" y="90" width="868" height="820" rx="42" fill="#ffffff"/></g>
+  <g transform="translate(164 132)">
+    <circle cx="28" cy="28" r="28" fill="#fff4f5"/>
+    <path d="M28 12c5 8 14 8 14 17 0 8-6 14-14 14S14 37 14 29c0-9 9-9 14-17Z" fill="#fea2ac"/>
+    <circle cx="28" cy="29" r="7" fill="#1f3864"/>
+    <text x="70" y="38" fill="#1f3864" font-family="Arial, sans-serif" font-size="34" font-weight="800">J-Planet</text>
+  </g>
+  <text x="164" y="250" fill="#1f2e4f" font-family="Arial, sans-serif" font-size="44" font-weight="800">配送状況を追跡</text>
+  <text x="164" y="300" fill="#667085" font-family="Arial, sans-serif" font-size="24">日本での購入からブラジル到着まで確認</text>
+  <g transform="translate(164 350)">
+    <rect width="772" height="238" rx="30" fill="#f3f6fb"/>
+    <circle cx="92" cy="119" r="60" fill="#ffffff"/>
+    <circle cx="680" cy="119" r="60" fill="#fff4f5"/>
+    <circle cx="92" cy="119" r="22" fill="#fea2ac"/>
+    <circle cx="680" cy="119" r="22" fill="#1f3864"/>
+    <path d="M130 106C276 4 490 4 642 106" fill="none" stroke="#fea2ac" stroke-width="9" stroke-linecap="round" stroke-dasharray="18 15"/>
+    <path d="m645 104-31-3 18 25Z" fill="#fea2ac"/>
+    <text x="92" y="199" text-anchor="middle" fill="#1f3864" font-family="Arial, sans-serif" font-size="22" font-weight="800">JAPAN</text>
+    <text x="680" y="199" text-anchor="middle" fill="#1f3864" font-family="Arial, sans-serif" font-size="22" font-weight="800">BRAZIL</text>
+    <text x="386" y="68" text-anchor="middle" fill="#1f3864" font-family="Arial, sans-serif" font-size="32" font-weight="800">✈</text>
+  </g>
+  <g transform="translate(164 626)" font-family="Arial, sans-serif">
+    <path d="M24 30v164" stroke="#d6deea" stroke-width="5"/>
+    <circle cx="24" cy="30" r="16" fill="#1f3864"/><path d="m16 30 6 6 12-15" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="62" y="39" fill="#1f2e4f" font-size="24" font-weight="800">日本で購入</text>
+    <circle cx="24" cy="98" r="16" fill="#1f3864"/><path d="m16 98 6 6 12-15" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="62" y="107" fill="#1f2e4f" font-size="24" font-weight="800">日本倉庫で検品</text>
+    <circle cx="24" cy="166" r="16" fill="#fea2ac"/>
+    <text x="62" y="175" fill="#1f3864" font-size="24" font-weight="800">ブラジルへ発送</text>
+    <rect x="530" y="130" width="242" height="68" rx="34" fill="#1f3864"/>
+    <text x="651" y="173" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="800">追跡中</text>
+  </g>
+</svg>

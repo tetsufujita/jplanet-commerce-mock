@@ -139,6 +139,35 @@ describe("SAZO captured view contracts", () => {
     ).toBe("true");
   });
 
+  it("uses only the approved J-Planet service-step artwork", async () => {
+    const { container } = await renderWithI18n(<ServiceView dispatch={noDispatch} />);
+    const stepSources = Array.from(
+      container.querySelectorAll<HTMLImageElement>(".sazo-service-step-image img"),
+      (image) => image.getAttribute("src"),
+    );
+
+    expect(stepSources).toEqual([
+      "/sazo-commerce/service-lp/jplanet-how-to-use-1.svg",
+      "/sazo-commerce/service-lp/jplanet-how-to-use-2.svg",
+      "/sazo-commerce/service-lp/jplanet-how-to-use-3.svg",
+    ]);
+    expect(stepSources.some((source) => source?.endsWith(".png"))).toBe(false);
+  });
+
+  it("keeps every shipping-step SVG free of invalid NaN path data", () => {
+    for (let step = 1; step <= 5; step += 1) {
+      const source = readFileSync(
+        join(
+          process.cwd(),
+          `public/sazo-commerce/service-lp/shipping-step-${String(step)}.svg`,
+        ),
+        "utf8",
+      );
+
+      expect(source, `shipping-step-${String(step)}.svg`).not.toMatch(/nan/i);
+    }
+  });
+
   it("describes the Japan-to-Brazil forwarding service", async () => {
     const { container } = await renderWithI18n(<ServiceView dispatch={noDispatch} />);
     const serviceHeading = container.querySelector(".sazo-service-hero h1");

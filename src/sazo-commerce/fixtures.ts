@@ -859,9 +859,9 @@ export const reviewCategories = [
 ] satisfies readonly ReviewCategory[];
 
 export const serviceSteps = [
-  { id: "01", image: "/sazo-commerce/service-lp/how-to-use-1.png" },
-  { id: "02", image: "/sazo-commerce/service-lp/how-to-use-2.png" },
-  { id: "03", image: "/sazo-commerce/service-lp/how-to-use-3.png" },
+  { id: "01", image: "/sazo-commerce/service-lp/jplanet-how-to-use-1.svg" },
+  { id: "02", image: "/sazo-commerce/service-lp/jplanet-how-to-use-2.svg" },
+  { id: "03", image: "/sazo-commerce/service-lp/jplanet-how-to-use-3.svg" },
 ] satisfies readonly ServiceStep[];
 
 const rankingHairpin = {

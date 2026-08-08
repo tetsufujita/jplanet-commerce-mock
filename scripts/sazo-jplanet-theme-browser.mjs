@@ -45,6 +45,14 @@ const forbiddenAssetFragments = [
   "/sazo-logo",
   "/logo-sazo",
   "/sazo-commerce/campaign/coupon-banner.png",
+  "/sazo-commerce/service-lp/how-to-use-1.png",
+  "/sazo-commerce/service-lp/how-to-use-2.png",
+  "/sazo-commerce/service-lp/how-to-use-3.png",
+];
+const approvedServiceStepAssets = [
+  "/sazo-commerce/service-lp/jplanet-how-to-use-1.svg",
+  "/sazo-commerce/service-lp/jplanet-how-to-use-2.svg",
+  "/sazo-commerce/service-lp/jplanet-how-to-use-3.svg",
 ];
 
 function contentSelector(view) {
@@ -240,9 +248,30 @@ async function assertJplanetTheme(page, label) {
   return { imageCount: imageAudit.count, visibleCopy };
 }
 
+async function assertMobileTopPlacement(page, view, width) {
+  const label = `mobile-${String(width)}/${view}`;
+  const desktopBand = page.locator(".sazo-desktop-header-band");
+  assert.equal(await desktopBand.evaluate((element) => getComputedStyle(element).display), "none", `${label} desktop band display`);
+  assert.equal(await desktopBand.boundingBox(), null, `${label} desktop band bounds`);
+
+  const contentBounds = await page.locator(contentSelector(view)).boundingBox();
+  assert(contentBounds !== null, `${label} content bounds`);
+
+  if (view === "home") {
+    const mobileHeaderBounds = await page.locator(".sazo-mobile-header").boundingBox();
+    assert(mobileHeaderBounds !== null, `${label} mobile header bounds`);
+    assert.ok(Math.abs(mobileHeaderBounds.y) <= 1, `${label} mobile header y=${String(mobileHeaderBounds.y)}`);
+    assert.ok(Math.abs(contentBounds.y - 76) <= 1, `${label} home content y=${String(contentBounds.y)}`);
+    return;
+  }
+
+  assert.ok(Math.abs(contentBounds.y) <= 1, `${label} content y=${String(contentBounds.y)}`);
+}
+
 let browser;
 let auditedImages = 0;
 let auditedStates = 0;
+let auditedMobileTopStates = 0;
 
 try {
   await server.listen();
@@ -300,6 +329,11 @@ try {
         );
       }
 
+      if (viewport.label === "mobile") {
+        await assertMobileTopPlacement(page, view, viewport.width);
+        auditedMobileTopStates += 1;
+      }
+
       const audit = await assertJplanetTheme(page, `${viewport.label}/${view}`);
       auditedImages += audit.imageCount;
       auditedStates += 1;
@@ -355,9 +389,34 @@ try {
     await page.close();
   }
 
+  const compactPage = await browser.newPage({ viewport: { height: 844, width: 320 } });
+  compactPage.setDefaultTimeout(8_000);
+  for (const view of views) {
+    await compactPage.goto(`${baseUrl}?qa=1&view=${view}`, { waitUntil: "networkidle" });
+    await compactPage.locator(contentSelector(view)).waitFor();
+    await assertMobileTopPlacement(compactPage, view, 320);
+    auditedMobileTopStates += 1;
+    if (["home", "service", "campaign"].includes(view)) {
+      await compactPage.screenshot({
+        fullPage: true,
+        path: `/tmp/sazo-jplanet-mobile-320-${view}.png`,
+      });
+    }
+  }
+  await compactPage.close();
+
+  const servicePage = await browser.newPage({ viewport: { height: 844, width: 390 } });
+  await servicePage.goto(`${baseUrl}?qa=1&view=service`, { waitUntil: "networkidle" });
+  const serviceStepSources = await servicePage
+    .locator(".sazo-service-step-image img")
+    .evaluateAll((images) => images.map((image) => new URL(image.currentSrc).pathname));
+  assert.deepEqual(serviceStepSources, approvedServiceStepAssets, "service approved step assets");
+  await servicePage.close();
+
   assert.equal(auditedStates, 34, "browser audit state count");
+  assert.equal(auditedMobileTopStates, 24, "mobile top-placement state count");
   process.stdout.write(
-    `sazo-jplanet-theme-browser-ok states=${String(auditedStates)} images=${String(auditedImages)}\n`,
+    `sazo-jplanet-theme-browser-ok states=${String(auditedStates)} mobileTopStates=${String(auditedMobileTopStates)} images=${String(auditedImages)}\n`,
   );
 } finally {
   await browser?.close();

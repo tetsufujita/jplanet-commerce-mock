@@ -231,8 +231,11 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
       <section aria-label="利用レビュー" className="sazo-service-review-rail">
         <div className="sazo-service-review-track">
           <div className="sazo-service-review-set" data-service-review-set>
-            {heroReviews.map((review) => (
-              <article className="sazo-service-review-card" key={review.author}>
+            {heroReviews.map((review, index) => (
+              <article
+                className="sazo-service-review-card"
+                key={`${review.author}-${String(index)}`}
+              >
                 <img alt="" aria-hidden height={340} src={review.image} width={320} />
                 <strong>● {review.author}</strong>
                 <p>{review.body}</p>
@@ -244,8 +247,11 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
             className="sazo-service-review-set"
             data-service-review-set
           >
-            {heroReviews.map((review) => (
-              <article className="sazo-service-review-card" key={review.author}>
+            {heroReviews.map((review, index) => (
+              <article
+                className="sazo-service-review-card"
+                key={`${review.author}-${String(index)}`}
+              >
                 <img alt="" aria-hidden height={340} src={review.image} width={320} />
                 <strong>● {review.author}</strong>
                 <p>{review.body}</p>

@@ -2024,6 +2024,11 @@
     flex-direction: column;
   }
 
+  .sazo-root .sazo-desktop-header-band,
+  .sazo-root .sazo-desktop-header-card {
+    display: none;
+  }
+
   .sazo-root .sazo-desktop-shell {
     display: contents;
   }
@@ -4286,7 +4291,7 @@
   }
 
   .sazo-root[data-view="catalog"] .sazo-content-main {
-    padding-top: 76px;
+    padding-top: 0;
   }
 
   .sazo-root .sazo-view-header {

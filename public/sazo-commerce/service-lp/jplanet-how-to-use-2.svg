@@ -1,0 +1,43 @@
+<svg viewBox="0 0 1100 1000" role="img" aria-labelledby="title desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="title">J-Planetで購入内容を確認</title>
+  <desc id="desc">日本の商品、数量、価格を確認して購入を依頼する画面</desc>
+  <defs>
+    <linearGradient id="bg" x1="80" y1="40" x2="1020" y2="960" gradientUnits="userSpaceOnUse"><stop stop-color="#f3f6fb"/><stop offset="1" stop-color="#fff4f5"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#1f3864" flood-opacity=".14"/></filter>
+  </defs>
+  <rect width="1100" height="1000" rx="64" fill="url(#bg)"/>
+  <path d="M0 166C215 64 372 214 568 118c183-90 341-23 532-103V0H0Z" fill="#fea2ac" opacity=".14"/>
+  <g filter="url(#shadow)"><rect x="116" y="90" width="868" height="820" rx="42" fill="#ffffff"/></g>
+  <g transform="translate(164 132)">
+    <circle cx="28" cy="28" r="28" fill="#fff4f5"/>
+    <path d="M28 12c5 8 14 8 14 17 0 8-6 14-14 14S14 37 14 29c0-9 9-9 14-17Z" fill="#fea2ac"/>
+    <circle cx="28" cy="29" r="7" fill="#1f3864"/>
+    <text x="70" y="38" fill="#1f3864" font-family="Arial, sans-serif" font-size="34" font-weight="800">J-Planet</text>
+  </g>
+  <rect x="790" y="130" width="146" height="52" rx="26" fill="#fff4f5"/>
+  <text x="863" y="164" text-anchor="middle" fill="#1f3864" font-family="Arial, sans-serif" font-size="20" font-weight="700">日本で購入</text>
+  <text x="164" y="250" fill="#1f2e4f" font-family="Arial, sans-serif" font-size="44" font-weight="800">購入内容を確認</text>
+  <text x="164" y="300" fill="#667085" font-family="Arial, sans-serif" font-size="24">商品情報と費用をわかりやすく表示します</text>
+  <g transform="translate(164 350)">
+    <rect width="772" height="280" rx="30" fill="#ffffff" stroke="#e5eaf1" stroke-width="3"/>
+    <rect x="28" y="28" width="220" height="224" rx="24" fill="#f3f6fb"/>
+    <circle cx="138" cy="136" r="72" fill="#fea2ac" opacity=".45"/>
+    <path d="M82 177c27-70 78-105 132-112-19 59-61 104-116 127Z" fill="#ffffff"/>
+    <text x="286" y="69" fill="#1f3864" font-family="Arial, sans-serif" font-size="19" font-weight="700">日本限定アイテム</text>
+    <text x="286" y="116" fill="#1f2e4f" font-family="Arial, sans-serif" font-size="30" font-weight="800">桜コレクション</text>
+    <text x="286" y="165" fill="#667085" font-family="Arial, sans-serif" font-size="21">数量 1</text>
+    <text x="286" y="220" fill="#1f3864" font-family="Arial, sans-serif" font-size="32" font-weight="800">¥5,480</text>
+    <circle cx="716" cy="52" r="24" fill="#1f3864"/>
+    <path d="m704 52 9 9 17-20" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(164 666)">
+    <rect width="772" height="72" rx="20" fill="#f3f6fb"/>
+    <text x="28" y="45" fill="#667085" font-family="Arial, sans-serif" font-size="22">商品代金</text>
+    <text x="744" y="45" text-anchor="end" fill="#1f2e4f" font-family="Arial, sans-serif" font-size="24" font-weight="800">¥5,480</text>
+  </g>
+  <g transform="translate(164 776)">
+    <rect width="772" height="86" rx="43" fill="#1f3864"/>
+    <text x="386" y="54" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="26" font-weight="800">J-Planetに購入を依頼</text>
+    <path d="m700 32 20 11-20 11" fill="none" stroke="#fea2ac" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
