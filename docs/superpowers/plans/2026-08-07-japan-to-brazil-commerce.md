@@ -262,7 +262,7 @@ git commit -m "feat: add Japan to Brazil service journey"
 - Consumes: all 12 QA views, three auth states, provider overlay, and chat overlay.
 - Produces: fresh desktop/mobile screenshots and completion evidence for the whole objective.
 
-- [ ] **Step 1: Run the complete browser audit**
+- [x] **Step 1: Run the complete browser audit**
 
 Run:
 
@@ -272,7 +272,7 @@ node scripts/sazo-jplanet-theme-browser.mjs
 
 Expected: `sazo-jplanet-theme-browser-ok`, with no forbidden route copy or horizontal overflow.
 
-- [ ] **Step 2: Inspect representative screenshots**
+- [x] **Step 2: Inspect representative screenshots**
 
 Inspect at minimum:
 
@@ -287,7 +287,7 @@ Inspect at minimum:
 
 Confirm the headline, route graphic, form wording, card wrapping, and fixed navigation remain legible.
 
-- [ ] **Step 3: Run the full test suite**
+- [x] **Step 3: Run the full test suite**
 
 Run:
 
@@ -297,7 +297,7 @@ pnpm vitest run
 
 Expected: all test files and all tests pass.
 
-- [ ] **Step 4: Run the production build and static checks**
+- [x] **Step 4: Run the production build and static checks**
 
 Run:
 
@@ -309,7 +309,7 @@ rg -n --glob '*.{ts,tsx,json}' '韓国|KOREA|TO JAPAN|韓国代行|日本まで�
 
 Expected: build exits 0, diff check exits 0, and `rg` returns no user-visible legacy direction copy. Internal test descriptions and project namespace identifiers are outside this copy audit.
 
-- [ ] **Step 5: Verify the live URL**
+- [x] **Step 5: Verify the live URL**
 
 Run:
 
@@ -319,6 +319,6 @@ curl -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:5190/sazo-commerce-mo
 
 Expected: `200`.
 
-- [ ] **Step 6: Mark the plan complete**
+- [x] **Step 6: Mark the plan complete**
 
 Change each task checkbox from `[ ]` to `[x]` only after its command has produced the expected evidence.

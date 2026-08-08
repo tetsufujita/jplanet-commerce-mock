@@ -38,6 +38,8 @@ function normalizeRenderedCopy(text) {
   return text.normalize("NFKC").replace(/\s+/g, " ").trim();
 }
 
+const forbiddenRouteCopy = ["韓国", "KOREA", "TO JAPAN", "韓国代行", "日本まで発送"];
+
 function contentSelector(view) {
   return view === "home" ? "[data-home-view]" : `[data-view-content="${view}"]`;
 }
@@ -105,8 +107,19 @@ async function assertJplanetTheme(page, label) {
 
   assert.deepEqual(legacyHits, [], `${label} legacy color hits`);
   const renderedText = normalizeRenderedCopy(await root.innerText());
-  for (const forbiddenCopy of ["韓国", "KOREA", "TO JAPAN", "韓国代行", "日本まで発送"]) {
-    assert.equal(renderedText.includes(forbiddenCopy), false, `${label} legacy route copy: ${forbiddenCopy}`);
+  const pseudoElementCopy = await root.locator("*").evaluateAll((elements) =>
+    elements
+      .flatMap((element) => [
+        getComputedStyle(element, "::before").content,
+        getComputedStyle(element, "::after").content,
+      ])
+      .filter((content) => content !== "none" && content !== "normal")
+      .join(" "),
+  );
+  const visibleCopy = normalizeRenderedCopy(`${renderedText} ${pseudoElementCopy}`);
+
+  for (const forbiddenCopy of forbiddenRouteCopy) {
+    assert.equal(visibleCopy.includes(forbiddenCopy), false, `${label} legacy route copy: ${forbiddenCopy}`);
   }
   assert.equal(
     renderedText.includes("SAZO"),
