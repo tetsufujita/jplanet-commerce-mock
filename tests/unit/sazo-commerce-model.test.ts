@@ -23,12 +23,75 @@ import {
   shortcuts,
 } from "@/sazo-commerce/fixtures";
 import {
+  getGramPost,
+  getGramPosts,
+  gramCategories,
+  gramPosts,
+} from "@/sazo-commerce/gramFixtures";
+import {
   createInitialSazoState,
   sazoReducer,
   type SazoState,
 } from "@/sazo-commerce/model";
 
 describe("sazoReducer", () => {
+  it("defines the recorded GRAM categories and complete local post feed", () => {
+    expect(gramCategories.map(({ label }) => label)).toEqual([
+      "全体",
+      "インフルエンサーPick",
+      "HOT🔥",
+      "日用品",
+      "健康・サプリ",
+      "食べ物",
+      "スタバ",
+      "コスメ・スキンケア",
+      "ファッション",
+      "ドラマ",
+      "アイドル",
+    ]);
+    expect(gramPosts).toHaveLength(10);
+    expect(new Set(gramPosts.map(({ id }) => id)).size).toBe(10);
+    expect(
+      gramPosts.every(
+        ({ image, products }) =>
+          image.startsWith("/sazo-commerce/") && products.length >= 2,
+      ),
+    ).toBe(true);
+    expect(getGramPosts("hot").every(({ categories }) => categories.includes("hot"))).toBe(
+      true,
+    );
+    expect(getGramPost("missing").id).toBe("gram-01");
+  });
+
+  it("moves through GRAM category loading, detail, and home reset states", () => {
+    const gram = sazoReducer(createInitialSazoState(), { type: "navigate", view: "gram" });
+    const loading = sazoReducer(gram, { type: "select-gram-category", category: "hot" });
+    const loaded = sazoReducer(loading, { type: "gram-loaded" });
+    const detail = sazoReducer(loaded, { type: "open-gram-post", postId: "gram-01" });
+    const home = sazoReducer(detail, { type: "navigate", view: "home" });
+
+    expect(gram).toMatchObject({ gramCategory: "all", gramLoading: false, view: "gram" });
+    expect(loading).toMatchObject({ gramCategory: "hot", gramLoading: true });
+    expect(loaded.gramLoading).toBe(false);
+    expect(detail).toMatchObject({ selectedGramPostId: "gram-01", view: "gram-detail" });
+    expect(home).toMatchObject({
+      gramLoading: false,
+      selectedGramPostId: null,
+      view: "home",
+    });
+  });
+
+  it("accepts deterministic GRAM QA entries only behind qa=1", () => {
+    expect(createInitialSazoState("?qa=1&view=gram")).toMatchObject({ view: "gram" });
+    expect(createInitialSazoState("?qa=1&view=gram-detail&gramPost=gram-03")).toMatchObject(
+      {
+        selectedGramPostId: "gram-03",
+        view: "gram-detail",
+      },
+    );
+    expect(createInitialSazoState("?view=gram-detail&gramPost=gram-03").view).toBe("home");
+  });
+
   it("opens product detail and returns to the source view", () => {
     const catalog = { ...createInitialSazoState(), view: "catalog" } as SazoState;
     const detail = sazoReducer(catalog, { type: "open-product", productId: "p01" });

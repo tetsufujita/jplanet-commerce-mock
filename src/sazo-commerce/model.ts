@@ -1,3 +1,5 @@
+import type { GramCategoryId } from "@/sazo-commerce/gramFixtures";
+
 export type SazoView =
   | "home"
   | "service"
@@ -11,7 +13,9 @@ export type SazoView =
   | "favorites"
   | "profile"
   | "cards"
-  | "product";
+  | "product"
+  | "gram"
+  | "gram-detail";
 
 export type SazoNonProductView = Exclude<SazoView, "product">;
 
@@ -110,6 +114,9 @@ export interface SazoState {
   reviewFeed: SazoReviewFeed;
   selectedProductId: string | null;
   productReturnView: SazoNonProductView;
+  gramCategory: GramCategoryId;
+  gramLoading: boolean;
+  selectedGramPostId: string | null;
 }
 
 export type SazoAction =
@@ -132,6 +139,9 @@ export type SazoAction =
   | { type: "select-ranking-metric"; metric: RankingMetric }
   | { type: "open-product"; productId: string }
   | { type: "close-product" }
+  | { type: "select-gram-category"; category: GramCategoryId }
+  | { type: "gram-loaded" }
+  | { type: "open-gram-post"; postId: string }
   | { type: "reset" };
 
 const heroSlideCount = 5;
@@ -168,6 +178,8 @@ const qaViews = new Set<SazoView>([
   "profile",
   "cards",
   "product",
+  "gram",
+  "gram-detail",
 ]);
 const qaAuthSteps = new Set<SazoAuthStep>(["provider", "google", "birthday", "phone"]);
 
@@ -192,6 +204,9 @@ export function createInitialSazoState(search = ""): SazoState {
     reviewFeed: "natural",
     selectedProductId: null,
     productReturnView: "home",
+    gramCategory: "all",
+    gramLoading: false,
+    selectedGramPostId: null,
   };
 
   const parameters = new URLSearchParams(search);
@@ -204,7 +219,6 @@ export function createInitialSazoState(search = ""): SazoState {
   const heroFeed = parameters.get("heroFeed") as SazoHeroFeed | null;
   const reviewFeed = parameters.get("reviewFeed") as SazoReviewFeed | null;
   const view = parameters.get("view") as SazoView | null;
-  const productId = parameters.get("product");
   const authStep = parameters.get("auth") as SazoAuthStep | null;
   const heroIndex = Number(parameters.get("heroIndex"));
 
@@ -224,7 +238,11 @@ export function createInitialSazoState(search = ""): SazoState {
     state.view = view;
 
     if (view === "product") {
-      state.selectedProductId = productId;
+      state.selectedProductId = parameters.get("product");
+    }
+
+    if (view === "gram-detail") {
+      state.selectedGramPostId = parameters.get("gramPost");
     }
   }
 
@@ -242,7 +260,13 @@ export function createInitialSazoState(search = ""): SazoState {
 export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
   switch (action.type) {
     case "navigate":
-      return { ...state, view: action.view, overlay: "none" };
+      return {
+        ...state,
+        gramLoading: false,
+        overlay: "none",
+        selectedGramPostId: action.view === "gram-detail" ? state.selectedGramPostId : null,
+        view: action.view,
+      };
     case "set-catalog-mode":
       return { ...state, catalogMode: action.mode };
     case "hero-next":
@@ -296,6 +320,18 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
         overlay: "none",
         selectedProductId: null,
         view: state.productReturnView,
+      };
+    case "select-gram-category":
+      return { ...state, gramCategory: action.category, gramLoading: true };
+    case "gram-loaded":
+      return { ...state, gramLoading: false };
+    case "open-gram-post":
+      return {
+        ...state,
+        gramLoading: false,
+        overlay: "none",
+        selectedGramPostId: action.postId,
+        view: "gram-detail",
       };
     case "reset":
       return createInitialSazoState();
