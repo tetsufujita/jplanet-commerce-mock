@@ -33,6 +33,7 @@ import {
 } from "@/sazo-commerce/fixtures";
 import type { Product } from "@/sazo-commerce/fixtures";
 import type { SazoAction } from "@/sazo-commerce/model";
+import { useProductPurchaseController } from "@/sazo-commerce/useProductPurchaseController";
 
 export interface ProductDetailViewProps {
   dispatch: Dispatch<SazoAction>;
@@ -102,6 +103,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
     .map((recommendationId) => recommendationById.get(recommendationId))
     .filter(isProduct);
   const reduceMotion = useReducedMotion() ?? false;
+  const purchaseController = useProductPurchaseController({ detail, dispatch });
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
   const [failedImageSources, setFailedImageSources] = useState<ReadonlySet<string>>(
     () => new Set(),
@@ -466,14 +468,23 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
               {shareFeedback}
             </motion.p>
           )}
+
+          <ProductPurchasePanel
+            controller={purchaseController}
+            detail={detail}
+            idPrefix="hero"
+            reduceMotion={reduceMotion}
+            showMobileActions
+          />
         </aside>
       </div>
 
       <div className="sazo-product-detail-commerce-grid">
         <aside className="sazo-product-detail-checkout-rail">
           <ProductPurchasePanel
+            controller={purchaseController}
             detail={detail}
-            dispatch={dispatch}
+            idPrefix="sticky"
             reduceMotion={reduceMotion}
           />
         </aside>

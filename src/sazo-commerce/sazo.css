@@ -1757,6 +1757,12 @@
   box-shadow: 0 16px 42px color-mix(in srgb, var(--jplanet-shadow) 82%, transparent);
 }
 
+.sazo-root .sazo-product-detail-purchase-panel > .sazo-product-detail-purchase-form {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--jplanet-line);
+}
+
 .sazo-root .sazo-product-detail-commerce-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(340px, 390px);
@@ -7172,6 +7178,10 @@
 }
 
 @media (max-width: 767px) {
+  .sazo-root .sazo-product-detail-checkout-rail {
+    display: none;
+  }
+
   .sazo-root[data-view="product"] .sazo-content-main {
     padding-bottom: 0;
   }

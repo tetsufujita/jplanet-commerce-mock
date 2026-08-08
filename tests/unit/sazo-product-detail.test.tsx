@@ -105,27 +105,35 @@ describe("SAZO product detail navigation", () => {
     );
     await renderWithI18n(<SazoCommercePage />);
 
-    fireEvent.click(screen.getByRole("button", { name: "画像2を表示" }));
-    fireEvent.click(screen.getByRole("button", { name: "お気に入りに追加" }));
-    fireEvent.change(screen.getByLabelText("商品オプション"), {
-      target: { value: "ギフト包装" },
-    });
-    fireEvent.change(screen.getByLabelText("ご要望"), {
-      target: { value: "赤い包装を希望" },
-    });
-    fireEvent.click(screen.getByRole("checkbox", { name: "画像にチェック" }));
-    fireEvent.click(screen.getByRole("tab", { name: "注意事項" }));
+    const initialHeroForm = document.querySelector<HTMLFormElement>(
+      "form[data-product-purchase-form]",
+    );
 
-    const initialCartButton = screen.getAllByRole("button", {
-      name: "カートに入れる",
-    })[0];
-
-    if (initialCartButton === undefined) {
-      throw new Error("Missing initial cart button");
+    if (initialHeroForm === null) {
+      throw new Error("Missing initial hero purchase form");
     }
 
+    fireEvent.click(screen.getByRole("button", { name: "画像2を表示" }));
+    fireEvent.click(screen.getByRole("button", { name: "お気に入りに追加" }));
+    fireEvent.change(within(initialHeroForm).getByLabelText("商品オプション"), {
+      target: { value: "ギフト包装" },
+    });
+    fireEvent.change(within(initialHeroForm).getByLabelText("ご要望"), {
+      target: { value: "赤い包装を希望" },
+    });
+    fireEvent.click(
+      within(initialHeroForm).getByRole("checkbox", { name: "画像にチェック" }),
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "注意事項" }));
+
+    const initialCartButton = within(initialHeroForm).getByRole("button", {
+      name: "カートに入れる",
+    });
+
     fireEvent.click(initialCartButton);
-    expect(screen.getByRole("status").textContent).toContain("カートに追加しました");
+    expect(within(initialHeroForm).getByRole("status").textContent).toContain(
+      "カートに追加しました",
+    );
 
     document.documentElement.scrollTop = 1186;
     document.body.scrollTop = 1186;
@@ -144,9 +152,19 @@ describe("SAZO product detail navigation", () => {
       screen.getByRole("img", { name: secondProduct.name }).getAttribute("src"),
     ).toBe(secondProduct.image);
 
-    const option = screen.getByLabelText<HTMLSelectElement>("商品オプション");
-    const request = screen.getByLabelText<HTMLTextAreaElement>("ご要望");
-    const imageCheck = screen.getByRole<HTMLInputElement>("checkbox", {
+    const nextHeroForm = document.querySelector<HTMLFormElement>(
+      "form[data-product-purchase-form]",
+    );
+
+    if (nextHeroForm === null) {
+      throw new Error("Missing next hero purchase form");
+    }
+
+    const option = within(nextHeroForm).getByLabelText<HTMLSelectElement>(
+      "商品オプション",
+    );
+    const request = within(nextHeroForm).getByLabelText<HTMLTextAreaElement>("ご要望");
+    const imageCheck = within(nextHeroForm).getByRole<HTMLInputElement>("checkbox", {
       name: "画像にチェック",
     });
 
@@ -163,18 +181,18 @@ describe("SAZO product detail navigation", () => {
       screen.getByRole("tab", { name: "商品情報" }).getAttribute("aria-selected"),
     ).toBe("true");
     expect(screen.queryByRole("status")).toBeNull();
-    expect(screen.getByTestId("product-total-value").textContent).toBe("0");
+    expect(within(nextHeroForm).getByTestId("product-total-value").textContent).toBe(
+      "0",
+    );
 
-    const nextCartButton = screen.getAllByRole("button", {
+    const nextCartButton = within(nextHeroForm).getByRole("button", {
       name: "カートに入れる",
-    })[0];
-
-    if (nextCartButton === undefined) {
-      throw new Error("Missing next product cart button");
-    }
+    });
 
     fireEvent.click(nextCartButton);
-    expect(screen.getByRole("alert").textContent).toContain("商品オプションを選択");
+    expect(within(nextHeroForm).getByRole("alert").textContent).toContain(
+      "商品オプションを選択",
+    );
     expect(screen.queryByRole("status")).toBeNull();
   });
 });
@@ -211,62 +229,135 @@ describe("J-Planet product detail experience", () => {
     expect(detail.recommendationIds).not.toContain(detail.product.id);
   });
 
+  it("shares one purchase state across hero and lower checkout forms", async () => {
+    const { container } = await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+    );
+    const forms = Array.from(
+      container.querySelectorAll<HTMLFormElement>("form[data-product-purchase-form]"),
+    );
+
+    expect(forms).toHaveLength(2);
+    expect(container.querySelectorAll(".sazo-product-mobile-purchase")).toHaveLength(1);
+
+    const heroForm = forms[0];
+    const stickyForm = forms[1];
+
+    if (heroForm === undefined || stickyForm === undefined) {
+      throw new Error("Missing synchronized purchase forms");
+    }
+
+    const heroSelect = within(heroForm).getByLabelText("商品オプション");
+    const stickySelect = within(stickyForm).getByLabelText("商品オプション");
+    fireEvent.change(heroSelect, { target: { value: "標準" } });
+    expect((stickySelect as HTMLSelectElement).value).toBe("標準");
+
+    fireEvent.click(within(stickyForm).getByRole("button", { name: "数量を増やす" }));
+    expect(screen.getAllByTestId("product-quantity").map((node) => node.textContent)).toEqual([
+      "2",
+      "2",
+    ]);
+    expect(screen.getAllByTestId("product-total-value").map((node) => node.textContent)).toEqual([
+      "¥7,948",
+      "¥7,948",
+    ]);
+
+    const ids = Array.from(container.querySelectorAll("[id]"), (node) => node.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it("updates the selected product quantity and deterministic total", async () => {
     const { container } = await renderWithI18n(
       <ProductDetailView dispatch={vi.fn()} productId="p01" />,
     );
+    const heroForm = container.querySelector<HTMLFormElement>(
+      "form[data-product-purchase-form]",
+    );
 
     expect(container.querySelectorAll("form[data-product-purchase-form]")).toHaveLength(
-      1,
+      2,
     );
     expect(container.querySelectorAll(".sazo-product-mobile-purchase")).toHaveLength(1);
-    expect(screen.getByTestId("product-total-value").textContent).toBe("0");
 
-    fireEvent.change(screen.getByLabelText("商品オプション"), {
+    if (heroForm === null) {
+      throw new Error("Missing hero purchase form");
+    }
+
+    expect(within(heroForm).getByTestId("product-total-value").textContent).toBe("0");
+
+    fireEvent.change(within(heroForm).getByLabelText("商品オプション"), {
       target: { value: "標準" },
     });
     expect(
       container.querySelector(".sazo-product-detail-selected-product")?.tagName,
     ).toBe("DIV");
-    expect(screen.getByTestId("product-total-value").textContent).toBe("¥4,149");
+    expect(within(heroForm).getByTestId("product-total-value").textContent).toBe(
+      "¥4,149",
+    );
 
-    fireEvent.click(screen.getByRole("button", { name: "数量を増やす" }));
-    expect(screen.getByTestId("product-quantity").textContent).toBe("2");
-    expect(screen.getByTestId("product-total-value").textContent).toBe("¥7,948");
+    fireEvent.click(within(heroForm).getByRole("button", { name: "数量を増やす" }));
+    expect(within(heroForm).getByTestId("product-quantity").textContent).toBe("2");
+    expect(within(heroForm).getByTestId("product-total-value").textContent).toBe(
+      "¥7,948",
+    );
 
-    fireEvent.click(screen.getByRole("button", { name: "数量を減らす" }));
-    expect(screen.getByTestId("product-quantity").textContent).toBe("1");
+    fireEvent.click(within(heroForm).getByRole("button", { name: "数量を減らす" }));
+    expect(within(heroForm).getByTestId("product-quantity").textContent).toBe("1");
   });
 
   it("clamps quantity at one and resets quantity and total when selection is removed", async () => {
-    await renderWithI18n(<ProductDetailView dispatch={vi.fn()} productId="p01" />);
+    const { container } = await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+    );
+    const heroForm = container.querySelector<HTMLFormElement>(
+      "form[data-product-purchase-form]",
+    );
 
-    const option = screen.getByLabelText<HTMLSelectElement>("商品オプション");
+    if (heroForm === null) {
+      throw new Error("Missing hero purchase form");
+    }
+
+    const option = within(heroForm).getByLabelText<HTMLSelectElement>("商品オプション");
     fireEvent.change(option, { target: { value: "標準" } });
 
-    fireEvent.click(screen.getByRole("button", { name: "数量を減らす" }));
-    expect(screen.getByTestId("product-quantity").textContent).toBe("1");
+    fireEvent.click(within(heroForm).getByRole("button", { name: "数量を減らす" }));
+    expect(within(heroForm).getByTestId("product-quantity").textContent).toBe("1");
 
-    fireEvent.click(screen.getByRole("button", { name: "数量を増やす" }));
-    fireEvent.click(screen.getByRole("button", { name: "選択を解除" }));
+    fireEvent.click(within(heroForm).getByRole("button", { name: "数量を増やす" }));
+    fireEvent.click(within(heroForm).getByRole("button", { name: "選択を解除" }));
     expect(option.value).toBe("");
-    expect(screen.getByTestId("product-total-value").textContent).toBe("0");
+    expect(within(heroForm).getByTestId("product-total-value").textContent).toBe("0");
 
     fireEvent.change(option, { target: { value: "標準" } });
-    expect(screen.getByTestId("product-quantity").textContent).toBe("1");
+    expect(within(heroForm).getByTestId("product-quantity").textContent).toBe("1");
   });
 
   it("associates the request guide with the textarea only while expanded", async () => {
-    await renderWithI18n(<ProductDetailView dispatch={vi.fn()} productId="p01" />);
+    const { container } = await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+    );
+    const heroForm = container.querySelector<HTMLFormElement>(
+      "form[data-product-purchase-form]",
+    );
 
-    const request = screen.getByLabelText<HTMLTextAreaElement>("ご要望");
-    const guideButton = screen.getByRole("button", { name: "ご要望の書き方" });
+    if (heroForm === null) {
+      throw new Error("Missing hero purchase form");
+    }
+
+    const request = within(heroForm).getByLabelText<HTMLTextAreaElement>("ご要望");
+    const guideButton = within(heroForm).getByRole("button", {
+      name: "ご要望の書き方",
+    });
     expect(request.getAttribute("aria-describedby")).toBeNull();
 
     fireEvent.click(guideButton);
     expect(guideButton.getAttribute("aria-expanded")).toBe("true");
-    expect(request.getAttribute("aria-describedby")).toBe("sazo-product-request-guide");
-    expect(screen.getByText(/色・サイズ・仕様/).id).toBe("sazo-product-request-guide");
+    expect(request.getAttribute("aria-describedby")).toBe(
+      "sazo-product-request-guide-hero",
+    );
+    expect(within(heroForm).getByText(/色・サイズ・仕様/).id).toBe(
+      "sazo-product-request-guide-hero",
+    );
 
     fireEvent.click(guideButton);
     expect(guideButton.getAttribute("aria-expanded")).toBe("false");
@@ -392,38 +483,61 @@ describe("J-Planet product detail experience", () => {
       "/sazo-commerce/products/03.webp",
     );
 
-    expect(container.querySelectorAll("form")).toHaveLength(1);
-    expect(screen.getAllByRole("combobox", { name: "商品オプション" })).toHaveLength(1);
-    expect(screen.getByTestId("product-unit-price").textContent).toBe(product.price);
-    expect(screen.getByTestId("product-total-value").textContent).toBe("0");
+    const forms = Array.from(
+      container.querySelectorAll<HTMLFormElement>("form[data-product-purchase-form]"),
+    );
+    const heroForm = forms[0];
+    const stickyForm = forms[1];
 
-    const cartButtons = screen.getAllByRole("button", { name: "カートに入れる" });
-    const primaryCartButton = cartButtons[0];
+    expect(forms).toHaveLength(2);
+    expect(screen.getAllByRole("combobox", { name: "商品オプション" })).toHaveLength(2);
 
-    if (primaryCartButton === undefined) {
-      throw new Error("Missing primary cart button");
+    if (heroForm === undefined || stickyForm === undefined) {
+      throw new Error("Missing synchronized purchase forms");
     }
 
-    fireEvent.click(primaryCartButton);
-    expect(screen.getByRole("alert").textContent).toContain("商品オプションを選択");
-    expect(document.activeElement).toBe(screen.getByLabelText("商品オプション"));
+    expect(within(heroForm).getByTestId("product-unit-price").textContent).toBe(
+      product.price,
+    );
+    expect(within(heroForm).getByTestId("product-total-value").textContent).toBe("0");
 
-    fireEvent.change(screen.getByLabelText("商品オプション"), {
+    const stickyCartButton = within(stickyForm).getByRole("button", {
+      name: "カートに入れる",
+    });
+    const stickyOption = within(stickyForm).getByLabelText("商品オプション");
+    fireEvent.click(stickyCartButton);
+    expect(within(stickyForm).getByRole("alert").textContent).toContain(
+      "商品オプションを選択",
+    );
+    expect(document.activeElement).toBe(stickyOption);
+
+    fireEvent.change(within(heroForm).getByLabelText("商品オプション"), {
       target: { value: "標準" },
     });
-    expect(screen.getByTestId("product-unit-price").textContent).toBe(product.price);
-    expect(screen.getByTestId("product-total-value").textContent).toBe("¥4,149");
-    fireEvent.click(primaryCartButton);
-    expect(screen.getByRole("status").textContent).toContain("カートに追加しました");
+    expect(within(heroForm).getByTestId("product-unit-price").textContent).toBe(
+      product.price,
+    );
+    expect(within(heroForm).getByTestId("product-total-value").textContent).toBe(
+      "¥4,149",
+    );
 
-    const buyNowButtons = screen.getAllByRole("button", { name: "今すぐ買う" });
-    const mobileBuyNowButton = buyNowButtons.at(-1);
+    const heroCartButton = within(heroForm).getByRole("button", {
+      name: "カートに入れる",
+    });
+    fireEvent.click(heroCartButton);
+    expect(within(heroForm).getByRole("status").textContent).toContain(
+      "カートに追加しました",
+    );
 
-    if (mobileBuyNowButton === undefined) {
+    const mobileActions = container.querySelector<HTMLElement>(
+      ".sazo-product-mobile-purchase",
+    );
+
+    if (mobileActions === null) {
       throw new Error("Missing mobile buy-now button");
     }
 
-    fireEvent.click(mobileBuyNowButton);
+    fireEvent.click(within(mobileActions).getByRole("button", { name: "今すぐ買う" }));
     expect(dispatch).toHaveBeenCalledWith({ type: "open-login" });
   });
 
@@ -517,7 +631,7 @@ describe("J-Planet product detail experience", () => {
       2,
     );
     expect(screen.getByRole("tab", { name: "Product information" })).toBeTruthy();
-    expect(screen.getAllByRole("button", { name: "Buy now" })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: "Buy now" })).toHaveLength(3);
     expect(screen.getByRole("heading", { name: "Why J-Planet?" })).toBeTruthy();
   });
 
