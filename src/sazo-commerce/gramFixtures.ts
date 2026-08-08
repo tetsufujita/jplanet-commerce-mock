@@ -248,8 +248,8 @@ if (new Set(gramPosts.map(({ id }) => id)).size !== gramPosts.length) {
   throw new Error("GRAM post IDs must be unique");
 }
 
-if (gramPosts.some(({ products: postProducts }) => postProducts.length < 2)) {
-  throw new Error("Every GRAM post must have at least two products");
+if (gramPosts.some(({ products: postProducts }) => postProducts.length !== 2)) {
+  throw new Error("Every GRAM post must have exactly two products");
 }
 
 export function getGramPosts(category: GramCategoryId): readonly GramPost[] {

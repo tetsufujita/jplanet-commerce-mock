@@ -54,7 +54,13 @@ describe("sazoReducer", () => {
     expect(
       gramPosts.every(
         ({ image, products }) =>
-          image.startsWith("/sazo-commerce/") && products.length >= 2,
+          image.startsWith("/sazo-commerce/") && products.length === 2,
+      ),
+    ).toBe(true);
+    const relatedProductIds = gramPosts.map(({ products: postProducts }) => postProducts[1]?.productId);
+    expect(
+      relatedProductIds.every(
+        (productId) => productId !== undefined && products.some(({ id }) => id === productId),
       ),
     ).toBe(true);
     expect(getGramPosts("hot").every(({ categories }) => categories.includes("hot"))).toBe(
@@ -66,7 +72,7 @@ describe("sazoReducer", () => {
   it("moves through GRAM category loading, detail, and home reset states", () => {
     const gram = sazoReducer(createInitialSazoState(), { type: "navigate", view: "gram" });
     const loading = sazoReducer(gram, { type: "select-gram-category", category: "hot" });
-    const loaded = sazoReducer(loading, { type: "gram-loaded" });
+    const loaded = sazoReducer(loading, { type: "gram-loaded", token: loading.gramLoadToken });
     const detail = sazoReducer(loaded, { type: "open-gram-post", postId: "gram-01" });
     const home = sazoReducer(detail, { type: "navigate", view: "home" });
 
@@ -79,6 +85,26 @@ describe("sazoReducer", () => {
       selectedGramPostId: null,
       view: "home",
     });
+  });
+
+  it("ignores a stale GRAM category completion until the active request finishes", () => {
+    const hot = sazoReducer(createInitialSazoState(), {
+      type: "select-gram-category",
+      category: "hot",
+    });
+    const daily = sazoReducer(hot, { type: "select-gram-category", category: "daily" });
+    const staleCompletion = sazoReducer(daily, { type: "gram-loaded", token: hot.gramLoadToken });
+    const loaded = sazoReducer(staleCompletion, {
+      type: "gram-loaded",
+      token: daily.gramLoadToken,
+    });
+
+    expect(staleCompletion).toMatchObject({
+      gramCategory: "daily",
+      gramLoading: true,
+      gramLoadToken: daily.gramLoadToken,
+    });
+    expect(loaded.gramLoading).toBe(false);
   });
 
   it("accepts deterministic GRAM QA entries only behind qa=1", () => {

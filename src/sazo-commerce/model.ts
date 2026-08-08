@@ -116,6 +116,7 @@ export interface SazoState {
   productReturnView: SazoNonProductView;
   gramCategory: GramCategoryId;
   gramLoading: boolean;
+  gramLoadToken: number;
   selectedGramPostId: string | null;
 }
 
@@ -140,7 +141,7 @@ export type SazoAction =
   | { type: "open-product"; productId: string }
   | { type: "close-product" }
   | { type: "select-gram-category"; category: GramCategoryId }
-  | { type: "gram-loaded" }
+  | { type: "gram-loaded"; token: number }
   | { type: "open-gram-post"; postId: string }
   | { type: "reset" };
 
@@ -206,6 +207,7 @@ export function createInitialSazoState(search = ""): SazoState {
     productReturnView: "home",
     gramCategory: "all",
     gramLoading: false,
+    gramLoadToken: 0,
     selectedGramPostId: null,
   };
 
@@ -322,9 +324,14 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
         view: state.productReturnView,
       };
     case "select-gram-category":
-      return { ...state, gramCategory: action.category, gramLoading: true };
+      return {
+        ...state,
+        gramCategory: action.category,
+        gramLoading: true,
+        gramLoadToken: state.gramLoadToken + 1,
+      };
     case "gram-loaded":
-      return { ...state, gramLoading: false };
+      return action.token === state.gramLoadToken ? { ...state, gramLoading: false } : state;
     case "open-gram-post":
       return {
         ...state,
