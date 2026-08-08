@@ -665,13 +665,22 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
           width: bounds.width,
         };
       });
+      const cardAdvance = cardBounds[1].left - cardBounds[0].left;
+      const cardGap = cardAdvance - cardBounds[0].width;
+      const thirdCard = cardBounds[2];
 
       return {
         cardBounds,
         clientWidth: track.clientWidth,
         scrollWidth: track.scrollWidth,
+        thirdCardPeek: Math.max(
+          0,
+          Math.min(trackBounds.right, thirdCard.right) -
+            Math.max(trackBounds.left, thirdCard.left),
+        ),
         trackLeft: trackBounds.left,
         trackRight: trackBounds.right,
+        visibleCardRatio: (trackBounds.width + cardGap) / cardAdvance,
       };
     });
 
@@ -693,6 +702,36 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
         `${label} recommendation card ${String(index + 1)} width=${String(width)}`,
       );
     }
+  } else {
+    const fullyVisibleCards = recommendationGeometry.cardBounds.filter(
+      ({ left, right }) =>
+        left >= recommendationGeometry.trackLeft - 1 &&
+        right <= recommendationGeometry.trackRight + 1,
+    );
+
+    assert.equal(
+      fullyVisibleCards.length,
+      2,
+      `${label} exactly two fully visible recommendation cards`,
+    );
+    assert.ok(
+      Number.isFinite(recommendationGeometry.visibleCardRatio),
+      `${label} mobile recommendation ratio measured=${String(recommendationGeometry.visibleCardRatio)}`,
+    );
+    assert.ok(
+      recommendationGeometry.visibleCardRatio >= 2.05 &&
+        recommendationGeometry.visibleCardRatio <= 2.2,
+      `${label} approximately 2.1 recommendation cards ratio=${String(recommendationGeometry.visibleCardRatio)}`,
+    );
+    assert.ok(
+      recommendationGeometry.thirdCardPeek > 1,
+      `${label} positive third recommendation peek=${String(recommendationGeometry.thirdCardPeek)}`,
+    );
+    assert.ok(
+      recommendationGeometry.thirdCardPeek <
+        recommendationGeometry.cardBounds[2].width * 0.15,
+      `${label} bounded third recommendation peek=${String(recommendationGeometry.thirdCardPeek)}`,
+    );
   }
   await assertMinimumTapTarget(
     recommendationRegion.getByRole("button", { name: "次の商品" }),
@@ -789,6 +828,7 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
   const leftFlow = page.locator(".sazo-product-detail-left-flow");
   const campaign = page.locator(".sazo-product-campaign");
   const orderFlowStyles = await orderFlow.evaluate((element) => {
+    const root = element.closest(".sazo-root");
     const completeIcon = element.querySelector(
       'li[data-state="complete"] .sazo-product-detail-stage-icon',
     );
@@ -798,17 +838,46 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
     const pendingIcon = element.querySelector(
       'li[data-state="pending"] .sazo-product-detail-stage-icon',
     );
+    const detailsLink = element.querySelector(".sazo-product-order-flow-heading a");
+    const resolveColorToken = (token) => {
+      const probe = document.createElement("span");
+
+      probe.style.color = `var(${token})`;
+      probe.style.position = "absolute";
+      probe.style.visibility = "hidden";
+      (root ?? element).append(probe);
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return color;
+    };
+    const completeStyle = completeIcon === null ? null : getComputedStyle(completeIcon);
+    const currentStyle = currentIcon === null ? null : getComputedStyle(currentIcon);
+    const pendingStyle = pendingIcon === null ? null : getComputedStyle(pendingIcon);
+    const detailsStyle = detailsLink === null ? null : getComputedStyle(detailsLink);
 
     return {
       cardBackground: getComputedStyle(element).backgroundColor,
       cardBorder: getComputedStyle(element).borderStyle,
       cardShadow: getComputedStyle(element).boxShadow,
-      completeBackground:
-        completeIcon === null ? null : getComputedStyle(completeIcon).backgroundColor,
-      currentBackground:
-        currentIcon === null ? null : getComputedStyle(currentIcon).backgroundColor,
-      pendingBackground:
-        pendingIcon === null ? null : getComputedStyle(pendingIcon).backgroundColor,
+      completeBackground: completeStyle?.backgroundColor ?? null,
+      completeBorder: completeStyle?.borderColor ?? null,
+      completeColor: completeStyle?.color ?? null,
+      currentBackground: currentStyle?.backgroundColor ?? null,
+      currentBorder: currentStyle?.borderColor ?? null,
+      currentColor: currentStyle?.color ?? null,
+      detailsDecorationColor: detailsStyle?.textDecorationColor ?? null,
+      detailsDecorationLine: detailsStyle?.textDecorationLine ?? null,
+      pendingBackground: pendingStyle?.backgroundColor ?? null,
+      pendingBorder: pendingStyle?.borderColor ?? null,
+      pendingColor: pendingStyle?.color ?? null,
+      tokens: {
+        blueSoft: resolveColorToken("--jplanet-blue-soft"),
+        line: resolveColorToken("--jplanet-line"),
+        muted: resolveColorToken("--jplanet-muted"),
+        navy: resolveColorToken("--jplanet-navy"),
+        sakura: resolveColorToken("--jplanet-sakura"),
+        surface: resolveColorToken("--jplanet-surface"),
+      },
     };
   });
   assert.equal(
@@ -832,6 +901,62 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
     orderFlowStyles.completeBackground,
     orderFlowStyles.pendingBackground,
     `${label} complete/pending order state styling`,
+  );
+  assert.ok(orderFlowStyles.tokens, `${label} resolved J-Planet flow tokens measured`);
+  assert.equal(
+    orderFlowStyles.currentBackground,
+    orderFlowStyles.tokens.sakura,
+    `${label} current stage sakura background`,
+  );
+  assert.equal(
+    orderFlowStyles.currentBorder,
+    orderFlowStyles.tokens.sakura,
+    `${label} current stage sakura border`,
+  );
+  assert.equal(
+    orderFlowStyles.currentColor,
+    orderFlowStyles.tokens.surface,
+    `${label} current stage surface icon`,
+  );
+  assert.equal(
+    orderFlowStyles.completeBackground,
+    orderFlowStyles.tokens.surface,
+    `${label} complete stage surface background`,
+  );
+  assert.equal(
+    orderFlowStyles.completeBorder,
+    orderFlowStyles.tokens.navy,
+    `${label} complete stage navy border`,
+  );
+  assert.equal(
+    orderFlowStyles.completeColor,
+    orderFlowStyles.tokens.navy,
+    `${label} complete stage navy icon`,
+  );
+  assert.equal(
+    orderFlowStyles.pendingBackground,
+    orderFlowStyles.tokens.blueSoft,
+    `${label} pending stage blue-soft background`,
+  );
+  assert.equal(
+    orderFlowStyles.pendingBorder,
+    orderFlowStyles.tokens.line,
+    `${label} pending stage line border`,
+  );
+  assert.equal(
+    orderFlowStyles.pendingColor,
+    orderFlowStyles.tokens.muted,
+    `${label} pending stage muted icon`,
+  );
+  assert.match(
+    orderFlowStyles.detailsDecorationLine,
+    /underline/u,
+    `${label} order details underline`,
+  );
+  assert.equal(
+    orderFlowStyles.detailsDecorationColor,
+    orderFlowStyles.tokens.sakura,
+    `${label} order details sakura underline`,
   );
 
   await orderFlow.evaluate((element) => {
@@ -976,8 +1101,11 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
           right <= recommendationGeometry.trackRight + 1,
       ).length,
       scrollWidth: recommendationGeometry.scrollWidth,
+      thirdCardPeek: Math.round(recommendationGeometry.thirdCardPeek * 100) / 100,
       trackLeft: Math.round(recommendationGeometry.trackLeft),
       trackRight: Math.round(recommendationGeometry.trackRight),
+      visibleCardRatio:
+        Math.round(recommendationGeometry.visibleCardRatio * 1_000) / 1_000,
     },
     sourceControl: `${Math.round(sourceBounds.width)}x${Math.round(sourceBounds.height)}`,
   };
