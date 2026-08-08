@@ -86,8 +86,12 @@ describe("SAZO home composition", () => {
     expect(guidance).not.toBeNull();
     expect(guidance?.getAttribute("aria-hidden")).toBe("true");
     expect(guidance?.querySelectorAll("path")).toHaveLength(2);
-    expect(guidance?.querySelector("[data-search-guidance-curve]")).not.toBeNull();
-    expect(guidance?.querySelector("[data-search-guidance-head]")).not.toBeNull();
+    expect(
+      guidance?.querySelector("[data-search-guidance-curve]")?.getAttribute("d"),
+    ).toBe("M114 84 C86 72 74 92 50 87 C17 82 8 61 15 39 C18 29 33 30 36 20");
+    expect(
+      guidance?.querySelector("[data-search-guidance-head]")?.getAttribute("d"),
+    ).toBe("M21 25 L36 20 L38 36");
     expect(submit?.querySelector("svg[data-search-submit-arrow]")).not.toBeNull();
     expect(submit?.textContent).toBe("検索");
   });

@@ -569,10 +569,10 @@ function SearchDiscovery({ dispatch, state }: Pick<HomeViewProps, "dispatch" | "
           viewBox="0 0 140 92"
         >
           <path
-            d="M132 84 C100 72 82 92 50 87 C17 82 8 61 15 39 C18 29 24 21 31 15"
+            d="M114 84 C86 72 74 92 50 87 C17 82 8 61 15 39 C18 29 33 30 36 20"
             data-search-guidance-curve
           />
-          <path d="M16 20 L31 15 L33 31" data-search-guidance-head />
+          <path d="M21 25 L36 20 L38 36" data-search-guidance-head />
         </svg>
         <p>{t("sazo.home.searchHint")}</p>
       </div>
