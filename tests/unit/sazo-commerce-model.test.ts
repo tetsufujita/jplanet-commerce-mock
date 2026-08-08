@@ -6,6 +6,7 @@ import {
   brands,
   categories,
   gramEntries,
+  getProductDetail,
   getHeroSlidesForFeed,
   heroSlides,
   homeGramEntries,
@@ -21,9 +22,55 @@ import {
   reviews,
   shortcuts,
 } from "@/sazo-commerce/fixtures";
-import { createInitialSazoState, sazoReducer } from "@/sazo-commerce/model";
+import {
+  createInitialSazoState,
+  sazoReducer,
+  type SazoState,
+} from "@/sazo-commerce/model";
 
 describe("sazoReducer", () => {
+  it("opens product detail and returns to the source view", () => {
+    const catalog = { ...createInitialSazoState(), view: "catalog" } as SazoState;
+    const detail = sazoReducer(catalog, { type: "open-product", productId: "p01" });
+
+    expect(detail).toMatchObject({
+      productReturnView: "catalog",
+      selectedProductId: "p01",
+      view: "product",
+    });
+    expect(sazoReducer(detail, { type: "close-product" }).view).toBe("catalog");
+  });
+
+  it("keeps the original return view when another recommendation is opened", () => {
+    const first = sazoReducer(
+      { ...createInitialSazoState(), view: "ranking" } as SazoState,
+      { type: "open-product", productId: "p01" },
+    );
+    const second = sazoReducer(first, { type: "open-product", productId: "p02" });
+
+    expect(second.productReturnView).toBe("ranking");
+    expect(second.selectedProductId).toBe("p02");
+  });
+
+  it("accepts a deterministic product QA entry and falls back safely", () => {
+    expect(createInitialSazoState("?qa=1&view=product&product=p01")).toMatchObject({
+      productReturnView: "home",
+      selectedProductId: "p01",
+      view: "product",
+    });
+    expect(getProductDetail("missing-id").product.id).toBe(products[0]?.id);
+  });
+
+  it("resolves rich and generated product detail without changing base products", () => {
+    const rich = getProductDetail("p01");
+    const generated = getProductDetail("recommendation-heart");
+
+    expect(rich.gallery.length).toBeGreaterThan(1);
+    expect(rich.options.length).toBeGreaterThan(0);
+    expect(generated.product.id).toBe("recommendation-heart");
+    expect(generated.gallery).toEqual([generated.product.image]);
+  });
+
   it("starts with no forced loading surface", () => {
     expect(createInitialSazoState()).toMatchObject({
       heroFeed: "natural",

@@ -41,6 +41,19 @@ export interface Product {
   badge?: string;
 }
 
+export interface ProductDetail {
+  product: Product;
+  gallery: readonly SazoImagePath[];
+  originalName: string;
+  categoryLabel: string;
+  originalUrl?: string;
+  optionLabel: string;
+  options: readonly string[];
+  purchaseNote: string;
+  information: string;
+  recommendationIds: readonly string[];
+}
+
 export interface RecordedMediaCrop {
   controlBoundaryY: number;
   crop: {
@@ -1305,3 +1318,65 @@ export const reviewRecommendations = [
     },
   },
 ] satisfies readonly ReviewRecommendation[];
+
+const productRegistry = new Map<string, Product>();
+
+for (const product of [
+  ...products,
+  ...searchDiscoveryProducts,
+  ...catalogInventory.map(({ product }) => product),
+  ...reviewRecommendations.map(({ product }) => product),
+]) {
+  if (!productRegistry.has(product.id)) {
+    productRegistry.set(product.id, product);
+  }
+}
+
+const defaultProduct: Product = products[0] ?? (() => {
+  throw new Error("Missing default SAZO product fixture");
+})();
+
+const productDetailOverrides = new Map<string, Omit<ProductDetail, "product">>([
+  [
+    "p01",
+    {
+      gallery: [
+        "/sazo-commerce/products/01.webp",
+        "/sazo-commerce/products/02.webp",
+        "/sazo-commerce/products/03.webp",
+      ],
+      originalName: "NCT WISH - STEADY Mini Keyring",
+      categoryLabel: "K-POP・アイドル",
+      optionLabel: "商品オプション",
+      options: ["標準", "ギフト包装"],
+      purchaseNote: "日本で検品後、ブラジルへ国際配送します。",
+      information:
+        "日本の販売元から手配し、検品後にブラジルへお届けします。配送日数と関税は、お届け先と商品の条件により異なります。",
+      recommendationIds: ["p02", "p03", "recommendation-heart"],
+    },
+  ],
+]);
+
+function createGeneratedProductDetail(product: Product): ProductDetail {
+  return {
+    product,
+    gallery: [product.image],
+    originalName: product.name,
+    categoryLabel: "J-Planet セレクション",
+    optionLabel: "商品オプション",
+    options: ["標準"],
+    purchaseNote: "日本で検品後、ブラジルへ国際配送します。",
+    information:
+      "日本の販売元から手配し、検品後にブラジルへお届けします。配送日数と関税は、お届け先と商品の条件により異なります。",
+    recommendationIds: [...productRegistry.keys()]
+      .filter((candidateId) => candidateId !== product.id)
+      .slice(0, 4),
+  };
+}
+
+export function getProductDetail(productId: string | null): ProductDetail {
+  const product = productRegistry.get(productId ?? "") ?? defaultProduct;
+  const override = productDetailOverrides.get(product.id);
+
+  return override ? { product, ...override } : createGeneratedProductDetail(product);
+}

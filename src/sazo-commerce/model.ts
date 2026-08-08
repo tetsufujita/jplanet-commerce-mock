@@ -10,7 +10,10 @@ export type SazoView =
   | "mypage"
   | "favorites"
   | "profile"
-  | "cards";
+  | "cards"
+  | "product";
+
+export type SazoNonProductView = Exclude<SazoView, "product">;
 
 export type SazoOverlay = "none" | "login" | "chat";
 export type SazoAuthStep = "provider" | "google" | "birthday" | "phone";
@@ -105,6 +108,8 @@ export interface SazoState {
   authenticated: boolean;
   loadingSurface: SazoLoadingSurface;
   reviewFeed: SazoReviewFeed;
+  selectedProductId: string | null;
+  productReturnView: SazoNonProductView;
 }
 
 export type SazoAction =
@@ -125,6 +130,8 @@ export type SazoAction =
   | { type: "select-catalog-chip"; chip: string | null }
   | { type: "select-review-category"; category: ReviewCategoryId }
   | { type: "select-ranking-metric"; metric: RankingMetric }
+  | { type: "open-product"; productId: string }
+  | { type: "close-product" }
   | { type: "reset" };
 
 const heroSlideCount = 5;
@@ -160,6 +167,7 @@ const qaViews = new Set<SazoView>([
   "favorites",
   "profile",
   "cards",
+  "product",
 ]);
 const qaAuthSteps = new Set<SazoAuthStep>([
   "provider",
@@ -187,6 +195,8 @@ export function createInitialSazoState(search = ""): SazoState {
     authenticated: false,
     loadingSurface: "none",
     reviewFeed: "natural",
+    selectedProductId: null,
+    productReturnView: "home",
   };
 
   const parameters = new URLSearchParams(search);
@@ -199,6 +209,7 @@ export function createInitialSazoState(search = ""): SazoState {
   const heroFeed = parameters.get("heroFeed") as SazoHeroFeed | null;
   const reviewFeed = parameters.get("reviewFeed") as SazoReviewFeed | null;
   const view = parameters.get("view") as SazoView | null;
+  const productId = parameters.get("product");
   const authStep = parameters.get("auth") as SazoAuthStep | null;
   const heroIndex = Number(parameters.get("heroIndex"));
 
@@ -216,6 +227,10 @@ export function createInitialSazoState(search = ""): SazoState {
 
   if (view !== null && qaViews.has(view)) {
     state.view = view;
+
+    if (view === "product") {
+      state.selectedProductId = productId;
+    }
   }
 
   if (authStep !== null && qaAuthSteps.has(authStep)) {
@@ -271,6 +286,22 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
       return { ...state, reviewCategory: action.category };
     case "select-ranking-metric":
       return { ...state, rankingMetric: action.metric };
+    case "open-product":
+      return {
+        ...state,
+        overlay: "none",
+        productReturnView:
+          state.view === "product" ? state.productReturnView : state.view,
+        selectedProductId: action.productId,
+        view: "product",
+      };
+    case "close-product":
+      return {
+        ...state,
+        overlay: "none",
+        selectedProductId: null,
+        view: state.productReturnView,
+      };
     case "reset":
       return createInitialSazoState();
     default:
