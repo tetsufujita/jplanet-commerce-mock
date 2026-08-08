@@ -139,6 +139,14 @@ describe("SAZO captured view contracts", () => {
     ).toBe("true");
   });
 
+  it("describes the Japan-to-Brazil forwarding service", async () => {
+    const { container } = await renderWithI18n(<ServiceView dispatch={noDispatch} />);
+
+    expect(container.textContent).toContain("日本代行");
+    expect(container.textContent).toContain("FROMJAPANTOBRAZIL");
+    expect(container.textContent).toContain("ブラジルへお届け");
+  });
+
   it("keeps the recorded short placeholder in the sixth review slot", async () => {
     const { container } = await renderWithI18n(
       <ReviewsView dispatch={noDispatch} state={createInitialSazoState()} />,

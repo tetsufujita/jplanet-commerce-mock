@@ -1,0 +1,198 @@
+import assert from "node:assert/strict";
+import { chromium } from "@playwright/test";
+import { createServer } from "vite";
+
+const server = await createServer({
+  logLevel: "error",
+  server: { host: "127.0.0.1", port: 0 },
+});
+
+const views = [
+  "home",
+  "service",
+  "brands",
+  "categories",
+  "catalog",
+  "campaign",
+  "reviews",
+  "ranking",
+  "mypage",
+  "favorites",
+  "profile",
+  "cards",
+];
+const authSteps = ["google", "birthday", "phone"];
+const viewports = [
+  { height: 828, label: "desktop", width: 1511 },
+  { height: 844, label: "mobile", width: 390 },
+];
+const legacyColors = new Set([
+  "rgb(216, 50, 82)",
+  "rgb(229, 41, 105)",
+  "rgb(235, 54, 88)",
+  "rgb(239, 70, 102)",
+  "rgb(254, 130, 145)",
+]);
+
+function contentSelector(view) {
+  return view === "home" ? "[data-home-view]" : `[data-view-content="${view}"]`;
+}
+
+async function assertJplanetTheme(page, label) {
+  const root = page.locator(".sazo-root");
+  const palette = await root.evaluate((element) => {
+    const style = getComputedStyle(element);
+
+    return {
+      background: style.backgroundColor,
+      deepNavy: style.getPropertyValue("--jplanet-deep-navy").trim(),
+      navy: style.getPropertyValue("--jplanet-navy").trim(),
+      sakura: style.getPropertyValue("--jplanet-sakura").trim(),
+      surface: style.getPropertyValue("--jplanet-surface").trim(),
+    };
+  });
+
+  assert.deepEqual(
+    palette,
+    {
+      background: "rgb(255, 255, 255)",
+      deepNavy: "#1f2e4f",
+      navy: "#1f3864",
+      sakura: "#fea2ac",
+      surface: "#ffffff",
+    },
+    `${label} palette`,
+  );
+
+  const legacyHits = await root.locator("*").evaluateAll(
+    (elements, forbidden) => {
+      const forbiddenColors = new Set(forbidden);
+      const hits = [];
+
+      for (const element of elements) {
+        const style = getComputedStyle(element);
+        const values = [
+          style.backgroundColor,
+          style.borderBottomColor,
+          style.borderLeftColor,
+          style.borderRightColor,
+          style.borderTopColor,
+          style.color,
+          style.outlineColor,
+        ];
+
+        for (const value of values) {
+          if (forbiddenColors.has(value)) {
+            hits.push(`${element.className || element.tagName}:${value}`);
+          }
+        }
+
+        for (const value of forbiddenColors) {
+          if (style.backgroundImage.includes(value)) {
+            hits.push(`${element.className || element.tagName}:background:${value}`);
+          }
+        }
+      }
+
+      return hits;
+    },
+    [...legacyColors],
+  );
+
+  assert.deepEqual(legacyHits, [], `${label} legacy color hits`);
+  const renderedText = await root.innerText();
+  for (const forbiddenCopy of ["韓国", "KOREA", "TO JAPAN", "韓国代行", "日本まで発送"]) {
+    assert.equal(renderedText.includes(forbiddenCopy), false, `${label} legacy route copy: ${forbiddenCopy}`);
+  }
+  assert.equal(
+    renderedText.includes("SAZO"),
+    false,
+    `${label} legacy brand copy`,
+  );
+  assert.equal(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+    true,
+    `${label} horizontal overflow`,
+  );
+}
+
+let browser;
+
+try {
+  await server.listen();
+  const address = server.httpServer?.address();
+
+  assert(address !== null && typeof address === "object");
+  browser = await chromium.launch({ channel: "chrome", headless: true });
+  const baseUrl = `http://127.0.0.1:${String(address.port)}/sazo-commerce-mock/`;
+
+  for (const viewport of viewports) {
+    const page = await browser.newPage({
+      viewport: { height: viewport.height, width: viewport.width },
+    });
+    page.setDefaultTimeout(8_000);
+
+    for (const view of views) {
+      await page.goto(`${baseUrl}?qa=1&view=${view}`, { waitUntil: "networkidle" });
+      await page.locator(contentSelector(view)).waitFor();
+
+      if (view === "home") {
+        await page.getByText("ブラジル最大級", { exact: false }).waitFor();
+        await page.getByText("日本直輸入ショップ", { exact: false }).waitFor();
+      }
+      if (view === "service") {
+        await page.getByRole("heading", { name: "日本代行" }).waitFor();
+        await page.getByText("FROM", { exact: true }).waitFor();
+      }
+
+      if (view === "campaign") {
+        await page.waitForFunction(
+          () =>
+            document
+              .querySelector('[data-view-content="campaign"]')
+              ?.getAttribute("data-campaign-loaded") === "true",
+        );
+      }
+
+      await assertJplanetTheme(page, `${viewport.label}/${view}`);
+      await page.screenshot({
+        fullPage: true,
+        path: `/tmp/sazo-jplanet-${viewport.label}-${view}.png`,
+      });
+    }
+
+    for (const authStep of authSteps) {
+      await page.goto(`${baseUrl}?qa=1&auth=${authStep}`, { waitUntil: "networkidle" });
+      const selector =
+        authStep === "google" ? '[data-testid="sazo-google-chooser"]' : "[data-testid=sazo-auth-page]";
+      await page.locator(selector).waitFor();
+      await assertJplanetTheme(page, `${viewport.label}/auth-${authStep}`);
+      await page.screenshot({
+        fullPage: true,
+        path: `/tmp/sazo-jplanet-${viewport.label}-auth-${authStep}.png`,
+      });
+    }
+
+    await page.goto(baseUrl, { waitUntil: "networkidle" });
+    const visibleShell = page.locator(`[data-shell="${viewport.label}"]`);
+    await visibleShell.getByRole("button", { name: "ログイン" }).click();
+    await page.getByTestId("sazo-auth-backdrop").waitFor();
+    await assertJplanetTheme(page, `${viewport.label}/auth-provider`);
+    await page.screenshot({
+      path: `/tmp/sazo-jplanet-${viewport.label}-auth-provider.png`,
+    });
+
+    await page.locator(".sazo-auth-dialog .sazo-overlay-close").click();
+    await page.getByTestId("chat-launcher").click();
+    await page.getByTestId("sazo-chat-backdrop").waitFor();
+    await assertJplanetTheme(page, `${viewport.label}/chat`);
+    await page.screenshot({ path: `/tmp/sazo-jplanet-${viewport.label}-chat.png` });
+
+    await page.close();
+  }
+
+  process.stdout.write("sazo-jplanet-theme-browser-ok\n");
+} finally {
+  await browser?.close();
+  await server.close();
+}

@@ -77,6 +77,14 @@ function HeroTicker({
 }
 
 describe("SAZO home composition", () => {
+  it("promotes the Japan-to-Brazil direct-shipping offer", async () => {
+    const { container } = await renderHomePage();
+
+    expect(container.textContent).toContain("ブラジル最大級");
+    expect(container.textContent).toContain("日本直輸入ショップ");
+    expect(container.textContent).toContain("日本の商品をブラジルへ直送");
+  });
+
   it("renders deterministic keyword skeletons without product-card UI", async () => {
     const i18n = await createI18n("ja");
     const state = {
