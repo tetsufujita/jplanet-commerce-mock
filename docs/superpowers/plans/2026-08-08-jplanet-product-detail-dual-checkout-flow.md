@@ -466,7 +466,7 @@ git commit -m "feat: match SAZO product detail purchase flow"
 - Keep screenshot paths `/tmp/jplanet-product-reference-desktop.png`, `/tmp/jplanet-product-reference-mobile.png`, `/tmp/jplanet-product-reference-mobile-320.png`, and `/tmp/jplanet-product-reference-sticky.png`.
 - Keep product QA viewports `1512x982`, `390x844`, `320x844` and 12 origin states.
 
-- [ ] **Step 1: Add failing dual-panel and hierarchy browser assertions**
+- [x] **Step 1: Add failing dual-panel and hierarchy browser assertions**
 
 At desktop require two visible forms:
 
@@ -499,7 +499,7 @@ Require six stages and exact state counts `2 / 1 / 3`.
 
 At mobile require two forms in DOM but only one visible form, one mobile fixed action group, a hidden lower checkout, and no page overflow.
 
-- [ ] **Step 2: Run product QA and verify RED**
+- [x] **Step 2: Run product QA and verify RED**
 
 ```bash
 pnpm qa:sazo-product-detail
@@ -507,7 +507,7 @@ pnpm qa:sazo-product-detail
 
 Expected: the pre-change script or new assertions fail because it assumes one form and the old recommendation/grid hierarchy.
 
-- [ ] **Step 3: Update browser actions and geometry measurements**
+- [x] **Step 3: Update browser actions and geometry measurements**
 
 Scope every purchase action to `heroForm` or `stickyForm`; never use a page-global duplicated label/button locator. Record:
 
@@ -521,7 +521,7 @@ Scope every purchase action to `heroForm` or `stickyForm`; never use a page-glob
 
 Use a one-pixel tolerance for layout bounds. Preserve the existing source link, quantity, total, footer, chat, fixed CTA, and origin-state assertions.
 
-- [ ] **Step 4: Regenerate and inspect all four screenshots**
+- [x] **Step 4: Regenerate and inspect all four screenshots**
 
 Capture:
 
@@ -542,7 +542,7 @@ Visually verify against the five supplied SAZO references:
 - J-Planet colors/copy replace every SAZO/Korea visual;
 - mobile has no duplicate visible form or horizontal spill.
 
-- [ ] **Step 5: Run complete verification**
+- [x] **Step 5: Run complete verification**
 
 ```bash
 pnpm lint
@@ -559,7 +559,7 @@ git diff --check
 
 Expected: zero lint/type/build/test failures; product audit keeps 3 viewports/12 origin states; theme audit keeps 36 states/26 mobile placements; image counts may change only when measured and explained.
 
-- [ ] **Step 6: Run forbidden-copy and live-route checks**
+- [x] **Step 6: Run forbidden-copy and live-route checks**
 
 ```bash
 rg -n --glob '*.{ts,tsx,json,css,svg}' 'SAZO|韓国|KOREA|TO JAPAN|Republic of Korea' src/sazo-commerce/ProductDetailView.tsx src/sazo-commerce/ProductPurchasePanel.tsx src/sazo-commerce/ProductOrderFlow.tsx src/sazo-commerce/useProductPurchaseController.ts
@@ -568,7 +568,7 @@ curl -sS -o /dev/null -w '%{http_code}\n' 'http://127.0.0.1:5190/sazo-commerce-m
 
 Expected: no forbidden matches and HTTP `200`.
 
-- [ ] **Step 7: Record measured evidence and commit Task 3**
+- [x] **Step 7: Record measured evidence and commit Task 3**
 
 Update this plan's Task 3 checkboxes with exact form counts, state counts, geometry, screenshot dimensions, test totals, audit totals, and live HTTP result, then commit:
 
@@ -576,3 +576,18 @@ Update this plan's Task 3 checkboxes with exact form counts, state counts, geome
 git add scripts/sazo-product-detail-browser.mjs scripts/sazo-jplanet-theme-browser.mjs docs/superpowers/plans/2026-08-08-jplanet-product-detail-dual-checkout-flow.md
 git commit -m "test: verify synchronized product checkout flow"
 ```
+
+#### Task 3 measured evidence
+
+- Acceptance RED: after the new hero/sticky locators passed, the obsolete global assertion failed with `desktop single purchase form: 2 !== 1`.
+- Checkout forms: desktop `2` in DOM / `2` visible / `1` mobile group hidden; 390px and 320px `2` in DOM / `1` visible / `1` mobile group visible, with the lower checkout hidden and without bounds.
+- Shared purchase state: selecting `標準` through the hero synchronized the lower select; incrementing through the desktop lower form synchronized both quantities to `2` and both totals to `¥7,948`.
+- Desktop form geometry at 1512x982: hero `left=1031 top=848 right=1431 bottom=1524` (`400x675`); lower form before scroll `left=1095 top=2071 right=1435 bottom=2721` (`340x650`); after order-flow scroll `left=1095 top=137 right=1435 bottom=988` (`340x851`). The containing sticky rail was `left=1070 top=112 right=1460 bottom=962` (`390x850`).
+- Hierarchy geometry: recommendation bottom `2011.8125`; commerce-grid and lower-checkout document top `2045.8125`, a `34px` gap. The recommendation is the grid's direct preceding sibling.
+- Order flow: six stages with state counts `complete=2 / current=1 / pending=3`; sequence `complete, complete, current, pending, pending, pending`; the current stage alone has `aria-current="step"`, and all stages expose localized Japanese status text. At the sticky screenshot position the white flow card was `left=95 top=112 right=983 bottom=364` (`888x251`) and did not overlap the checkout.
+- Recommendation geometry: desktop track `left=52 right=1460`, `clientWidth=1408`, `scrollWidth=1408`; all six cards were fully visible at `170px` wide. At 390px and 320px, two cards were fully visible within the internal horizontal rail.
+- Overflow: desktop `1512/1512`, 390px `390/390`, 320px `320/320` (`scrollWidth/innerWidth`). Hero bounds were `328x675` at 390px and `272x672` at 320px.
+- Screenshots: desktop `1512x4341`, mobile `390x5383`, mobile-320 `320x5456`, sticky `1512x982`. Direct visual comparison against all five supplied 1920x1080 SAZO references confirmed the top-right full purchase form, full-row recommendation rail, post-recommendation lower checkout, sticky checkout beside the white six-stage card, and sakura-filled third/current stage. Red rectangles in the references were treated as user annotations. J-Planet navy/sakura/copy replaced the SAZO/Korea visuals; no mobile duplicate or page spill was visible.
+- Full verification: ESLint `0` errors; TypeScript `0` errors; Vitest `14` files / `174` tests passed; Vite build `2,224` modules; Prettier and both Node syntax checks passed; `git diff --check` passed.
+- Browser totals: product audit `3` viewports / `12` origin states / `33` images; theme audit `36` states / `26` mobile placements / `546` images. Counts were unchanged.
+- Forbidden-copy search returned no matches (expected `rg` exit `1`); live product route returned HTTP `200`.

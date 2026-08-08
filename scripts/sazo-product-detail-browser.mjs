@@ -119,6 +119,37 @@ function rectanglesOverlap(first, second) {
   );
 }
 
+function roundBounds(bounds) {
+  if (bounds === null) return null;
+
+  return {
+    bottom: Math.round(bounds.y + bounds.height),
+    height: Math.round(bounds.height),
+    left: Math.round(bounds.x),
+    right: Math.round(bounds.x + bounds.width),
+    top: Math.round(bounds.y),
+    width: Math.round(bounds.width),
+  };
+}
+
+async function visibleLocatorCount(locator) {
+  const visibility = await locator.evaluateAll((elements) =>
+    elements.map((element) => {
+      const bounds = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+
+      return (
+        style.display !== "none" &&
+        style.visibility !== "hidden" &&
+        bounds.width > 0 &&
+        bounds.height > 0
+      );
+    }),
+  );
+
+  return visibility.filter(Boolean).length;
+}
+
 async function assertMinimumTapTarget(locator, label) {
   const bounds = await locator.boundingBox();
 
@@ -260,7 +291,7 @@ async function assertMobilePurchaseGeometry(page, viewport, label) {
   );
 }
 
-async function assertMobileDetailTapTargets(page, label) {
+async function assertMobileDetailTapTargets(page, heroForm, label) {
   const targets = [
     [
       "detail favorite",
@@ -270,7 +301,7 @@ async function assertMobileDetailTapTargets(page, label) {
       "recommended product favorite",
       page.locator(".sazo-product-detail .sazo-product-favorite").first(),
     ],
-    ["image check", page.locator(".sazo-product-detail-check")],
+    ["image check", heroForm.locator(".sazo-product-detail-check")],
   ];
 
   for (const [name, target] of targets) {
@@ -450,15 +481,172 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
   );
   const sourceBounds = await assertMinimumTapTarget(sourceLink, `${label} source link`);
 
-  const purchaseForm = page.locator("form[data-product-purchase-form]");
-  assert.equal(await purchaseForm.count(), 1, `${label} single purchase form`);
+  const heroForm = page.locator(
+    ".sazo-product-detail-purchase-panel form[data-product-purchase-form]",
+  );
+  const stickyForm = page.locator(
+    ".sazo-product-detail-checkout-rail form[data-product-purchase-form]",
+  );
+  const purchaseForms = page.locator("form[data-product-purchase-form]");
+  const mobilePurchase = page.locator(".sazo-product-mobile-purchase");
+  const recommendationRegion = page.locator(".sazo-product-detail-recommendations");
+  const commerceGrid = page.locator(".sazo-product-detail-commerce-grid");
+  const checkoutRail = page.locator(".sazo-product-detail-checkout-rail");
+  const orderFlow = page.locator(".sazo-product-order-flow");
+  const orderStages = orderFlow.locator("li[data-stage][data-state]");
+
+  assert.equal(await heroForm.count(), 1, `${label} hero purchase form count`);
+  assert.equal(await stickyForm.count(), 1, `${label} sticky purchase form count`);
+  assert.equal(await purchaseForms.count(), 2, `${label} purchase form DOM count`);
+  assert.equal(await heroForm.isVisible(), true, `${label} hero purchase form visible`);
+  assert.equal(await mobilePurchase.count(), 1, `${label} mobile purchase group count`);
+  const visibleFormCount = await visibleLocatorCount(purchaseForms);
+  const heroFormBounds = await heroForm.boundingBox();
+  const stickyFormBoundsBeforeScroll = await stickyForm.boundingBox();
+
+  assert(heroFormBounds !== null, `${label} hero purchase form bounds`);
   assert.equal(
     await page.locator(".sazo-product-detail-cart-button").count(),
-    2,
-    `${label} shared desktop/mobile cart actions`,
+    3,
+    `${label} hero/sticky/mobile cart actions`,
+  );
+  assert.equal(
+    await heroForm.locator(".sazo-product-detail-cart-button").count(),
+    1,
+    `${label} hero cart action`,
+  );
+  assert.equal(
+    await stickyForm.locator(".sazo-product-detail-cart-button").count(),
+    1,
+    `${label} sticky cart action`,
+  );
+  assert.equal(
+    await mobilePurchase.locator(".sazo-product-detail-cart-button").count(),
+    1,
+    `${label} mobile cart action`,
   );
 
-  const recommendationRegion = page.locator(".sazo-product-detail-recommendations");
+  if (label === "desktop") {
+    assert.equal(visibleFormCount, 2, `${label} visible purchase form count`);
+    assert.equal(
+      await stickyForm.isVisible(),
+      true,
+      `${label} sticky purchase form visible`,
+    );
+    assert(stickyFormBoundsBeforeScroll !== null, `${label} sticky form initial bounds`);
+    assert.equal(
+      await mobilePurchase.isVisible(),
+      false,
+      `${label} mobile purchase group hidden`,
+    );
+  } else {
+    assert.equal(visibleFormCount, 1, `${label} visible purchase form count`);
+    assert.equal(
+      await stickyForm.isVisible(),
+      false,
+      `${label} sticky purchase form hidden`,
+    );
+    assert.equal(
+      await mobilePurchase.isVisible(),
+      true,
+      `${label} mobile purchase group visible`,
+    );
+    assert.equal(
+      stickyFormBoundsBeforeScroll,
+      null,
+      `${label} hidden sticky form has no bounds`,
+    );
+  }
+
+  const hierarchyGeometry = await recommendationRegion.evaluate((recommendation) => {
+    const grid = recommendation.nextElementSibling;
+    const checkout = grid?.querySelector(".sazo-product-detail-checkout-rail");
+    const lowerForm = checkout?.querySelector("form[data-product-purchase-form]");
+    const recommendationBounds = recommendation.getBoundingClientRect();
+    const gridBounds = grid?.getBoundingClientRect();
+    const checkoutBounds = checkout?.getBoundingClientRect();
+    const lowerFormBounds = lowerForm?.getBoundingClientRect();
+    const documentY = window.scrollY;
+
+    return {
+      checkoutTop: checkoutBounds === undefined ? null : checkoutBounds.top + documentY,
+      commerceGridTop: gridBounds === undefined ? null : gridBounds.top + documentY,
+      gridIsDirectSibling:
+        grid?.classList.contains("sazo-product-detail-commerce-grid") === true,
+      lowerFormTop:
+        lowerFormBounds === undefined ? null : lowerFormBounds.top + documentY,
+      recommendationBottom: recommendationBounds.bottom + documentY,
+    };
+  });
+
+  assert.equal(
+    hierarchyGeometry.gridIsDirectSibling,
+    true,
+    `${label} recommendation directly precedes commerce grid`,
+  );
+  assert(hierarchyGeometry.commerceGridTop !== null, `${label} commerce grid top`);
+  assert.ok(
+    hierarchyGeometry.recommendationBottom <= hierarchyGeometry.commerceGridTop + 1,
+    `${label} recommendation/grid order geometry=${JSON.stringify(hierarchyGeometry)}`,
+  );
+  if (label === "desktop") {
+    assert(hierarchyGeometry.checkoutTop !== null, `${label} checkout document top`);
+    assert.ok(
+      hierarchyGeometry.recommendationBottom <= hierarchyGeometry.checkoutTop + 1,
+      `${label} recommendation/checkout order geometry=${JSON.stringify(hierarchyGeometry)}`,
+    );
+  }
+
+  const stageStates = await orderStages.evaluateAll((stages) =>
+    stages.map((stage) => stage.getAttribute("data-state")),
+  );
+  const stageStateCounts = {
+    complete: stageStates.filter((state) => state === "complete").length,
+    current: stageStates.filter((state) => state === "current").length,
+    pending: stageStates.filter((state) => state === "pending").length,
+  };
+  const stageStatusCopy = await orderStages
+    .locator(".sazo-visually-hidden")
+    .allInnerTexts();
+  const orderHeadingId = await orderFlow.getAttribute("aria-labelledby");
+
+  assert.equal(await orderStages.count(), 6, `${label} order stage count`);
+  assert.deepEqual(
+    stageStates,
+    ["complete", "complete", "current", "pending", "pending", "pending"],
+    `${label} order stage state sequence`,
+  );
+  assert.deepEqual(
+    stageStateCounts,
+    { complete: 2, current: 1, pending: 3 },
+    `${label} order stage state counts`,
+  );
+  assert.deepEqual(
+    stageStatusCopy,
+    ["完了", "完了", "現在のステップ", "未完了", "未完了", "未完了"],
+    `${label} localized order stage status copy`,
+  );
+  assert.equal(
+    orderHeadingId,
+    "sazo-product-order-flow-heading",
+    `${label} order flow heading relationship`,
+  );
+  assert.equal(
+    await page.locator(`#${orderHeadingId}`).count(),
+    1,
+    `${label} order flow heading target`,
+  );
+  assert.equal(
+    await orderFlow.locator('li[data-state="current"]').getAttribute("aria-current"),
+    "step",
+    `${label} current order stage semantics`,
+  );
+  assert.equal(
+    await orderFlow.locator("ol").getAttribute("aria-label"),
+    "注文からお届けまで",
+    `${label} localized order stage list label`,
+  );
+
   assert.equal(
     await recommendationRegion.locator(".sazo-product-card").count(),
     6,
@@ -520,32 +708,51 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
         ?.endsWith("/sazo-commerce/products/02.webp") === true,
   );
 
-  const option = purchaseForm.getByLabel("商品オプション");
+  const option = heroForm.getByLabel("商品オプション");
   await assertMinimumTapTarget(option, `${label} product option`);
   await option.selectOption("標準");
-  const decreaseQuantity = purchaseForm.getByRole("button", {
+  assert.equal(
+    await stickyForm.getByLabel("商品オプション").inputValue(),
+    "標準",
+    `${label} hero-to-sticky option sync`,
+  );
+  const decreaseQuantity = heroForm.getByRole("button", {
     name: "数量を減らす",
   });
-  const increaseQuantity = purchaseForm.getByRole("button", {
+  const increaseQuantity =
+    label === "desktop"
+      ? stickyForm.getByRole("button", { name: "数量を増やす" })
+      : heroForm.getByRole("button", { name: "数量を増やす" });
+  const heroIncreaseQuantity = heroForm.getByRole("button", {
     name: "数量を増やす",
   });
   await assertMinimumTapTarget(decreaseQuantity, `${label} quantity decrease`);
   const increaseBounds = await assertMinimumTapTarget(
-    increaseQuantity,
+    heroIncreaseQuantity,
     `${label} quantity increase`,
   );
   await increaseQuantity.click();
   assert.equal(
-    await page.getByTestId("product-quantity").innerText(),
+    await heroForm.getByTestId("product-quantity").innerText(),
     "2",
-    `${label} product quantity`,
+    `${label} hero product quantity sync`,
   );
   assert.equal(
-    await page.getByTestId("product-total-value").innerText(),
-    "¥7,948",
-    `${label} deterministic total`,
+    await stickyForm.getByTestId("product-quantity").innerText(),
+    "2",
+    `${label} sticky product quantity sync`,
   );
-  const formCartButton = purchaseForm.getByRole("button", {
+  assert.equal(
+    await heroForm.getByTestId("product-total-value").innerText(),
+    "¥7,948",
+    `${label} hero deterministic total sync`,
+  );
+  assert.equal(
+    await stickyForm.getByTestId("product-total-value").innerText(),
+    "¥7,948",
+    `${label} sticky deterministic total sync`,
+  );
+  const formCartButton = heroForm.getByRole("button", {
     exact: true,
     name: "カートに入れる",
   });
@@ -579,46 +786,91 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
     `${label} horizontal overflow geometry=${JSON.stringify(overflowGeometry)}`,
   );
 
-  const commerceGrid = page.locator(".sazo-product-detail-commerce-grid");
-  const checkoutRail = page.locator(".sazo-product-detail-checkout-rail");
   const leftFlow = page.locator(".sazo-product-detail-left-flow");
   const campaign = page.locator(".sazo-product-campaign");
-  await campaign.scrollIntoViewIfNeeded();
+  const orderFlowStyles = await orderFlow.evaluate((element) => {
+    const completeIcon = element.querySelector(
+      'li[data-state="complete"] .sazo-product-detail-stage-icon',
+    );
+    const currentIcon = element.querySelector(
+      'li[data-state="current"] .sazo-product-detail-stage-icon',
+    );
+    const pendingIcon = element.querySelector(
+      'li[data-state="pending"] .sazo-product-detail-stage-icon',
+    );
+
+    return {
+      cardBackground: getComputedStyle(element).backgroundColor,
+      cardBorder: getComputedStyle(element).borderStyle,
+      cardShadow: getComputedStyle(element).boxShadow,
+      completeBackground:
+        completeIcon === null ? null : getComputedStyle(completeIcon).backgroundColor,
+      currentBackground:
+        currentIcon === null ? null : getComputedStyle(currentIcon).backgroundColor,
+      pendingBackground:
+        pendingIcon === null ? null : getComputedStyle(pendingIcon).backgroundColor,
+    };
+  });
+  assert.equal(
+    orderFlowStyles.cardBackground,
+    "rgb(255, 255, 255)",
+    `${label} order flow white card`,
+  );
+  assert.equal(orderFlowStyles.cardBorder, "solid", `${label} order flow card border`);
+  assert.notEqual(orderFlowStyles.cardShadow, "none", `${label} order flow card shadow`);
+  assert.notEqual(
+    orderFlowStyles.currentBackground,
+    orderFlowStyles.completeBackground,
+    `${label} current/complete order state styling`,
+  );
+  assert.notEqual(
+    orderFlowStyles.currentBackground,
+    orderFlowStyles.pendingBackground,
+    `${label} current/pending order state styling`,
+  );
+  assert.notEqual(
+    orderFlowStyles.completeBackground,
+    orderFlowStyles.pendingBackground,
+    `${label} complete/pending order state styling`,
+  );
+
+  await orderFlow.evaluate((element) => {
+    const targetTop = element.getBoundingClientRect().top + window.scrollY - 112;
+
+    window.scrollTo(0, targetTop);
+  });
   await page.evaluate(
     () =>
       new Promise((resolve) => {
         requestAnimationFrame(() => requestAnimationFrame(resolve));
       }),
   );
-  const campaignBounds = await campaign.boundingBox();
-  assert(campaignBounds !== null, `${label} campaign bounds`);
-  assert.ok(
-    campaignBounds.y < viewport.height && campaignBounds.y + campaignBounds.height > 0,
-    `${label} campaign visibility y=${String(campaignBounds.y)} height=${String(campaignBounds.height)}`,
-  );
+  const checkoutBounds = await checkoutRail.boundingBox();
+  const stickyFormBoundsAfterScroll = await stickyForm.boundingBox();
+  const leftFlowBounds = await leftFlow.boundingBox();
+  const orderFlowBounds = await orderFlow.boundingBox();
+
+  assert(leftFlowBounds !== null, `${label} left flow bounds`);
+  assert(orderFlowBounds !== null, `${label} order flow bounds`);
 
   const gridGeometry = await commerceGrid.evaluate((element) => ({
     columnCount: getComputedStyle(element).gridTemplateColumns.split(" ").length,
     columns: getComputedStyle(element).gridTemplateColumns,
   }));
-  const checkoutBounds = await checkoutRail.boundingBox();
-  const leftFlowBounds = await leftFlow.boundingBox();
-  assert(checkoutBounds !== null, `${label} checkout rail bounds`);
-  assert(leftFlowBounds !== null, `${label} left flow bounds`);
 
   if (viewport.width <= 390) {
     assert.equal(gridGeometry.columnCount, 1, `${label} commerce grid one column`);
     assert.equal(
-      await checkoutRail.evaluate((element) => getComputedStyle(element).position),
-      "static",
-      `${label} checkout non-sticky`,
+      await checkoutRail.evaluate((element) => getComputedStyle(element).display),
+      "none",
+      `${label} lower checkout hidden`,
     );
-    assert.ok(
-      leftFlowBounds.y >= checkoutBounds.y + checkoutBounds.height - 1,
-      `${label} checkout precedes left flow`,
+    assert.equal(checkoutBounds, null, `${label} hidden checkout has no bounds`);
+    assert.equal(
+      stickyFormBoundsAfterScroll,
+      null,
+      `${label} hidden sticky form remains without bounds`,
     );
-    await assertMobilePurchaseGeometry(page, viewport, label);
-    await assertMobileDetailTapTargets(page, label);
   } else {
     assert.equal(gridGeometry.columnCount, 2, `${label} commerce grid two columns`);
     assert.equal(
@@ -626,6 +878,8 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
       "sticky",
       `${label} checkout sticky position`,
     );
+    assert(checkoutBounds !== null, `${label} checkout rail bounds`);
+    assert(stickyFormBoundsAfterScroll !== null, `${label} sticky form scrolled bounds`);
     assert.ok(
       Math.abs(checkoutBounds.y - 112) <= 1,
       `${label} sticky top=${String(checkoutBounds.y)}`,
@@ -640,7 +894,44 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
       false,
       `${label} left flow/checkout overlap`,
     );
+    assert.equal(
+      rectanglesOverlap(orderFlowBounds, checkoutBounds),
+      false,
+      `${label} six-stage flow/checkout overlap`,
+    );
+    assert.ok(
+      orderFlowBounds.y < viewport.height &&
+        orderFlowBounds.y + orderFlowBounds.height > 0,
+      `${label} six-stage flow visibility y=${String(orderFlowBounds.y)} height=${String(orderFlowBounds.height)}`,
+    );
     await page.screenshot({ path: "/tmp/jplanet-product-reference-sticky.png" });
+  }
+
+  await campaign.scrollIntoViewIfNeeded();
+  await page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      }),
+  );
+  const campaignBounds = await campaign.boundingBox();
+  assert(campaignBounds !== null, `${label} campaign bounds`);
+  assert.ok(
+    campaignBounds.y < viewport.height && campaignBounds.y + campaignBounds.height > 0,
+    `${label} campaign visibility y=${String(campaignBounds.y)} height=${String(campaignBounds.height)}`,
+  );
+
+  if (viewport.width <= 390) {
+    await assertMobilePurchaseGeometry(page, viewport, label);
+    await assertMobileDetailTapTargets(page, heroForm, label);
+  } else {
+    const campaignCheckoutBounds = await checkoutRail.boundingBox();
+
+    assert(campaignCheckoutBounds !== null, `${label} campaign checkout bounds`);
+    assert.ok(
+      Math.abs(campaignCheckoutBounds.y - 112) <= 1,
+      `${label} checkout remains sticky at campaign top=${String(campaignCheckoutBounds.y)}`,
+    );
   }
 
   await page.evaluate(() => window.scrollTo(0, 0));
@@ -652,16 +943,24 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
 
   return {
     campaignHeight: Math.round(campaignBounds.height),
-    checkout: {
-      bottom: Math.round(checkoutBounds.y + checkoutBounds.height),
-      height: Math.round(checkoutBounds.height),
-      left: Math.round(checkoutBounds.x),
-      right: Math.round(checkoutBounds.x + checkoutBounds.width),
-      top: Math.round(checkoutBounds.y),
-      width: Math.round(checkoutBounds.width),
+    checkout: roundBounds(checkoutBounds),
+    checkoutForms: {
+      dom: await purchaseForms.count(),
+      hero: roundBounds(heroFormBounds),
+      mobileGroups: await mobilePurchase.count(),
+      stickyAfterScroll: roundBounds(stickyFormBoundsAfterScroll),
+      stickyBeforeScroll: roundBounds(stickyFormBoundsBeforeScroll),
+      visible: visibleFormCount,
     },
     columns: gridGeometry.columns,
+    hierarchy: hierarchyGeometry,
     imageCount,
+    orderFlow: {
+      bounds: roundBounds(orderFlowBounds),
+      stateCounts: stageStateCounts,
+      states: stageStates,
+      styles: orderFlowStyles,
+    },
     overflow: overflowGeometry,
     quantityControl: `${Math.round(increaseBounds.width)}x${Math.round(increaseBounds.height)}`,
     recommendation: {
