@@ -103,7 +103,7 @@ describe("SAZO captured view contracts", () => {
     ],
     [
       "ranking",
-      "J-Planet RANKING",
+      "SAZO RANKING",
       <RankingView dispatch={noDispatch} state={createInitialSazoState()} />,
     ],
     [
@@ -432,9 +432,9 @@ describe("SAZO captured view contracts", () => {
     expect(
       capturedReviewTiles.map((tile) => tile.querySelector("img")?.getAttribute("src")),
     ).toEqual([
-      "/sazo-commerce/review-media/r07.jpg",
+      "/sazo-commerce/community/10.webp",
       undefined,
-      "/sazo-commerce/review-media/r08.jpg",
+      "/sazo-commerce/community/11.webp",
       "/sazo-commerce/reviews/unseen-media.png",
       "/sazo-commerce/reviews/tail-01.png",
       "/sazo-commerce/reviews/tail-03-media.png",
