@@ -22,6 +22,7 @@ import {
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
+import { ProductPurchasePanel } from "@/sazo-commerce/ProductPurchasePanel";
 import { ProductSourceLink } from "@/sazo-commerce/ProductSourceLink";
 import {
   catalogInventory,
@@ -39,13 +40,6 @@ export interface ProductDetailViewProps {
 }
 
 type ProductDetailTab = "information" | "cautions";
-type PurchaseIntent = "cart" | "buy";
-
-interface PurchaseFeedback {
-  kind: "error" | "success";
-  message: string;
-}
-
 const productDetailTabs = [
   { id: "information", labelKey: "tabs.information" },
   { id: "cautions", labelKey: "tabs.cautions" },
@@ -121,18 +115,12 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
     () => new Set(),
   );
   const [favorite, setFavorite] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("");
-  const [requestText, setRequestText] = useState("");
-  const [imageCheck, setImageCheck] = useState(false);
   const [activeTab, setActiveTab] = useState<ProductDetailTab>("information");
-  const [feedback, setFeedback] = useState<PurchaseFeedback | null>(null);
-  const selectRef = useRef<HTMLSelectElement>(null);
-  const purchaseFormRef = useRef<HTMLFormElement>(null);
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
   const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const currentGalleryIndex = Math.min(activeGalleryIndex, gallery.length - 1);
   const currentImage = gallery[currentGalleryIndex] ?? product.image;
-  const totalPrice = selectedOption === "" ? "0" : product.price;
 
   const markImageSourceFailed = (source: string) => {
     setFailedImageSources((current) => {
@@ -204,62 +192,31 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
     tabRefs.current[nextIndex]?.focus();
   };
 
-  const handlePurchase = (intent: PurchaseIntent) => {
-    if (selectedOption === "") {
-      setFeedback({
-        kind: "error",
-        message: t("sazo.views.productDetail.feedback.optionRequired"),
-      });
-      selectRef.current?.focus();
-      return;
-    }
-
-    if (intent === "cart") {
-      setFeedback({
-        kind: "success",
-        message: t("sazo.views.productDetail.feedback.cartAdded"),
-      });
-      return;
-    }
-
-    setFeedback({
-      kind: "success",
-      message: t("sazo.views.productDetail.feedback.proceeding"),
-    });
-    dispatch({ type: "open-login" });
-  };
-
   const handleShare = () => {
     if (typeof navigator.share === "function") {
       void navigator
         .share({ title: product.name, url: window.location.href })
         .then(() => {
-          setFeedback({
-            kind: "success",
-            message: t("sazo.views.productDetail.feedback.shared"),
-          });
+          setShareFeedback(t("sazo.views.productDetail.feedback.shared"));
         })
         .catch(() => {
-          setFeedback({
-            kind: "success",
-            message: t("sazo.views.productDetail.feedback.shareCanceled"),
-          });
+          setShareFeedback(t("sazo.views.productDetail.feedback.shareCanceled"));
         });
       return;
     }
 
-    setFeedback({
-      kind: "success",
-      message: t("sazo.views.productDetail.feedback.shareAvailable"),
-    });
+    setShareFeedback(t("sazo.views.productDetail.feedback.shareAvailable"));
   };
 
   const moveToPurchaseForm = () => {
-    purchaseFormRef.current?.scrollIntoView({
+    const purchaseForm = document.querySelector<HTMLFormElement>(
+      "form[data-product-purchase-form]",
+    );
+    purchaseForm?.scrollIntoView({
       behavior: reduceMotion ? "auto" : "smooth",
       block: "start",
     });
-    selectRef.current?.focus();
+    purchaseForm?.querySelector<HTMLSelectElement>("select")?.focus();
   };
 
   return (
@@ -505,123 +462,24 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
             </div>
           </div>
 
-          <form
-            aria-labelledby="sazo-product-purchase-heading"
-            className="sazo-product-detail-purchase-form"
-            onSubmit={(event) => {
-              event.preventDefault();
-            }}
-            ref={purchaseFormRef}
-          >
-            <h2 id="sazo-product-purchase-heading">
-              {t("sazo.views.productDetail.purchase.title")}
-            </h2>
-            <label htmlFor="sazo-product-option">
-              {detail.optionLabel}
-              <span aria-hidden className="sazo-product-detail-required">
-                {t("sazo.views.productDetail.purchase.required")}
-              </span>
-            </label>
-            <select
-              aria-label={detail.optionLabel}
-              id="sazo-product-option"
-              onChange={(event) => {
-                setSelectedOption(event.target.value);
-                setFeedback(null);
-              }}
-              ref={selectRef}
-              required
-              value={selectedOption}
+          {shareFeedback === null ? null : (
+            <motion.p
+              animate={{ opacity: 1, y: 0 }}
+              className="sazo-product-detail-feedback"
+              data-kind="success"
+              initial={reduceMotion ? false : { opacity: 0, y: 5 }}
+              role="status"
+              transition={{ duration: reduceMotion ? 0 : 0.18 }}
             >
-              <option value="">
-                {t("sazo.views.productDetail.purchase.selectPlaceholder")}
-              </option>
-              {detail.options.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+              {shareFeedback}
+            </motion.p>
+          )}
 
-            <label htmlFor="sazo-product-request">
-              {t("sazo.views.productDetail.purchase.requestLabel")}
-            </label>
-            <textarea
-              id="sazo-product-request"
-              onChange={(event) => {
-                setRequestText(event.target.value);
-              }}
-              placeholder={t("sazo.views.productDetail.purchase.requestPlaceholder")}
-              rows={3}
-              value={requestText}
-            />
-
-            <label
-              className="sazo-product-detail-check"
-              htmlFor="sazo-product-image-check"
-            >
-              <input
-                checked={imageCheck}
-                id="sazo-product-image-check"
-                onChange={(event) => {
-                  setImageCheck(event.target.checked);
-                }}
-                type="checkbox"
-              />
-              <span>{t("sazo.views.productDetail.purchase.imageCheck")}</span>
-            </label>
-
-            <details className="sazo-product-detail-total" data-testid="product-total">
-              <summary>{t("sazo.views.productDetail.purchase.totalBreakdown")}</summary>
-              <dl>
-                <div>
-                  <dt>{t("sazo.views.productDetail.purchase.productPrice")}</dt>
-                  <dd data-testid="product-unit-price">{product.price}</dd>
-                </div>
-                <div className="sazo-product-detail-total-final">
-                  <dt>{t("sazo.views.productDetail.purchase.total")}</dt>
-                  <dd data-testid="product-total-value">{totalPrice}</dd>
-                </div>
-              </dl>
-            </details>
-
-            <p className="sazo-product-detail-purchase-note">{detail.purchaseNote}</p>
-
-            <div className="sazo-product-detail-purchase-actions">
-              <button
-                className="sazo-product-detail-cart-button"
-                onClick={() => {
-                  handlePurchase("cart");
-                }}
-                type="button"
-              >
-                {t("sazo.views.productDetail.purchase.addToCart")}
-              </button>
-              <button
-                className="sazo-product-detail-buy-button"
-                onClick={() => {
-                  handlePurchase("buy");
-                }}
-                type="button"
-              >
-                {t("sazo.views.productDetail.purchase.buyNow")}
-              </button>
-            </div>
-
-            {feedback === null ? null : (
-              <motion.p
-                animate={{ opacity: 1, y: 0 }}
-                className="sazo-product-detail-feedback"
-                data-kind={feedback.kind}
-                initial={reduceMotion ? false : { opacity: 0, y: 5 }}
-                key={`${feedback.kind}-${feedback.message}`}
-                role={feedback.kind === "error" ? "alert" : "status"}
-                transition={{ duration: reduceMotion ? 0 : 0.18 }}
-              >
-                {feedback.message}
-              </motion.p>
-            )}
-          </form>
+          <ProductPurchasePanel
+            detail={detail}
+            dispatch={dispatch}
+            reduceMotion={reduceMotion}
+          />
         </aside>
       </div>
 
@@ -773,35 +631,6 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
           ))}
         </div>
       </section>
-
-      <div
-        aria-label={t("sazo.views.productDetail.purchase.actionsLabel")}
-        className="sazo-product-mobile-purchase"
-        role="group"
-      >
-        <div>
-          <span>{t("sazo.views.productDetail.purchase.productPrice")}</span>
-          <strong>{product.price}</strong>
-        </div>
-        <button
-          className="sazo-product-detail-cart-button"
-          onClick={() => {
-            handlePurchase("cart");
-          }}
-          type="button"
-        >
-          {t("sazo.views.productDetail.purchase.addToCart")}
-        </button>
-        <button
-          className="sazo-product-detail-buy-button"
-          onClick={() => {
-            handlePurchase("buy");
-          }}
-          type="button"
-        >
-          {t("sazo.views.productDetail.purchase.buyNow")}
-        </button>
-      </div>
     </motion.article>
   );
 }

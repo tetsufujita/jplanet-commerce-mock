@@ -2008,6 +2008,128 @@
   resize: vertical;
 }
 
+.sazo-root .sazo-product-detail-selected-product {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 44px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  padding: 12px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 12px;
+  background: var(--jplanet-blue-soft);
+}
+
+.sazo-root .sazo-product-detail-selected-product-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.sazo-root .sazo-product-detail-selected-product-copy span,
+.sazo-root .sazo-product-detail-selected-product-copy small {
+  color: var(--jplanet-muted);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.sazo-root .sazo-product-detail-selected-product-copy strong,
+.sazo-root .sazo-product-detail-selected-product-copy b {
+  color: var(--jplanet-navy);
+  overflow-wrap: anywhere;
+}
+
+.sazo-root .sazo-product-detail-selected-product-copy strong {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.sazo-root .sazo-product-detail-selected-product-copy b {
+  margin-top: 2px;
+  font-size: 14px;
+}
+
+.sazo-root .sazo-product-detail-quantity {
+  display: grid;
+  grid-template-columns: 44px 36px 44px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 10px;
+  background: var(--jplanet-surface);
+}
+
+.sazo-root .sazo-product-detail-quantity button,
+.sazo-root .sazo-product-detail-remove-selection {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-product-detail-quantity button {
+  border: 0;
+  background: var(--jplanet-surface);
+  color: var(--jplanet-navy);
+}
+
+.sazo-root .sazo-product-detail-quantity span {
+  min-width: 0;
+  color: var(--jplanet-navy);
+  text-align: center;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.sazo-root .sazo-product-detail-remove-selection {
+  border: 1px solid var(--jplanet-line);
+  border-radius: 10px;
+  background: var(--jplanet-surface);
+  color: var(--jplanet-muted);
+}
+
+.sazo-root .sazo-product-detail-request-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.sazo-root .sazo-product-detail-request-heading label {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.sazo-root .sazo-product-detail-request-guide-button {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--jplanet-navy);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-color: var(--jplanet-sakura);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-product-detail-request-guide {
+  margin: -2px 0 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--jplanet-sakura);
+  border-radius: 0 10px 10px 0;
+  background: var(--jplanet-sakura-soft);
+  color: var(--jplanet-muted);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
 .sazo-root .sazo-product-detail-check {
   display: flex;
   align-items: center;
@@ -2050,6 +2172,10 @@
   padding: 0 14px 14px;
 }
 
+.sazo-root .sazo-product-detail-total[open] summary {
+  border-bottom: 1px solid var(--jplanet-line);
+}
+
 .sazo-root .sazo-product-detail-total dl > div {
   display: flex;
   align-items: center;
@@ -2071,7 +2197,8 @@
 }
 
 .sazo-root .sazo-product-detail-purchase-note {
-  margin: 2px 0 0;
+  margin: 0;
+  padding: 0 14px 14px;
   color: var(--jplanet-muted);
   font-size: 12px;
   font-weight: 650;
@@ -2080,7 +2207,7 @@
 
 .sazo-root .sazo-product-detail-purchase-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 9px;
   margin-top: 4px;
 }
@@ -2107,6 +2234,19 @@
   border: 1px solid var(--jplanet-navy);
   background: var(--jplanet-navy);
   color: var(--jplanet-surface);
+}
+
+.sazo-root .sazo-product-detail-purchase-form .sazo-product-detail-cart-button {
+  width: 100%;
+  border-color: var(--jplanet-navy);
+  background: var(--jplanet-navy);
+  color: var(--jplanet-surface);
+}
+
+.sazo-root .sazo-product-detail-purchase-form .sazo-product-detail-buy-button {
+  width: 100%;
+  background: var(--jplanet-surface);
+  color: var(--jplanet-navy);
 }
 
 .sazo-root .sazo-product-detail-feedback {

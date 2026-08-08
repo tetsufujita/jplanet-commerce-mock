@@ -208,6 +208,65 @@ describe("J-Planet product detail experience", () => {
     expect(detail.deliveryEstimateDays).toBe(9);
   });
 
+  it("updates the selected product quantity and deterministic total", async () => {
+    const { container } = await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+    );
+
+    expect(container.querySelectorAll("form[data-product-purchase-form]")).toHaveLength(
+      1,
+    );
+    expect(container.querySelectorAll(".sazo-product-mobile-purchase")).toHaveLength(1);
+    expect(screen.getByTestId("product-total-value").textContent).toBe("0");
+
+    fireEvent.change(screen.getByLabelText("商品オプション"), {
+      target: { value: "標準" },
+    });
+    expect(screen.getByTestId("product-total-value").textContent).toBe("¥4,149");
+
+    fireEvent.click(screen.getByRole("button", { name: "数量を増やす" }));
+    expect(screen.getByTestId("product-quantity").textContent).toBe("2");
+    expect(screen.getByTestId("product-total-value").textContent).toBe("¥7,948");
+
+    fireEvent.click(screen.getByRole("button", { name: "数量を減らす" }));
+    expect(screen.getByTestId("product-quantity").textContent).toBe("1");
+  });
+
+  it("clamps quantity at one and resets quantity and total when selection is removed", async () => {
+    await renderWithI18n(<ProductDetailView dispatch={vi.fn()} productId="p01" />);
+
+    const option = screen.getByLabelText<HTMLSelectElement>("商品オプション");
+    fireEvent.change(option, { target: { value: "標準" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "数量を減らす" }));
+    expect(screen.getByTestId("product-quantity").textContent).toBe("1");
+
+    fireEvent.click(screen.getByRole("button", { name: "数量を増やす" }));
+    fireEvent.click(screen.getByRole("button", { name: "選択を解除" }));
+    expect(option.value).toBe("");
+    expect(screen.getByTestId("product-total-value").textContent).toBe("0");
+
+    fireEvent.change(option, { target: { value: "標準" } });
+    expect(screen.getByTestId("product-quantity").textContent).toBe("1");
+  });
+
+  it("associates the request guide with the textarea only while expanded", async () => {
+    await renderWithI18n(<ProductDetailView dispatch={vi.fn()} productId="p01" />);
+
+    const request = screen.getByLabelText<HTMLTextAreaElement>("ご要望");
+    const guideButton = screen.getByRole("button", { name: "ご要望の書き方" });
+    expect(request.getAttribute("aria-describedby")).toBeNull();
+
+    fireEvent.click(guideButton);
+    expect(guideButton.getAttribute("aria-expanded")).toBe("true");
+    expect(request.getAttribute("aria-describedby")).toBe("sazo-product-request-guide");
+    expect(screen.getByText(/色・サイズ・仕様/).id).toBe("sazo-product-request-guide");
+
+    fireEvent.click(guideButton);
+    expect(guideButton.getAttribute("aria-expanded")).toBe("false");
+    expect(request.getAttribute("aria-describedby")).toBeNull();
+  });
+
   it("renders the complete Japan-to-Brazil information hierarchy", async () => {
     const product = products[0];
 
@@ -277,7 +336,7 @@ describe("J-Planet product detail experience", () => {
       target: { value: "標準" },
     });
     expect(screen.getByTestId("product-unit-price").textContent).toBe(product.price);
-    expect(screen.getByTestId("product-total-value").textContent).toBe(product.price);
+    expect(screen.getByTestId("product-total-value").textContent).toBe("¥4,149");
     fireEvent.click(primaryCartButton);
     expect(screen.getByRole("status").textContent).toContain("カートに追加しました");
 
