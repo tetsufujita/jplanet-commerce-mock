@@ -1573,6 +1573,8 @@
   margin: 0 auto;
   padding: 24px 0 112px;
   background: var(--jplanet-surface);
+  font-family: "Noto Sans JP Variable", "Hiragino Sans", "Yu Gothic", Meiryo,
+    sans-serif;
 }
 
 .sazo-root .sazo-product-detail-header {
@@ -6942,6 +6944,12 @@
   .sazo-root .sazo-product-detail-header {
     margin-right: -10px;
     margin-left: -10px;
+  }
+
+  .sazo-root .sazo-product-detail-recommendation-track,
+  .sazo-root .sazo-product-detail-timeline-scroll {
+    margin-right: -10px;
+    padding-right: 10px;
   }
 
   .sazo-root .sazo-product-detail-back {

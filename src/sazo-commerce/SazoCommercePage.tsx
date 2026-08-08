@@ -29,7 +29,7 @@ export function SazoCommercePage() {
   useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-  }, [state.view]);
+  }, [state.selectedProductId, state.view]);
 
   useEffect(() => {
     if (state.view !== "campaign" || state.campaignLoaded) {
@@ -94,7 +94,11 @@ export function SazoCommercePage() {
             <ReviewsView dispatch={dispatch} state={state} />
           ) : null}
           {state.view === "product" ? (
-            <ProductDetailView dispatch={dispatch} productId={state.selectedProductId} />
+            <ProductDetailView
+              dispatch={dispatch}
+              key={state.selectedProductId ?? "default-product"}
+              productId={state.selectedProductId}
+            />
           ) : null}
           {state.view === "mypage" ? <MyPageView dispatch={dispatch} /> : null}
           {state.view === "favorites" ? <FavoritesView dispatch={dispatch} /> : null}

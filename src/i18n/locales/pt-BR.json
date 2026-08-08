@@ -336,6 +336,119 @@
         "savedBrand": "{{brand}}の保存を解除",
         "favoriteProductRemove": "{{product}}をお気に入りから削除"
       },
+      "productDetail": {
+        "header": {
+          "back": "Voltar",
+          "home": "Ir para o início",
+          "cart": "Carrinho"
+        },
+        "gallery": {
+          "label": "Imagens do produto",
+          "listLabel": "Lista de imagens do produto",
+          "showImage": "Exibir imagem {{index}}",
+          "previous": "Imagem anterior",
+          "next": "Próxima imagem"
+        },
+        "source": {
+          "label": "Loja japonesa · {{brand}}",
+          "openOriginal": "Abrir página do produto na loja"
+        },
+        "actions": {
+          "share": "Compartilhar informações do produto",
+          "favoriteAdd": "Adicionar aos favoritos",
+          "favoriteRemove": "Remover dos favoritos"
+        },
+        "directPurchase": "Compre diretamente de lojas japonesas",
+        "purchase": {
+          "title": "Detalhes da compra",
+          "required": "Obrigatório",
+          "selectPlaceholder": "Selecione uma opção",
+          "requestLabel": "Solicitações",
+          "requestPlaceholder": "Informe preferências de cor ou especificação",
+          "imageCheck": "Conferir imagem",
+          "totalBreakdown": "Detalhamento do total",
+          "productPrice": "Preço do produto",
+          "total": "Total",
+          "addToCart": "Adicionar ao carrinho",
+          "buyNow": "Comprar agora",
+          "actionsLabel": "Ações de compra"
+        },
+        "feedback": {
+          "optionRequired": "Selecione uma opção do produto.",
+          "cartAdded": "Adicionado ao carrinho.",
+          "proceeding": "Continuando para a compra.",
+          "shared": "Informações do produto compartilhadas.",
+          "shareCanceled": "Compartilhamento cancelado.",
+          "shareAvailable": "A URL da página do produto está pronta para compartilhar."
+        },
+        "recommendations": {
+          "eyebrow": "RECOMENDADOS",
+          "title": "Você também pode gostar"
+        },
+        "order": {
+          "eyebrow": "FLUXO DO PEDIDO",
+          "title": "Do pedido à entrega",
+          "listLabel": "Etapas do pedido e da entrega",
+          "step": "ETAPA {{step}}",
+          "stages": {
+            "received": "Pedido recebido",
+            "purchased": "Compra no Japão",
+            "inspected": "Inspeção no armazém do Japão",
+            "shipping": "Envio internacional e alfândega",
+            "delivered": "Entrega no Brasil"
+          }
+        },
+        "tabs": {
+          "label": "Detalhes do produto",
+          "information": "Informações do produto",
+          "cautions": "Observações importantes",
+          "informationTitle": "A J-Planet compra e inspeciona no Japão antes de entregar no Brasil",
+          "cautionsTitle": "Confira antes de comprar",
+          "cautionsBody": "O estoque e a possibilidade de importação variam por produto. Confira as observações abaixo antes de pedir."
+        },
+        "review": {
+          "eyebrow": "AVALIAÇÕES",
+          "title": "Avaliações do produto",
+          "empty": "Ainda não há avaliações.",
+          "emptyBody": "Sua opinião após a compra pode ajudar o próximo cliente a escolher."
+        },
+        "cautions": {
+          "eyebrow": "ATENÇÃO",
+          "title": "Antes de comprar",
+          "cards": {
+            "inventory": {
+              "title": "Estoque da loja",
+              "copy": "O produto pode ficar indisponível conforme o estoque da loja. Confirmamos a disponibilidade após receber o pedido."
+            },
+            "imports": {
+              "title": "Restrições de importação no Brasil",
+              "copy": "Alguns produtos não podem ser importados para o Brasil. Verifique a elegibilidade antes de comprar."
+            },
+            "refunds": {
+              "title": "Suporte para devolução e reembolso",
+              "copy": "Em caso de item incorreto ou danificado, analisamos a situação e apoiamos o processo de devolução ou reembolso."
+            }
+          }
+        },
+        "benefits": {
+          "eyebrow": "VANTAGENS J-PLANET",
+          "title": "Por que escolher a J-Planet?",
+          "cards": {
+            "fees": {
+              "title": "Custos claros",
+              "copy": "Confira o preço do produto e os custos necessários do serviço antes de comprar."
+            },
+            "search": {
+              "title": "Produtos japoneses em um só lugar",
+              "copy": "Encontre produtos de lojas japonesas sem alternar entre vários sites."
+            },
+            "reviews": {
+              "title": "Escolha com avaliações de clientes",
+              "copy": "Use avaliações de compradores para orientar sua escolha do produto."
+            }
+          }
+        }
+      },
       "brands": {
         "title": "人気ブランド",
         "all": "全体",

@@ -336,6 +336,119 @@
         "savedBrand": "{{brand}}の保存を解除",
         "favoriteProductRemove": "{{product}}をお気に入りから削除"
       },
+      "productDetail": {
+        "header": {
+          "back": "戻る",
+          "home": "ホームへ戻る",
+          "cart": "カート"
+        },
+        "gallery": {
+          "label": "商品画像",
+          "listLabel": "商品画像一覧",
+          "showImage": "画像{{index}}を表示",
+          "previous": "前の画像",
+          "next": "次の画像"
+        },
+        "source": {
+          "label": "日本の販売サイト · {{brand}}",
+          "openOriginal": "販売元の商品ページを開く"
+        },
+        "actions": {
+          "share": "商品情報を共有",
+          "favoriteAdd": "お気に入りに追加",
+          "favoriteRemove": "お気に入りから削除"
+        },
+        "directPurchase": "日本の販売サイトから直接購入",
+        "purchase": {
+          "title": "購入内容",
+          "required": "必須",
+          "selectPlaceholder": "選択してください",
+          "requestLabel": "ご要望",
+          "requestPlaceholder": "色・仕様などのご希望があれば入力してください",
+          "imageCheck": "画像にチェック",
+          "totalBreakdown": "合計の内訳",
+          "productPrice": "商品価格",
+          "total": "合計",
+          "addToCart": "カートに入れる",
+          "buyNow": "今すぐ買う",
+          "actionsLabel": "購入操作"
+        },
+        "feedback": {
+          "optionRequired": "商品オプションを選択してください。",
+          "cartAdded": "カートに追加しました。",
+          "proceeding": "購入手続きへ進みます。",
+          "shared": "商品情報を共有しました。",
+          "shareCanceled": "共有をキャンセルしました。",
+          "shareAvailable": "商品ページのURLを共有できます。"
+        },
+        "recommendations": {
+          "eyebrow": "RECOMMEND",
+          "title": "この商品はいかがですか？"
+        },
+        "order": {
+          "eyebrow": "ORDER FLOW",
+          "title": "ご注文からお届けまで",
+          "listLabel": "注文からお届けまで",
+          "step": "STEP {{step}}",
+          "stages": {
+            "received": "注文受付",
+            "purchased": "日本で購入",
+            "inspected": "日本倉庫で検品",
+            "shipping": "国際配送・通関",
+            "delivered": "ブラジルへお届け"
+          }
+        },
+        "tabs": {
+          "label": "商品詳細",
+          "information": "商品情報",
+          "cautions": "注意事項",
+          "informationTitle": "J-Planetが日本で購入・検品し、ブラジルへお届けします",
+          "cautionsTitle": "購入前にご確認ください",
+          "cautionsBody": "在庫や輸入可否は商品ごとに異なります。下記の注意事項をご確認のうえ、ご注文ください。"
+        },
+        "review": {
+          "eyebrow": "REVIEW",
+          "title": "商品レビュー",
+          "empty": "レビューがありません。",
+          "emptyBody": "購入後の感想が、次のお客様の商品選びに役立ちます。"
+        },
+        "cautions": {
+          "eyebrow": "CAUTIONS",
+          "title": "ご購入前の注意事項",
+          "cards": {
+            "inventory": {
+              "title": "販売元の在庫について",
+              "copy": "販売元の在庫状況により、購入できない場合があります。購入可否は注文受付後に確認します。"
+            },
+            "imports": {
+              "title": "ブラジルの輸入制限",
+              "copy": "商品によってはブラジルへ輸入できない場合があります。購入前に対象品目をご確認ください。"
+            },
+            "refunds": {
+              "title": "返品・返金サポート",
+              "copy": "商品違い・破損などは、状況を確認したうえで返品・返金手続きをサポートします。"
+            }
+          }
+        },
+        "benefits": {
+          "eyebrow": "J-PLANET BENEFITS",
+          "title": "なぜJ-Planetなのか？",
+          "cards": {
+            "fees": {
+              "title": "料金がわかりやすい",
+              "copy": "商品価格と手続きに必要な費用を、購入前にひとつの画面で確認できます。"
+            },
+            "search": {
+              "title": "日本の商品をまとめて検索",
+              "copy": "複数の販売サイトを行き来せず、気になる日本の商品をまとめて探せます。"
+            },
+            "reviews": {
+              "title": "利用者レビューで選べる",
+              "copy": "実際に購入した利用者のレビューを、商品選びの参考にできます。"
+            }
+          }
+        }
+      },
       "brands": {
         "title": "人気ブランド",
         "all": "全体",

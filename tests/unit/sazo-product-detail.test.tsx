@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
 
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import React from "react";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createI18n } from "@/i18n/createI18n";
@@ -14,8 +16,8 @@ afterEach(() => {
   cleanup();
 });
 
-async function renderWithI18n(element: React.ReactNode) {
-  const i18n = await createI18n("ja");
+async function renderWithI18n(element: React.ReactNode, locale: unknown = "ja") {
+  const i18n = await createI18n(locale);
 
   return render(<I18nextProvider i18n={i18n}>{element}</I18nextProvider>);
 }
@@ -53,6 +55,93 @@ describe("SAZO product detail navigation", () => {
     expect(container.querySelector("[data-product-detail]")).not.toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "戻る" }));
     expect(container.querySelector("[data-home-view]")).not.toBeNull();
+  });
+
+  it("resets product-scoped state and scroll before opening a recommendation", async () => {
+    const firstProduct = products[0];
+    const secondProduct = products[1];
+
+    if (firstProduct === undefined || secondProduct === undefined) {
+      throw new Error("Missing product switch test fixtures");
+    }
+
+    window.history.replaceState(
+      null,
+      "",
+      "/sazo-commerce-mock/?qa=1&view=product&product=p01",
+    );
+    await renderWithI18n(<SazoCommercePage />);
+
+    fireEvent.click(screen.getByRole("button", { name: "画像2を表示" }));
+    fireEvent.click(screen.getByRole("button", { name: "お気に入りに追加" }));
+    fireEvent.change(screen.getByLabelText("商品オプション"), {
+      target: { value: "ギフト包装" },
+    });
+    fireEvent.change(screen.getByLabelText("ご要望"), {
+      target: { value: "赤い包装を希望" },
+    });
+    fireEvent.click(screen.getByRole("checkbox", { name: "画像にチェック" }));
+    fireEvent.click(screen.getByRole("tab", { name: "注意事項" }));
+
+    const initialCartButton = screen.getAllByRole("button", {
+      name: "カートに入れる",
+    })[0];
+
+    if (initialCartButton === undefined) {
+      throw new Error("Missing initial cart button");
+    }
+
+    fireEvent.click(initialCartButton);
+    expect(screen.getByRole("status").textContent).toContain("カートに追加しました");
+
+    document.documentElement.scrollTop = 1186;
+    document.body.scrollTop = 1186;
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: `商品詳細を開く: ${secondProduct.name}`,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(document.documentElement.scrollTop).toBe(0);
+      expect(document.body.scrollTop).toBe(0);
+    });
+    expect(screen.getByRole("heading", { name: secondProduct.name })).toBeTruthy();
+    expect(screen.getByRole("img", { name: secondProduct.name }).getAttribute("src")).toBe(
+      secondProduct.image,
+    );
+
+    const option = screen.getByLabelText<HTMLSelectElement>("商品オプション");
+    const request = screen.getByLabelText<HTMLTextAreaElement>("ご要望");
+    const imageCheck = screen.getByRole<HTMLInputElement>("checkbox", {
+      name: "画像にチェック",
+    });
+
+    expect(option.value).toBe("");
+    expect(screen.queryByRole("option", { name: "ギフト包装" })).toBeNull();
+    expect(request.value).toBe("");
+    expect(imageCheck.checked).toBe(false);
+    expect(
+      screen.getByRole("button", { name: "お気に入りに追加" }).getAttribute(
+        "aria-pressed",
+      ),
+    ).toBe("false");
+    expect(
+      screen.getByRole("tab", { name: "商品情報" }).getAttribute("aria-selected"),
+    ).toBe("true");
+    expect(screen.queryByRole("status")).toBeNull();
+
+    const nextCartButton = screen.getAllByRole("button", {
+      name: "カートに入れる",
+    })[0];
+
+    if (nextCartButton === undefined) {
+      throw new Error("Missing next product cart button");
+    }
+
+    fireEvent.click(nextCartButton);
+    expect(screen.getByRole("alert").textContent).toContain("商品オプションを選択");
+    expect(screen.queryByRole("status")).toBeNull();
   });
 });
 
@@ -157,5 +246,28 @@ describe("J-Planet product detail experience", () => {
     expect(screen.getByText("日本倉庫で検品")).toBeTruthy();
     expect(screen.getByText("国際配送・通関")).toBeTruthy();
     expect(screen.getByText("ブラジルへお届け")).toBeTruthy();
+  });
+
+  it("renders product-detail interface copy from the active locale", async () => {
+    await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+      "en",
+    );
+
+    expect(screen.getByText("Purchase directly from Japanese retailers")).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "Product information" })).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: "Buy now" })).toHaveLength(2);
+    expect(screen.getByRole("heading", { name: "Why J-Planet?" })).toBeTruthy();
+  });
+
+  it("applies the vendored Noto Sans JP stack to product detail", () => {
+    const css = readFileSync(
+      join(process.cwd(), "src/sazo-commerce/sazo.css"),
+      "utf8",
+    );
+
+    expect(css).toMatch(
+      /\.sazo-root \.sazo-product-detail\s*{[^}]*font-family:\s*"Noto Sans JP Variable",\s*"Hiragino Sans",\s*"Yu Gothic",\s*Meiryo,\s*sans-serif/s,
+    );
   });
 });

@@ -336,6 +336,119 @@
         "savedBrand": "{{brand}}の保存を解除",
         "favoriteProductRemove": "{{product}}をお気に入りから削除"
       },
+      "productDetail": {
+        "header": {
+          "back": "Back",
+          "home": "Go home",
+          "cart": "Cart"
+        },
+        "gallery": {
+          "label": "Product images",
+          "listLabel": "Product image list",
+          "showImage": "Show image {{index}}",
+          "previous": "Previous image",
+          "next": "Next image"
+        },
+        "source": {
+          "label": "Japanese retailer · {{brand}}",
+          "openOriginal": "Open retailer product page"
+        },
+        "actions": {
+          "share": "Share product information",
+          "favoriteAdd": "Add to favorites",
+          "favoriteRemove": "Remove from favorites"
+        },
+        "directPurchase": "Purchase directly from Japanese retailers",
+        "purchase": {
+          "title": "Purchase details",
+          "required": "Required",
+          "selectPlaceholder": "Select an option",
+          "requestLabel": "Requests",
+          "requestPlaceholder": "Enter any color or specification requests",
+          "imageCheck": "Check image",
+          "totalBreakdown": "Total breakdown",
+          "productPrice": "Product price",
+          "total": "Total",
+          "addToCart": "Add to cart",
+          "buyNow": "Buy now",
+          "actionsLabel": "Purchase actions"
+        },
+        "feedback": {
+          "optionRequired": "Select a product option.",
+          "cartAdded": "Added to cart.",
+          "proceeding": "Continuing to checkout.",
+          "shared": "Product information shared.",
+          "shareCanceled": "Sharing canceled.",
+          "shareAvailable": "The product page URL is ready to share."
+        },
+        "recommendations": {
+          "eyebrow": "RECOMMEND",
+          "title": "You may also like"
+        },
+        "order": {
+          "eyebrow": "ORDER FLOW",
+          "title": "From order to delivery",
+          "listLabel": "Order and delivery progress",
+          "step": "STEP {{step}}",
+          "stages": {
+            "received": "Order received",
+            "purchased": "Purchased in Japan",
+            "inspected": "Inspected at our Japan warehouse",
+            "shipping": "International shipping and customs",
+            "delivered": "Delivered in Brazil"
+          }
+        },
+        "tabs": {
+          "label": "Product details",
+          "information": "Product information",
+          "cautions": "Important notes",
+          "informationTitle": "J-Planet purchases and inspects in Japan, then delivers to Brazil",
+          "cautionsTitle": "Please review before purchasing",
+          "cautionsBody": "Inventory and import eligibility vary by product. Review the notes below before ordering."
+        },
+        "review": {
+          "eyebrow": "REVIEW",
+          "title": "Product reviews",
+          "empty": "No reviews yet.",
+          "emptyBody": "Your feedback after purchase can help the next customer choose."
+        },
+        "cautions": {
+          "eyebrow": "CAUTIONS",
+          "title": "Before you buy",
+          "cards": {
+            "inventory": {
+              "title": "Retailer inventory",
+              "copy": "The item may be unavailable depending on retailer inventory. We confirm availability after receiving your order."
+            },
+            "imports": {
+              "title": "Brazil import restrictions",
+              "copy": "Some products cannot be imported into Brazil. Check whether the item is eligible before purchasing."
+            },
+            "refunds": {
+              "title": "Return and refund support",
+              "copy": "For incorrect or damaged items, we review the circumstances and support the return or refund process."
+            }
+          }
+        },
+        "benefits": {
+          "eyebrow": "J-PLANET BENEFITS",
+          "title": "Why J-Planet?",
+          "cards": {
+            "fees": {
+              "title": "Clear costs",
+              "copy": "Review the product price and required service costs together before purchasing."
+            },
+            "search": {
+              "title": "Search Japanese products in one place",
+              "copy": "Find products from Japanese retailers without moving between multiple sites."
+            },
+            "reviews": {
+              "title": "Choose with customer reviews",
+              "copy": "Use reviews from verified buyers to inform your product choice."
+            }
+          }
+        }
+      },
       "brands": {
         "title": "人気ブランド",
         "all": "全体",

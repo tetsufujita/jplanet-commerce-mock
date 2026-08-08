@@ -20,6 +20,7 @@ import {
   Truck,
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
+import { useTranslation } from "react-i18next";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 import {
   catalogInventory,
@@ -45,48 +46,48 @@ interface PurchaseFeedback {
 }
 
 const productDetailTabs = [
-  { id: "information", label: "商品情報" },
-  { id: "cautions", label: "注意事項" },
-] as const satisfies readonly { id: ProductDetailTab; label: string }[];
+  { id: "information", labelKey: "tabs.information" },
+  { id: "cautions", labelKey: "tabs.cautions" },
+] as const satisfies readonly { id: ProductDetailTab; labelKey: string }[];
 
 const orderStages = [
-  { icon: Check, label: "注文受付" },
-  { icon: Store, label: "日本で購入" },
-  { icon: PackageCheck, label: "日本倉庫で検品" },
-  { icon: Truck, label: "国際配送・通関" },
-  { icon: Home, label: "ブラジルへお届け" },
+  { icon: Check, labelKey: "order.stages.received" },
+  { icon: Store, labelKey: "order.stages.purchased" },
+  { icon: PackageCheck, labelKey: "order.stages.inspected" },
+  { icon: Truck, labelKey: "order.stages.shipping" },
+  { icon: Home, labelKey: "order.stages.delivered" },
 ] as const;
 
 const cautionCards = [
   {
-    title: "販売元の在庫について",
-    copy: "販売元の在庫状況により、購入できない場合があります。購入可否は注文受付後に確認します。",
+    copyKey: "cautions.cards.inventory.copy",
+    titleKey: "cautions.cards.inventory.title",
   },
   {
-    title: "ブラジルの輸入制限",
-    copy: "商品によってはブラジルへ輸入できない場合があります。購入前に対象品目をご確認ください。",
+    copyKey: "cautions.cards.imports.copy",
+    titleKey: "cautions.cards.imports.title",
   },
   {
-    title: "返品・返金サポート",
-    copy: "商品違い・破損などは、状況を確認したうえで返品・返金手続きをサポートします。",
+    copyKey: "cautions.cards.refunds.copy",
+    titleKey: "cautions.cards.refunds.title",
   },
 ] as const;
 
 const benefitCards = [
   {
+    copyKey: "benefits.cards.fees.copy",
     icon: CircleDollarSign,
-    title: "料金がわかりやすい",
-    copy: "商品価格と手続きに必要な費用を、購入前にひとつの画面で確認できます。",
+    titleKey: "benefits.cards.fees.title",
   },
   {
+    copyKey: "benefits.cards.search.copy",
     icon: Search,
-    title: "日本の商品をまとめて検索",
-    copy: "複数の販売サイトを行き来せず、気になる日本の商品をまとめて探せます。",
+    titleKey: "benefits.cards.search.title",
   },
   {
+    copyKey: "benefits.cards.reviews.copy",
     icon: MessageSquareText,
-    title: "利用者レビューで選べる",
-    copy: "実際に購入した利用者のレビューを、商品選びの参考にできます。",
+    titleKey: "benefits.cards.reviews.title",
   },
 ] as const;
 
@@ -106,6 +107,7 @@ function isProduct(product: Product | undefined): product is Product {
 }
 
 export function ProductDetailView({ dispatch, productId }: ProductDetailViewProps) {
+  const { t } = useTranslation();
   const detail = getProductDetail(productId);
   const { product } = detail;
   const gallery = detail.gallery.length > 0 ? detail.gallery : [product.image];
@@ -188,18 +190,24 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
     if (selectedOption === "") {
       setFeedback({
         kind: "error",
-        message: "商品オプションを選択してください。",
+        message: t("sazo.views.productDetail.feedback.optionRequired"),
       });
       selectRef.current?.focus();
       return;
     }
 
     if (intent === "cart") {
-      setFeedback({ kind: "success", message: "カートに追加しました。" });
+      setFeedback({
+        kind: "success",
+        message: t("sazo.views.productDetail.feedback.cartAdded"),
+      });
       return;
     }
 
-    setFeedback({ kind: "success", message: "購入手続きへ進みます。" });
+    setFeedback({
+      kind: "success",
+      message: t("sazo.views.productDetail.feedback.proceeding"),
+    });
     dispatch({ type: "open-login" });
   };
 
@@ -208,15 +216,24 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
       void navigator
         .share({ title: product.name, url: window.location.href })
         .then(() => {
-          setFeedback({ kind: "success", message: "商品情報を共有しました。" });
+          setFeedback({
+            kind: "success",
+            message: t("sazo.views.productDetail.feedback.shared"),
+          });
         })
         .catch(() => {
-          setFeedback({ kind: "success", message: "共有をキャンセルしました。" });
+          setFeedback({
+            kind: "success",
+            message: t("sazo.views.productDetail.feedback.shareCanceled"),
+          });
         });
       return;
     }
 
-    setFeedback({ kind: "success", message: "商品ページのURLを共有できます。" });
+    setFeedback({
+      kind: "success",
+      message: t("sazo.views.productDetail.feedback.shareAvailable"),
+    });
   };
 
   const moveToPurchaseForm = () => {
@@ -245,11 +262,11 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
           type="button"
         >
           <ArrowLeft aria-hidden size={22} strokeWidth={2} />
-          戻る
+          {t("sazo.views.productDetail.header.back")}
         </button>
         <span className="sazo-product-detail-header-title">{product.name}</span>
         <button
-          aria-label="ホームへ戻る"
+          aria-label={t("sazo.views.productDetail.header.home")}
           className="sazo-product-detail-header-control"
           onClick={() => {
             dispatch({ type: "navigate", view: "home" });
@@ -259,7 +276,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
           <Home aria-hidden size={21} strokeWidth={2} />
         </button>
         <button
-          aria-label="カート"
+          aria-label={t("sazo.views.productDetail.header.cart")}
           className="sazo-product-detail-header-control"
           onClick={moveToPurchaseForm}
           type="button"
@@ -269,12 +286,20 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
       </header>
 
       <div className="sazo-product-detail-hero">
-        <section aria-label="商品画像" className="sazo-product-detail-gallery">
-          <div aria-label="商品画像一覧" className="sazo-product-detail-thumbnails">
+        <section
+          aria-label={t("sazo.views.productDetail.gallery.label")}
+          className="sazo-product-detail-gallery"
+        >
+          <div
+            aria-label={t("sazo.views.productDetail.gallery.listLabel")}
+            className="sazo-product-detail-thumbnails"
+          >
             {gallery.map((image, index) => (
               <button
                 aria-current={index === currentGalleryIndex ? "true" : undefined}
-                aria-label={`画像${String(index + 1)}を表示`}
+                aria-label={t("sazo.views.productDetail.gallery.showImage", {
+                  index: index + 1,
+                })}
                 className="sazo-product-detail-thumbnail"
                 key={image}
                 onClick={() => {
@@ -309,7 +334,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
             {gallery.length > 1 ? (
               <>
                 <button
-                  aria-label="前の画像"
+                  aria-label={t("sazo.views.productDetail.gallery.previous")}
                   className="sazo-product-detail-gallery-arrow sazo-product-detail-gallery-arrow-previous"
                   onClick={() => {
                     setGalleryIndex(currentGalleryIndex - 1);
@@ -319,7 +344,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
                   <ChevronLeft aria-hidden size={22} strokeWidth={2.2} />
                 </button>
                 <button
-                  aria-label="次の画像"
+                  aria-label={t("sazo.views.productDetail.gallery.next")}
                   className="sazo-product-detail-gallery-arrow sazo-product-detail-gallery-arrow-next"
                   onClick={() => {
                     setGalleryIndex(currentGalleryIndex + 1);
@@ -337,14 +362,16 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
           <div className="sazo-product-detail-source-row">
             <div>
               <span className="sazo-product-detail-eyebrow">
-                日本の販売サイト · {product.brand}
+                {t("sazo.views.productDetail.source.label", {
+                  brand: product.brand,
+                })}
               </span>
               <span className="sazo-product-detail-category">{detail.categoryLabel}</span>
             </div>
             <div className="sazo-product-detail-quick-actions">
               {detail.originalUrl === undefined ? null : (
                 <a
-                  aria-label="販売元の商品ページを開く"
+                  aria-label={t("sazo.views.productDetail.source.openOriginal")}
                   href={detail.originalUrl}
                   rel="noreferrer"
                   target="_blank"
@@ -352,11 +379,19 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
                   <ExternalLink aria-hidden size={19} strokeWidth={1.9} />
                 </a>
               )}
-              <button aria-label="商品情報を共有" onClick={handleShare} type="button">
+              <button
+                aria-label={t("sazo.views.productDetail.actions.share")}
+                onClick={handleShare}
+                type="button"
+              >
                 <Share2 aria-hidden size={19} strokeWidth={1.9} />
               </button>
               <button
-                aria-label={favorite ? "お気に入りから削除" : "お気に入りに追加"}
+                aria-label={
+                  favorite
+                    ? t("sazo.views.productDetail.actions.favoriteRemove")
+                    : t("sazo.views.productDetail.actions.favoriteAdd")
+                }
                 aria-pressed={favorite}
                 onClick={() => {
                   setFavorite((current) => !current);
@@ -378,7 +413,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
           <p className="sazo-product-detail-price">{product.price}</p>
           <p className="sazo-product-detail-direct-copy">
             <Sparkles aria-hidden size={18} strokeWidth={1.9} />
-            日本の販売サイトから直接購入
+            {t("sazo.views.productDetail.directPurchase")}
           </p>
 
           <form
@@ -389,11 +424,13 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
             }}
             ref={purchaseFormRef}
           >
-            <h2 id="sazo-product-purchase-heading">購入内容</h2>
+            <h2 id="sazo-product-purchase-heading">
+              {t("sazo.views.productDetail.purchase.title")}
+            </h2>
             <label htmlFor="sazo-product-option">
               {detail.optionLabel}
               <span aria-hidden className="sazo-product-detail-required">
-                必須
+                {t("sazo.views.productDetail.purchase.required")}
               </span>
             </label>
             <select
@@ -407,7 +444,9 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
               required
               value={selectedOption}
             >
-              <option value="">選択してください</option>
+              <option value="">
+                {t("sazo.views.productDetail.purchase.selectPlaceholder")}
+              </option>
               {detail.options.map((option) => (
                 <option key={option} value={option}>
                   {option}
@@ -415,13 +454,15 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
               ))}
             </select>
 
-            <label htmlFor="sazo-product-request">ご要望</label>
+            <label htmlFor="sazo-product-request">
+              {t("sazo.views.productDetail.purchase.requestLabel")}
+            </label>
             <textarea
               id="sazo-product-request"
               onChange={(event) => {
                 setRequestText(event.target.value);
               }}
-              placeholder="色・仕様などのご希望があれば入力してください"
+              placeholder={t("sazo.views.productDetail.purchase.requestPlaceholder")}
               rows={3}
               value={requestText}
             />
@@ -435,18 +476,18 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
                 }}
                 type="checkbox"
               />
-              <span>画像にチェック</span>
+              <span>{t("sazo.views.productDetail.purchase.imageCheck")}</span>
             </label>
 
             <details className="sazo-product-detail-total" data-testid="product-total">
-              <summary>合計の内訳</summary>
+              <summary>{t("sazo.views.productDetail.purchase.totalBreakdown")}</summary>
               <dl>
                 <div>
-                  <dt>商品価格</dt>
+                  <dt>{t("sazo.views.productDetail.purchase.productPrice")}</dt>
                   <dd>{product.price}</dd>
                 </div>
                 <div className="sazo-product-detail-total-final">
-                  <dt>合計</dt>
+                  <dt>{t("sazo.views.productDetail.purchase.total")}</dt>
                   <dd>{product.price}</dd>
                 </div>
               </dl>
@@ -462,7 +503,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
                 }}
                 type="button"
               >
-                カートに入れる
+                {t("sazo.views.productDetail.purchase.addToCart")}
               </button>
               <button
                 className="sazo-product-detail-buy-button"
@@ -471,7 +512,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
                 }}
                 type="button"
               >
-                今すぐ買う
+                {t("sazo.views.productDetail.purchase.buyNow")}
               </button>
             </div>
 
@@ -495,8 +536,8 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
       <section className="sazo-product-detail-section sazo-product-detail-recommendations">
         <div className="sazo-product-detail-section-heading">
           <div>
-            <span>RECOMMEND</span>
-            <h2>この商品はいかがですか？</h2>
+            <span>{t("sazo.views.productDetail.recommendations.eyebrow")}</span>
+            <h2>{t("sazo.views.productDetail.recommendations.title")}</h2>
           </div>
         </div>
         <div className="sazo-product-detail-recommendation-track">
@@ -516,19 +557,24 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
       <section className="sazo-product-detail-section sazo-product-detail-order">
         <div className="sazo-product-detail-section-heading">
           <div>
-            <span>ORDER FLOW</span>
-            <h2>ご注文からお届けまで</h2>
+            <span>{t("sazo.views.productDetail.order.eyebrow")}</span>
+            <h2>{t("sazo.views.productDetail.order.title")}</h2>
           </div>
         </div>
         <div className="sazo-product-detail-timeline-scroll">
-          <ol aria-label="注文からお届けまで" className="sazo-product-detail-timeline">
-            {orderStages.map(({ icon: Icon, label }, index) => (
-              <li data-stage={index + 1} key={label}>
+          <ol
+            aria-label={t("sazo.views.productDetail.order.listLabel")}
+            className="sazo-product-detail-timeline"
+          >
+            {orderStages.map(({ icon: Icon, labelKey }, index) => (
+              <li data-stage={index + 1} key={labelKey}>
                 <span className="sazo-product-detail-stage-icon">
                   <Icon aria-hidden size={23} strokeWidth={1.9} />
                 </span>
-                <span className="sazo-product-detail-stage-number">STEP {index + 1}</span>
-                <strong>{label}</strong>
+                <span className="sazo-product-detail-stage-number">
+                  {t("sazo.views.productDetail.order.step", { step: index + 1 })}
+                </span>
+                <strong>{t(`sazo.views.productDetail.${labelKey}`)}</strong>
               </li>
             ))}
           </ol>
@@ -536,7 +582,11 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
       </section>
 
       <section className="sazo-product-detail-section sazo-product-detail-information">
-        <div aria-label="商品詳細" className="sazo-product-detail-tabs" role="tablist">
+        <div
+          aria-label={t("sazo.views.productDetail.tabs.label")}
+          className="sazo-product-detail-tabs"
+          role="tablist"
+        >
           {productDetailTabs.map((tab, index) => (
             <button
               aria-controls="sazo-product-detail-tabpanel"
@@ -556,7 +606,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
               tabIndex={activeTab === tab.id ? 0 : -1}
               type="button"
             >
-              {tab.label}
+              {t(`sazo.views.productDetail.${tab.labelKey}`)}
             </button>
           ))}
         </div>
@@ -568,16 +618,13 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
         >
           {activeTab === "information" ? (
             <>
-              <h2>J-Planetが日本で購入・検品し、ブラジルへお届けします</h2>
+              <h2>{t("sazo.views.productDetail.tabs.informationTitle")}</h2>
               <p>{detail.information}</p>
             </>
           ) : (
             <>
-              <h2>購入前にご確認ください</h2>
-              <p>
-                在庫や輸入可否は商品ごとに異なります。下記の注意事項をご確認のうえ、
-                ご注文ください。
-              </p>
+              <h2>{t("sazo.views.productDetail.tabs.cautionsTitle")}</h2>
+              <p>{t("sazo.views.productDetail.tabs.cautionsBody")}</p>
             </>
           )}
         </div>
@@ -586,30 +633,30 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
       <section className="sazo-product-detail-section sazo-product-detail-review">
         <div className="sazo-product-detail-section-heading">
           <div>
-            <span>REVIEW</span>
-            <h2>商品レビュー</h2>
+            <span>{t("sazo.views.productDetail.review.eyebrow")}</span>
+            <h2>{t("sazo.views.productDetail.review.title")}</h2>
           </div>
         </div>
         <div className="sazo-product-detail-review-empty">
           <MessageSquareText aria-hidden size={28} strokeWidth={1.7} />
-          <p>レビューがありません。</p>
-          <span>購入後の感想が、次のお客様の商品選びに役立ちます。</span>
+          <p>{t("sazo.views.productDetail.review.empty")}</p>
+          <span>{t("sazo.views.productDetail.review.emptyBody")}</span>
         </div>
       </section>
 
       <section className="sazo-product-detail-section sazo-product-detail-cautions">
         <div className="sazo-product-detail-section-heading">
           <div>
-            <span>CAUTIONS</span>
-            <h2>ご購入前の注意事項</h2>
+            <span>{t("sazo.views.productDetail.cautions.eyebrow")}</span>
+            <h2>{t("sazo.views.productDetail.cautions.title")}</h2>
           </div>
         </div>
         <div className="sazo-product-detail-card-grid">
-          {cautionCards.map(({ copy, title }) => (
-            <article className="sazo-product-detail-caution-card" key={title}>
+          {cautionCards.map(({ copyKey, titleKey }) => (
+            <article className="sazo-product-detail-caution-card" key={titleKey}>
               <ShieldCheck aria-hidden size={23} strokeWidth={1.8} />
-              <h3>{title}</h3>
-              <p>{copy}</p>
+              <h3>{t(`sazo.views.productDetail.${titleKey}`)}</h3>
+              <p>{t(`sazo.views.productDetail.${copyKey}`)}</p>
             </article>
           ))}
         </div>
@@ -618,26 +665,30 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
       <section className="sazo-product-detail-section sazo-product-detail-benefits">
         <div className="sazo-product-detail-section-heading">
           <div>
-            <span>J-PLANET BENEFITS</span>
-            <h2>なぜJ-Planetなのか？</h2>
+            <span>{t("sazo.views.productDetail.benefits.eyebrow")}</span>
+            <h2>{t("sazo.views.productDetail.benefits.title")}</h2>
           </div>
         </div>
         <div className="sazo-product-detail-card-grid">
-          {benefitCards.map(({ copy, icon: Icon, title }) => (
-            <article className="sazo-product-detail-benefit-card" key={title}>
+          {benefitCards.map(({ copyKey, icon: Icon, titleKey }) => (
+            <article className="sazo-product-detail-benefit-card" key={titleKey}>
               <span className="sazo-product-detail-benefit-icon">
                 <Icon aria-hidden size={25} strokeWidth={1.9} />
               </span>
-              <h3>{title}</h3>
-              <p>{copy}</p>
+              <h3>{t(`sazo.views.productDetail.${titleKey}`)}</h3>
+              <p>{t(`sazo.views.productDetail.${copyKey}`)}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <div aria-label="購入操作" className="sazo-product-mobile-purchase" role="group">
+      <div
+        aria-label={t("sazo.views.productDetail.purchase.actionsLabel")}
+        className="sazo-product-mobile-purchase"
+        role="group"
+      >
         <div>
-          <span>商品価格</span>
+          <span>{t("sazo.views.productDetail.purchase.productPrice")}</span>
           <strong>{product.price}</strong>
         </div>
         <button
@@ -647,7 +698,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
           }}
           type="button"
         >
-          カートに入れる
+          {t("sazo.views.productDetail.purchase.addToCart")}
         </button>
         <button
           className="sazo-product-detail-buy-button"
@@ -656,7 +707,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
           }}
           type="button"
         >
-          今すぐ買う
+          {t("sazo.views.productDetail.purchase.buyNow")}
         </button>
       </div>
     </motion.article>
