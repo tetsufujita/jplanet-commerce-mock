@@ -866,15 +866,11 @@
   font-weight: 800;
 }
 
-.sazo-root[data-view="service"]
-  .sazo-top-action[data-testid="login-launcher"]
-  svg {
+.sazo-root[data-view="service"] .sazo-top-action[data-testid="login-launcher"] svg {
   display: none;
 }
 
-.sazo-root[data-view="service"]
-  .sazo-top-action[data-testid="login-launcher"]
-  > span {
+.sazo-root[data-view="service"] .sazo-top-action[data-testid="login-launcher"] > span {
   position: static;
   width: auto;
   height: auto;
@@ -1573,18 +1569,23 @@
   margin: 0 auto;
   padding: 24px 0 112px;
   background: var(--jplanet-surface);
-  font-family: "Noto Sans JP Variable", "Hiragino Sans", "Yu Gothic", Meiryo,
-    sans-serif;
+  font-family: "Noto Sans JP Variable", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
 }
 
 .sazo-root .sazo-product-detail-header {
-  display: grid;
+  display: none;
   grid-template-columns: auto minmax(0, 1fr) 44px 44px;
   align-items: center;
   gap: 10px;
   min-height: 54px;
   padding-bottom: 14px;
   border-bottom: 1px solid var(--jplanet-line);
+}
+
+.sazo-root .sazo-product-detail-desktop-navigation {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18px;
 }
 
 .sazo-root .sazo-product-detail-back {
@@ -1663,8 +1664,7 @@
 
 .sazo-root .sazo-product-detail-thumbnail[aria-current="true"] {
   border-color: var(--jplanet-sakura);
-  box-shadow: 0 0 0 3px
-    color-mix(in srgb, var(--jplanet-sakura) 18%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--jplanet-sakura) 18%, transparent);
 }
 
 .sazo-root .sazo-product-detail-thumbnail img {
@@ -1672,6 +1672,21 @@
   height: 100%;
   border-radius: 8px;
   object-fit: cover;
+}
+
+.sazo-root .sazo-product-detail-thumbnail-placeholder,
+.sazo-root .sazo-product-detail-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--jplanet-muted);
+}
+
+.sazo-root .sazo-product-detail-thumbnail-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  background: var(--jplanet-blue-soft);
 }
 
 .sazo-root .sazo-product-detail-primary-media {
@@ -1690,6 +1705,20 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.sazo-root .sazo-product-detail-image-placeholder {
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+}
+
+.sazo-root .sazo-product-detail-image-placeholder span {
+  font-size: 14px;
+  font-weight: 800;
 }
 
 .sazo-root .sazo-product-detail-gallery-arrow {
@@ -3943,19 +3972,14 @@
 .sazo-root .sazo-service-view {
   --jplanet-lp-accent: var(--jplanet-sakura);
   --jplanet-lp-primary: var(--jplanet-navy);
-  --jplanet-lp-primary-hover: color-mix(
-    in srgb,
-    var(--jplanet-lp-primary) 88%,
-    black
-  );
+  --jplanet-lp-primary-hover: color-mix(in srgb, var(--jplanet-lp-primary) 88%, black);
   --jplanet-lp-form-shadow: 0 12px 28px
     color-mix(in srgb, var(--jplanet-lp-accent) 12%, transparent);
   --jplanet-lp-form-ring: 0 0 0 4px
     color-mix(in srgb, var(--jplanet-lp-accent) 14%, transparent);
   overflow: hidden;
   background: #fff;
-  font-family: "Noto Sans JP Variable", "Hiragino Sans", "Yu Gothic", Meiryo,
-    sans-serif;
+  font-family: "Noto Sans JP Variable", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
 }
 
 .sazo-root .sazo-service-hero,
@@ -6490,11 +6514,7 @@
     min-height: 38px;
     margin-top: 18px;
     border-radius: 9px;
-    background: linear-gradient(
-      90deg,
-      var(--jplanet-navy),
-      var(--jplanet-deep-navy)
-    );
+    background: linear-gradient(90deg, var(--jplanet-navy), var(--jplanet-deep-navy));
     font-size: 15px;
   }
 
@@ -6719,6 +6739,7 @@
   }
 
   .sazo-root .sazo-product-detail-header {
+    display: grid;
     position: sticky;
     z-index: 19;
     top: 0;
@@ -6730,6 +6751,10 @@
     border-bottom: 1px solid var(--jplanet-line);
     background: color-mix(in srgb, var(--jplanet-surface) 96%, transparent);
     box-shadow: 0 5px 18px color-mix(in srgb, var(--jplanet-shadow) 58%, transparent);
+  }
+
+  .sazo-root .sazo-product-detail-desktop-navigation {
+    display: none;
   }
 
   .sazo-root .sazo-product-detail-back {
@@ -6812,6 +6837,11 @@
     height: 44px;
   }
 
+  .sazo-root .sazo-product-detail .sazo-product-favorite {
+    width: 44px;
+    height: 44px;
+  }
+
   .sazo-root .sazo-product-detail-purchase-panel > h1 {
     margin-top: 17px;
     font-size: 24px;
@@ -6828,6 +6858,10 @@
 
   .sazo-root .sazo-product-detail-purchase-form select {
     min-height: 48px;
+  }
+
+  .sazo-root .sazo-product-detail-check {
+    min-height: 44px;
   }
 
   .sazo-root .sazo-product-detail-purchase-actions button {

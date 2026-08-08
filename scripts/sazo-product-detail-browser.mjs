@@ -153,6 +153,28 @@ async function assertMobilePurchaseGeometry(page, viewport, label) {
   );
 }
 
+async function assertMobileDetailTapTargets(page, label) {
+  const targets = [
+    [
+      "detail favorite",
+      page.locator(".sazo-product-detail-quick-actions button[aria-pressed]").first(),
+    ],
+    [
+      "recommended product favorite",
+      page.locator(".sazo-product-detail .sazo-product-favorite").first(),
+    ],
+    ["image check", page.locator(".sazo-product-detail-check")],
+  ];
+
+  for (const [name, target] of targets) {
+    const bounds = await target.boundingBox();
+
+    assert(bounds !== null, `${label} ${name} bounds`);
+    assert.ok(bounds.width >= 44, `${label} ${name} width=${String(bounds.width)}`);
+    assert.ok(bounds.height >= 44, `${label} ${name} height=${String(bounds.height)}`);
+  }
+}
+
 async function assertReviewRailClearance(page, label) {
   const reviewView = page.locator('[data-view-content="reviews"]');
   const reviewImages = reviewView.locator(".sazo-review-tile img");
@@ -223,6 +245,22 @@ async function assertOriginReturn(page, baseUrl, origin, label) {
   await originContent.waitFor();
   if (origin === "reviews") {
     await assertReviewRailClearance(page, label);
+    const reviewCopy = await originContent.innerText();
+    const firstReviewImage = originContent.locator(".sazo-review-tile img").first();
+
+    assert.equal(/sazo/i.test(reviewCopy), false, `${label} reviews legacy brand copy`);
+    assert.equal(
+      await firstReviewImage.getAttribute("src"),
+      "/sazo-commerce/jplanet-sakura-mark.png",
+      `${label} first review J-Planet image`,
+    );
+
+    if (label === "desktop") {
+      await page.screenshot({
+        fullPage: true,
+        path: "/tmp/sazo-jplanet-reviews-desktop.png",
+      });
+    }
   }
   await originContent.locator(".sazo-product-open").first().click();
   await page.locator("[data-product-detail]").waitFor();
@@ -344,6 +382,7 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
 
   if (viewport.width <= 390) {
     await assertMobilePurchaseGeometry(page, viewport, label);
+    await assertMobileDetailTapTargets(page, label);
   }
 
   await page.evaluate(() => window.scrollTo(0, 0));

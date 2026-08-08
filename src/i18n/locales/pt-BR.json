@@ -334,11 +334,13 @@
         "cart": "カート",
         "saveBrand": "{{brand}}を保存",
         "savedBrand": "{{brand}}の保存を解除",
+        "openProductDetail": "Abrir detalhes do produto: {{product}}",
         "favoriteProductRemove": "{{product}}をお気に入りから削除"
       },
       "productDetail": {
         "header": {
           "back": "Voltar",
+          "navigation": "Navegação dos detalhes do produto",
           "home": "Ir para o início",
           "cart": "Carrinho"
         },
@@ -346,6 +348,8 @@
           "label": "Imagens do produto",
           "listLabel": "Lista de imagens do produto",
           "showImage": "Exibir imagem {{index}}",
+          "imageUnavailable": "Imagem indisponível para {{product}}",
+          "unavailable": "Imagem indisponível",
           "previous": "Imagem anterior",
           "next": "Próxima imagem"
         },

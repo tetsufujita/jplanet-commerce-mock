@@ -226,13 +226,9 @@ describe("SAZO captured view contracts", () => {
 
     expect(reviewSets).toHaveLength(2);
     expect(reviewSets[0]?.getAttribute("aria-hidden")).toBeNull();
-    expect(reviewSets[0]?.querySelectorAll(".sazo-service-review-card")).toHaveLength(
-      10,
-    );
+    expect(reviewSets[0]?.querySelectorAll(".sazo-service-review-card")).toHaveLength(10);
     expect(reviewSets[1]?.getAttribute("aria-hidden")).toBe("true");
-    expect(reviewSets[1]?.querySelectorAll(".sazo-service-review-card")).toHaveLength(
-      10,
-    );
+    expect(reviewSets[1]?.querySelectorAll(".sazo-service-review-card")).toHaveLength(10);
     expect(reviewSets[0]?.textContent).toContain(
       "日本からブラジルまで無事に届きました。",
     );
@@ -241,7 +237,9 @@ describe("SAZO captured view contracts", () => {
   it("renders the complete forwarding landing-page sequence from the recording", async () => {
     const { container } = await renderWithI18n(<ServiceView dispatch={noDispatch} />);
 
-    expect(container.querySelector(".sazo-service-hero h1")?.textContent).toBe("日本代行");
+    expect(container.querySelector(".sazo-service-hero h1")?.textContent).toBe(
+      "日本代行",
+    );
     expect(screen.getByText("手数料")).toBeTruthy();
     expect(screen.getByText("日本の商品をブラジルへ直送")).toBeTruthy();
     expect(screen.getAllByPlaceholderText("日本のショップURL")).toHaveLength(2);
@@ -334,9 +332,7 @@ describe("SAZO captured view contracts", () => {
     expect(artwork?.getAttribute("src")).toBe(
       "/sazo-commerce/campaign/jplanet-coupon-banner.svg",
     );
-    expect(wordmark?.getAttribute("src")).toBe(
-      "/sazo-commerce/jplanet-wordmark.png",
-    );
+    expect(wordmark?.getAttribute("src")).toBe("/sazo-commerce/jplanet-wordmark.png");
     expect(container.querySelector('img[src$="coupon-banner.png"]')).toBeNull();
   });
 
@@ -525,7 +521,7 @@ describe("SAZO captured view contracts", () => {
     expect(firstReview?.textContent).toContain("MKT");
     expect(firstReview?.textContent).toContain("めちゃめちゃ良かったです");
     expect(firstReview?.querySelector("img")?.getAttribute("src")).toBe(
-      "/sazo-commerce/editorial-reviews/01.webp",
+      "/sazo-commerce/jplanet-sakura-mark.png",
     );
     const capturedReviewTiles = Array.from(
       container.querySelectorAll<HTMLElement>(".sazo-review-tile"),

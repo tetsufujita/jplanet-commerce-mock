@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Heart,
   Home,
+  ImageOff,
   MessageSquareText,
   PackageCheck,
   Search,
@@ -116,6 +117,9 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
     .filter(isProduct);
   const reduceMotion = useReducedMotion() ?? false;
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
+  const [failedImageSources, setFailedImageSources] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
   const [favorite, setFavorite] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [requestText, setRequestText] = useState("");
@@ -128,6 +132,23 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const currentGalleryIndex = Math.min(activeGalleryIndex, gallery.length - 1);
   const currentImage = gallery[currentGalleryIndex] ?? product.image;
+  const totalPrice = selectedOption === "" ? "0" : product.price;
+
+  const markImageSourceFailed = (source: string) => {
+    setFailedImageSources((current) => {
+      if (current.has(source)) {
+        return current;
+      }
+
+      const next = new Set(current);
+      next.add(source);
+      return next;
+    });
+  };
+
+  const handleBack = () => {
+    dispatch({ type: "close-product" });
+  };
 
   const setGalleryIndex = (nextIndex: number) => {
     const wrappedIndex = (nextIndex + gallery.length) % gallery.length;
@@ -159,10 +180,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
     thumbnailRefs.current[nextIndex]?.focus();
   };
 
-  const handleTabKeyDown = (
-    event: KeyboardEvent<HTMLButtonElement>,
-    index: number,
-  ) => {
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     let nextIndex: number | null = null;
 
     if (event.key === "ArrowRight" || event.key === "ArrowDown") {
@@ -254,13 +272,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
       transition={{ duration: reduceMotion ? 0 : 0.24, ease: "easeOut" }}
     >
       <header className="sazo-product-detail-header">
-        <button
-          className="sazo-product-detail-back"
-          onClick={() => {
-            dispatch({ type: "close-product" });
-          }}
-          type="button"
-        >
+        <button className="sazo-product-detail-back" onClick={handleBack} type="button">
           <ArrowLeft aria-hidden size={22} strokeWidth={2} />
           {t("sazo.views.productDetail.header.back")}
         </button>
@@ -284,6 +296,20 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
           <ShoppingCart aria-hidden size={21} strokeWidth={2} />
         </button>
       </header>
+
+      <nav
+        aria-label={t("sazo.views.productDetail.header.navigation")}
+        className="sazo-product-detail-desktop-navigation"
+      >
+        <button
+          className="sazo-product-detail-back sazo-product-detail-desktop-back"
+          onClick={handleBack}
+          type="button"
+        >
+          <ArrowLeft aria-hidden size={22} strokeWidth={2} />
+          {t("sazo.views.productDetail.header.back")}
+        </button>
+      </nav>
 
       <div className="sazo-product-detail-hero">
         <section
@@ -313,24 +339,60 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
                 }}
                 type="button"
               >
-                <img alt="" decoding="async" height={112} src={image} width={112} />
+                {failedImageSources.has(image) ? (
+                  <span
+                    aria-hidden
+                    className="sazo-product-detail-thumbnail-placeholder"
+                    data-testid="product-thumbnail-image-placeholder"
+                  >
+                    <ImageOff aria-hidden size={18} strokeWidth={1.8} />
+                  </span>
+                ) : (
+                  <img
+                    alt=""
+                    decoding="async"
+                    height={112}
+                    onError={() => {
+                      markImageSourceFailed(image);
+                    }}
+                    src={image}
+                    width={112}
+                  />
+                )}
               </button>
             ))}
           </div>
 
           <div className="sazo-product-detail-primary-media">
-            <motion.img
-              alt={product.name}
-              animate={{ opacity: 1, scale: 1 }}
-              className="sazo-product-detail-image"
-              decoding="async"
-              height={760}
-              initial={reduceMotion ? false : { opacity: 0.25, scale: 0.99 }}
-              key={`${product.id}-${String(currentGalleryIndex)}`}
-              src={currentImage}
-              transition={{ duration: reduceMotion ? 0 : 0.2, ease: "easeOut" }}
-              width={760}
-            />
+            {failedImageSources.has(currentImage) ? (
+              <div
+                aria-label={t("sazo.views.productDetail.gallery.imageUnavailable", {
+                  product: product.name,
+                })}
+                className="sazo-product-detail-image-placeholder"
+                data-testid="product-main-image-placeholder"
+                role="img"
+              >
+                <ImageOff aria-hidden size={52} strokeWidth={1.45} />
+                <span>{t("sazo.views.productDetail.gallery.unavailable")}</span>
+              </div>
+            ) : (
+              <motion.img
+                alt={product.name}
+                animate={{ opacity: 1, scale: 1 }}
+                className="sazo-product-detail-image"
+                decoding="async"
+                height={760}
+                initial={reduceMotion ? false : { opacity: 0.25, scale: 0.99 }}
+                key={`${product.id}-${String(currentGalleryIndex)}`}
+                onError={() => {
+                  markImageSourceFailed(currentImage);
+                }}
+                src={currentImage}
+                transition={{ duration: reduceMotion ? 0 : 0.2, ease: "easeOut" }}
+                width={760}
+              />
+            )}
             {gallery.length > 1 ? (
               <>
                 <button
@@ -467,7 +529,10 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
               value={requestText}
             />
 
-            <label className="sazo-product-detail-check" htmlFor="sazo-product-image-check">
+            <label
+              className="sazo-product-detail-check"
+              htmlFor="sazo-product-image-check"
+            >
               <input
                 checked={imageCheck}
                 id="sazo-product-image-check"
@@ -484,11 +549,11 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
               <dl>
                 <div>
                   <dt>{t("sazo.views.productDetail.purchase.productPrice")}</dt>
-                  <dd>{product.price}</dd>
+                  <dd data-testid="product-unit-price">{product.price}</dd>
                 </div>
                 <div className="sazo-product-detail-total-final">
                   <dt>{t("sazo.views.productDetail.purchase.total")}</dt>
-                  <dd>{product.price}</dd>
+                  <dd data-testid="product-total-value">{totalPrice}</dd>
                 </div>
               </dl>
             </details>

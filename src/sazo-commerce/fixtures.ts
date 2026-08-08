@@ -968,7 +968,7 @@ export const editorialReviews = [
     categoryIds: ["beauty"],
     likes: 0,
     comments: 0,
-    image: "/sazo-commerce/editorial-reviews/01.webp",
+    image: "/sazo-commerce/jplanet-sakura-mark.png",
   },
   {
     id: "editorial-review-02",
@@ -1332,9 +1332,11 @@ for (const product of [
   }
 }
 
-const defaultProduct: Product = products[0] ?? (() => {
-  throw new Error("Missing default SAZO product fixture");
-})();
+const defaultProduct: Product =
+  products[0] ??
+  (() => {
+    throw new Error("Missing default SAZO product fixture");
+  })();
 
 const productDetailOverrides = new Map<string, Omit<ProductDetail, "product">>([
   [

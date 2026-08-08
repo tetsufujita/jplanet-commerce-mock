@@ -3,7 +3,14 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import React from "react";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createI18n } from "@/i18n/createI18n";
@@ -40,6 +47,24 @@ describe("SAZO product detail navigation", () => {
     expect(onOpen).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    ["ja", "商品詳細を開く"],
+    ["en", "Open product details"],
+    ["pt-BR", "Abrir detalhes do produto"],
+  ])("localizes the product open name for %s", async (locale, label) => {
+    const product = products[0];
+
+    if (product === undefined) {
+      throw new Error("Missing J-Planet product test fixture");
+    }
+
+    await renderWithI18n(<ProductCard onOpen={vi.fn()} product={product} />, locale);
+
+    expect(
+      screen.getByRole("button", { name: `${label}: ${product.name}` }),
+    ).toBeTruthy();
+  });
+
   it("opens a product from home and returns to home", async () => {
     window.history.replaceState(null, "", "/sazo-commerce-mock/");
     const { container } = await renderWithI18n(<SazoCommercePage />);
@@ -53,7 +78,15 @@ describe("SAZO product detail navigation", () => {
 
     fireEvent.click(productOpenControl);
     expect(container.querySelector("[data-product-detail]")).not.toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "戻る" }));
+    const desktopBack = container.querySelector<HTMLButtonElement>(
+      ".sazo-product-detail-desktop-back",
+    );
+
+    if (desktopBack === null) {
+      throw new Error("Missing desktop product detail back control");
+    }
+
+    fireEvent.click(desktopBack);
     expect(container.querySelector("[data-home-view]")).not.toBeNull();
   });
 
@@ -107,9 +140,9 @@ describe("SAZO product detail navigation", () => {
       expect(document.body.scrollTop).toBe(0);
     });
     expect(screen.getByRole("heading", { name: secondProduct.name })).toBeTruthy();
-    expect(screen.getByRole("img", { name: secondProduct.name }).getAttribute("src")).toBe(
-      secondProduct.image,
-    );
+    expect(
+      screen.getByRole("img", { name: secondProduct.name }).getAttribute("src"),
+    ).toBe(secondProduct.image);
 
     const option = screen.getByLabelText<HTMLSelectElement>("商品オプション");
     const request = screen.getByLabelText<HTMLTextAreaElement>("ご要望");
@@ -122,14 +155,15 @@ describe("SAZO product detail navigation", () => {
     expect(request.value).toBe("");
     expect(imageCheck.checked).toBe(false);
     expect(
-      screen.getByRole("button", { name: "お気に入りに追加" }).getAttribute(
-        "aria-pressed",
-      ),
+      screen
+        .getByRole("button", { name: "お気に入りに追加" })
+        .getAttribute("aria-pressed"),
     ).toBe("false");
     expect(
       screen.getByRole("tab", { name: "商品情報" }).getAttribute("aria-selected"),
     ).toBe("true");
     expect(screen.queryByRole("status")).toBeNull();
+    expect(screen.getByTestId("product-total-value").textContent).toBe("0");
 
     const nextCartButton = screen.getAllByRole("button", {
       name: "カートに入れる",
@@ -162,9 +196,7 @@ describe("J-Planet product detail experience", () => {
     expect(screen.getByText("日本で購入")).toBeTruthy();
     expect(screen.getByText("ブラジルへお届け")).toBeTruthy();
     expect(screen.getByRole("tab", { name: "商品情報" })).toBeTruthy();
-    expect(
-      screen.getByRole("heading", { name: "なぜJ-Planetなのか？" }),
-    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "なぜJ-Planetなのか？" })).toBeTruthy();
     expect(screen.getByText("レビューがありません。")).toBeTruthy();
     expect(screen.getByText("販売元の在庫について")).toBeTruthy();
     expect(screen.getByText("ブラジルの輸入制限")).toBeTruthy();
@@ -188,19 +220,19 @@ describe("J-Planet product detail experience", () => {
 
     const secondThumbnail = screen.getByRole("button", { name: "画像2を表示" });
     fireEvent.click(secondThumbnail);
-    expect(
-      screen.getByRole("img", { name: product.name }).getAttribute("src"),
-    ).toBe("/sazo-commerce/products/02.webp");
+    expect(screen.getByRole("img", { name: product.name }).getAttribute("src")).toBe(
+      "/sazo-commerce/products/02.webp",
+    );
 
     fireEvent.keyDown(secondThumbnail, { key: "ArrowRight" });
-    expect(
-      screen.getByRole("img", { name: product.name }).getAttribute("src"),
-    ).toBe("/sazo-commerce/products/03.webp");
+    expect(screen.getByRole("img", { name: product.name }).getAttribute("src")).toBe(
+      "/sazo-commerce/products/03.webp",
+    );
 
     expect(container.querySelectorAll("form")).toHaveLength(1);
-    expect(screen.getAllByRole("combobox", { name: "商品オプション" })).toHaveLength(
-      1,
-    );
+    expect(screen.getAllByRole("combobox", { name: "商品オプション" })).toHaveLength(1);
+    expect(screen.getByTestId("product-unit-price").textContent).toBe(product.price);
+    expect(screen.getByTestId("product-total-value").textContent).toBe("0");
 
     const cartButtons = screen.getAllByRole("button", { name: "カートに入れる" });
     const primaryCartButton = cartButtons[0];
@@ -216,7 +248,8 @@ describe("J-Planet product detail experience", () => {
     fireEvent.change(screen.getByLabelText("商品オプション"), {
       target: { value: "標準" },
     });
-    expect(screen.getByTestId("product-total").textContent).toContain(product.price);
+    expect(screen.getByTestId("product-unit-price").textContent).toBe(product.price);
+    expect(screen.getByTestId("product-total-value").textContent).toBe(product.price);
     fireEvent.click(primaryCartButton);
     expect(screen.getByRole("status").textContent).toContain("カートに追加しました");
 
@@ -229,6 +262,63 @@ describe("J-Planet product detail experience", () => {
 
     fireEvent.click(mobileBuyNowButton);
     expect(dispatch).toHaveBeenCalledWith({ type: "open-login" });
+  });
+
+  it("falls back failed gallery sources without breaking image navigation", async () => {
+    const product = products[0];
+
+    if (product === undefined) {
+      throw new Error("Missing J-Planet product test fixture");
+    }
+
+    await renderWithI18n(<ProductDetailView dispatch={vi.fn()} productId="p01" />);
+
+    fireEvent.error(screen.getByRole("img", { name: product.name }));
+    const mainPlaceholder = screen.getByTestId("product-main-image-placeholder");
+    expect(mainPlaceholder.getAttribute("role")).toBe("img");
+    expect(mainPlaceholder.getAttribute("aria-label")).toContain(product.name);
+
+    const secondThumbnail = screen.getByRole("button", { name: "画像2を表示" });
+    fireEvent.click(secondThumbnail);
+    expect(screen.getByRole("img", { name: product.name }).getAttribute("src")).toBe(
+      "/sazo-commerce/products/02.webp",
+    );
+
+    const thirdThumbnail = screen.getByRole("button", { name: "画像3を表示" });
+    const thirdThumbnailImage = thirdThumbnail.querySelector("img");
+
+    if (thirdThumbnailImage === null) {
+      throw new Error("Missing third gallery thumbnail image");
+    }
+
+    fireEvent.error(thirdThumbnailImage);
+    expect(
+      within(thirdThumbnail).getByTestId("product-thumbnail-image-placeholder"),
+    ).toBeTruthy();
+    expect(within(thirdThumbnail).queryByRole("img", { hidden: true })).toBeNull();
+
+    fireEvent.click(thirdThumbnail);
+    expect(screen.getByTestId("product-main-image-placeholder")).toBeTruthy();
+    fireEvent.click(secondThumbnail);
+    expect(screen.getByRole("img", { name: product.name }).getAttribute("src")).toBe(
+      "/sazo-commerce/products/02.webp",
+    );
+  });
+
+  it("keeps the compact header mobile-only and renders a desktop back control", async () => {
+    const { container } = await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+    );
+    const css = readFileSync(join(process.cwd(), "src/sazo-commerce/sazo.css"), "utf8");
+
+    expect(container.querySelector(".sazo-product-detail-header")).not.toBeNull();
+    expect(container.querySelector(".sazo-product-detail-desktop-back")).not.toBeNull();
+    expect(css).toMatch(
+      /\.sazo-root \.sazo-product-detail-header\s*{[^}]*display:\s*none/s,
+    );
+    expect(css).toMatch(
+      /@media \(max-width: 767px\)[\s\S]*?\.sazo-root \.sazo-product-detail-header\s*{[^}]*display:\s*grid/s,
+    );
   });
 
   it("supports keyboard tabs and preserves the five delivery stages", async () => {
@@ -249,10 +339,7 @@ describe("J-Planet product detail experience", () => {
   });
 
   it("renders product-detail interface copy from the active locale", async () => {
-    await renderWithI18n(
-      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
-      "en",
-    );
+    await renderWithI18n(<ProductDetailView dispatch={vi.fn()} productId="p01" />, "en");
 
     expect(screen.getByText("Purchase directly from Japanese retailers")).toBeTruthy();
     expect(screen.getByRole("tab", { name: "Product information" })).toBeTruthy();
@@ -261,10 +348,7 @@ describe("J-Planet product detail experience", () => {
   });
 
   it("applies the vendored Noto Sans JP stack to product detail", () => {
-    const css = readFileSync(
-      join(process.cwd(), "src/sazo-commerce/sazo.css"),
-      "utf8",
-    );
+    const css = readFileSync(join(process.cwd(), "src/sazo-commerce/sazo.css"), "utf8");
 
     expect(css).toMatch(
       /\.sazo-root \.sazo-product-detail\s*{[^}]*font-family:\s*"Noto Sans JP Variable",\s*"Hiragino Sans",\s*"Yu Gothic",\s*Meiryo,\s*sans-serif/s,

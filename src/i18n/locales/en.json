@@ -334,11 +334,13 @@
         "cart": "カート",
         "saveBrand": "{{brand}}を保存",
         "savedBrand": "{{brand}}の保存を解除",
+        "openProductDetail": "Open product details: {{product}}",
         "favoriteProductRemove": "{{product}}をお気に入りから削除"
       },
       "productDetail": {
         "header": {
           "back": "Back",
+          "navigation": "Product detail navigation",
           "home": "Go home",
           "cart": "Cart"
         },
@@ -346,6 +348,8 @@
           "label": "Product images",
           "listLabel": "Product image list",
           "showImage": "Show image {{index}}",
+          "imageUnavailable": "Image unavailable for {{product}}",
+          "unavailable": "Image unavailable",
           "previous": "Previous image",
           "next": "Next image"
         },

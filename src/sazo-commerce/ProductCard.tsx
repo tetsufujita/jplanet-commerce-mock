@@ -23,7 +23,9 @@ export function ProductCard({
   return (
     <article className="sazo-product-card" data-variant={variant}>
       <button
-        aria-label={`商品詳細を開く: ${product.name}`}
+        aria-label={t("sazo.views.common.openProductDetail", {
+          product: product.name,
+        })}
         className="sazo-product-open"
         onClick={() => {
           onOpen(product.id);
