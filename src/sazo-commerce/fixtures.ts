@@ -19,10 +19,17 @@ export interface HeroSlide {
   mobileWidth: number;
 }
 
+export type ShortcutIconId =
+  | "feature"
+  | "limited"
+  | "flea-market"
+  | "cosmetics"
+  | "k-pop";
+
 export interface Shortcut {
-  id: string;
+  id: ShortcutIconId;
   label: string;
-  image: SazoImagePath;
+  badge?: "new";
 }
 
 export interface Product {
@@ -211,7 +218,7 @@ export const heroSlides = [
   {
     id: "new-benefits",
     title: "新規特典がリニューアル クーポンパック登場！",
-    subtitle: "新規会員登録・アプリDL・LINE追加でお得にSAZOを利用できます！",
+    subtitle: "新規会員登録・アプリDL・LINE追加でお得にJ-Planetを利用できます！",
     image: "/sazo-commerce/hero/slide-2.webp",
     mobileHeight: 490,
     mobileImage: "/sazo-commerce/hero/mobile/slide-2.webp",
@@ -290,23 +297,11 @@ export function getHeroSlidesForFeed(feed: SazoHeroFeed): readonly HeroSlide[] {
 }
 
 export const shortcuts = [
-  { id: "feature", label: "SAZO特集", image: "/sazo-commerce/shortcuts/feature.png" },
-  { id: "limited", label: "限定", image: "/sazo-commerce/shortcuts/limited.png" },
-  {
-    id: "flea-market",
-    label: "フリマ",
-    image: "/sazo-commerce/shortcuts/flea-market.png",
-  },
-  {
-    id: "cosmetics",
-    label: "コスメ",
-    image: "/sazo-commerce/shortcuts/cosmetics.png",
-  },
-  {
-    id: "k-pop",
-    label: "K-POP",
-    image: "/sazo-commerce/shortcuts/k-pop.png",
-  },
+  { id: "feature", label: "J-Planet特集" },
+  { id: "limited", label: "限定" },
+  { id: "flea-market", label: "フリマ" },
+  { badge: "new", id: "cosmetics", label: "コスメ" },
+  { badge: "new", id: "k-pop", label: "K-POP" },
 ] satisfies readonly Shortcut[];
 
 export const products = [
@@ -864,9 +859,9 @@ export const reviewCategories = [
 ] satisfies readonly ReviewCategory[];
 
 export const serviceSteps = [
-  { id: "01", image: "/sazo-commerce/service/step-01.webp" },
-  { id: "02", image: "/sazo-commerce/service/step-02.webp" },
-  { id: "03", image: "/sazo-commerce/service/step-03.webp" },
+  { id: "01", image: "/sazo-commerce/service-lp/how-to-use-1.png" },
+  { id: "02", image: "/sazo-commerce/service-lp/how-to-use-2.png" },
+  { id: "03", image: "/sazo-commerce/service-lp/how-to-use-3.png" },
 ] satisfies readonly ServiceStep[];
 
 const rankingHairpin = {
@@ -996,12 +991,12 @@ export const editorialReviews = [
     categoryIds: ["idol"],
     likes: 0,
     comments: 0,
-    image: "/sazo-commerce/community/10.webp",
+    image: "/sazo-commerce/review-media/r07.jpg",
   },
   {
     id: "editorial-review-06",
     author: "ピョピョちゃん",
-    body: "日本では買えないグッズが手に入れられてとても嬉しいです！めちゃめちゃ可愛い～！",
+    body: "ブラジルでは買えないグッズが手に入れられてとても嬉しいです！めちゃめちゃ可愛い～！",
     categoryIds: ["idol", "books"],
     likes: 0,
     comments: 0,
@@ -1014,7 +1009,7 @@ export const editorialReviews = [
     categoryIds: ["idol", "automotive"],
     likes: 0,
     comments: 0,
-    image: "/sazo-commerce/community/11.webp",
+    image: "/sazo-commerce/review-media/r08.jpg",
   },
   {
     id: "editorial-review-08",
@@ -1073,7 +1068,7 @@ export const reviews = [
     rating: 5,
     likes: 4,
     comments: 0,
-    image: "/sazo-commerce/community/04.webp",
+    image: "/sazo-commerce/review-media/r01.jpg",
   },
   {
     id: "r02",
@@ -1084,38 +1079,38 @@ export const reviews = [
     rating: 5,
     likes: 4,
     comments: 0,
-    image: "/sazo-commerce/community/07.webp",
+    image: "/sazo-commerce/review-media/r02.jpg",
   },
   {
     id: "r03",
     author: "T",
     productName: "レアフォトカード",
     comment:
-      "初めて利用しましたが、日本で出回りがなくレアなカードがゲットできて嬉しいです。",
+      "初めて利用しましたが、ブラジルで出回りがなくレアなカードがゲットできて嬉しいです。",
     rating: 4,
     likes: 13,
     comments: 0,
-    image: "/sazo-commerce/community/05.webp",
+    image: "/sazo-commerce/review-media/r03.jpg",
   },
   {
     id: "r04",
     author: "村上ラッペ",
-    productName: "韓国スナック",
+    productName: "日本のお菓子",
     comment: "美味しそうです！ありがとうございました。",
     rating: 5,
     likes: 15,
     comments: 0,
-    image: "/sazo-commerce/community/08.webp",
+    image: "/sazo-commerce/review-media/r04.jpg",
   },
   {
     id: "r05",
     author: "코코",
-    productName: "韓国ファッション",
+    productName: "日本ファッション",
     comment: "サイズ感もオーバーで、自分が欲しかったサイズ感で満足です！",
     rating: 5,
     likes: 7,
     comments: 0,
-    image: "/sazo-commerce/community/09.webp",
+    image: "/sazo-commerce/review-media/r05.jpg",
   },
   {
     id: "r06",
@@ -1125,7 +1120,7 @@ export const reviews = [
     rating: 5,
     likes: 0,
     comments: 0,
-    image: "/sazo-commerce/community/06.webp",
+    image: "/sazo-commerce/review-media/r06.jpg",
   },
   {
     id: "r07",
@@ -1135,7 +1130,7 @@ export const reviews = [
     rating: 5,
     likes: 0,
     comments: 0,
-    image: "/sazo-commerce/community/10.webp",
+    image: "/sazo-commerce/review-media/r07.jpg",
   },
   {
     id: "r08",
@@ -1145,7 +1140,7 @@ export const reviews = [
     rating: 5,
     likes: 0,
     comments: 0,
-    image: "/sazo-commerce/community/11.webp",
+    image: "/sazo-commerce/review-media/r08.jpg",
   },
 ] satisfies readonly Review[];
 
@@ -1210,13 +1205,13 @@ export const gramEntries = [
   {
     id: "g02",
     author: "sazo_editor",
-    caption: "韓国ブランドの有線イヤホンが可愛すぎる",
+    caption: "日本ブランドの有線イヤホンが可愛すぎる",
     image: "/sazo-commerce/community/02.webp",
   },
   {
     id: "g03",
     author: "sazo_staff",
-    caption: "韓国スタバ新作 2026夏グッズ発売！",
+    caption: "日本限定スタバ新作 2026夏グッズ発売！",
     image: "/sazo-commerce/community/03.webp",
   },
   {
@@ -1234,7 +1229,7 @@ export const gramEntries = [
   {
     id: "g06",
     author: "sazo_staff",
-    caption: "韓国ダイソー新作 キティ＆マイメログッズ",
+    caption: "日本ダイソー新作 キティ＆マイメログッズ",
     image: "/sazo-commerce/community/14.webp",
   },
 ] satisfies readonly GramEntry[];

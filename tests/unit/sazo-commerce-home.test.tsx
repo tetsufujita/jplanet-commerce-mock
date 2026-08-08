@@ -86,7 +86,9 @@ describe("SAZO home composition", () => {
       "ブラジル最大級",
       "日本直輸入ショップ",
     ]);
-    expect(introBody?.textContent).toBe("日本の商品をブラジルへ直送");
+    expect(introBody?.textContent).toBe(
+      "J-Planetは日本の人気ショップの商品を購入し、ブラジルへ直接お届けします",
+    );
   });
 
   it("renders deterministic keyword skeletons without product-card UI", async () => {
@@ -137,16 +139,35 @@ describe("SAZO home composition", () => {
 
     includesInOrder(markup, [
       "新規特典がリニューアル",
-      "SAZO特集",
-      "日本最大級",
+      "J-Planet特集",
+      "ブラジル最大級",
       "みんなの口コミ",
-      "SAZO GRAM",
+      "J-Planet GRAM",
       "レビュー高評価のおすすめ",
-      "SAZO RANKING",
+      "J-Planet RANKING",
     ]);
     expect(markup).toContain('aria-label="次のバナー"');
     expect(markup).toContain("1/5");
     expect(markup).toContain("¥3,799");
+  });
+
+  it("renders crisp pop J-Planet shortcut artwork", async () => {
+    const { container } = await renderHomePage();
+    const shortcutGroup = screen.getByRole("group", {
+      name: "J-Planetショートカット",
+    });
+
+    expect(
+      screen.getByRole("button", { name: "J-Planet特集" }),
+    ).toBeTruthy();
+    expect(
+      shortcutGroup.querySelectorAll("img[data-jplanet-sakura-mark]"),
+    ).toHaveLength(1);
+    expect(
+      shortcutGroup.querySelectorAll("svg[data-jplanet-shortcut-icon]"),
+    ).toHaveLength(4);
+    expect(shortcutGroup.querySelectorAll('img[src*="/shortcuts/"]')).toHaveLength(0);
+    expect(container.querySelectorAll(".sazo-shortcut-badge")).toHaveLength(2);
   });
 
   it("mounts the stateful home view only once across responsive shells", async () => {
@@ -169,12 +190,12 @@ describe("SAZO home composition", () => {
     };
 
     expect(sectionImages("みんなの口コミ")).toEqual([
-      "/sazo-commerce/community/06.webp",
-      "/sazo-commerce/community/07.webp",
-      "/sazo-commerce/community/05.webp",
-      "/sazo-commerce/community/04.webp",
-      "/sazo-commerce/community/08.webp",
-      "/sazo-commerce/community/09.webp",
+      "/sazo-commerce/review-media/r06.jpg",
+      "/sazo-commerce/review-media/r02.jpg",
+      "/sazo-commerce/review-media/r03.jpg",
+      "/sazo-commerce/review-media/r01.jpg",
+      "/sazo-commerce/review-media/r04.jpg",
+      "/sazo-commerce/review-media/r05.jpg",
     ]);
     const reviewSection = screen
       .getByRole("heading", { name: "みんなの口コミ" })
@@ -188,7 +209,13 @@ describe("SAZO home composition", () => {
       "村上ラッペ",
       "코코",
     ]);
-    expect(sectionImages("SAZO GRAM")).toEqual([
+    for (const card of reviewSection?.querySelectorAll(".sazo-review-card") ?? []) {
+      expect(card.querySelectorAll("[data-review-author-layer='dom']")).toHaveLength(1);
+      expect(
+        new URL(card.querySelector("img")?.src ?? "", window.location.origin).pathname,
+      ).toMatch(/^\/sazo-commerce\/review-media\/r\d{2}\.jpg$/);
+    }
+    expect(sectionImages("J-Planet GRAM")).toEqual([
       "/sazo-commerce/community/01.webp",
       "/sazo-commerce/community/01.webp",
       "/sazo-commerce/gram/home/02.png",
@@ -197,7 +224,7 @@ describe("SAZO home composition", () => {
       "/sazo-commerce/community/03.webp",
     ]);
     const gramSection = screen
-      .getByRole("heading", { name: "SAZO GRAM" })
+      .getByRole("heading", { name: "J-Planet GRAM" })
       .closest("section");
     includesInOrder(gramSection?.textContent ?? "", [
       "[たまごっち]長袖パジャマ(Blue)_SPPPG49U09",
@@ -255,7 +282,7 @@ describe("SAZO home composition", () => {
         "10%¥4,914",
         "rd check pants スウェットパンツまとめ",
         "50%¥12,469",
-        "[@xanaduany SET] 夏の韓国トレンドまとめ",
+        "[@xanaduany SET] 夏の日本トレンドまとめ",
         "¥12,160",
       ],
     );

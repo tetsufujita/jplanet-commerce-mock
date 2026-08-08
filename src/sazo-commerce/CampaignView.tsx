@@ -2,7 +2,7 @@ import type { Dispatch } from "react";
 import { Clock3, Search } from "lucide-react";
 import { products } from "@/sazo-commerce/fixtures";
 import type { SazoAction } from "@/sazo-commerce/model";
-import { SazoLogo } from "@/sazo-commerce/SazoLogo";
+import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
 
 const campaignThumbnails = [
   "/sazo-commerce/campaign/thumb-01.png",
@@ -28,14 +28,14 @@ interface CampaignViewProps {
 function CampaignWordmark({ dispatch }: Pick<CampaignViewProps, "dispatch">) {
   return (
     <button
-      aria-label="SAZOホーム"
+      aria-label="J-Planetホーム"
       className="sazo-campaign-wordmark"
       onClick={() => {
         dispatch({ type: "navigate", view: "home" });
       }}
       type="button"
     >
-      <SazoLogo />
+      <JplanetLogo />
     </button>
   );
 }
@@ -96,7 +96,7 @@ export function CampaignView({ dispatch, loaded }: CampaignViewProps) {
         <h1>
           <strong>超お得な</strong>
           <br />
-          <small>韓国商品がたくさん！</small>
+          <small>日本の商品がたくさん！</small>
         </h1>
       </section>
 
@@ -104,7 +104,7 @@ export function CampaignView({ dispatch, loaded }: CampaignViewProps) {
 
       <div className="sazo-campaign-url" role="search">
         <Search aria-hidden size={22} strokeWidth={2.1} />
-        <span>韓国サイトのURLを入力してね</span>
+        <span>日本のショップURLを入力してね</span>
       </div>
     </article>
   );

@@ -25,6 +25,7 @@ import {
   shortcuts,
 } from "@/sazo-commerce/fixtures";
 import type { SazoAction, SazoState } from "@/sazo-commerce/model";
+import { JplanetShortcutIcon } from "@/sazo-commerce/JplanetShortcutIcon";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 import { useSazoHero } from "@/sazo-commerce/useSazoHero";
 
@@ -202,9 +203,19 @@ function ShortcutRow() {
       role="group"
     >
       {shortcuts.map((shortcut) => (
-        <button className="sazo-shortcut" key={shortcut.id} type="button">
-          <span className="sazo-shortcut-icon">
-            <img alt="" aria-hidden height={84} src={shortcut.image} width={84} />
+        <button
+          aria-label={shortcut.label}
+          className="sazo-shortcut"
+          key={shortcut.id}
+          type="button"
+        >
+          <span className="sazo-shortcut-icon" data-icon={shortcut.id}>
+            <JplanetShortcutIcon id={shortcut.id} />
+            {shortcut.badge ? (
+              <span aria-hidden className="sazo-shortcut-badge">
+                {shortcut.badge}
+              </span>
+            ) : null}
           </span>
           <span>{shortcut.label}</span>
         </button>
@@ -245,7 +256,7 @@ function ReviewStrip({ dispatch, state }: HomeViewProps) {
                 src={review.image}
                 width={390}
               />
-              <span>{review.author}</span>
+              <span data-review-author-layer="dom">{review.author}</span>
             </div>
             <p>{review.comment}</p>
           </article>
@@ -363,18 +374,18 @@ const gramCatalogEntries = [
   {
     entry: {
       author: "KREAM",
-      caption: "夏の韓国トレンドまとめ",
+      caption: "夏の日本トレンドまとめ",
       id: "g-catalog-05",
       image: "/sazo-commerce/gram/list-05.png",
     },
-    name: "[@xanaduany SET] 夏の韓国トレンドまとめ",
+    name: "[@xanaduany SET] 夏の日本トレンドまとめ",
     price: "¥12,160",
   },
 ] as const;
 
 function GramCatalog() {
   return (
-    <section aria-label="SAZO GRAM 一覧" className="sazo-gram-catalog-section">
+    <section aria-label="J-Planet GRAM 一覧" className="sazo-gram-catalog-section">
       <div className="sazo-gram-catalog-grid">
         {gramCatalogEntries.map((item, index) => (
           <article

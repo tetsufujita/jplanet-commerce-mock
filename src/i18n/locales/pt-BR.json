@@ -125,8 +125,8 @@
   },
   "sazo": {
     "brand": {
-      "wordmark": "SAZO",
-      "homeLabel": "SAZO ホーム"
+      "wordmark": "J-Planet",
+      "homeLabel": "J-Planet ホーム"
     },
     "search": {
       "label": "商品を検索",
@@ -166,7 +166,7 @@
         "press": "プレスリリース",
         "koreaCopyright": "© 2024-2026 SAJWO Inc",
         "koreaAddress": "54, Gwangjinmal-ro, Uiwang-si, Gyeonggi-do, Republic of Korea",
-        "japanCopyright": "© 2024-2026 株式会社SAZO",
+        "japanCopyright": "© 2024-2026 J-Planet",
         "japanAddress": "1-2-32 Tsurumai, Showa-ku, Nagoya-shi, Aichi, Japan",
         "termsLinksLabel": "規約",
         "terms": "利用規約",
@@ -197,8 +197,8 @@
         "countryLabel": "国番号",
         "numberLabel": "電話番号",
         "placeholder": "ハイフンなしの数字のみ",
-        "consent": "私はSAZOのサービス利用契約、支払サービス利用規約に同意し、個人情報保護ポリシーを承諾します。",
-        "optOut": "SAZOからのお得な情報を受け取らない"
+        "consent": "私はJ-Planetのサービス利用契約、支払サービス利用規約に同意し、個人情報保護ポリシーを承諾します。",
+        "optOut": "J-Planetからのお得な情報を受け取らない"
       }
     },
     "account": {
@@ -289,7 +289,7 @@
       "empty": "登録されているカードがありません。"
     },
     "chat": {
-      "title": "SAZOチャット",
+      "title": "J-Planetチャット",
       "close": "チャットを閉じる",
       "loading": "チャットを読み込んでいます",
       "emptyTitle": "メッセージはまだありません",
@@ -305,17 +305,17 @@
       "pauseBanner": "バナーを一時停止",
       "playBanner": "バナーを再生",
       "mobileSearchPlaceholder": "何を注文しますか？",
-      "shortcutLabel": "SAZOショートカット",
-      "introTitle": "日本最大級\n韓国直輸入ショップ",
-      "introBody": "SAZOは韓国の大手・人気サイトからの直輸入で、韓国限定品も購入可能",
-      "firstGuide": "SAZOを初めてご利用ですか？",
+      "shortcutLabel": "J-Planetショートカット",
+      "introTitle": "ブラジル最大級\n日本直輸入ショップ",
+      "introBody": "J-Planetは日本の人気ショップの商品を購入し、ブラジルへ直接お届けします",
+      "firstGuide": "J-Planetを初めてご利用ですか？",
       "more": "もっと見る",
       "reviewsTitle": "みんなの口コミ",
-      "gramTitle": "SAZO GRAM",
+      "gramTitle": "J-Planet GRAM",
       "reviewRecommendations": "レビュー高評価のおすすめ",
-      "picksTitle": "SAZO's PICK",
+      "picksTitle": "J-Planet's PICK",
       "popularKeywords": "人気検索キーワード",
-      "rankingTitle": "SAZO RANKING",
+      "rankingTitle": "J-Planet RANKING",
       "purchaseCount": "購入数",
       "viewCount": "閲覧数",
       "week": "週間",
@@ -361,7 +361,7 @@
         "gridMode": "グリッド表示"
       },
       "ranking": {
-        "title": "SAZO RANKING",
+        "title": "J-Planet RANKING",
         "purchaseCount": "購入数",
         "viewCount": "閲覧数",
         "week": "週間"
@@ -373,12 +373,12 @@
       },
       "service": {
         "eyebrow": "これまでの手間のかかる代行とは違う！",
-        "title": "SAZOのコピペ代行",
-        "urlLabel": "韓国商品のURL",
-        "urlPlaceholder": "韓国サイトのURLを入力してね",
+        "title": "日本代行",
+        "urlLabel": "日本のショップURL",
+        "urlPlaceholder": "日本のショップURLを入力してね",
         "urlHint": "ここに欲しい商品のURLを入力してショッピングをしましょう！",
         "search": "検索",
-        "stepsTitle": "URL入力だけで、韓国の商品をかんたん注文",
+        "stepsTitle": "URL入力だけで、日本の商品をかんたん注文",
         "stepLabel": "STEP {{step}}",
         "step01Title": "URL入力",
         "step01Summary": "URL入力で購入代行ができます。",
@@ -389,13 +389,13 @@
         "step03Title": "支払い後に注文完了",
         "step03Summary": "お支払い後に代行注文が受け付けられます。",
         "step03Body": "クレジットカードとPayPayで決済できます。決済を完了すると買付へ進みます。",
-        "trustTitle": "SAZOの安心ポイント",
+        "trustTitle": "J-Planetの安心ポイント",
         "trust01": "確定後の追加請求なし",
         "trust02": "細かく追跡可能",
         "trust03": "安心の配送",
         "faqTitle": "よくある質問",
-        "faq01Question": "韓国以外からも購入できますか？",
-        "faq01Answer": "URLで商品情報を確認できる韓国サイトの商品を対象に購入代行を利用できます。",
+        "faq01Question": "日本以外の商品も購入できますか？",
+        "faq01Answer": "日本のショップで購入できる商品を対象に、日本からブラジルへの購入・配送代行を利用できます。",
         "faq02Question": "販売者に問い合わせることはできますか？",
         "faq02Answer": "購入前の確認が必要な場合はカスタマーサポートへご相談ください。",
         "faq03Question": "送料はいくらですか？",
@@ -417,7 +417,7 @@
       }
     },
     "footer": {
-      "copyright": "© SAZO"
+      "copyright": "© J-Planet"
     }
   }
 }
