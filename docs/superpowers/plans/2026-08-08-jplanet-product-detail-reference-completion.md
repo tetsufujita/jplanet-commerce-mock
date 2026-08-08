@@ -474,14 +474,15 @@ git commit -m "feat: complete J-Planet product detail reference layout"
 - Modify: `scripts/sazo-product-detail-browser.mjs`
 - Modify: `scripts/sazo-jplanet-theme-browser.mjs`
 - Modify: `docs/superpowers/plans/2026-08-08-jplanet-product-detail-reference-completion.md`
+- Format-only: `src/sazo-commerce/ProductSourceLink.tsx` (added after the required Prettier check exposed an inherited formatting mismatch)
 
 **Interfaces:**
 
 - Consume `.sazo-product-source-link`, `.sazo-product-detail-commerce-grid`, `.sazo-product-detail-checkout-rail`, `.sazo-product-detail-recommendation-track`, `.sazo-product-campaign`, quantity controls, and the existing QA product route.
-- Produce screenshots `/tmp/jplanet-product-reference-desktop.png`, `/tmp/jplanet-product-reference-mobile.png`, and `/tmp/jplanet-product-reference-mobile-320.png`.
-- Preserve the existing audit summary `viewports=3 originStates=12 images=21` or update the image count expectation only from measured output when the campaign image increases it.
+- Produce screenshots `/tmp/jplanet-product-reference-desktop.png`, `/tmp/jplanet-product-reference-mobile.png`, `/tmp/jplanet-product-reference-mobile-320.png`, and `/tmp/jplanet-product-reference-sticky.png`.
+- Preserve `viewports=3 originStates=12`; the measured completed-reference image expectation is `images=33` (11 product-detail images at each viewport).
 
-- [ ] **Step 1: Add failing browser assertions for the new reference contract**
+- [x] **Step 1: Add failing browser assertions for the new reference contract**
 
 For every product viewport, assert:
 
@@ -501,7 +502,7 @@ assert.equal(await page.getByTestId("product-total-value").innerText(), "¥7,948
 
 At desktop width, scroll to the campaign and require the checkout rail bounds to stay inside the viewport. Require at least six recommendation cards, campaign visibility, no overlap between left flow and checkout rail, and 44px quantity/source controls. At mobile widths, reuse fixed CTA/footer/chat checks and assert the commerce grid is one column.
 
-- [ ] **Step 2: Run the browser script and verify RED**
+- [x] **Step 2: Run the browser script and verify RED**
 
 ```bash
 pnpm qa:sazo-product-detail
@@ -509,7 +510,7 @@ pnpm qa:sazo-product-detail
 
 Expected: FAIL until the source link, quantity, campaign, six-card rail, and sticky geometry satisfy the new assertions.
 
-- [ ] **Step 3: Capture the three approved visual checkpoints**
+- [x] **Step 3: Capture the four approved visual checkpoints**
 
 Make the script capture full-page screenshots plus a desktop viewport screenshot after scrolling the campaign into view. Use these paths:
 
@@ -522,11 +523,11 @@ Make the script capture full-page screenshots plus a desktop viewport screenshot
 
 Visually compare source row, hero density, recommendation spacing, tab/order-flow card, campaign banner, and sticky purchase rail to the three user references.
 
-- [ ] **Step 4: Extend the whole-site theme audit**
+- [x] **Step 4: Extend the whole-site theme audit**
 
 Keep the existing 36 states and 26 mobile top-placement states. On the product view, additionally require visible `元のページへ`, `日本の販売サイトから直接購入`, and `ブラジルへお届け`; reject visible or image-source matches for SAZO/Korea branding.
 
-- [ ] **Step 5: Run full automated verification**
+- [x] **Step 5: Run full automated verification**
 
 ```bash
 pnpm lint
@@ -543,7 +544,7 @@ git diff --check
 
 Expected: every command exits 0, all Vitest tests pass, product QA covers all three viewports and 12 origin states, and the whole-site audit reports 36 states and 26 mobile placements.
 
-- [ ] **Step 6: Run forbidden-copy and live-route checks**
+- [x] **Step 6: Run forbidden-copy and live-route checks**
 
 ```bash
 rg -n --glob '*.{ts,tsx,json,css,svg}' 'SAZO|韓国|KOREA|TO JAPAN' src/sazo-commerce/ProductDetailView.tsx src/sazo-commerce/ProductSourceLink.tsx src/sazo-commerce/ProductPurchasePanel.tsx src/sazo-commerce/ProductOrderFlow.tsx src/sazo-commerce/ProductCampaignBanner.tsx src/sazo-commerce/ProductRecommendationRail.tsx
@@ -552,11 +553,22 @@ curl -sS -o /dev/null -w '%{http_code}\n' 'http://127.0.0.1:5190/sazo-commerce-m
 
 Expected: `rg` returns no matches and the live route returns `200`.
 
-- [ ] **Step 7: Record evidence and commit Task 4**
+- [x] **Step 7: Record evidence and commit Task 4**
 
 Only after all commands and visual checks pass, mark the Task 4 checkboxes with measured evidence, then commit:
 
 ```bash
-git add scripts/sazo-product-detail-browser.mjs scripts/sazo-jplanet-theme-browser.mjs docs/superpowers/plans/2026-08-08-jplanet-product-detail-reference-completion.md
+git add scripts/sazo-product-detail-browser.mjs scripts/sazo-jplanet-theme-browser.mjs docs/superpowers/plans/2026-08-08-jplanet-product-detail-reference-completion.md src/sazo-commerce/ProductSourceLink.tsx
 git commit -m "test: verify complete product detail reference"
 ```
+
+#### Task 4 measured evidence — 2026-08-08
+
+- RED: `pnpm qa:sazo-product-detail` failed at the obsolete `.sazo-product-detail-purchase-panel .sazo-product-detail-cart-button` locator with a 10,000 ms timeout before the new assertions were implemented.
+- Product browser GREEN: `viewports=3 originStates=12 images=33`; source controls measured `330x64`, `328x52`, and `272x52`, and every quantity control measured `44x44` at 1512, 390, and 320 px respectively.
+- Geometry GREEN: desktop grid measured `766px 390px`, sticky checkout height `850px` at `top=112px`, and did not overlap the left flow; mobile grids measured one column (`362px` and `300px`) with static checkout rails and no page overflow.
+- Interaction/content GREEN: deterministic source href, exactly one purchase form, shared cart actions, option `標準`, quantity `2`, total `¥7,948`, six recommendation cards, tabs/order flow, campaign, mobile fixed CTA/footer/chat clearance, and forbidden visible/image-source branding all passed.
+- Whole-site browser GREEN: `states=36 mobileTopStates=26 images=546`, including product requirements for `元のページへ`, `日本の販売サイトから直接購入`, and `ブラジルへお届け`.
+- Full verification GREEN: lint, typecheck, 14 Vitest files / 169 tests, production build (2,223 modules), required Prettier check, both Node syntax checks, both browser audits, forbidden-copy scan (no matches), live route HTTP 200, and `git diff --check`.
+- Visual review GREEN: all four required screenshots were inspected for source row, hero density, recommendation spacing, tab/order flow, campaign, sticky rail, mobile one-column layout, clipping, overlaps, and unwanted SAZO/Korea marks.
+- The required Prettier check exposed a pre-existing format-only mismatch in `ProductSourceLink.tsx`; ownership was explicitly expanded only for that mechanical formatting change, after which the full verification set was rerun.

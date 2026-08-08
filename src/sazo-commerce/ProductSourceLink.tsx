@@ -7,15 +7,13 @@ export interface ProductSourceLinkProps {
 }
 
 export function ProductSourceLink({ brand, href, label }: ProductSourceLinkProps) {
-  const brandKey = brand.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const brandKey = brand
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-");
 
   return (
-    <a
-      className="sazo-product-source-link"
-      href={href}
-      rel="noreferrer"
-      target="_blank"
-    >
+    <a className="sazo-product-source-link" href={href} rel="noreferrer" target="_blank">
       <span
         className="sazo-product-source-badge"
         data-brand={brandKey}

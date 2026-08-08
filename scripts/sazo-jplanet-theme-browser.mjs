@@ -45,6 +45,10 @@ const forbiddenLogoSelectors = ["[data-sazo-wordmark]", ".sazo-logo"];
 const forbiddenAssetFragments = [
   "/sazo-logo",
   "/logo-sazo",
+  "/sazo-wordmark",
+  "korea",
+  "to-japan",
+  "to_japan",
   "/sazo-commerce/campaign/coupon-banner.png",
   "/sazo-commerce/service-lp/how-to-use-1.png",
   "/sazo-commerce/service-lp/how-to-use-2.png",
@@ -378,6 +382,11 @@ try {
       if (view === "product") {
         const productCopy = normalizeRenderedCopy(
           await page.locator(contentSelector(view)).innerText(),
+        );
+        assert.equal(
+          productCopy.includes("元のページへ"),
+          true,
+          `${viewport.label}/${view} original source copy`,
         );
         assert.equal(
           productCopy.includes("日本の販売サイトから直接購入"),

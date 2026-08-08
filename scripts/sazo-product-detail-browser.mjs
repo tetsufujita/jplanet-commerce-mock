@@ -8,7 +8,15 @@ const viewports = [
   { label: "mobile", width: 390, height: 844 },
   { label: "mobile-320", width: 320, height: 844 },
 ];
+const mockSourceBase = "https://example.com/jplanet/source";
+const screenshotPaths = {
+  desktop: "/tmp/jplanet-product-reference-desktop.png",
+  mobile: "/tmp/jplanet-product-reference-mobile.png",
+  "mobile-320": "/tmp/jplanet-product-reference-mobile-320.png",
+};
 const forbiddenProductCopy = [/sazo/i, /韓国/, /korea/i, /to\s+japan/i];
+const forbiddenProductAsset =
+  /(?:sazo(?:shop)?[-_.]?(?:logo|wordmark)|(?:logo|wordmark)[-_.]?sazo(?:shop)?|korea|to[-_]?japan)/i;
 const notoFontRequest = /\/sazo-commerce\/fonts\/noto-sans-jp\/files\/.*\.woff2(?:\?|$)/i;
 
 const server = await createServer({
@@ -27,6 +35,15 @@ function rectanglesOverlap(first, second) {
     first.y + first.height <= second.y ||
     second.y + second.height <= first.y
   );
+}
+
+async function assertMinimumTapTarget(locator, label) {
+  const bounds = await locator.boundingBox();
+
+  assert(bounds !== null, `${label} bounds`);
+  assert.ok(bounds.width >= 44, `${label} width=${String(bounds.width)}`);
+  assert.ok(bounds.height >= 44, `${label} height=${String(bounds.height)}`);
+  return bounds;
 }
 
 async function setUpNotoFontAudit(page) {
@@ -86,10 +103,21 @@ async function assertDetailImages(page, label) {
         const source = image.currentSrc || image.getAttribute("src") || "<missing-src>";
         return `${source} complete=${String(image.complete)} size=${String(image.naturalWidth)}x${String(image.naturalHeight)}`;
       }),
+    sources: images.map(
+      (image) => image.currentSrc || image.getAttribute("src") || "<missing-src>",
+    ),
   }));
 
   assert.ok(imageAudit.count > 0, `${label} detail image count`);
   assert.deepEqual(imageAudit.failures, [], `${label} detail image load failures`);
+  assert.deepEqual(
+    imageAudit.sources.filter((source) => {
+      const filename = source.split(/[?#]/u)[0]?.split("/").pop() ?? "";
+      return forbiddenProductAsset.test(filename);
+    }),
+    [],
+    `${label} forbidden product image branding`,
+  );
   return imageAudit.count;
 }
 
@@ -254,13 +282,6 @@ async function assertOriginReturn(page, baseUrl, origin, label) {
       "/sazo-commerce/jplanet-sakura-mark.png",
       `${label} first review J-Planet image`,
     );
-
-    if (label === "desktop") {
-      await page.screenshot({
-        fullPage: true,
-        path: "/tmp/sazo-jplanet-reviews-desktop.png",
-      });
-    }
   }
   await originContent.locator(".sazo-product-open").first().click();
   await page.locator("[data-product-detail]").waitFor();
@@ -343,6 +364,34 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
     `${label} Brazil delivery copy`,
   );
 
+  const sourceLink = page.locator(".sazo-product-source-link");
+  assert.equal(await sourceLink.count(), 1, `${label} source link count`);
+  assert.equal(
+    await sourceLink.getAttribute("href"),
+    `${mockSourceBase}/p01`,
+    `${label} deterministic source href`,
+  );
+  const sourceBounds = await assertMinimumTapTarget(sourceLink, `${label} source link`);
+
+  const purchaseForm = page.locator("form[data-product-purchase-form]");
+  assert.equal(await purchaseForm.count(), 1, `${label} single purchase form`);
+  assert.equal(
+    await page.locator(".sazo-product-detail-cart-button").count(),
+    2,
+    `${label} shared desktop/mobile cart actions`,
+  );
+
+  const recommendationRegion = page.locator(".sazo-product-detail-recommendations");
+  assert.equal(
+    await recommendationRegion.locator(".sazo-product-card").count(),
+    6,
+    `${label} recommendation card count`,
+  );
+  await assertMinimumTapTarget(
+    recommendationRegion.getByRole("button", { name: "次の商品" }),
+    `${label} recommendation next`,
+  );
+
   await page.getByRole("button", { name: "画像2を表示" }).click();
   await page.waitForFunction(
     () =>
@@ -352,10 +401,37 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
         ?.endsWith("/sazo-commerce/products/02.webp") === true,
   );
 
-  await page.getByLabel("商品オプション").selectOption({ label: "標準" });
-  await page
-    .locator(".sazo-product-detail-purchase-panel .sazo-product-detail-cart-button")
-    .click();
+  const option = purchaseForm.getByLabel("商品オプション");
+  await assertMinimumTapTarget(option, `${label} product option`);
+  await option.selectOption("標準");
+  const decreaseQuantity = purchaseForm.getByRole("button", {
+    name: "数量を減らす",
+  });
+  const increaseQuantity = purchaseForm.getByRole("button", {
+    name: "数量を増やす",
+  });
+  await assertMinimumTapTarget(decreaseQuantity, `${label} quantity decrease`);
+  const increaseBounds = await assertMinimumTapTarget(
+    increaseQuantity,
+    `${label} quantity increase`,
+  );
+  await increaseQuantity.click();
+  assert.equal(
+    await page.getByTestId("product-quantity").innerText(),
+    "2",
+    `${label} product quantity`,
+  );
+  assert.equal(
+    await page.getByTestId("product-total-value").innerText(),
+    "¥7,948",
+    `${label} deterministic total`,
+  );
+  const formCartButton = purchaseForm.getByRole("button", {
+    exact: true,
+    name: "カートに入れる",
+  });
+  assert.equal(await formCartButton.count(), 1, `${label} intended form cart action`);
+  await formCartButton.click();
   await page.getByRole("status").filter({ hasText: "カートに追加しました" }).waitFor();
 
   const cautionTab = page.getByRole("tab", { name: "注意事項" });
@@ -380,19 +456,85 @@ async function auditProductViewport(page, baseUrl, viewport, fontNetworkFailures
     `${label} horizontal overflow`,
   );
 
+  const commerceGrid = page.locator(".sazo-product-detail-commerce-grid");
+  const checkoutRail = page.locator(".sazo-product-detail-checkout-rail");
+  const leftFlow = page.locator(".sazo-product-detail-left-flow");
+  const campaign = page.locator(".sazo-product-campaign");
+  await campaign.scrollIntoViewIfNeeded();
+  await page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      }),
+  );
+  const campaignBounds = await campaign.boundingBox();
+  assert(campaignBounds !== null, `${label} campaign bounds`);
+  assert.ok(
+    campaignBounds.y < viewport.height && campaignBounds.y + campaignBounds.height > 0,
+    `${label} campaign visibility y=${String(campaignBounds.y)} height=${String(campaignBounds.height)}`,
+  );
+
+  const gridGeometry = await commerceGrid.evaluate((element) => ({
+    columnCount: getComputedStyle(element).gridTemplateColumns.split(" ").length,
+    columns: getComputedStyle(element).gridTemplateColumns,
+  }));
+  const checkoutBounds = await checkoutRail.boundingBox();
+  const leftFlowBounds = await leftFlow.boundingBox();
+  assert(checkoutBounds !== null, `${label} checkout rail bounds`);
+  assert(leftFlowBounds !== null, `${label} left flow bounds`);
+
   if (viewport.width <= 390) {
+    assert.equal(gridGeometry.columnCount, 1, `${label} commerce grid one column`);
+    assert.equal(
+      await checkoutRail.evaluate((element) => getComputedStyle(element).position),
+      "static",
+      `${label} checkout non-sticky`,
+    );
+    assert.ok(
+      leftFlowBounds.y >= checkoutBounds.y + checkoutBounds.height - 1,
+      `${label} checkout precedes left flow`,
+    );
     await assertMobilePurchaseGeometry(page, viewport, label);
     await assertMobileDetailTapTargets(page, label);
+  } else {
+    assert.equal(gridGeometry.columnCount, 2, `${label} commerce grid two columns`);
+    assert.equal(
+      await checkoutRail.evaluate((element) => getComputedStyle(element).position),
+      "sticky",
+      `${label} checkout sticky position`,
+    );
+    assert.ok(
+      Math.abs(checkoutBounds.y - 112) <= 1,
+      `${label} sticky top=${String(checkoutBounds.y)}`,
+    );
+    assert.ok(checkoutBounds.y >= -1, `${label} checkout rail viewport top`);
+    assert.ok(
+      checkoutBounds.y + checkoutBounds.height <= viewport.height + 1,
+      `${label} checkout rail viewport bottom=${String(checkoutBounds.y + checkoutBounds.height)}`,
+    );
+    assert.equal(
+      rectanglesOverlap(leftFlowBounds, checkoutBounds),
+      false,
+      `${label} left flow/checkout overlap`,
+    );
+    await page.screenshot({ path: "/tmp/jplanet-product-reference-sticky.png" });
   }
 
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForFunction(() => window.scrollY <= 1);
   await page.screenshot({
     fullPage: true,
-    path: `/tmp/sazo-jplanet-product-${label}.png`,
+    path: screenshotPaths[label],
   });
 
-  return imageCount;
+  return {
+    campaignHeight: Math.round(campaignBounds.height),
+    checkoutHeight: Math.round(checkoutBounds.height),
+    columns: gridGeometry.columns,
+    imageCount,
+    quantityControl: `${Math.round(increaseBounds.width)}x${Math.round(increaseBounds.height)}`,
+    sourceControl: `${Math.round(sourceBounds.width)}x${Math.round(sourceBounds.height)}`,
+  };
 }
 
 let browser;
@@ -419,15 +561,20 @@ try {
       auditedOriginStates += 1;
     }
 
-    auditedImages += await auditProductViewport(
+    const summary = await auditProductViewport(
       page,
       baseUrl,
       viewport,
       fontNetworkFailures,
     );
+    auditedImages += summary.imageCount;
+    process.stdout.write(
+      `product-viewport ${viewport.label} ${JSON.stringify(summary)}\n`,
+    );
     await page.close();
   }
 
+  assert.equal(auditedImages, 33, "product detail audited image count");
   process.stdout.write(
     `sazo-product-detail-browser-ok viewports=${String(viewports.length)} originStates=${String(auditedOriginStates)} images=${String(auditedImages)}\n`,
   );
