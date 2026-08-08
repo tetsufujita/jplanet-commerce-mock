@@ -572,3 +572,10 @@ git commit -m "test: verify complete product detail reference"
 - Full verification GREEN: lint, typecheck, 14 Vitest files / 169 tests, production build (2,223 modules), required Prettier check, both Node syntax checks, both browser audits, forbidden-copy scan (no matches), live route HTTP 200, and `git diff --check`.
 - Visual review GREEN: all four required screenshots were inspected for source row, hero density, recommendation spacing, tab/order flow, campaign, sticky rail, mobile one-column layout, clipping, overlaps, and unwanted SAZO/Korea marks.
 - The required Prettier check exposed a pre-existing format-only mismatch in `ProductSourceLink.tsx`; ownership was explicitly expanded only for that mechanical formatting change, after which the full verification set was rerun.
+
+#### Task 4 review round 2 — image-source guard hardening
+
+- RED: focused fixtures in both browser scripts reproduced `false !== true` for `/assets/sazo.png`; `/assets/sazoshop.webp` had the same false-pass path.
+- Fix: both audits now evaluate a narrow image basename predicate that rejects standalone `sazo` / `sazoshop` files and their logo/wordmark variants while allowing ordinary assets under the legitimate `/sazo-commerce/` namespace. Existing Korea/TO JAPAN and theme legacy-asset checks remain active.
+- Focused boundary fixtures cover rejected `/assets/sazo.png` and `/assets/sazoshop.webp` plus allowed `/sazo-commerce/products/01.webp` and `/sazo-commerce/jplanet-sakura-mark.png`.
+- GREEN: product QA remained `viewports=3 originStates=12 images=33`; whole-site audit remained `states=36 mobileTopStates=26 images=546`.

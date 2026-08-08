@@ -15,9 +15,33 @@ const screenshotPaths = {
   "mobile-320": "/tmp/jplanet-product-reference-mobile-320.png",
 };
 const forbiddenProductCopy = [/sazo/i, /韓国/, /korea/i, /to\s+japan/i];
-const forbiddenProductAsset =
-  /(?:sazo(?:shop)?[-_.]?(?:logo|wordmark)|(?:logo|wordmark)[-_.]?sazo(?:shop)?|korea|to[-_]?japan)/i;
+const forbiddenBrandAssetBasename =
+  /^(?:(?:sazo|sazoshop)(?:[-_.](?:logo|wordmark)(?:[-_.][a-z0-9]+)*)?|(?:logo|wordmark)[-_.](?:sazo|sazoshop)(?:[-_.][a-z0-9]+)*)(?:@[1-9][0-9]*x)?\.(?:avif|gif|jpe?g|png|svg|webp)$/i;
+const forbiddenRouteAssetBasename = /(?:korea|to[-_]?japan)/i;
+const productBrandAssetPredicateCases = [
+  { expected: true, source: "/assets/sazo.png" },
+  { expected: true, source: "/assets/sazoshop.webp" },
+  { expected: false, source: "/sazo-commerce/products/01.webp" },
+  { expected: false, source: "/sazo-commerce/jplanet-sakura-mark.png" },
+];
 const notoFontRequest = /\/sazo-commerce\/fonts\/noto-sans-jp\/files\/.*\.woff2(?:\?|$)/i;
+
+function isForbiddenBrandAssetSource(source) {
+  const basename = source.split(/[?#]/u)[0]?.split("/").pop() ?? "";
+
+  return (
+    forbiddenBrandAssetBasename.test(basename) ||
+    forbiddenRouteAssetBasename.test(basename)
+  );
+}
+
+for (const { expected, source } of productBrandAssetPredicateCases) {
+  assert.equal(
+    isForbiddenBrandAssetSource(source),
+    expected,
+    `product brand asset predicate: ${source}`,
+  );
+}
 
 const server = await createServer({
   logLevel: "error",
@@ -111,10 +135,7 @@ async function assertDetailImages(page, label) {
   assert.ok(imageAudit.count > 0, `${label} detail image count`);
   assert.deepEqual(imageAudit.failures, [], `${label} detail image load failures`);
   assert.deepEqual(
-    imageAudit.sources.filter((source) => {
-      const filename = source.split(/[?#]/u)[0]?.split("/").pop() ?? "";
-      return forbiddenProductAsset.test(filename);
-    }),
+    imageAudit.sources.filter(isForbiddenBrandAssetSource),
     [],
     `${label} forbidden product image branding`,
   );

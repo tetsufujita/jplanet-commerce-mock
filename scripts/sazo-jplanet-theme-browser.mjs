@@ -42,6 +42,9 @@ function normalizeRenderedCopy(text) {
 const forbiddenRouteCopy = ["韓国", "KOREA", "TO JAPAN", "韓国代行", "日本まで発送"];
 const forbiddenBrandPattern = /\bSAZO(?:SHOP)?\b/i;
 const forbiddenLogoSelectors = ["[data-sazo-wordmark]", ".sazo-logo"];
+const forbiddenBrandAssetBasename =
+  /^(?:(?:sazo|sazoshop)(?:[-_.](?:logo|wordmark)(?:[-_.][a-z0-9]+)*)?|(?:logo|wordmark)[-_.](?:sazo|sazoshop)(?:[-_.][a-z0-9]+)*)(?:@[1-9][0-9]*x)?\.(?:avif|gif|jpe?g|png|svg|webp)$/i;
+const forbiddenRouteAssetBasename = /(?:korea|to[-_]?japan)/i;
 const forbiddenAssetFragments = [
   "/sazo-logo",
   "/logo-sazo",
@@ -54,11 +57,36 @@ const forbiddenAssetFragments = [
   "/sazo-commerce/service-lp/how-to-use-2.png",
   "/sazo-commerce/service-lp/how-to-use-3.png",
 ];
+const themeBrandAssetPredicateCases = [
+  { expected: true, source: "/assets/sazo.png" },
+  { expected: true, source: "/assets/sazoshop.webp" },
+  { expected: false, source: "/sazo-commerce/products/01.webp" },
+  { expected: false, source: "/sazo-commerce/jplanet-sakura-mark.png" },
+];
 const approvedServiceStepAssets = [
   "/sazo-commerce/service-lp/jplanet-how-to-use-1.svg",
   "/sazo-commerce/service-lp/jplanet-how-to-use-2.svg",
   "/sazo-commerce/service-lp/jplanet-how-to-use-3.svg",
 ];
+
+function isForbiddenBrandAssetSource(source) {
+  const normalizedSource = source.toLowerCase();
+  const basename = normalizedSource.split(/[?#]/u)[0]?.split("/").pop() ?? "";
+
+  return (
+    forbiddenBrandAssetBasename.test(basename) ||
+    forbiddenRouteAssetBasename.test(basename) ||
+    forbiddenAssetFragments.some((fragment) => normalizedSource.includes(fragment))
+  );
+}
+
+for (const { expected, source } of themeBrandAssetPredicateCases) {
+  assert.equal(
+    isForbiddenBrandAssetSource(source),
+    expected,
+    `theme brand asset predicate: ${source}`,
+  );
+}
 
 function contentSelector(view) {
   if (view === "home") return "[data-home-view]";
@@ -249,31 +277,29 @@ async function assertJplanetTheme(page, label) {
     );
   }
 
-  const imageAudit = await root
-    .locator("img")
-    .evaluateAll((images, forbiddenFragments) => {
-      const failures = [];
-      const forbiddenAssets = [];
+  const imageAudit = await root.locator("img").evaluateAll((images) => {
+    const failures = [];
+    const sources = [];
 
-      for (const image of images) {
-        const source = image.currentSrc || image.getAttribute("src") || "<missing-src>";
-        if (!image.complete || image.naturalWidth <= 0 || image.naturalHeight <= 0) {
-          failures.push(
-            `${source} complete=${String(image.complete)} size=${String(image.naturalWidth)}x${String(image.naturalHeight)}`,
-          );
-        }
-        if (
-          forbiddenFragments.some((fragment) => source.toLowerCase().includes(fragment))
-        ) {
-          forbiddenAssets.push(source);
-        }
+    for (const image of images) {
+      const source = image.currentSrc || image.getAttribute("src") || "<missing-src>";
+      sources.push(source);
+      if (!image.complete || image.naturalWidth <= 0 || image.naturalHeight <= 0) {
+        failures.push(
+          `${source} complete=${String(image.complete)} size=${String(image.naturalWidth)}x${String(image.naturalHeight)}`,
+        );
       }
+    }
 
-      return { count: images.length, failures, forbiddenAssets };
-    }, forbiddenAssetFragments);
+    return { count: images.length, failures, sources };
+  });
 
   assert.deepEqual(imageAudit.failures, [], `${label} image load failures`);
-  assert.deepEqual(imageAudit.forbiddenAssets, [], `${label} legacy brand assets`);
+  assert.deepEqual(
+    imageAudit.sources.filter(isForbiddenBrandAssetSource),
+    [],
+    `${label} legacy brand assets`,
+  );
   assert.equal(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
     true,
