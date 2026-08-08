@@ -92,15 +92,15 @@ const shippingSteps = [
   "ブラジルへお届け",
 ] as const;
 
-const partnerLogos = [
-  ["AliExpress", "logo-aliexpress.png"],
-  ["번개장터", "logo-bungae.png"],
-  ["coupang", "logo-coupang.png"],
-  ["Gmarket", "logo-gmarket.png"],
-  ["WEBTOON FRIENDS", "logo-webtoonfriends.png"],
-  ["tumblbug", "logo-tumblbug.png"],
-  ["TOY LAND", "logo-toyland.png"],
-  ["smile24", "logo-smile24.png"],
+const partnerCategories = [
+  "公式通販",
+  "百貨店",
+  "フリマ",
+  "家電",
+  "ホビー",
+  "コスメ",
+  "書籍",
+  "クラファン",
 ] as const;
 
 const trustItems = [
@@ -385,14 +385,10 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
           <small>フリマ・クラファンなど</small>日本の<span>どの通販</span>でも！
         </h2>
         <div className="sazo-service-partner-grid">
-          {partnerLogos.map(([name, image]) => (
-            <img
-              alt={name}
-              height={180}
-              key={name}
-              src={`/sazo-commerce/service-lp/${image}`}
-              width={460}
-            />
+          {partnerCategories.map((category) => (
+            <article className="sazo-service-partner-card" key={category}>
+              {category}
+            </article>
           ))}
         </div>
       </section>

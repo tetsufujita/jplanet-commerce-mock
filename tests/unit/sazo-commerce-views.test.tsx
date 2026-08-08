@@ -168,6 +168,25 @@ describe("SAZO captured view contracts", () => {
       "国際配送・通関",
       "ブラジルへお届け",
     ]);
+    expect(
+      Array.from(
+        container.querySelectorAll(".sazo-service-partner-card"),
+        (card) => card.textContent,
+      ),
+    ).toEqual([
+      "公式通販",
+      "百貨店",
+      "フリマ",
+      "家電",
+      "ホビー",
+      "コスメ",
+      "書籍",
+      "クラファン",
+    ]);
+    expect(container.querySelectorAll(".sazo-service-partner-grid img")).toHaveLength(0);
+    expect(container.querySelector(".sazo-service-view")?.textContent).not.toMatch(
+      /韓国|KOREA|TO JAPAN|韓国代行|日本まで発送/,
+    );
   });
 
   it("renders the complete forwarding landing-page sequence from the recording", async () => {
