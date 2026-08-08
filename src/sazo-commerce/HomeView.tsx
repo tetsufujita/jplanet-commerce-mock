@@ -1,6 +1,7 @@
 import type { CSSProperties, Dispatch } from "react";
 import { useCallback } from "react";
 import {
+  ArrowRight,
   Camera,
   ChevronLeft,
   ChevronRight,
@@ -550,8 +551,29 @@ function SearchDiscovery({ dispatch, state }: Pick<HomeViewProps, "dispatch" | "
         <div className="sazo-large-search" role="search">
           <Search aria-hidden size={24} strokeWidth={2} />
           <span>{t("sazo.home.searchPlaceholder")}</span>
-          <button type="button">{t("sazo.home.searchButton")}</button>
+          <button type="button">
+            <span>{t("sazo.home.searchButton")}</span>
+            <ArrowRight
+              aria-hidden
+              data-search-submit-arrow
+              size={22}
+              strokeWidth={2.2}
+            />
+          </button>
         </div>
+        <svg
+          aria-hidden="true"
+          className="sazo-search-guidance-arrow"
+          data-search-guidance-arrow
+          focusable="false"
+          viewBox="0 0 140 92"
+        >
+          <path
+            d="M132 84 C100 72 82 92 50 87 C17 82 8 61 15 39 C18 29 24 21 31 15"
+            data-search-guidance-curve
+          />
+          <path d="M16 20 L31 15 L33 31" data-search-guidance-head />
+        </svg>
         <p>{t("sazo.home.searchHint")}</p>
       </div>
       <SectionHeading title={t("sazo.home.searchedTitle")} />

@@ -77,6 +77,21 @@ function HeroTicker({
 }
 
 describe("SAZO home composition", () => {
+  it("uses a dedicated decorative SVG for the search guidance", async () => {
+    const { container } = await renderHomePage();
+    const callout = container.querySelector(".sazo-search-callout");
+    const guidance = callout?.querySelector("svg[data-search-guidance-arrow]");
+    const submit = callout?.querySelector<HTMLButtonElement>("button");
+
+    expect(guidance).not.toBeNull();
+    expect(guidance?.getAttribute("aria-hidden")).toBe("true");
+    expect(guidance?.querySelectorAll("path")).toHaveLength(2);
+    expect(guidance?.querySelector("[data-search-guidance-curve]")).not.toBeNull();
+    expect(guidance?.querySelector("[data-search-guidance-head]")).not.toBeNull();
+    expect(submit?.querySelector("svg[data-search-submit-arrow]")).not.toBeNull();
+    expect(submit?.textContent).toBe("検索");
+  });
+
   it("promotes the Japan-to-Brazil direct-shipping offer", async () => {
     const { container } = await renderHomePage();
     const introHeading = container.querySelector(".sazo-home-intro h1");
