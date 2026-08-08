@@ -409,12 +409,14 @@
         },
         "recommendations": {
           "eyebrow": "RECOMENDADOS",
-          "title": "Você também pode gostar"
+          "title": "Você também pode gostar",
+          "next": "Próximos produtos"
         },
         "order": {
           "eyebrow": "FLUXO DO PEDIDO",
           "title": "Do pedido à entrega",
           "listLabel": "Etapas do pedido e da entrega",
+          "detailsLink": "Ver detalhes da entrega",
           "step": "ETAPA {{step}}",
           "stages": {
             "received": "Pedido recebido",
@@ -423,6 +425,14 @@
             "shipping": "Envio internacional e alfândega",
             "delivered": "Entrega no Brasil"
           }
+        },
+        "campaign": {
+          "label": "J-Planet do Japão para o Brasil",
+          "eyebrow": "J-PLANET CROSS-BORDER",
+          "title": "Compre diretamente de lojas japonesas",
+          "body": "A J-Planet compra e inspeciona no Japão antes de entregar no Brasil.",
+          "origin": "Japão",
+          "destination": "Brasil"
         },
         "tabs": {
           "label": "Detalhes do produto",

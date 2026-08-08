@@ -1379,7 +1379,7 @@ const productDetailOverrides = new Map<string, Omit<ProductDetail, "product">>([
       purchaseNote: "日本で検品後、ブラジルへ国際配送します。",
       information:
         "日本の販売元から手配し、検品後にブラジルへお届けします。配送日数と関税は、お届け先と商品の条件により異なります。",
-      recommendationIds: ["p02", "p03", "recommendation-heart"],
+      recommendationIds: ["p02", "p03", "p04", "p05", "p06", "p07"],
     },
   ],
 ]);
@@ -1402,7 +1402,7 @@ function createGeneratedProductDetail(product: Product): ProductDetail {
       "日本の販売元から手配し、検品後にブラジルへお届けします。配送日数と関税は、お届け先と商品の条件により異なります。",
     recommendationIds: [...productRegistry.keys()]
       .filter((candidateId) => candidateId !== product.id)
-      .slice(0, 4),
+      .slice(0, 6),
   };
 }
 

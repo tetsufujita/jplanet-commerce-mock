@@ -2,7 +2,6 @@ import type { Dispatch, KeyboardEvent } from "react";
 import { useRef, useState } from "react";
 import {
   ArrowLeft,
-  Check,
   ChevronLeft,
   ChevronRight,
   CircleDollarSign,
@@ -10,7 +9,6 @@ import {
   Home,
   ImageOff,
   MessageSquareText,
-  PackageCheck,
   Search,
   Share2,
   ShieldCheck,
@@ -21,8 +19,10 @@ import {
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { ProductCard } from "@/sazo-commerce/ProductCard";
+import { ProductCampaignBanner } from "@/sazo-commerce/ProductCampaignBanner";
+import { ProductOrderFlow } from "@/sazo-commerce/ProductOrderFlow";
 import { ProductPurchasePanel } from "@/sazo-commerce/ProductPurchasePanel";
+import { ProductRecommendationRail } from "@/sazo-commerce/ProductRecommendationRail";
 import { ProductSourceLink } from "@/sazo-commerce/ProductSourceLink";
 import {
   catalogInventory,
@@ -44,14 +44,6 @@ const productDetailTabs = [
   { id: "information", labelKey: "tabs.information" },
   { id: "cautions", labelKey: "tabs.cautions" },
 ] as const satisfies readonly { id: ProductDetailTab; labelKey: string }[];
-
-const orderStages = [
-  { icon: Check, labelKey: "order.stages.received" },
-  { icon: Store, labelKey: "order.stages.purchased" },
-  { icon: PackageCheck, labelKey: "order.stages.inspected" },
-  { icon: Truck, labelKey: "order.stages.shipping" },
-  { icon: Home, labelKey: "order.stages.delivered" },
-] as const;
 
 const cautionCards = [
   {
@@ -474,163 +466,131 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
               {shareFeedback}
             </motion.p>
           )}
+        </aside>
+      </div>
 
+      <div className="sazo-product-detail-commerce-grid">
+        <aside className="sazo-product-detail-checkout-rail">
           <ProductPurchasePanel
             detail={detail}
             dispatch={dispatch}
             reduceMotion={reduceMotion}
           />
         </aside>
-      </div>
 
-      <section className="sazo-product-detail-section sazo-product-detail-recommendations">
-        <div className="sazo-product-detail-section-heading">
-          <div>
-            <span>{t("sazo.views.productDetail.recommendations.eyebrow")}</span>
-            <h2>{t("sazo.views.productDetail.recommendations.title")}</h2>
-          </div>
-        </div>
-        <div className="sazo-product-detail-recommendation-track">
-          {recommendations.map((recommendation) => (
-            <ProductCard
-              key={recommendation.id}
-              onOpen={(recommendationId) => {
-                dispatch({ type: "open-product", productId: recommendationId });
-              }}
-              product={recommendation}
-              variant="compact"
-            />
-          ))}
-        </div>
-      </section>
+        <div className="sazo-product-detail-left-flow">
+          <ProductRecommendationRail dispatch={dispatch} products={recommendations} />
 
-      <section className="sazo-product-detail-section sazo-product-detail-order">
-        <div className="sazo-product-detail-section-heading">
-          <div>
-            <span>{t("sazo.views.productDetail.order.eyebrow")}</span>
-            <h2>{t("sazo.views.productDetail.order.title")}</h2>
-          </div>
-        </div>
-        <div className="sazo-product-detail-timeline-scroll">
-          <ol
-            aria-label={t("sazo.views.productDetail.order.listLabel")}
-            className="sazo-product-detail-timeline"
-          >
-            {orderStages.map(({ icon: Icon, labelKey }, index) => (
-              <li data-stage={index + 1} key={labelKey}>
-                <span className="sazo-product-detail-stage-icon">
-                  <Icon aria-hidden size={23} strokeWidth={1.9} />
-                </span>
-                <span className="sazo-product-detail-stage-number">
-                  {t("sazo.views.productDetail.order.step", { step: index + 1 })}
-                </span>
-                <strong>{t(`sazo.views.productDetail.${labelKey}`)}</strong>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      <section className="sazo-product-detail-section sazo-product-detail-information">
-        <div
-          aria-label={t("sazo.views.productDetail.tabs.label")}
-          className="sazo-product-detail-tabs"
-          role="tablist"
-        >
-          {productDetailTabs.map((tab, index) => (
-            <button
-              aria-controls="sazo-product-detail-tabpanel"
-              aria-selected={activeTab === tab.id}
-              id={`sazo-product-${tab.id}-tab`}
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id);
-              }}
-              onKeyDown={(event) => {
-                handleTabKeyDown(event, index);
-              }}
-              ref={(node) => {
-                tabRefs.current[index] = node;
-              }}
-              role="tab"
-              tabIndex={activeTab === tab.id ? 0 : -1}
-              type="button"
+          <section className="sazo-product-detail-section sazo-product-detail-information">
+            <div
+              aria-label={t("sazo.views.productDetail.tabs.label")}
+              className="sazo-product-detail-tabs"
+              role="tablist"
             >
-              {t(`sazo.views.productDetail.${tab.labelKey}`)}
-            </button>
-          ))}
-        </div>
-        <div
-          aria-labelledby={`sazo-product-${activeTab}-tab`}
-          className="sazo-product-detail-tabpanel"
-          id="sazo-product-detail-tabpanel"
-          role="tabpanel"
-        >
-          {activeTab === "information" ? (
-            <>
-              <h2>{t("sazo.views.productDetail.tabs.informationTitle")}</h2>
-              <p>{detail.information}</p>
-            </>
-          ) : (
-            <>
-              <h2>{t("sazo.views.productDetail.tabs.cautionsTitle")}</h2>
-              <p>{t("sazo.views.productDetail.tabs.cautionsBody")}</p>
-            </>
-          )}
-        </div>
-      </section>
+              {productDetailTabs.map((tab, index) => (
+                <button
+                  aria-controls="sazo-product-detail-tabpanel"
+                  aria-selected={activeTab === tab.id}
+                  id={`sazo-product-${tab.id}-tab`}
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                  }}
+                  onKeyDown={(event) => {
+                    handleTabKeyDown(event, index);
+                  }}
+                  ref={(node) => {
+                    tabRefs.current[index] = node;
+                  }}
+                  role="tab"
+                  tabIndex={activeTab === tab.id ? 0 : -1}
+                  type="button"
+                >
+                  {t(`sazo.views.productDetail.${tab.labelKey}`)}
+                </button>
+              ))}
+            </div>
+            <div
+              aria-labelledby={`sazo-product-${activeTab}-tab`}
+              className="sazo-product-detail-tabpanel"
+              id="sazo-product-detail-tabpanel"
+              role="tabpanel"
+            >
+              {activeTab === "information" ? (
+                <>
+                  <ProductOrderFlow compact />
+                  <div id="sazo-product-detail-order-details">
+                    <h2>{t("sazo.views.productDetail.tabs.informationTitle")}</h2>
+                    <p>{detail.information}</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2>{t("sazo.views.productDetail.tabs.cautionsTitle")}</h2>
+                  <p>{t("sazo.views.productDetail.tabs.cautionsBody")}</p>
+                </>
+              )}
+            </div>
+          </section>
 
-      <section className="sazo-product-detail-section sazo-product-detail-review">
-        <div className="sazo-product-detail-section-heading">
-          <div>
-            <span>{t("sazo.views.productDetail.review.eyebrow")}</span>
-            <h2>{t("sazo.views.productDetail.review.title")}</h2>
-          </div>
-        </div>
-        <div className="sazo-product-detail-review-empty">
-          <MessageSquareText aria-hidden size={28} strokeWidth={1.7} />
-          <p>{t("sazo.views.productDetail.review.empty")}</p>
-          <span>{t("sazo.views.productDetail.review.emptyBody")}</span>
-        </div>
-      </section>
+          <ProductCampaignBanner />
 
-      <section className="sazo-product-detail-section sazo-product-detail-cautions">
-        <div className="sazo-product-detail-section-heading">
-          <div>
-            <span>{t("sazo.views.productDetail.cautions.eyebrow")}</span>
-            <h2>{t("sazo.views.productDetail.cautions.title")}</h2>
-          </div>
-        </div>
-        <div className="sazo-product-detail-card-grid">
-          {cautionCards.map(({ copyKey, titleKey }) => (
-            <article className="sazo-product-detail-caution-card" key={titleKey}>
-              <ShieldCheck aria-hidden size={23} strokeWidth={1.8} />
-              <h3>{t(`sazo.views.productDetail.${titleKey}`)}</h3>
-              <p>{t(`sazo.views.productDetail.${copyKey}`)}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+          <section className="sazo-product-detail-section sazo-product-detail-review">
+            <div className="sazo-product-detail-section-heading">
+              <div>
+                <span>{t("sazo.views.productDetail.review.eyebrow")}</span>
+                <h2>{t("sazo.views.productDetail.review.title")}</h2>
+              </div>
+            </div>
+            <div className="sazo-product-detail-review-empty">
+              <MessageSquareText aria-hidden size={28} strokeWidth={1.7} />
+              <p>{t("sazo.views.productDetail.review.empty")}</p>
+              <span>{t("sazo.views.productDetail.review.emptyBody")}</span>
+            </div>
+          </section>
 
-      <section className="sazo-product-detail-section sazo-product-detail-benefits">
-        <div className="sazo-product-detail-section-heading">
-          <div>
-            <span>{t("sazo.views.productDetail.benefits.eyebrow")}</span>
-            <h2>{t("sazo.views.productDetail.benefits.title")}</h2>
-          </div>
+          <section
+            className="sazo-product-detail-section sazo-product-detail-cautions"
+            id="sazo-product-detail-cautions"
+          >
+            <div className="sazo-product-detail-section-heading">
+              <div>
+                <span>{t("sazo.views.productDetail.cautions.eyebrow")}</span>
+                <h2>{t("sazo.views.productDetail.cautions.title")}</h2>
+              </div>
+            </div>
+            <div className="sazo-product-detail-card-grid">
+              {cautionCards.map(({ copyKey, titleKey }) => (
+                <article className="sazo-product-detail-caution-card" key={titleKey}>
+                  <ShieldCheck aria-hidden size={23} strokeWidth={1.8} />
+                  <h3>{t(`sazo.views.productDetail.${titleKey}`)}</h3>
+                  <p>{t(`sazo.views.productDetail.${copyKey}`)}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="sazo-product-detail-section sazo-product-detail-benefits">
+            <div className="sazo-product-detail-section-heading">
+              <div>
+                <span>{t("sazo.views.productDetail.benefits.eyebrow")}</span>
+                <h2>{t("sazo.views.productDetail.benefits.title")}</h2>
+              </div>
+            </div>
+            <div className="sazo-product-detail-card-grid">
+              {benefitCards.map(({ copyKey, icon: Icon, titleKey }) => (
+                <article className="sazo-product-detail-benefit-card" key={titleKey}>
+                  <span className="sazo-product-detail-benefit-icon">
+                    <Icon aria-hidden size={25} strokeWidth={1.9} />
+                  </span>
+                  <h3>{t(`sazo.views.productDetail.${titleKey}`)}</h3>
+                  <p>{t(`sazo.views.productDetail.${copyKey}`)}</p>
+                </article>
+              ))}
+            </div>
+          </section>
         </div>
-        <div className="sazo-product-detail-card-grid">
-          {benefitCards.map(({ copyKey, icon: Icon, titleKey }) => (
-            <article className="sazo-product-detail-benefit-card" key={titleKey}>
-              <span className="sazo-product-detail-benefit-icon">
-                <Icon aria-hidden size={25} strokeWidth={1.9} />
-              </span>
-              <h3>{t(`sazo.views.productDetail.${titleKey}`)}</h3>
-              <p>{t(`sazo.views.productDetail.${copyKey}`)}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+      </div>
     </motion.article>
   );
 }

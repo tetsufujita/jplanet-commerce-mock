@@ -409,12 +409,14 @@
         },
         "recommendations": {
           "eyebrow": "RECOMMEND",
-          "title": "この商品はいかがですか？"
+          "title": "この商品はいかがですか？",
+          "next": "次の商品"
         },
         "order": {
           "eyebrow": "ORDER FLOW",
           "title": "ご注文からお届けまで",
           "listLabel": "注文からお届けまで",
+          "detailsLink": "配送の詳細を見る",
           "step": "STEP {{step}}",
           "stages": {
             "received": "注文受付",
@@ -423,6 +425,14 @@
             "shipping": "国際配送・通関",
             "delivered": "ブラジルへお届け"
           }
+        },
+        "campaign": {
+          "label": "J-Planet 日本からブラジルへ",
+          "eyebrow": "J-PLANET CROSS-BORDER",
+          "title": "日本の販売サイトから直接購入",
+          "body": "J-Planetが日本で購入・検品し、ブラジルへお届けします。",
+          "origin": "日本",
+          "destination": "ブラジル"
         },
         "tabs": {
           "label": "商品詳細",

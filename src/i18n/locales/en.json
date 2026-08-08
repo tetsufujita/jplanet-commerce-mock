@@ -409,12 +409,14 @@
         },
         "recommendations": {
           "eyebrow": "RECOMMEND",
-          "title": "You may also like"
+          "title": "You may also like",
+          "next": "Next products"
         },
         "order": {
           "eyebrow": "ORDER FLOW",
           "title": "From order to delivery",
           "listLabel": "Order and delivery progress",
+          "detailsLink": "View delivery details",
           "step": "STEP {{step}}",
           "stages": {
             "received": "Order received",
@@ -423,6 +425,14 @@
             "shipping": "International shipping and customs",
             "delivered": "Delivered in Brazil"
           }
+        },
+        "campaign": {
+          "label": "J-Planet from Japan to Brazil",
+          "eyebrow": "J-PLANET CROSS-BORDER",
+          "title": "Purchase directly from Japanese retailers",
+          "body": "J-Planet purchases and inspects in Japan, then delivers to Brazil.",
+          "origin": "Japan",
+          "destination": "Brazil"
         },
         "tabs": {
           "label": "Product details",
