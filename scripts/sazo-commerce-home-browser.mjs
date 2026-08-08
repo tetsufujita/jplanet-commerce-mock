@@ -14,10 +14,11 @@ try {
   const address = server.httpServer?.address();
 
   assert(address !== null && typeof address === "object");
+  const homeUrl = `http://127.0.0.1:${String(address.port)}/sazo-commerce-mock/`;
   browser = await chromium.launch({ channel: "chrome", headless: true });
   const page = await browser.newPage({ viewport: { height: 828, width: 1511 } });
 
-  await page.goto(`http://127.0.0.1:${String(address.port)}/sazo-commerce-mock/`);
+  await page.goto(homeUrl);
   await page.locator("[data-home-view]").waitFor();
 
   const desktopHeaderBand = page.locator(".sazo-desktop-header-band");
@@ -152,14 +153,90 @@ try {
   await pause.click();
   await page.getByRole("button", { name: "バナーを再生" }).waitFor();
 
+  await page.evaluate(() => document.fonts.ready);
+  const searchCallout = page.locator(".sazo-search-callout");
+  await searchCallout.scrollIntoViewIfNeeded();
+  const searchField = searchCallout.locator(".sazo-large-search");
+  const searchButton = searchField.getByRole("button", { name: "検索" });
+  const searchIcon = searchField.locator(":scope > svg").first();
+  const guidance = searchCallout.locator("svg[data-search-guidance-arrow]");
+  const guidanceCurve = guidance.locator("[data-search-guidance-curve]");
+  const hint = searchCallout.locator(":scope > p");
+  const [calloutBounds, fieldBounds, buttonBounds, iconBounds, hintBounds] =
+    await Promise.all([
+      searchCallout.boundingBox(),
+      searchField.boundingBox(),
+      searchButton.boundingBox(),
+      searchIcon.boundingBox(),
+      hint.boundingBox(),
+    ]);
+
+  assert(calloutBounds && fieldBounds && buttonBounds && iconBounds && hintBounds);
+  assert(Math.abs(calloutBounds.width - 640) < 2);
+  assert(
+    Math.abs(fieldBounds.height - 82) < 2,
+    `search field height=${String(fieldBounds.height)}`,
+  );
+  assert(
+    Math.abs(buttonBounds.height - 64) < 2,
+    `search button height=${String(buttonBounds.height)}`,
+  );
+  assert.equal(
+    await searchButton.evaluate((element) => getComputedStyle(element).backgroundColor),
+    "rgb(254, 162, 172)",
+  );
+  assert.equal(await guidance.getAttribute("aria-hidden"), "true");
+  assert.equal(await guidance.locator("path").count(), 2);
+  assert.equal(
+    await guidanceCurve.evaluate((element) => getComputedStyle(element).strokeLinecap),
+    "round",
+  );
+  assert.equal(
+    await guidanceCurve.evaluate((element) => getComputedStyle(element).strokeLinejoin),
+    "round",
+  );
+  const tip = await guidanceCurve.evaluate((path) => {
+    const point = path.getPointAtLength(path.getTotalLength());
+    const matrix = path.getScreenCTM();
+    const screenPoint = new DOMPoint(point.x, point.y).matrixTransform(
+      matrix ?? undefined,
+    );
+
+    return { x: screenPoint.x, y: screenPoint.y };
+  });
+  const iconCenter = {
+    x: iconBounds.x + iconBounds.width / 2,
+    y: iconBounds.y + iconBounds.height / 2,
+  };
+  const tipDistance = Math.hypot(tip.x - iconCenter.x, tip.y - iconCenter.y);
+
+  assert(tipDistance < 30, `guidance tip distance=${String(tipDistance)}`);
+  assert(tipDistance > 8, `guidance tip distance=${String(tipDistance)}`);
+  const hintLineHeight = Number.parseFloat(
+    await hint.evaluate((element) => getComputedStyle(element).lineHeight),
+  );
+
+  assert.equal(Math.round(hintBounds.height / hintLineHeight), 2);
+  assert.equal(await searchButton.locator("svg[data-search-submit-arrow]").count(), 1);
+  await searchCallout.screenshot({
+    path: "/tmp/jplanet-home-search-callout-desktop.png",
+  });
+
   await page
     .locator(".sazo-desktop-nav")
     .getByRole("button", { exact: true, name: "サービス紹介" })
     .click();
   await page.locator('[data-view-content="service"]').waitFor();
-  const serviceStepBounds = await page
-    .locator('.sazo-service-step[data-step="01"]')
-    .boundingBox();
+  const serviceStep = page.locator('.sazo-service-step[data-step="01"]');
+  await serviceStep.evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+
+    window.scrollTo({
+      behavior: "instant",
+      top: window.scrollY + bounds.top - 268,
+    });
+  });
+  const serviceStepBounds = await serviceStep.boundingBox();
 
   assert(serviceStepBounds !== null);
   assert.equal(await page.locator(".sazo-service-url-card").isVisible(), false);
@@ -168,11 +245,17 @@ try {
     Math.abs(serviceStepBounds.y - 268) < 12,
     `service step y=${String(serviceStepBounds.y)}`,
   );
-  assert(Math.abs(serviceStepBounds.width - 1010) < 12);
-  assert(Math.abs(serviceStepBounds.height - 436) < 12);
+  assert(
+    Math.abs(serviceStepBounds.width - 1156) < 12,
+    `service step width=${String(serviceStepBounds.width)}`,
+  );
+  assert(
+    Math.abs(serviceStepBounds.height - 500) < 12,
+    `service step height=${String(serviceStepBounds.height)}`,
+  );
   assert.equal(
     await page
-      .locator(".sazo-service-title h1")
+      .locator(".sazo-service-title h2")
       .evaluate((element) => getComputedStyle(element).fontSize),
     "54px",
   );
@@ -299,7 +382,7 @@ try {
 
   const mobilePage = await browser.newPage({ viewport: { height: 735, width: 341 } });
 
-  await mobilePage.goto(`http://127.0.0.1:${String(address.port)}/sazo-commerce-mock/`);
+  await mobilePage.goto(homeUrl);
   await mobilePage.locator("[data-home-view]").waitFor();
   const mobileHeaderActions = mobilePage.getByRole("group", {
     name: "モバイルヘッダー操作",
@@ -472,6 +555,66 @@ try {
   assert.equal(Math.round(campaignBannerBounds.height), 233);
   assert(Math.abs(campaignSecondRailImageBounds.y - 586) < 3);
   assert(Math.abs(campaignUrlBounds.y - 664) < 4);
+
+  const mobileCalloutMeasurements = [];
+
+  for (const viewport of [
+    { height: 844, width: 390 },
+    { height: 844, width: 320 },
+  ]) {
+    const mobile = await browser.newPage({ viewport });
+    await mobile.goto(homeUrl);
+    await mobile.locator("[data-home-view]").waitFor();
+    await mobile.evaluate(() => document.fonts.ready);
+    const mobileCallout = mobile.locator(".sazo-search-callout");
+    await mobileCallout.scrollIntoViewIfNeeded();
+
+    assert.equal(
+      await mobileCallout.locator("svg[data-search-guidance-arrow]").isVisible(),
+      false,
+    );
+    const mobileScrollWidth = await mobile.evaluate(
+      () => document.documentElement.scrollWidth,
+    );
+    assert.equal(mobileScrollWidth, viewport.width);
+    const mobileButtonBounds = await mobileCallout
+      .getByRole("button", { name: "検索" })
+      .boundingBox();
+    const mobileCalloutBounds = await mobileCallout.boundingBox();
+
+    assert(mobileButtonBounds && mobileCalloutBounds);
+    assert(mobileButtonBounds.height >= 44);
+    mobileCalloutMeasurements.push({
+      buttonHeight: mobileButtonBounds.height,
+      calloutHeight: mobileCalloutBounds.height,
+      calloutWidth: mobileCalloutBounds.width,
+      scrollWidth: mobileScrollWidth,
+      viewportWidth: viewport.width,
+    });
+    if (viewport.width === 390) {
+      await mobileCallout.screenshot({
+        path: "/tmp/jplanet-home-search-callout-mobile.png",
+      });
+    }
+    await mobile.close();
+  }
+
+  process.stdout.write(
+    `sazo-home-search-callout-metrics ${JSON.stringify({
+      desktop: {
+        buttonHeight: buttonBounds.height,
+        calloutHeight: calloutBounds.height,
+        calloutWidth: calloutBounds.width,
+        fieldHeight: fieldBounds.height,
+        hintHeight: hintBounds.height,
+        hintLineHeight,
+        iconCenter,
+        tip,
+        tipDistance,
+      },
+      mobile: mobileCalloutMeasurements,
+    })}\n`,
+  );
 
   process.stdout.write("sazo-home-browser-ok\n");
 } finally {

@@ -2965,7 +2965,7 @@
 }
 
 .sazo-root .sazo-search-discovery {
-  padding-top: 71px;
+  padding-top: 90px;
 }
 
 .sazo-root .sazo-search-callout {
@@ -2978,7 +2978,7 @@
   position: absolute;
   z-index: 1;
   top: 143px;
-  left: 8px;
+  left: -9px;
   width: 140px;
   height: 92px;
   overflow: visible;
@@ -2997,6 +2997,7 @@
 
 .sazo-root .sazo-search-callout h2 {
   font-size: 34px;
+  letter-spacing: -0.02em;
 }
 
 .sazo-root .sazo-large-search {
@@ -3004,8 +3005,8 @@
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 15px;
-  min-height: 78px;
-  margin-top: 23px;
+  min-height: 82px;
+  margin-top: 29px;
   padding: 8px 9px 8px 26px;
   border: 1px solid var(--jplanet-line);
   border-radius: 999px;
@@ -3022,12 +3023,12 @@
   align-items: center;
   justify-content: center;
   gap: 18px;
-  min-width: 130px;
-  min-height: 60px;
+  min-width: 132px;
+  min-height: 64px;
   border: 0;
   border-radius: 999px;
-  background: var(--jplanet-navy);
-  color: var(--jplanet-surface);
+  background: var(--jplanet-sakura);
+  color: var(--jplanet-deep-navy);
   font-weight: 800;
   cursor: pointer;
 }
@@ -3037,9 +3038,12 @@
 }
 
 .sazo-root .sazo-search-callout > p {
-  margin: 20px 0 0 104px;
+  width: 236px;
+  margin: 18px 0 0 126px;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 800;
+  line-height: 1.45;
+  text-align: center;
 }
 
 .sazo-root .sazo-search-discovery > .sazo-section-heading {

@@ -23,11 +23,13 @@
 ### Task 1: Dedicated Guidance SVG and Submit Icon
 
 **Files:**
+
 - Modify: `src/sazo-commerce/HomeView.tsx:3-12,543-556`
 - Modify: `src/sazo-commerce/sazo.css:2967-3040,3775-3806`
 - Test: `tests/unit/sazo-commerce-home.test.tsx:139-260`
 
 **Interfaces:**
+
 - Consumes: existing `SearchDiscovery`, `Search`, translation keys `sazo.home.searchTitle`, `searchPlaceholder`, `searchButton`, and `searchHint`.
 - Produces: `svg[data-search-guidance-arrow]`, body path `[data-search-guidance-curve]`, arrowhead path `[data-search-guidance-head]`, and `svg[data-search-submit-arrow]` for Task 2 browser geometry checks.
 
@@ -39,9 +41,7 @@ Add a focused case inside `describe("SAZO home composition")`:
 it("uses a dedicated decorative SVG for the search guidance", async () => {
   const { container } = await renderHomePage();
   const callout = container.querySelector(".sazo-search-callout");
-  const guidance = callout?.querySelector(
-    "svg[data-search-guidance-arrow]",
-  );
+  const guidance = callout?.querySelector("svg[data-search-guidance-arrow]");
   const submit = screen.getByRole("button", { name: "検索" });
 
   expect(guidance).not.toBeNull();
@@ -167,15 +167,17 @@ git commit -m "feat: add smooth home search guidance arrow"
 ### Task 2: Reference Geometry, Responsive QA, and Final Visual Match
 
 **Files:**
+
 - Modify: `scripts/sazo-commerce-home-browser.mjs:1-520`
 - Modify: `src/sazo-commerce/sazo.css:2967-3044,3775-3806`
 - Modify: `docs/superpowers/plans/2026-08-08-jplanet-home-search-callout-arrow.md`
 
 **Interfaces:**
+
 - Consumes: Task 1 selectors `svg[data-search-guidance-arrow]`, `[data-search-guidance-curve]`, `[data-search-guidance-head]`, and `svg[data-search-submit-arrow]`.
 - Produces: browser-measured desktop/mobile callout geometry, screenshots `/tmp/jplanet-home-search-callout-desktop.png`, `/tmp/jplanet-home-search-callout-mobile.png`, and evidence recorded in this plan.
 
-- [ ] **Step 1: Add failing desktop geometry assertions before tuning CSS**
+- [x] **Step 1: Add failing desktop geometry assertions before tuning CSS**
 
 After `address` is validated, create one reusable URL and use it for the existing desktop navigation plus the new mobile pages:
 
@@ -256,7 +258,7 @@ assert.equal(Math.round(hintBounds.height / hintLineHeight), 2);
 assert.equal(await searchButton.locator("svg[data-search-submit-arrow]").count(), 1);
 ```
 
-- [ ] **Step 2: Run the desktop audit and verify RED**
+- [x] **Step 2: Run the desktop audit and verify RED**
 
 Run:
 
@@ -266,7 +268,7 @@ pnpm test:sazo-home-browser
 
 Expected: FAIL on the pre-tuning field height (`78px`), button height (`60px`), navy button, one-line hint, or arrow tip geometry. Record the first correct mismatch before changing production CSS.
 
-- [ ] **Step 3: Tune only callout CSS to match the reference**
+- [x] **Step 3: Tune only callout CSS to match the reference**
 
 Apply the minimal CTA-scoped values:
 
@@ -305,7 +307,7 @@ Apply the minimal CTA-scoped values:
 
 Adjust only `.sazo-search-guidance-arrow` `top`, `left`, `width`, or `height` if the real browser tip-distance assertion proves the initial values are outside `8–30px`. Do not change the path to satisfy a screenshot by trial without preserving a smooth curve and round treatment.
 
-- [ ] **Step 4: Add mobile containment assertions**
+- [x] **Step 4: Add mobile containment assertions**
 
 Audit separate `390×844` and `320×844` pages:
 
@@ -343,7 +345,7 @@ for (const viewport of [
 
 Keep the existing mobile stacked button layout; do not introduce a desktop arrow into the compact CTA.
 
-- [ ] **Step 5: Capture locator screenshots and verify GREEN**
+- [x] **Step 5: Capture locator screenshots and verify GREEN**
 
 Capture the exact callout at desktop and mobile after fonts settle:
 
@@ -368,7 +370,7 @@ Open both generated screenshots and compare the desktop callout directly against
 - `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_cBIaTq/スクリーンショット 2026-08-08 18.17.13.png`
 - `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_N241EJ/スクリーンショット 2026-08-08 18.17.21.png`
 
-- [ ] **Step 6: Run full verification**
+- [x] **Step 6: Run full verification**
 
 ```bash
 pnpm lint
@@ -383,7 +385,7 @@ curl -sS -o /dev/null -w '%{http_code}\n' 'http://127.0.0.1:5190/sazo-commerce-m
 
 Expected: zero lint, type, test, build, formatting, syntax, or diff failures; live route returns HTTP `200`.
 
-- [ ] **Step 7: Record measured evidence and commit Task 2**
+- [x] **Step 7: Record measured evidence and commit Task 2**
 
 Append the RED mismatch, final desktop/mobile measurements, screenshot dimensions, exact test totals, and HTTP result to this plan. Then commit only:
 
@@ -391,3 +393,13 @@ Append the RED mismatch, final desktop/mobile measurements, screenshot dimension
 git add scripts/sazo-commerce-home-browser.mjs src/sazo-commerce/sazo.css docs/superpowers/plans/2026-08-08-jplanet-home-search-callout-arrow.md
 git commit -m "fix: match home search callout reference"
 ```
+
+#### Task 2 measured evidence — 2026-08-08
+
+- RED: before production CSS tuning, `pnpm test:sazo-home-browser` exited `1` at `search field height=78`; the required height was `82px`.
+- Intermediate geometry RED: after applying the scoped reference values, the unadjusted arrow tip was `5.0625px` from the magnifier center, below the required `>8px` clearance. Browser-measured placement selected `left: -9px` without changing the SVG path.
+- GREEN desktop (`1511×828` viewport): callout `640×255.4375px`; field `82px`; button `64px`; hint `43.5px / 21.75px = 2` lines; magnifier center `(474.5, 439.140625)`; curve endpoint `(457.5, 444.203125)`; endpoint distance `17.737781886414094px`; sakura button `rgb(254, 162, 172)`; round curve caps and joins; one submit SVG.
+- GREEN responsive: at `390×844`, callout `354×280.0625px`, button `50px`, document scroll width `390px`; at `320×844`, callout `284×358.125px`, button `50px`, document scroll width `320px`. The guidance SVG was hidden at both widths.
+- Screenshots inspected against both supplied references: `/tmp/jplanet-home-search-callout-desktop.png` is `641×256px`; `/tmp/jplanet-home-search-callout-mobile.png` is `354×281px`. The desktop preserves the two-line heading, pill proportions, sakura CTA, smooth round curve terminating below-left of the magnifier, and two-line centered hint; mobile preserves the stacked CTA with no guidance arrow or horizontal overflow.
+- Existing browser-audit synchronization: the service-step probe in the same script was stale against the current ServiceView (`h1`, `1010×436px`, implicit viewport position). It now targets the rendered `h2`, measures the current `1156×500px` panel, and explicitly establishes the asserted `268px` viewport position before measuring.
+- Verification: `pnpm test:sazo-home-browser` passed (`sazo-home-browser-ok`); ESLint passed with `0` errors; TypeScript passed with `0` errors; Vitest passed `14/14` files and `176/176` tests; Vite built `2224` modules; Prettier, Node syntax, and `git diff --check` passed; live route returned HTTP `200`.
