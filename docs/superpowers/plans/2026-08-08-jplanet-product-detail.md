@@ -446,7 +446,7 @@ git commit -m "feat: reproduce J-Planet product detail experience"
 - Consumes: `data-view-content="product"`, `data-product-detail`, `.sazo-product-open`, `.sazo-product-mobile-purchase`, and QA product parameters.
 - Produces: desktop/390px/320px screenshots, origin-return interaction proof, fixed-bar bounds proof, and expanded whole-site theme audit.
 
-- [ ] **Step 1: Write a failing product-detail browser script**
+- [x] **Step 1: Write a failing product-detail browser script** — Added the Vite/Chrome-channel QA for 3 viewports and 12 origin-return states, including gallery/option/cart/tabs, image dimensions, overflow, Noto computed font, fixed CTA bounds, and footer/chat overlap.
 
 Create `scripts/sazo-product-detail-browser.mjs` using the existing Vite ephemeral-server and Playwright Chrome-channel pattern. It must:
 
@@ -463,7 +463,7 @@ For each origin, open `?qa=1&view=<origin>`, click the first `.sazo-product-open
 
 At mobile sizes, assert the fixed purchase bar has `x >= 0`, `right <= viewport width`, `bottom <= viewport height`, and does not cover the last footer link after scrolling to the bottom. Assert all detail images are complete with positive natural dimensions and `documentElement.scrollWidth <= innerWidth + 1`.
 
-- [ ] **Step 2: Run the browser script and prove RED**
+- [x] **Step 2: Run the browser script and prove RED** — Initial run failed at `reviews` because no `.sazo-product-open` existed; a focused unit test independently failed because the reviews recommendation region was absent.
 
 Run:
 
@@ -473,7 +473,7 @@ node scripts/sazo-product-detail-browser.mjs
 
 Expected: FAIL until all selectors, interactions, and responsive geometry satisfy the browser contract.
 
-- [ ] **Step 3: Add product to the whole-site theme audit**
+- [x] **Step 3: Add product to the whole-site theme audit** — Product now uses `product=p01`, checks both required route phrases, and is captured at desktop/390px/320px.
 
 In `scripts/sazo-jplanet-theme-browser.mjs`:
 
@@ -485,7 +485,7 @@ In `scripts/sazo-jplanet-theme-browser.mjs`:
 - update expected mobile top-placement count from `24` to `26`;
 - require visible `日本の販売サイトから直接購入` and `ブラジルへお届け` on the product view.
 
-- [ ] **Step 4: Add a package command and run both browser audits**
+- [x] **Step 4: Add a package command and run both browser audits** — `pnpm qa:sazo-product-detail` passed 3 viewports/12 origin states/21 images; the whole-site audit passed 36 states/26 mobile top-placement states/538 images.
 
 Add:
 
@@ -502,7 +502,7 @@ node scripts/sazo-jplanet-theme-browser.mjs
 
 Expected: product QA passes; the whole-site audit reports 36 states and 26 mobile top-placement states with no copy, palette, image, or overflow failures.
 
-- [ ] **Step 5: Inspect the three representative screenshots**
+- [x] **Step 5: Inspect the three representative screenshots** — Visually confirmed the required hierarchy, legibility, compact mobile header, fixed bar, and J-Planet/Japan-to-Brazil branding in all three `/tmp/sazo-jplanet-product-*.png` captures.
 
 Inspect:
 
@@ -514,7 +514,7 @@ Inspect:
 
 Confirm reference-order gallery, purchase panel, recommendation rail, order timeline, tabs, review, cautions, J-Planet benefits, mobile compact header, and fixed purchase bar are legible and use only J-Planet/Japan-to-Brazil branding.
 
-- [ ] **Step 6: Run full automated verification**
+- [x] **Step 6: Run full automated verification** — `pnpm lint`, `pnpm typecheck`, `pnpm vitest run` (14 files/157 tests), `pnpm build`, and `git diff --check` all exited 0.
 
 Run:
 
@@ -528,7 +528,7 @@ git diff --check
 
 Expected: every command exits 0 and all test files/tests pass.
 
-- [ ] **Step 7: Run forbidden-copy and live-route checks**
+- [x] **Step 7: Run forbidden-copy and live-route checks** — Forbidden-copy `rg` returned no matches and the live route returned HTTP 200.
 
 Run:
 
@@ -539,7 +539,7 @@ curl -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:5190/sazo-commerce-mo
 
 Expected: `rg` returns no matches and the live route returns `200`.
 
-- [ ] **Step 8: Mark plan evidence and commit Task 4**
+- [x] **Step 8: Mark plan evidence and commit Task 4** — Recorded only measured Task 4 evidence here; the verified owned files are included in the prescribed Task 4 commit.
 
 Only after every command and visual check passes, change the plan checkboxes with actual evidence, then commit:
 

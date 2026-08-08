@@ -20,6 +20,7 @@ const views = [
   "favorites",
   "profile",
   "cards",
+  "product",
 ];
 const authSteps = ["google", "birthday", "phone"];
 const viewports = [
@@ -56,7 +57,19 @@ const approvedServiceStepAssets = [
 ];
 
 function contentSelector(view) {
-  return view === "home" ? "[data-home-view]" : `[data-view-content="${view}"]`;
+  if (view === "home") return "[data-home-view]";
+  if (view === "product") return '[data-view-content="product"]';
+  return `[data-view-content="${view}"]`;
+}
+
+function viewUrl(baseUrl, view) {
+  const parameters = new URLSearchParams({ qa: "1", view });
+
+  if (view === "product") {
+    parameters.set("product", "p01");
+  }
+
+  return `${baseUrl}?${parameters.toString()}`;
 }
 
 async function assertJplanetTheme(page, label) {
@@ -288,7 +301,7 @@ try {
     page.setDefaultTimeout(8_000);
 
     for (const view of views) {
-      await page.goto(`${baseUrl}?qa=1&view=${view}`, { waitUntil: "networkidle" });
+      await page.goto(viewUrl(baseUrl, view), { waitUntil: "networkidle" });
       await page.locator(contentSelector(view)).waitFor();
 
       if (view === "home") {
@@ -326,6 +339,22 @@ try {
             document
               .querySelector('[data-view-content="campaign"]')
               ?.getAttribute("data-campaign-loaded") === "true",
+        );
+      }
+
+      if (view === "product") {
+        const productCopy = normalizeRenderedCopy(
+          await page.locator(contentSelector(view)).innerText(),
+        );
+        assert.equal(
+          productCopy.includes("日本の販売サイトから直接購入"),
+          true,
+          `${viewport.label}/${view} direct purchase copy`,
+        );
+        assert.equal(
+          productCopy.includes("ブラジルへお届け"),
+          true,
+          `${viewport.label}/${view} Brazil delivery copy`,
         );
       }
 
@@ -392,11 +421,11 @@ try {
   const compactPage = await browser.newPage({ viewport: { height: 844, width: 320 } });
   compactPage.setDefaultTimeout(8_000);
   for (const view of views) {
-    await compactPage.goto(`${baseUrl}?qa=1&view=${view}`, { waitUntil: "networkidle" });
+    await compactPage.goto(viewUrl(baseUrl, view), { waitUntil: "networkidle" });
     await compactPage.locator(contentSelector(view)).waitFor();
     await assertMobileTopPlacement(compactPage, view, 320);
     auditedMobileTopStates += 1;
-    if (["home", "service", "campaign"].includes(view)) {
+    if (["home", "service", "campaign", "product"].includes(view)) {
       await compactPage.screenshot({
         fullPage: true,
         path: `/tmp/sazo-jplanet-mobile-320-${view}.png`,
@@ -413,8 +442,8 @@ try {
   assert.deepEqual(serviceStepSources, approvedServiceStepAssets, "service approved step assets");
   await servicePage.close();
 
-  assert.equal(auditedStates, 34, "browser audit state count");
-  assert.equal(auditedMobileTopStates, 24, "mobile top-placement state count");
+  assert.equal(auditedStates, 36, "browser audit state count");
+  assert.equal(auditedMobileTopStates, 26, "mobile top-placement state count");
   process.stdout.write(
     `sazo-jplanet-theme-browser-ok states=${String(auditedStates)} mobileTopStates=${String(auditedMobileTopStates)} images=${String(auditedImages)}\n`,
   );

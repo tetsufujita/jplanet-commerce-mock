@@ -20,6 +20,7 @@
     "sazo:capture": "node scripts/sazo-capture-checkpoints.mjs",
     "sazo:compare": "node scripts/sazo-compare.mjs",
     "sazo:determinism": "node scripts/sazo-verify-determinism.mjs",
+    "qa:sazo-product-detail": "node scripts/sazo-product-detail-browser.mjs",
     "format": "prettier --write ."
   },
   "dependencies": {

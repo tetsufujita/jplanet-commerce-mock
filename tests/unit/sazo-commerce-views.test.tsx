@@ -5,7 +5,7 @@ import { join } from "node:path";
 import React from "react";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { PNG } from "pngjs";
 import { createI18n } from "@/i18n/createI18n";
 import { CatalogView } from "@/sazo-commerce/CatalogView";
@@ -275,6 +275,31 @@ describe("SAZO captured view contracts", () => {
 
     expect(placeholder).not.toBeNull();
     expect(placeholder?.dataset.recordedHeight).toBe("190");
+  });
+
+  it("opens a recommendation from reviews without replacing editorial reviews", async () => {
+    const dispatch = vi.fn();
+    const { container } = await renderWithI18n(
+      <ReviewsView dispatch={dispatch} state={createInitialSazoState()} />,
+    );
+    const recommendations = screen.getByRole("region", {
+      name: "レビュー高評価のおすすめ",
+    });
+
+    expect(container.querySelectorAll(".sazo-review-tile").length).toBeGreaterThan(0);
+    const recommendationButton = within(recommendations)
+      .getAllByRole("button", { name: /商品詳細を開く/ })
+      .at(0);
+
+    if (recommendationButton === undefined) {
+      throw new Error("Reviews recommendation button was not rendered");
+    }
+
+    fireEvent.click(recommendationButton);
+    expect(dispatch).toHaveBeenCalledWith({
+      productId: "recommendation-heart",
+      type: "open-product",
+    });
   });
 
   it("separates the campaign headline scales without baking the text into media", async () => {

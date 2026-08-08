@@ -6,6 +6,7 @@ import {
   editorialReviews,
   rankingInventories,
   reviewCategories,
+  reviewRecommendations,
 } from "@/sazo-commerce/fixtures";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 
@@ -171,6 +172,23 @@ export function ReviewsView({ dispatch, state }: StatefulViewProps) {
             </article>
           ))}
         </div>
+        <section
+          aria-label={t("sazo.home.reviewRecommendations")}
+          className="sazo-review-product-recommendations"
+        >
+          <h2>{t("sazo.home.reviewRecommendations")}</h2>
+          <div className="sazo-ranking-product-grid">
+            {reviewRecommendations.map(({ product }) => (
+              <ProductCard
+                key={product.id}
+                onOpen={(productId) => {
+                  dispatch({ type: "open-product", productId });
+                }}
+                product={product}
+              />
+            ))}
+          </div>
+        </section>
       </section>
     </div>
   );
