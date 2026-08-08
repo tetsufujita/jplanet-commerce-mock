@@ -171,7 +171,7 @@ describe("SAZO captured view contracts", () => {
     const heading = container.querySelector(".sazo-campaign-message h1");
 
     expect(heading?.querySelector("strong")?.textContent).toBe("超お得な");
-    expect(heading?.querySelector("small")?.textContent).toBe("韓国商品がたくさん！");
+    expect(heading?.querySelector("small")?.textContent).toBe("日本の商品がたくさん！");
   });
 
   it.each(["list", "grid"] as const)(
