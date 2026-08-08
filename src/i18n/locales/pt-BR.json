@@ -327,6 +327,13 @@
       "rating": "5点中{{rating}}点",
       "favoriteProduct": "{{product}}をお気に入りに追加"
     },
+    "gram": {
+      "title": "J-Planet GRAM",
+      "categoriesLabel": "Categorias do J-Planet GRAM",
+      "categoryLabel": "Categoria: {{category}}",
+      "openPost": "Abrir publicação: {{caption}}",
+      "loading": "Carregando publicações"
+    },
     "views": {
       "common": {
         "back": "ホームに戻る",

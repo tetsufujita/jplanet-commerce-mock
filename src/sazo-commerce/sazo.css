@@ -1345,31 +1345,91 @@
   padding-top: 19px;
 }
 
-.sazo-root .sazo-gram-catalog-section {
+.sazo-root .sazo-gram-view {
   width: min(1170px, calc(100% - 64px));
   margin-right: auto;
   margin-left: auto;
-  padding: 80px 0;
+  padding: 48px 0 96px;
+}
+
+.sazo-root .sazo-gram-view > h1 {
+  margin: 0 0 24px;
+  color: var(--jplanet-ink);
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.15;
+}
+
+.sazo-root .sazo-gram-filter {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 36px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.sazo-root .sazo-gram-filter::-webkit-scrollbar {
+  display: none;
+}
+
+.sazo-root .sazo-gram-filter button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 9px 16px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 999px;
+  background: var(--jplanet-surface);
+  color: var(--jplanet-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-gram-filter button[aria-pressed="true"] {
+  border-color: var(--jplanet-ink);
+  background: var(--jplanet-ink);
+  color: var(--jplanet-surface);
+}
+
+.sazo-root .sazo-gram-filter button:focus-visible,
+.sazo-root .sazo-gram-catalog-card:focus-visible {
+  outline: 3px solid var(--jplanet-sakura);
+  outline-offset: 3px;
 }
 
 .sazo-root .sazo-gram-catalog-grid {
   display: grid;
-  grid-template-columns: repeat(5, 214px);
-  gap: 62px 20px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 58px 20px;
+}
+
+.sazo-root .sazo-gram-catalog-card,
+.sazo-root .sazo-gram-skeleton-card {
+  min-width: 0;
 }
 
 .sazo-root .sazo-gram-catalog-card {
-  min-width: 0;
-  overflow: hidden;
-  background: var(--jplanet-surface);
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 160ms ease;
+}
+
+.sazo-root .sazo-gram-catalog-card:hover {
+  transform: translateY(-3px);
 }
 
 .sazo-root .sazo-gram-catalog-media {
+  display: block;
   aspect-ratio: 0.78 / 1;
   overflow: hidden;
-  border: 1px solid var(--jplanet-line);
   border-radius: 12px;
-  background: var(--jplanet-surface);
+  background: var(--jplanet-soft);
 }
 
 .sazo-root .sazo-gram-catalog-media img {
@@ -1383,8 +1443,11 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 6px;
+  min-height: 43px;
   padding-top: 8px;
+  color: var(--jplanet-ink);
   font-size: 12px;
+  line-height: 1.45;
 }
 
 .sazo-root .sazo-gram-catalog-copy strong {
@@ -1395,6 +1458,57 @@
 
 .sazo-root .sazo-gram-catalog-copy span {
   font-weight: 800;
+}
+
+.sazo-root .sazo-gram-loading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.sazo-root .sazo-gram-skeleton-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.sazo-root .sazo-gram-skeleton-card::after {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(
+    110deg,
+    color-mix(in srgb, var(--jplanet-navy) 10%, transparent) 20%,
+    color-mix(in srgb, var(--jplanet-sakura) 22%, transparent) 45%,
+    color-mix(in srgb, var(--jplanet-navy) 10%, transparent) 70%
+  );
+  background-size: 220% 100%;
+  content: "";
+  animation: sazo-gram-shimmer 1.4s ease-in-out infinite;
+}
+
+.sazo-root .sazo-gram-skeleton-card .sazo-gram-catalog-media,
+.sazo-root .sazo-gram-skeleton-card .sazo-gram-catalog-copy > span {
+  background: color-mix(in srgb, var(--jplanet-navy) 9%, var(--jplanet-surface));
+}
+
+.sazo-root .sazo-gram-skeleton-card .sazo-gram-catalog-copy > span {
+  display: block;
+  height: 17px;
+  border-radius: 5px;
+}
+
+.sazo-root .sazo-gram-skeleton-card .sazo-gram-catalog-copy > span:last-child {
+  width: 56px;
+}
+
+@keyframes sazo-gram-shimmer {
+  to {
+    background-position: -120% 0;
+  }
 }
 
 .sazo-root .sazo-gram-media svg {
@@ -3713,8 +3827,36 @@
     padding-right: 18px;
   }
 
-  .sazo-root .sazo-gram-catalog-section {
-    display: none;
+  .sazo-root .sazo-gram-view {
+    width: calc(100% - 32px);
+    padding: 32px 0 64px;
+  }
+
+  .sazo-root .sazo-gram-view > h1 {
+    margin-bottom: 18px;
+    font-size: 28px;
+  }
+
+  .sazo-root .sazo-gram-filter {
+    margin-right: -16px;
+    margin-bottom: 24px;
+    padding-right: 16px;
+  }
+
+  .sazo-root .sazo-gram-filter button {
+    padding-right: 14px;
+    padding-left: 14px;
+    font-size: 13px;
+  }
+
+  .sazo-root .sazo-gram-catalog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 36px 12px;
+  }
+
+  .sazo-root .sazo-gram-catalog-copy {
+    min-height: 38px;
+    font-size: 11px;
   }
 
   .sazo-root .sazo-recommendation-track {

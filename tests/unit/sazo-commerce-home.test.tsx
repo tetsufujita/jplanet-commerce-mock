@@ -3,7 +3,7 @@
 import React from "react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -293,42 +293,24 @@ describe("SAZO home composition", () => {
         ),
       ).map(({ src }) => new URL(src).pathname),
     ).toEqual(searchDiscoveryMediaCrops.map(({ image }) => image));
-    expect(container.querySelectorAll(".sazo-gram-catalog-card")).toHaveLength(10);
+  });
+
+  it("opens the dedicated GRAM view instead of appending the catalogue to home", async () => {
+    const { container } = await renderHomePage();
+    const section = screen
+      .getByRole("heading", { name: "J-Planet GRAM" })
+      .closest("section");
+    if (section === null) {
+      throw new Error("J-Planet GRAM home section is missing");
+    }
+
+    expect(container.querySelector(".sazo-gram-catalog-section")).toBeNull();
+    fireEvent.click(within(section).getByRole("button", { name: "もっと見る" }));
+
     expect(
-      Array.from(
-        container.querySelectorAll<HTMLImageElement>(".sazo-gram-catalog-media img"),
-      ).map(({ src }) => new URL(src).pathname),
-    ).toEqual([
-      "/sazo-commerce/community/12.webp",
-      "/sazo-commerce/community/13.webp",
-      "/sazo-commerce/community/14.webp",
-      "/sazo-commerce/gram/list-02.png",
-      "/sazo-commerce/gram/list-04.png",
-      "/sazo-commerce/gram/list-05.png",
-    ]);
-    includesInOrder(
-      container.querySelector(".sazo-gram-catalog-section")?.textContent ?? "",
-      [
-        "バニーバニートートバッグ",
-        "50%¥9,719",
-        "サブアークケル Thin バッグ",
-        "42%¥2,280",
-        "マイメロディードール",
-        "¥110",
-        "スピアソ ARVO デニム",
-        "24%¥11,272",
-        "購入代行依頼",
-        "¥1",
-        "[20%無制限] バイミー",
-        "77%¥703",
-        "REMINI Plush キャラぬいキーリング",
-        "10%¥4,914",
-        "rd check pants スウェットパンツまとめ",
-        "50%¥12,469",
-        "[@xanaduany SET] 夏の日本トレンドまとめ",
-        "¥12,160",
-      ],
-    );
+      await screen.findByRole("heading", { level: 1, name: "J-Planet GRAM" }),
+    ).toBeTruthy();
+    expect(container.querySelector('[data-view-content="gram"]')).not.toBeNull();
   });
 
   it("keeps recorded search-product crops inside media-only boundaries", () => {

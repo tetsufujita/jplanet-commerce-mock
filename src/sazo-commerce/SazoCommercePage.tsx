@@ -13,6 +13,7 @@ import { ChatPanel } from "@/sazo-commerce/ChatPanel";
 import { BrandsView, CategoriesView } from "@/sazo-commerce/DirectoryViews";
 import { RankingView, ReviewsView } from "@/sazo-commerce/EditorialViews";
 import { HomeView } from "@/sazo-commerce/HomeView";
+import { GramCatalogView } from "@/sazo-commerce/GramView";
 import { ProductDetailView } from "@/sazo-commerce/ProductDetailView";
 import { SazoShell } from "@/sazo-commerce/SazoShell";
 import { ServiceView } from "@/sazo-commerce/ServiceView";
@@ -44,6 +45,21 @@ export function SazoCommercePage() {
       window.clearTimeout(timeout);
     };
   }, [state.campaignLoaded, state.view]);
+
+  useEffect(() => {
+    if (state.view !== "gram" || !state.gramLoading) {
+      return undefined;
+    }
+
+    const capturedToken = state.gramLoadToken;
+    const timeout = window.setTimeout(() => {
+      dispatch({ type: "gram-loaded", token: capturedToken });
+    }, 500);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [state.gramCategory, state.gramLoading, state.gramLoadToken, state.view]);
 
   useEffect(() => {
     const updateHeader = () => {
@@ -86,6 +102,9 @@ export function SazoCommercePage() {
           ) : null}
           {state.view === "catalog" ? (
             <CatalogView dispatch={dispatch} state={state} />
+          ) : null}
+          {state.view === "gram" ? (
+            <GramCatalogView dispatch={dispatch} state={state} />
           ) : null}
           {state.view === "ranking" ? (
             <RankingView dispatch={dispatch} state={state} />

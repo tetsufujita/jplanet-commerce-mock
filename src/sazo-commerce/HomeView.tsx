@@ -14,7 +14,6 @@ import {
 import { useTranslation } from "react-i18next";
 import {
   getHeroSlidesForFeed,
-  gramEntries,
   homeGramEntries,
   homeReviews,
   products,
@@ -267,12 +266,17 @@ function ReviewStrip({ dispatch, state }: HomeViewProps) {
   );
 }
 
-function GramStrip() {
+function GramStrip({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
 
   return (
     <section className="sazo-home-section">
-      <SectionHeading title={t("sazo.home.gramTitle")} />
+      <SectionHeading
+        onMore={() => {
+          dispatch({ type: "navigate", view: "gram" });
+        }}
+        title={t("sazo.home.gramTitle")}
+      />
       <div className="sazo-horizontal-strip sazo-gram-strip">
         {homeGramEntries.map((entry) => (
           <article className="sazo-gram-card" key={entry.id}>
@@ -302,113 +306,6 @@ function GramStrip() {
                   <strong>{entry.product.price}</strong>
                 </p>
               </div>
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-const gramCatalogEntries = [
-  {
-    discount: "50%",
-    entry: gramEntries[3],
-    name: "バニーバニートートバッグ",
-    price: "¥9,719",
-  },
-  {
-    discount: "42%",
-    entry: gramEntries[4],
-    name: "サブアークケル Thin バッグ",
-    price: "¥2,280",
-  },
-  {
-    entry: gramEntries[5],
-    name: "マイメロディードール",
-    price: "¥110",
-  },
-  {
-    discount: "24%",
-    entry: null,
-    name: "スピアソ ARVO デニム",
-    price: "¥11,272",
-  },
-  {
-    entry: null,
-    name: "購入代行依頼",
-    price: "¥1",
-  },
-  {
-    discount: "77%",
-    entry: null,
-    name: "[20%無制限] バイミー",
-    price: "¥703",
-  },
-  {
-    discount: "10%",
-    entry: {
-      author: "KREAM",
-      caption: "REMINI Plush キャラぬいキーリング",
-      id: "g-catalog-02",
-      image: "/sazo-commerce/gram/list-02.png",
-    },
-    name: "REMINI Plush キャラぬいキーリング",
-    price: "¥4,914",
-  },
-  {
-    entry: null,
-    name: "購入代行依頼",
-    price: "¥1",
-  },
-  {
-    discount: "50%",
-    entry: {
-      author: "MUSINSA",
-      caption: "rd check pants スウェットパンツまとめ",
-      id: "g-catalog-04",
-      image: "/sazo-commerce/gram/list-04.png",
-    },
-    name: "rd check pants スウェットパンツまとめ",
-    price: "¥12,469",
-  },
-  {
-    entry: {
-      author: "KREAM",
-      caption: "夏の日本トレンドまとめ",
-      id: "g-catalog-05",
-      image: "/sazo-commerce/gram/list-05.png",
-    },
-    name: "[@xanaduany SET] 夏の日本トレンドまとめ",
-    price: "¥12,160",
-  },
-] as const;
-
-function GramCatalog() {
-  return (
-    <section aria-label="J-Planet GRAM 一覧" className="sazo-gram-catalog-section">
-      <div className="sazo-gram-catalog-grid">
-        {gramCatalogEntries.map((item, index) => (
-          <article
-            className="sazo-gram-catalog-card"
-            data-placeholder={item.entry === null}
-            key={item.entry?.id ?? `gram-placeholder-${String(index)}`}
-          >
-            <div className="sazo-gram-catalog-media">
-              {item.entry ? (
-                <img
-                  alt={item.entry.caption}
-                  decoding="async"
-                  height={500}
-                  loading="lazy"
-                  src={item.entry.image}
-                  width={390}
-                />
-              ) : null}
-            </div>
-            <div className="sazo-gram-catalog-copy">
-              <strong>{item.name}</strong>
-              <span>{`${"discount" in item ? item.discount : ""}${item.price}`}</span>
             </div>
           </article>
         ))}
@@ -615,11 +512,10 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
       </section>
 
       <ReviewStrip dispatch={dispatch} state={state} />
-      <GramStrip />
+      <GramStrip dispatch={dispatch} />
       <RecommendedReviews dispatch={dispatch} />
       <ProductDiscovery dispatch={dispatch} state={state} />
       <SearchDiscovery dispatch={dispatch} state={state} />
-      <GramCatalog />
     </div>
   );
 }
