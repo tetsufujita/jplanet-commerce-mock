@@ -3044,6 +3044,7 @@
   font-weight: 800;
   line-height: 1.45;
   text-align: center;
+  white-space: pre-line;
 }
 
 .sazo-root .sazo-search-discovery > .sazo-section-heading {

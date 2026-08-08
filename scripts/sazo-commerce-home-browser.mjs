@@ -161,6 +161,7 @@ try {
   const searchIcon = searchField.locator(":scope > svg").first();
   const guidance = searchCallout.locator("svg[data-search-guidance-arrow]");
   const guidanceCurve = guidance.locator("[data-search-guidance-curve]");
+  const guidanceHead = guidance.locator("[data-search-guidance-head]");
   const hint = searchCallout.locator(":scope > p");
   const [calloutBounds, fieldBounds, buttonBounds, iconBounds, hintBounds] =
     await Promise.all([
@@ -195,46 +196,176 @@ try {
     await guidanceCurve.evaluate((element) => getComputedStyle(element).strokeLinejoin),
     "round",
   );
-  const tip = await guidanceCurve.evaluate((path) => {
-    const point = path.getPointAtLength(path.getTotalLength());
+  const curveGeometry = await guidanceCurve.evaluate((path) => {
     const matrix = path.getScreenCTM();
-    const screenPoint = new DOMPoint(point.x, point.y).matrixTransform(
-      matrix ?? undefined,
+    const totalLength = path.getTotalLength();
+    const toScreen = (length) => {
+      const point = path.getPointAtLength(length);
+
+      return new DOMPoint(point.x, point.y).matrixTransform(matrix ?? undefined);
+    };
+    const tipPoint = toScreen(totalLength);
+    const priorPoint = toScreen(Math.max(0, totalLength - 2));
+    const tangentDelta = {
+      x: tipPoint.x - priorPoint.x,
+      y: tipPoint.y - priorPoint.y,
+    };
+    const tangentLength = Math.hypot(tangentDelta.x, tangentDelta.y);
+    const samples = Array.from({ length: 241 }, (_, index) =>
+      toScreen((totalLength * index) / 240),
     );
 
-    return { x: screenPoint.x, y: screenPoint.y };
+    return {
+      bounds: {
+        bottom: Math.max(...samples.map((point) => point.y)),
+        left: Math.min(...samples.map((point) => point.x)),
+        right: Math.max(...samples.map((point) => point.x)),
+        top: Math.min(...samples.map((point) => point.y)),
+      },
+      tangent: {
+        x: tangentDelta.x / tangentLength,
+        y: tangentDelta.y / tangentLength,
+      },
+      tip: { x: tipPoint.x, y: tipPoint.y },
+    };
   });
+  const tip = curveGeometry.tip;
   const iconCenter = {
     x: iconBounds.x + iconBounds.width / 2,
     y: iconBounds.y + iconBounds.height / 2,
   };
   const tipDistance = Math.hypot(tip.x - iconCenter.x, tip.y - iconCenter.y);
+  const tipToIcon = {
+    x: (iconCenter.x - tip.x) / tipDistance,
+    y: (iconCenter.y - tip.y) / tipDistance,
+  };
+  const tangentCosine =
+    curveGeometry.tangent.x * tipToIcon.x + curveGeometry.tangent.y * tipToIcon.y;
 
   assert(tipDistance < 30, `guidance tip distance=${String(tipDistance)}`);
   assert(tipDistance > 8, `guidance tip distance=${String(tipDistance)}`);
+  assert(tip.x < iconCenter.x, "guidance tip must sit left of the magnifier");
+  assert(tip.y > iconCenter.y, "guidance tip must sit below the magnifier");
+  assert(tangentCosine > 0.8, `guidance tangent cosine=${String(tangentCosine)}`);
+  const headGeometry = await guidanceHead.evaluate((path, curveTip) => {
+    const matrix = path.getScreenCTM();
+    const totalLength = path.getTotalLength();
+    const toScreen = (length) => {
+      const point = path.getPointAtLength(length);
+
+      return new DOMPoint(point.x, point.y).matrixTransform(matrix ?? undefined);
+    };
+    const samples = Array.from({ length: 2001 }, (_, index) =>
+      toScreen((totalLength * index) / 2000),
+    );
+    const tipPoint = samples.reduce((nearest, point) =>
+      Math.hypot(point.x - curveTip.x, point.y - curveTip.y) <
+      Math.hypot(nearest.x - curveTip.x, nearest.y - curveTip.y)
+        ? point
+        : nearest,
+    );
+    const startPoint = toScreen(0);
+    const endPoint = toScreen(totalLength);
+
+    return {
+      bounds: {
+        bottom: Math.max(...samples.map((point) => point.y)),
+        left: Math.min(...samples.map((point) => point.x)),
+        right: Math.max(...samples.map((point) => point.x)),
+        top: Math.min(...samples.map((point) => point.y)),
+      },
+      end: { x: endPoint.x, y: endPoint.y },
+      start: { x: startPoint.x, y: startPoint.y },
+      tip: { x: tipPoint.x, y: tipPoint.y },
+      tipDistance: Math.hypot(tipPoint.x - curveTip.x, tipPoint.y - curveTip.y),
+    };
+  }, tip);
+  assert(
+    headGeometry.tipDistance < 0.05,
+    `arrowhead attachment distance=${String(headGeometry.tipDistance)}`,
+  );
+  const normalizeFromTip = (point) => {
+    const delta = { x: point.x - tip.x, y: point.y - tip.y };
+    const length = Math.hypot(delta.x, delta.y);
+
+    return { x: delta.x / length, y: delta.y / length };
+  };
+  const headStartDirection = normalizeFromTip(headGeometry.start);
+  const headEndDirection = normalizeFromTip(headGeometry.end);
+  const headStartTrailCosine =
+    headStartDirection.x * curveGeometry.tangent.x +
+    headStartDirection.y * curveGeometry.tangent.y;
+  const headEndTrailCosine =
+    headEndDirection.x * curveGeometry.tangent.x +
+    headEndDirection.y * curveGeometry.tangent.y;
+
+  assert(
+    headStartTrailCosine < -0.35,
+    `arrowhead start trail cosine=${String(headStartTrailCosine)}`,
+  );
+  assert(
+    headEndTrailCosine < -0.35,
+    `arrowhead end trail cosine=${String(headEndTrailCosine)}`,
+  );
+  const pathBounds = {
+    bottom: Math.max(curveGeometry.bounds.bottom, headGeometry.bounds.bottom),
+    left: Math.min(curveGeometry.bounds.left, headGeometry.bounds.left),
+    right: Math.max(curveGeometry.bounds.right, headGeometry.bounds.right),
+    top: Math.min(curveGeometry.bounds.top, headGeometry.bounds.top),
+  };
+  const guidanceStrokeWidth = Number.parseFloat(
+    await guidanceCurve.evaluate((element) => getComputedStyle(element).strokeWidth),
+  );
+  const guidanceStrokeRadius = guidanceStrokeWidth / 2;
+  const containmentTolerance = 2;
+
+  assert(
+    pathBounds.left - guidanceStrokeRadius >= calloutBounds.x - containmentTolerance,
+  );
+  assert(pathBounds.top - guidanceStrokeRadius >= calloutBounds.y - containmentTolerance);
+  assert(
+    pathBounds.right + guidanceStrokeRadius <=
+      calloutBounds.x + calloutBounds.width + containmentTolerance,
+  );
+  assert(
+    pathBounds.bottom + guidanceStrokeRadius <=
+      calloutBounds.y + calloutBounds.height + containmentTolerance,
+  );
+  assert.equal(
+    await guidance.evaluate((element) => getComputedStyle(element).overflow),
+    "visible",
+  );
   const hintLineHeight = Number.parseFloat(
     await hint.evaluate((element) => getComputedStyle(element).lineHeight),
   );
 
+  assert.deepEqual((await hint.innerText()).split("\n"), [
+    "欲しい商品の「名前」か",
+    "「URL」をここに入力！",
+  ]);
   assert.equal(Math.round(hintBounds.height / hintLineHeight), 2);
   assert.equal(await searchButton.locator("svg[data-search-submit-arrow]").count(), 1);
   await searchCallout.screenshot({
     path: "/tmp/jplanet-home-search-callout-desktop.png",
   });
 
+  await page.evaluate(() => window.scrollTo({ behavior: "instant", top: 700 }));
+  await page.locator('.sazo-root[data-header-collapsed="true"]').waitFor();
+  assert.equal(await page.evaluate(() => window.scrollY), 700);
   await page
     .locator(".sazo-desktop-nav")
     .getByRole("button", { exact: true, name: "サービス紹介" })
     .click();
   await page.locator('[data-view-content="service"]').waitFor();
+  await page.waitForFunction(() => window.scrollY === 0);
+  assert.equal(await page.locator(".sazo-root").getAttribute("data-view"), "service");
+  const serviceScrollY = await page.evaluate(() => window.scrollY);
+  assert.equal(serviceScrollY, 0);
   const serviceStep = page.locator('.sazo-service-step[data-step="01"]');
-  await serviceStep.evaluate((element) => {
+  const serviceStepDocumentTop = await serviceStep.evaluate((element) => {
     const bounds = element.getBoundingClientRect();
 
-    window.scrollTo({
-      behavior: "instant",
-      top: window.scrollY + bounds.top - 268,
-    });
+    return window.scrollY + bounds.top;
   });
   const serviceStepBounds = await serviceStep.boundingBox();
 
@@ -242,9 +373,10 @@ try {
   assert.equal(await page.locator(".sazo-service-url-card").isVisible(), false);
   assert.equal(await page.locator(".sazo-top-actions").isVisible(), true);
   assert(
-    Math.abs(serviceStepBounds.y - 268) < 12,
-    `service step y=${String(serviceStepBounds.y)}`,
+    Math.abs(serviceStepDocumentTop - 3544.5) < 12,
+    `service step document top=${String(serviceStepDocumentTop)}`,
   );
+  assert(Math.abs(serviceStepBounds.y - serviceStepDocumentTop) < 1);
   assert(
     Math.abs(serviceStepBounds.width - 1156) < 12,
     `service step width=${String(serviceStepBounds.width)}`,
@@ -581,13 +713,34 @@ try {
       .getByRole("button", { name: "検索" })
       .boundingBox();
     const mobileCalloutBounds = await mobileCallout.boundingBox();
+    const mobileHint = mobileCallout.locator(":scope > p");
+    const mobileHintBounds = await mobileHint.boundingBox();
+    const mobileHintMetrics = await mobileHint.evaluate((element) => {
+      const lineHeight = Number.parseFloat(getComputedStyle(element).lineHeight);
+      const bounds = element.getBoundingClientRect();
 
-    assert(mobileButtonBounds && mobileCalloutBounds);
+      return {
+        clientWidth: element.clientWidth,
+        lineCount: Math.round(bounds.height / lineHeight),
+        scrollWidth: element.scrollWidth,
+      };
+    });
+
+    assert(mobileButtonBounds && mobileCalloutBounds && mobileHintBounds);
     assert(mobileButtonBounds.height >= 44);
+    assert(mobileHintMetrics.scrollWidth <= mobileHintMetrics.clientWidth);
+    assert(mobileHintBounds.x >= mobileCalloutBounds.x);
+    assert(
+      mobileHintBounds.x + mobileHintBounds.width <=
+        mobileCalloutBounds.x + mobileCalloutBounds.width,
+    );
+    assert(mobileHintMetrics.lineCount >= 2);
     mobileCalloutMeasurements.push({
       buttonHeight: mobileButtonBounds.height,
       calloutHeight: mobileCalloutBounds.height,
       calloutWidth: mobileCalloutBounds.width,
+      hintLineCount: mobileHintMetrics.lineCount,
+      hintScrollWidth: mobileHintMetrics.scrollWidth,
       scrollWidth: mobileScrollWidth,
       viewportWidth: viewport.width,
     });
@@ -603,16 +756,33 @@ try {
     `sazo-home-search-callout-metrics ${JSON.stringify({
       desktop: {
         buttonHeight: buttonBounds.height,
+        calloutBounds,
         calloutHeight: calloutBounds.height,
         calloutWidth: calloutBounds.width,
+        containmentTolerance,
         fieldHeight: fieldBounds.height,
+        guidanceStrokeRadius,
         hintHeight: hintBounds.height,
         hintLineHeight,
+        headEndTrailCosine,
+        headStartTrailCosine,
+        headTip: headGeometry.tip,
+        headTipDistance: headGeometry.tipDistance,
         iconCenter,
+        pathBounds,
+        tangent: curveGeometry.tangent,
+        tangentCosine,
         tip,
         tipDistance,
       },
       mobile: mobileCalloutMeasurements,
+      service: {
+        documentTop: serviceStepDocumentTop,
+        height: serviceStepBounds.height,
+        scrollY: serviceScrollY,
+        viewportY: serviceStepBounds.y,
+        width: serviceStepBounds.width,
+      },
     })}\n`,
   );
 

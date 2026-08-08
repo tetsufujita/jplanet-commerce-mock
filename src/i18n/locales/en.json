@@ -322,7 +322,7 @@
       "searchTitle": "まだ、ピンとくる商品に\n出会えていませんか？",
       "searchPlaceholder": "キーワードまたはURLを入力",
       "searchButton": "検索",
-      "searchHint": "欲しい商品の「名前」か「URL」をここに入力！",
+      "searchHint": "欲しい商品の「名前」か\n「URL」をここに入力！",
       "searchedTitle": "今、検索されているもの",
       "rating": "5点中{{rating}}点",
       "favoriteProduct": "{{product}}をお気に入りに追加"

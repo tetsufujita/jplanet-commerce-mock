@@ -92,6 +92,25 @@ describe("SAZO home composition", () => {
     expect(submit?.textContent).toBe("検索");
   });
 
+  it("keeps the translated search hint at the approved line boundary", async () => {
+    const { container } = await renderHomePage();
+    const hint = container.querySelector(".sazo-search-callout > p");
+    const approvedHint = "欲しい商品の「名前」か\n「URL」をここに入力！";
+    const localeHints = await Promise.all(
+      ["ja", "en", "pt-BR"].map(async (locale) => {
+        const i18n = await createI18n(locale);
+
+        return i18n.t("sazo.home.searchHint");
+      }),
+    );
+
+    expect(localeHints).toEqual([approvedHint, approvedHint, approvedHint]);
+    expect(hint?.textContent).toBe(approvedHint);
+    expect(hint?.textContent.replace("\n", "")).toBe(
+      "欲しい商品の「名前」か「URL」をここに入力！",
+    );
+  });
+
   it("promotes the Japan-to-Brazil direct-shipping offer", async () => {
     const { container } = await renderHomePage();
     const introHeading = container.querySelector(".sazo-home-intro h1");
