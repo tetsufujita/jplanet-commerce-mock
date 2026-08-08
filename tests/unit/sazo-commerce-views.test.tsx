@@ -141,10 +141,15 @@ describe("SAZO captured view contracts", () => {
 
   it("describes the Japan-to-Brazil forwarding service", async () => {
     const { container } = await renderWithI18n(<ServiceView dispatch={noDispatch} />);
+    const serviceHeading = container.querySelector(".sazo-service-hero h1");
+    const routeHeading = container.querySelector(".sazo-service-hero-outline");
+    const serviceSubheading = container.querySelector(".sazo-service-hero h2");
 
-    expect(container.textContent).toContain("日本代行");
-    expect(container.textContent).toContain("FROMJAPANTOBRAZIL");
-    expect(container.textContent).toContain("ブラジルへお届け");
+    expect(serviceHeading?.textContent).toBe("日本代行");
+    expect(routeHeading?.textContent?.replace(/\s+/g, " ").trim()).toBe(
+      "FROM JAPAN TO BRAZIL",
+    );
+    expect(serviceSubheading?.textContent).toBe("ブラジルへお届け");
   });
 
   it("keeps the recorded short placeholder in the sixth review slot", async () => {

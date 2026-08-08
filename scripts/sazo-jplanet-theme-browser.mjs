@@ -34,6 +34,10 @@ const legacyColors = new Set([
   "rgb(254, 130, 145)",
 ]);
 
+function normalizeRenderedCopy(text) {
+  return text.normalize("NFKC").replace(/\s+/g, " ").trim();
+}
+
 function contentSelector(view) {
   return view === "home" ? "[data-home-view]" : `[data-view-content="${view}"]`;
 }
@@ -100,7 +104,7 @@ async function assertJplanetTheme(page, label) {
   );
 
   assert.deepEqual(legacyHits, [], `${label} legacy color hits`);
-  const renderedText = await root.innerText();
+  const renderedText = normalizeRenderedCopy(await root.innerText());
   for (const forbiddenCopy of ["韓国", "KOREA", "TO JAPAN", "韓国代行", "日本まで発送"]) {
     assert.equal(renderedText.includes(forbiddenCopy), false, `${label} legacy route copy: ${forbiddenCopy}`);
   }
@@ -137,12 +141,32 @@ try {
       await page.locator(contentSelector(view)).waitFor();
 
       if (view === "home") {
-        await page.getByText("ブラジル最大級", { exact: false }).waitFor();
-        await page.getByText("日本直輸入ショップ", { exact: false }).waitFor();
+        const homeHeading = page.locator("[data-home-view] .sazo-home-intro h1");
+        await homeHeading.waitFor();
+        assert.equal(
+          normalizeRenderedCopy(await homeHeading.innerText()),
+          "ブラジル最大級 日本直輸入ショップ",
+          `${viewport.label}/${view} home heading`,
+        );
       }
       if (view === "service") {
-        await page.getByRole("heading", { name: "日本代行" }).waitFor();
-        await page.getByText("FROM", { exact: true }).waitFor();
+        const serviceHeading = page.locator('[data-view-content="service"] .sazo-service-hero h1');
+        const routeHeading = page.locator(
+          '[data-view-content="service"] .sazo-service-hero-outline',
+        );
+
+        await serviceHeading.waitFor();
+        await routeHeading.waitFor();
+        assert.equal(
+          normalizeRenderedCopy(await serviceHeading.innerText()),
+          "日本代行",
+          `${viewport.label}/${view} service heading`,
+        );
+        assert.equal(
+          normalizeRenderedCopy(await routeHeading.innerText()),
+          "FROM JAPAN TO BRAZIL",
+          `${viewport.label}/${view} service route heading`,
+        );
       }
 
       if (view === "campaign") {
