@@ -117,6 +117,78 @@ try {
     "rgba(0, 0, 0, 0)",
   );
   assert.equal(await desktopLanguageFlag.isVisible(), true);
+  const interestedSection = page.locator(".sazo-interested-items");
+  const interestedTrack = page.getByTestId("interested-items-track");
+  const interestedCards = interestedTrack.locator('[data-variant="interest"]');
+  const interestedNext = interestedSection.getByRole("button", {
+    name: "次の商品を表示",
+  });
+
+  await interestedSection.scrollIntoViewIfNeeded();
+  assert.equal(await interestedCards.count(), 5);
+  const desktopInterestSectionBounds = await interestedSection.boundingBox();
+  const desktopInterestCardBounds = await interestedCards.first().boundingBox();
+  const desktopInterestNextBounds = await interestedNext.boundingBox();
+  assert(
+    desktopInterestSectionBounds !== null &&
+      desktopInterestCardBounds !== null &&
+      desktopInterestNextBounds !== null,
+  );
+  assert(Math.abs(desktopInterestSectionBounds.width - 1170) < 24);
+  assert(desktopInterestCardBounds.width > 270 && desktopInterestCardBounds.width < 290);
+  assert(desktopInterestNextBounds.width >= 44);
+  assert(desktopInterestNextBounds.height >= 44);
+  const desktopFavorite = interestedCards.first().locator(".sazo-product-favorite");
+  await desktopFavorite.click();
+  assert.equal(await desktopFavorite.getAttribute("aria-pressed"), "true");
+  assert.equal(await page.locator(".sazo-root").getAttribute("data-view"), "home");
+  assert.equal(
+    await interestedCards.nth(4).evaluate((element) => {
+      const card = element.getBoundingClientRect();
+      const track = element.parentElement?.getBoundingClientRect();
+
+      return track === undefined ? false : card.left >= track.right - 1;
+    }),
+    true,
+  );
+
+  const desktopInterestScrollBefore = await interestedTrack.evaluate(
+    (element) => element.scrollLeft,
+  );
+  await interestedNext.click();
+  await page.waitForFunction(
+    () =>
+      (document.querySelector('[data-testid="interested-items-track"]')?.scrollLeft ??
+        0) > 0,
+  );
+  assert(
+    (await interestedTrack.evaluate((element) => element.scrollLeft)) >
+      desktopInterestScrollBefore,
+  );
+  await interestedSection.screenshot({
+    path: "/tmp/jplanet-interested-items-desktop.png",
+  });
+
+  const interestedDetailPage = await browser.newPage({
+    viewport: { height: 828, width: 1511 },
+  });
+  await interestedDetailPage.goto(homeUrl);
+  await interestedDetailPage.locator("[data-home-view]").waitFor();
+  await interestedDetailPage
+    .getByRole("button", {
+      name: "商品詳細を開く: [ナイキ] ファンダメンタル 重量減り(AC4197-010)",
+    })
+    .click();
+  await interestedDetailPage.locator('[data-view-content="product"]').waitFor();
+  assert.equal(
+    await interestedDetailPage.locator(".sazo-product-detail-price").innerText(),
+    "¥3,339",
+  );
+  assert.equal(
+    await interestedDetailPage.locator(".sazo-product-detail h1").innerText(),
+    "[ナイキ] ファンダメンタル 重量減り(AC4197-010)",
+  );
+  await interestedDetailPage.close();
   await page.screenshot({ path: "/tmp/sazo-header-refined.png" });
   await page.evaluate(() => window.scrollTo(0, 700));
   await page.waitForTimeout(100);
@@ -533,6 +605,12 @@ try {
   const mobileIntroButtonBounds = await mobilePage
     .locator(".sazo-home-intro > button")
     .boundingBox();
+  const mobileInterestedSection = mobilePage.locator(".sazo-interested-items");
+  const mobileInterestedSectionBounds = await mobileInterestedSection.boundingBox();
+  const mobileInterestedCardBounds = await mobileInterestedSection
+    .locator('[data-variant="interest"]')
+    .first()
+    .boundingBox();
   const mobileCommunityHeadingBounds = await mobilePage
     .locator(".sazo-review-section h2")
     .boundingBox();
@@ -556,6 +634,8 @@ try {
       mobileShortcutBounds !== null &&
       mobileIntroHeadingBounds !== null &&
       mobileIntroButtonBounds !== null &&
+      mobileInterestedSectionBounds !== null &&
+      mobileInterestedCardBounds !== null &&
       mobileCommunityHeadingBounds !== null &&
       mobileReviewCardBounds !== null &&
       mobileShortcutIconBounds !== null &&
@@ -579,9 +659,35 @@ try {
   );
   assert(Math.abs(mobileIntroButtonBounds.y - 548) < 6);
   assert(Math.abs(mobileIntroButtonBounds.height - 46) < 3);
-  assert(Math.abs(mobileCommunityHeadingBounds.y - 638) < 4);
+  assert(mobileInterestedSectionBounds.y > mobileIntroButtonBounds.y);
+  assert(
+    mobileCommunityHeadingBounds.y >=
+      mobileInterestedSectionBounds.y + mobileInterestedSectionBounds.height,
+  );
   assert(Math.abs(mobileReviewCardBounds.width - 123) < 3);
-  assert(Math.abs(mobileReviewCardBounds.y - 668) < 4);
+  assert(mobileReviewCardBounds.y > mobileCommunityHeadingBounds.y);
+  assert(
+    mobileInterestedCardBounds.width > 225 && mobileInterestedCardBounds.width < 250,
+  );
+  assert.match(
+    await mobileInterestedSection
+      .locator(".sazo-interested-items-track")
+      .evaluate((element) => getComputedStyle(element).scrollSnapType),
+    /mandatory/,
+  );
+  assert.equal(
+    await mobileInterestedSection
+      .getByRole("button", { name: "次の商品を表示" })
+      .evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+
+        return bounds.width >= 44 && bounds.height >= 44;
+      }),
+    true,
+  );
+  await mobileInterestedSection.screenshot({
+    path: "/tmp/jplanet-interested-items-mobile.png",
+  });
   assert(Math.abs(mobileShortcutIconBounds.width - 42) < 2);
   assert(Math.abs(mobileNavigationBounds.height - 44) < 2);
   assert(Math.abs(mobileChatBounds.width - 36) < 2);
