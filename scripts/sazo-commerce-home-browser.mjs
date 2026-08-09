@@ -152,6 +152,49 @@ try {
     true,
   );
 
+  const desktopInterestPrimary = interestedCards.first().locator(".sazo-product-open");
+  await page.locator(".sazo-home-intro > button").focus();
+  await page.keyboard.press("Tab");
+  assert.equal(
+    await desktopInterestPrimary.evaluate(
+      (element) => document.activeElement === element,
+    ),
+    true,
+  );
+  assert.equal(
+    await desktopInterestPrimary.evaluate((element) => element.matches(":focus-visible")),
+    true,
+  );
+  assert.equal(
+    await desktopInterestPrimary.evaluate(
+      (element) => getComputedStyle(element).outlineStyle,
+    ),
+    "solid",
+  );
+  await page.keyboard.press("Tab");
+  assert.equal(
+    await desktopFavorite.evaluate((element) => document.activeElement === element),
+    true,
+  );
+  assert.equal(
+    await desktopFavorite.evaluate((element) => element.matches(":focus-visible")),
+    true,
+  );
+  for (let index = 0; index < 9; index += 1) {
+    await page.keyboard.press("Tab");
+  }
+  assert.equal(
+    await interestedNext.evaluate((element) => document.activeElement === element),
+    true,
+  );
+  assert.equal(
+    await interestedNext.evaluate((element) => element.matches(":focus-visible")),
+    true,
+  );
+
+  await interestedTrack.evaluate((element) => {
+    element.scrollLeft = 0;
+  });
   const desktopInterestScrollBefore = await interestedTrack.evaluate(
     (element) => element.scrollLeft,
   );
@@ -189,6 +232,82 @@ try {
     "[ナイキ] ファンダメンタル 重量減り(AC4197-010)",
   );
   await interestedDetailPage.close();
+
+  const tabletInterestMetrics = [];
+  const tabletInterestContracts = [
+    { cardMaximum: 273, cardMinimum: 268, fullyVisible: 2, width: 768 },
+    { cardMaximum: 290, cardMinimum: 284, fullyVisible: 2, width: 820 },
+    { cardMaximum: 313, cardMinimum: 309, fullyVisible: 3, width: 1024 },
+  ];
+
+  for (const tabletContract of tabletInterestContracts) {
+    const tabletPage = await browser.newPage({
+      viewport: { height: 900, width: tabletContract.width },
+    });
+    await tabletPage.goto(homeUrl);
+    await tabletPage.locator("[data-home-view]").waitFor();
+    const tabletTrack = tabletPage.getByTestId("interested-items-track");
+    await tabletTrack.scrollIntoViewIfNeeded();
+    const tabletMetrics = await tabletTrack.evaluate((element) => {
+      const track = element.getBoundingClientRect();
+      const cards = Array.from(
+        element.querySelectorAll('[data-variant="interest"]'),
+        (card) => card.getBoundingClientRect(),
+      );
+
+      return {
+        cardWidth: cards[0]?.width ?? 0,
+        fullyVisible: cards.filter(
+          (card) => card.left >= track.left - 1 && card.right <= track.right + 1,
+        ).length,
+        trackWidth: track.width,
+      };
+    });
+
+    tabletInterestMetrics.push({
+      ...tabletMetrics,
+      viewportWidth: tabletContract.width,
+    });
+
+    if (tabletContract.width === 768) {
+      const tabletScrollBefore = await tabletTrack.evaluate(
+        (element) => element.scrollLeft,
+      );
+      await tabletTrack.hover();
+      await tabletPage.mouse.wheel(180, 0);
+      await tabletPage.waitForFunction(
+        () =>
+          (document.querySelector('[data-testid="interested-items-track"]')?.scrollLeft ??
+            0) > 0,
+      );
+      assert(
+        (await tabletTrack.evaluate((element) => element.scrollLeft)) >
+          tabletScrollBefore,
+      );
+    }
+
+    await tabletPage.close();
+  }
+  assert.deepEqual(
+    tabletInterestMetrics.map(({ fullyVisible, viewportWidth }) => ({
+      fullyVisible,
+      viewportWidth,
+    })),
+    [
+      { fullyVisible: 2, viewportWidth: 768 },
+      { fullyVisible: 2, viewportWidth: 820 },
+      { fullyVisible: 3, viewportWidth: 1024 },
+    ],
+  );
+  for (const [index, tabletContract] of tabletInterestContracts.entries()) {
+    const tabletMetric = tabletInterestMetrics[index];
+    assert(tabletMetric !== undefined);
+    assert(
+      tabletMetric.cardWidth > tabletContract.cardMinimum &&
+        tabletMetric.cardWidth < tabletContract.cardMaximum,
+      `tablet ${String(tabletContract.width)} card width=${String(tabletMetric.cardWidth)}`,
+    );
+  }
   await page.screenshot({ path: "/tmp/sazo-header-refined.png" });
   await page.evaluate(() => window.scrollTo(0, 700));
   await page.waitForTimeout(100);
@@ -889,6 +1008,7 @@ try {
         viewportY: serviceStepBounds.y,
         width: serviceStepBounds.width,
       },
+      tabletInterest: tabletInterestMetrics,
     })}\n`,
   );
 

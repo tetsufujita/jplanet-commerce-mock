@@ -1290,7 +1290,7 @@
   width: 34px;
   height: 34px;
   background: transparent;
-  color: #fff;
+  color: var(--jplanet-surface);
   filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--jplanet-ink) 55%, transparent));
 }
 
@@ -1311,6 +1311,12 @@
   box-shadow: 0 7px 22px color-mix(in srgb, var(--jplanet-shadow) 65%, transparent);
   cursor: pointer;
   z-index: 2;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .sazo-root .sazo-interested-items-track {
+    grid-auto-columns: clamp(270px, 35vw, 311px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
