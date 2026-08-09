@@ -104,6 +104,59 @@ async function getProductGridExpectation(locator) {
   });
 }
 
+async function getFocusedChipClearance(page, rail, chip, label) {
+  await page.keyboard.press("Tab");
+  await chip.focus();
+  assert.equal(
+    await chip.evaluate((element) => element.matches(":focus-visible")),
+    true,
+    `${label} must use keyboard-visible focus`,
+  );
+
+  const [railBounds, chipMetrics] = await Promise.all([
+    rail.boundingBox(),
+    chip.evaluate((element) => {
+      const chipBounds = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      const outlineWidth = Number.parseFloat(style.outlineWidth);
+      const outlineOffset = Number.parseFloat(style.outlineOffset);
+
+      return {
+        bounds: {
+          bottom: chipBounds.bottom,
+          left: chipBounds.left,
+          right: chipBounds.right,
+          top: chipBounds.top,
+        },
+        outlineOffset,
+        outlineWidth,
+        requiredExtent: outlineWidth + Math.max(0, outlineOffset),
+      };
+    }),
+  ]);
+  assert(railBounds !== null);
+  const metrics = {
+    clearance: {
+      bottom: railBounds.y + railBounds.height - chipMetrics.bounds.bottom,
+      left: chipMetrics.bounds.left - railBounds.x,
+      right: railBounds.x + railBounds.width - chipMetrics.bounds.right,
+      top: chipMetrics.bounds.top - railBounds.y,
+    },
+    outlineOffset: chipMetrics.outlineOffset,
+    outlineWidth: chipMetrics.outlineWidth,
+    requiredExtent: chipMetrics.requiredExtent,
+  };
+
+  for (const [edge, clearance] of Object.entries(metrics.clearance)) {
+    assert(
+      clearance >= metrics.requiredExtent,
+      `${label} ${edge} focus clearance=${String(clearance)} required=${String(metrics.requiredExtent)}`,
+    );
+  }
+
+  return metrics;
+}
+
 async function openGramFromHome(page, baseUrl) {
   await page.goto(`${baseUrl}/sazo-commerce-mock/?qa=1&cursor=0`);
   const homeGram = page.getByRole("heading", { name: "J-Planet GRAM" }).locator("..");
@@ -148,7 +201,27 @@ async function assertFunctionalJourney(browser, baseUrl, failures) {
     await page.getByRole("button", { name: "J-Planet ホーム" }).click();
     await page.locator("[data-home-view]").waitFor();
 
-    return { after, before };
+    const homeGram = page.getByRole("heading", { name: "J-Planet GRAM" }).locator("..");
+    await homeGram.getByRole("button", { name: "もっと見る" }).click();
+    const revisit = page.locator('[data-view-content="gram"]');
+    await revisit.waitFor();
+    const revisitPost = page.getByRole("button", { name: /投稿を開く:/ }).first();
+    assert.equal(await page.locator('[data-view-content="gram-detail"]').count(), 0);
+    assert.equal(new URL(page.url()).searchParams.has("gramPost"), false);
+    assert.equal(await revisit.count(), 1);
+    assert.equal(await page.locator(".sazo-root").getAttribute("data-view"), "gram");
+    assert.equal(
+      await page
+        .getByRole("button", { name: "カテゴリ: HOT🔥" })
+        .getAttribute("aria-pressed"),
+      "true",
+    );
+    assert.equal(await revisitPost.isVisible(), true);
+    assert.equal(await revisitPost.isEnabled(), true);
+    await revisitPost.click();
+    await page.locator('[data-view-content="gram-detail"]').waitFor();
+
+    return { after, before, revisited: true };
   } finally {
     await page.close();
   }
@@ -291,6 +364,19 @@ async function assertMobileViewport(browser, baseUrl, viewport, failures) {
     const catalogueRow = await getFirstRowGeometry(
       page.getByRole("button", { name: /投稿を開く:/ }),
     );
+    const [titleBounds, firstChipBounds] = await Promise.all([
+      catalogue.getByRole("heading", { name: "J-Planet GRAM" }).boundingBox(),
+      page
+        .getByRole("button", { name: /カテゴリ:/ })
+        .first()
+        .boundingBox(),
+    ]);
+    assert(titleBounds !== null && firstChipBounds !== null);
+    assert(
+      Math.abs(catalogueRow.lefts[0] - titleBounds.x) < 0.5 &&
+        Math.abs(firstChipBounds.x - titleBounds.x) < 0.5,
+      `${String(viewport.width)}px alignment title=${String(titleBounds.x)} chip=${String(firstChipBounds.x)} grid=${String(catalogueRow.lefts[0])}`,
+    );
     assert.equal(
       catalogueRow.lefts.length,
       2,
@@ -305,6 +391,37 @@ async function assertMobileViewport(browser, baseUrl, viewport, failures) {
       chipHeights.every((height) => height >= 44),
       `${String(viewport.width)}px category heights=${chipHeights.join(",")}`,
     );
+    let focusClearance;
+    if (viewport.width === 390) {
+      const filter = page.locator(".sazo-gram-filter");
+      const categoryChips = page.getByRole("button", { name: /カテゴリ:/ });
+      focusClearance = {
+        first: await getFocusedChipClearance(
+          page,
+          filter,
+          categoryChips.first(),
+          "390px first category",
+        ),
+        last: await getFocusedChipClearance(
+          page,
+          filter,
+          categoryChips.last(),
+          "390px last category",
+        ),
+      };
+      assert.equal(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+        viewport.width,
+      );
+      await filter.evaluate((element) => {
+        element.scrollLeft = 0;
+      });
+      await page.evaluate(() => {
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      });
+    }
     const catalogueImageCount = await waitForImages(catalogue);
     if (viewport.width === 390) {
       await captureDeterministicScreenshot(page, "/tmp/jplanet-gram-catalog-mobile.png");
@@ -364,11 +481,13 @@ async function assertMobileViewport(browser, baseUrl, viewport, failures) {
     return {
       catalogueImageCount,
       categoryHeights: chipHeights,
+      contentAlignmentX: titleBounds.x,
       detailColumns: 1,
       detailImageCount,
       documentWidth,
       firstRowCardWidths: catalogueRow.cardWidths,
       firstRowLefts: catalogueRow.lefts,
+      focusClearance,
       playerWidth: playerBounds.width,
       productCardWidths: productRow.cardWidths,
       productColumns: productRow.lefts.length,
