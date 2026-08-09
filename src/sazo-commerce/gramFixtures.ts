@@ -54,7 +54,7 @@ function linkedProduct(index: number): GramProduct {
   const product = products[index % products.length];
 
   if (product === undefined) {
-    throw new Error(`Missing SAZO local product at index ${index}`);
+    throw new Error(`Missing SAZO local product at index ${String(index)}`);
   }
 
   return {
@@ -70,7 +70,7 @@ function recordedGramEntry(index: number) {
   const entry = gramEntries[index];
 
   if (entry === undefined) {
-    throw new Error(`Missing recorded GRAM entry at index ${index}`);
+    throw new Error(`Missing recorded GRAM entry at index ${String(index)}`);
   }
 
   return entry;
@@ -248,7 +248,11 @@ if (new Set(gramPosts.map(({ id }) => id)).size !== gramPosts.length) {
   throw new Error("GRAM post IDs must be unique");
 }
 
-if (gramPosts.some(({ products: postProducts }) => postProducts.length !== 2)) {
+function hasExactlyTwoItems(items: readonly unknown[]): boolean {
+  return items.length === 2;
+}
+
+if (gramPosts.some(({ products: postProducts }) => !hasExactlyTwoItems(postProducts))) {
   throw new Error("Every GRAM post must have exactly two products");
 }
 

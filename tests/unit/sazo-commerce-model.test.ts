@@ -52,27 +52,37 @@ describe("sazoReducer", () => {
     expect(gramPosts).toHaveLength(10);
     expect(new Set(gramPosts.map(({ id }) => id)).size).toBe(10);
     expect(
-      gramPosts.every(
-        ({ image, products }) =>
-          image.startsWith("/sazo-commerce/") && products.length === 2,
-      ),
+      gramPosts.every(({ image, products: postProducts }) => {
+        const runtimeProducts: readonly unknown[] = postProducts;
+
+        return image.startsWith("/sazo-commerce/") && runtimeProducts.length === 2;
+      }),
     ).toBe(true);
-    const relatedProductIds = gramPosts.map(({ products: postProducts }) => postProducts[1]?.productId);
+    const relatedProductIds = gramPosts.map(
+      ({ products: postProducts }) => postProducts[1].productId,
+    );
     expect(
       relatedProductIds.every(
-        (productId) => productId !== undefined && products.some(({ id }) => id === productId),
+        (productId) =>
+          productId !== undefined && products.some(({ id }) => id === productId),
       ),
     ).toBe(true);
-    expect(getGramPosts("hot").every(({ categories }) => categories.includes("hot"))).toBe(
-      true,
-    );
+    expect(
+      getGramPosts("hot").every(({ categories }) => categories.includes("hot")),
+    ).toBe(true);
     expect(getGramPost("missing").id).toBe("gram-01");
   });
 
   it("moves through GRAM category loading, detail, and home reset states", () => {
-    const gram = sazoReducer(createInitialSazoState(), { type: "navigate", view: "gram" });
+    const gram = sazoReducer(createInitialSazoState(), {
+      type: "navigate",
+      view: "gram",
+    });
     const loading = sazoReducer(gram, { type: "select-gram-category", category: "hot" });
-    const loaded = sazoReducer(loading, { type: "gram-loaded", token: loading.gramLoadToken });
+    const loaded = sazoReducer(loading, {
+      type: "gram-loaded",
+      token: loading.gramLoadToken,
+    });
     const detail = sazoReducer(loaded, { type: "open-gram-post", postId: "gram-01" });
     const home = sazoReducer(detail, { type: "navigate", view: "home" });
 
@@ -93,7 +103,10 @@ describe("sazoReducer", () => {
       category: "hot",
     });
     const daily = sazoReducer(hot, { type: "select-gram-category", category: "daily" });
-    const staleCompletion = sazoReducer(daily, { type: "gram-loaded", token: hot.gramLoadToken });
+    const staleCompletion = sazoReducer(daily, {
+      type: "gram-loaded",
+      token: hot.gramLoadToken,
+    });
     const loaded = sazoReducer(staleCompletion, {
       type: "gram-loaded",
       token: daily.gramLoadToken,
@@ -109,13 +122,15 @@ describe("sazoReducer", () => {
 
   it("accepts deterministic GRAM QA entries only behind qa=1", () => {
     expect(createInitialSazoState("?qa=1&view=gram")).toMatchObject({ view: "gram" });
-    expect(createInitialSazoState("?qa=1&view=gram-detail&gramPost=gram-03")).toMatchObject(
-      {
-        selectedGramPostId: "gram-03",
-        view: "gram-detail",
-      },
+    expect(
+      createInitialSazoState("?qa=1&view=gram-detail&gramPost=gram-03"),
+    ).toMatchObject({
+      selectedGramPostId: "gram-03",
+      view: "gram-detail",
+    });
+    expect(createInitialSazoState("?view=gram-detail&gramPost=gram-03").view).toBe(
+      "home",
     );
-    expect(createInitialSazoState("?view=gram-detail&gramPost=gram-03").view).toBe("home");
   });
 
   it("opens product detail and returns to the source view", () => {
