@@ -160,6 +160,11 @@ it("renders the recorded category order and ten interactive post cards", async (
 
   expect(screen.getAllByRole("button", { name: /カテゴリ:/ })).toHaveLength(11);
   expect(screen.getAllByRole("button", { name: /投稿を開く:/ })).toHaveLength(10);
+  expect(document.querySelectorAll(".sazo-gram-catalog-product img")).toHaveLength(10);
+  expect(document.querySelectorAll(".sazo-gram-catalog-discount")).toHaveLength(5);
+  expect(
+    screen.getByText("20%", { selector: ".sazo-gram-catalog-discount" }),
+  ).toBeTruthy();
   expect(
     screen.getByRole("button", { name: "カテゴリ: 全体" }).getAttribute("aria-pressed"),
   ).toBe("true");

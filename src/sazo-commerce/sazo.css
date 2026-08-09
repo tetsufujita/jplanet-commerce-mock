@@ -1555,8 +1555,8 @@
 }
 
 .sazo-root .sazo-gram-filter button[aria-pressed="true"] {
-  border-color: var(--jplanet-ink);
-  background: var(--jplanet-ink);
+  border-color: var(--jplanet-navy);
+  background: var(--jplanet-navy);
   color: var(--jplanet-surface);
 }
 
@@ -1609,24 +1609,58 @@
 }
 
 .sazo-root .sazo-gram-catalog-copy {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 6px;
-  min-height: 43px;
+  display: block;
+  min-height: 52px;
   padding-top: 8px;
   color: var(--jplanet-ink);
   font-size: 12px;
   line-height: 1.45;
 }
 
-.sazo-root .sazo-gram-catalog-copy strong {
+.sazo-root .sazo-gram-catalog-product {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sazo-root .sazo-gram-catalog-product > img {
+  display: block;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.sazo-root .sazo-gram-catalog-product-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.sazo-root .sazo-gram-catalog-product-copy strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.sazo-root .sazo-gram-catalog-copy span {
+.sazo-root .sazo-gram-catalog-product-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.sazo-root .sazo-gram-catalog-product-meta b {
   font-weight: 800;
+}
+
+.sazo-root .sazo-gram-catalog-discount {
+  color: var(--jplanet-sakura);
+  font-style: normal;
+  font-weight: 900;
 }
 
 .sazo-root .sazo-gram-skeleton-grid {

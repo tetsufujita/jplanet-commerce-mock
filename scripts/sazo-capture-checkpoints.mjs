@@ -291,7 +291,10 @@ const desktopCaptures = Object.freeze({
     await scrollTo(page, ".sazo-review-masonry", -108);
   },
   gram: async (page) => {
-    await scrollTo(page, ".sazo-gram-catalog-grid", 96);
+    const section = page.getByRole("heading", { name: "J-Planet GRAM" }).locator("..");
+    await section.getByRole("button", { exact: true, name: "もっと見る" }).click();
+    await waitForVisible(page.locator('[data-view-content="gram"]'));
+    await settle(page);
   },
   ranking: async (page) => {
     await scrollTo(page, ".sazo-gram-strip", 280);

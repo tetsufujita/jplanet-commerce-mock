@@ -83,8 +83,29 @@ function GramPostGrid({
               />
             </span>
             <span className="sazo-gram-catalog-copy">
-              <strong>{post.caption}</strong>
-              <span>{primaryProduct?.price}</span>
+              {primaryProduct === undefined ? null : (
+                <span className="sazo-gram-catalog-product">
+                  <img
+                    alt=""
+                    decoding="async"
+                    height={44}
+                    loading="lazy"
+                    src={primaryProduct.image}
+                    width={44}
+                  />
+                  <span className="sazo-gram-catalog-product-copy">
+                    <strong>{primaryProduct.name}</strong>
+                    <span className="sazo-gram-catalog-product-meta">
+                      {primaryProduct.discount === undefined ? null : (
+                        <em className="sazo-gram-catalog-discount">
+                          {primaryProduct.discount}
+                        </em>
+                      )}
+                      <b>{primaryProduct.price}</b>
+                    </span>
+                  </span>
+                </span>
+              )}
             </span>
           </button>
         );

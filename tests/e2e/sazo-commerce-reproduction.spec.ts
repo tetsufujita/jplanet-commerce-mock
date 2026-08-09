@@ -41,7 +41,7 @@ async function replayDesktopScenario(page: Page) {
   ).toBeVisible();
 
   await page.getByTestId("chat-launcher").click();
-  const chat = page.getByRole("dialog", { exact: true, name: "SAZOチャット" });
+  const chat = page.getByRole("dialog", { exact: true, name: "J-Planetチャット" });
   await expect(chat).toBeVisible();
   await page.getByTestId("chat-close").click();
   await expect(chat).toBeHidden();
@@ -123,7 +123,9 @@ async function replayMobileScenario(page: Page) {
     }),
   ).toBeVisible();
   await page.getByLabel("電話番号", { exact: true }).fill("9012345678");
-  await page.getByLabel("SAZOからのお得な情報を受け取らない", { exact: true }).check();
+  await page
+    .getByLabel("J-Planetからのお得な情報を受け取らない", { exact: true })
+    .check();
   await page.getByRole("button", { exact: true, name: "次へ" }).click();
 
   let account = page.locator('[data-view-content="mypage"]');
