@@ -9,6 +9,48 @@ const server = await createServer({
 
 let browser;
 
+function isNotoFontRequest(url) {
+  return url.includes("/sazo-commerce/fonts/noto-sans-jp/");
+}
+
+async function loadServiceFont(page) {
+  return page
+    .locator(".sazo-service-url-entry input")
+    .first()
+    .evaluate(async (element) => {
+      const descriptor = '700 24px "Noto Sans JP Variable"';
+      const sample = "韓国商品";
+      let loadError = null;
+      let loadedFaces = [];
+
+      try {
+        loadedFaces = await document.fonts.load(descriptor, sample);
+      } catch (error) {
+        loadError = error instanceof Error ? error.message : String(error);
+      }
+
+      await document.fonts.ready;
+      const matchingFaces = [...document.fonts]
+        .filter((face) => face.family.replaceAll(/["']/g, "") === "Noto Sans JP Variable")
+        .map((face) => ({
+          family: face.family,
+          status: face.status,
+          style: face.style,
+          weight: face.weight,
+        }));
+
+      return {
+        computedFont: getComputedStyle(element).fontFamily,
+        check: document.fonts.check(descriptor, sample),
+        loadError,
+        loadedFaceCount: loadedFaces.length,
+        matchingFaces,
+        matchingLoadedCount: matchingFaces.filter(({ status }) => status === "loaded")
+          .length,
+      };
+    });
+}
+
 try {
   await server.listen();
   const address = server.httpServer?.address();
@@ -17,6 +59,22 @@ try {
   browser = await chromium.launch({ channel: "chrome", headless: true });
   const baseUrl = `http://127.0.0.1:${String(address.port)}/sazo-commerce-mock/`;
   const desktopPage = await browser.newPage({ viewport: { height: 828, width: 1511 } });
+  const fontNetworkFailures = [];
+  const fontAssetResponses = [];
+
+  desktopPage.on("requestfailed", (request) => {
+    if (isNotoFontRequest(request.url())) {
+      fontNetworkFailures.push({
+        failure: request.failure()?.errorText ?? "unknown",
+        url: request.url(),
+      });
+    }
+  });
+  desktopPage.on("response", (response) => {
+    if (isNotoFontRequest(response.url())) {
+      fontAssetResponses.push({ status: response.status(), url: response.url() });
+    }
+  });
 
   await desktopPage.goto(baseUrl);
   const desktopNavigation = desktopPage.getByRole("navigation", {
@@ -77,8 +135,16 @@ try {
   await desktopPage.locator('[data-view-content="service"]').waitFor();
   await desktopPage.setViewportSize({ height: 1264, width: 1726 });
   assert.equal(await desktopPage.evaluate(() => window.scrollY), 0);
-  await desktopPage.waitForFunction(() =>
-    document.fonts.check('700 24px "Noto Sans JP Variable"', "韓国商品"),
+  const serviceFontAudit = await loadServiceFont(desktopPage);
+  assert.equal(serviceFontAudit.loadError, null, "service Noto explicit load error");
+  assert.ok(serviceFontAudit.loadedFaceCount > 0, "service Noto explicit load result");
+  assert.ok(serviceFontAudit.matchingLoadedCount > 0, "service loaded Noto FontFace");
+  assert.equal(serviceFontAudit.check, true, "service document.fonts.check");
+  assert.deepEqual(fontNetworkFailures, [], "service Noto font request failures");
+  assert.ok(fontAssetResponses.length > 0, "service Noto local font responses");
+  assert.ok(
+    fontAssetResponses.every(({ status }) => status === 200),
+    "service Noto local font response status",
   );
   const serviceEntry = desktopPage.locator(".sazo-service-url-entry").first();
   const serviceInput = serviceEntry.locator("input");
@@ -202,9 +268,9 @@ try {
   assert.ok(mobileEntryBounds.x >= 0);
   assert.ok(mobileEntryBounds.x + mobileEntryBounds.width <= 320);
   assert.equal(
-    await mobilePage.locator('[data-view-content="service"]').evaluate(
-      (element) => element.scrollWidth <= element.clientWidth,
-    ),
+    await mobilePage
+      .locator('[data-view-content="service"]')
+      .evaluate((element) => element.scrollWidth <= element.clientWidth),
     true,
   );
   await mobilePage.screenshot({ path: "/tmp/sazo-task5-mobile-service.png" });
