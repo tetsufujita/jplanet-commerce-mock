@@ -133,9 +133,7 @@ describe("J-Planet interested items rail", () => {
       introIndex + 1,
       introIndex + 2,
     ]);
-    expect(
-      screen.getByRole("heading", { name: "気になっているアイテム" }),
-    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "気になっているアイテム" })).toBeTruthy();
     expect(container.querySelectorAll('[data-variant="interest"]')).toHaveLength(5);
 
     fireEvent.click(
@@ -167,12 +165,17 @@ describe("J-Planet interested items rail", () => {
     );
     const track = screen.getByTestId("interested-items-track");
     const firstCard = track.querySelector<HTMLElement>(".sazo-product-card");
+
+    if (firstCard === null) {
+      throw new Error("Expected the interested-items rail to include a product card");
+    }
+
     Object.defineProperties(track, {
       clientWidth: { configurable: true, value: 1_140 },
       scrollLeft: { configurable: true, value: 0, writable: true },
       scrollWidth: { configurable: true, value: 1_430 },
     });
-    vi.spyOn(firstCard as HTMLElement, "getBoundingClientRect").mockReturnValue({
+    vi.spyOn(firstCard, "getBoundingClientRect").mockReturnValue({
       bottom: 0,
       height: 0,
       left: 0,
@@ -184,7 +187,7 @@ describe("J-Planet interested items rail", () => {
       toJSON: () => ({}),
     });
     const scrollTo = vi.fn(({ left }: ScrollToOptions) => {
-      track.scrollLeft = Number(left ?? 0);
+      track.scrollLeft = left ?? 0;
     });
     Object.defineProperty(track, "scrollTo", { configurable: true, value: scrollTo });
     const next = screen.getByRole("button", { name: "次の商品を表示" });
