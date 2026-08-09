@@ -8,6 +8,7 @@ import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createI18n } from "@/i18n/createI18n";
 import { HomeView } from "@/sazo-commerce/HomeView";
+import { InterestedItemsRail } from "@/sazo-commerce/InterestedItemsRail";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 import { getProductDetail, interestedProducts } from "@/sazo-commerce/fixtures";
 import { createInitialSazoState } from "@/sazo-commerce/model";
@@ -203,5 +204,53 @@ describe("J-Planet interested items rail", () => {
     fireEvent.click(next);
     expect(scrollTo).toHaveBeenLastCalledWith({ behavior: "auto", left: 290 });
     expect(container.querySelector(".sazo-interested-items-next svg")).not.toBeNull();
+  });
+
+  it("falls back to smooth scrolling when matchMedia is unavailable", async () => {
+    const i18n = await createI18n("ja");
+    const matchMediaDescriptor = Object.getOwnPropertyDescriptor(window, "matchMedia");
+
+    Reflect.deleteProperty(window, "matchMedia");
+    expect("matchMedia" in window).toBe(false);
+
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <InterestedItemsRail dispatch={() => undefined} />
+      </I18nextProvider>,
+    );
+    const track = screen.getByTestId("interested-items-track");
+    const firstCard = track.querySelector<HTMLElement>(".sazo-product-card");
+
+    if (firstCard === null) {
+      throw new Error("Expected the interested-items rail to include a product card");
+    }
+
+    Object.defineProperties(track, {
+      clientWidth: { configurable: true, value: 1_140 },
+      scrollLeft: { configurable: true, value: 0, writable: true },
+      scrollWidth: { configurable: true, value: 1_430 },
+    });
+    vi.spyOn(firstCard, "getBoundingClientRect").mockReturnValue({
+      bottom: 0,
+      height: 0,
+      left: 0,
+      right: 276,
+      top: 0,
+      width: 276,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    const scrollTo = vi.fn();
+    Object.defineProperty(track, "scrollTo", { configurable: true, value: scrollTo });
+
+    fireEvent.click(screen.getByRole("button", { name: "次の商品を表示" }));
+
+    expect(scrollTo).toHaveBeenCalledWith({ behavior: "smooth", left: 290 });
+
+    if (matchMediaDescriptor !== undefined) {
+      Object.defineProperty(window, "matchMedia", matchMediaDescriptor);
+    }
+    expect(container.querySelector(".sazo-interested-items-next")).not.toBeNull();
   });
 });

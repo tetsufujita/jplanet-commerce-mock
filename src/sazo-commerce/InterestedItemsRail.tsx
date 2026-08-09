@@ -30,7 +30,9 @@ export function InterestedItemsRail({ dispatch }: InterestedItemsRailProps) {
     const nextLeft = atEnd
       ? 0
       : Math.min(track.scrollLeft + cardWidth + gap, maximumLeft);
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reducedMotion =
+      "matchMedia" in window &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     track.scrollTo({
       behavior: reducedMotion ? "auto" : "smooth",
