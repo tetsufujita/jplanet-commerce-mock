@@ -9,8 +9,15 @@ const server = await createServer({
 
 let browser;
 
-function isNotoFontRequest(url) {
-  return url.includes("/sazo-commerce/fonts/noto-sans-jp/");
+function isNotoFontRequest(url, baseUrl) {
+  const assetUrl = new URL(url);
+
+  return (
+    assetUrl.origin === new URL(baseUrl).origin &&
+    /^\/(?:public\/)?sazo-commerce\/fonts\/noto-sans-jp\/files\/noto-sans-jp-[^/]+\.woff2$/.test(
+      assetUrl.pathname,
+    )
+  );
 }
 
 async function loadServiceFont(page) {
@@ -61,9 +68,10 @@ try {
   const desktopPage = await browser.newPage({ viewport: { height: 828, width: 1511 } });
   const fontNetworkFailures = [];
   const fontAssetResponses = [];
+  let isServiceFontAuditActive = false;
 
   desktopPage.on("requestfailed", (request) => {
-    if (isNotoFontRequest(request.url())) {
+    if (isServiceFontAuditActive && isNotoFontRequest(request.url(), baseUrl)) {
       fontNetworkFailures.push({
         failure: request.failure()?.errorText ?? "unknown",
         url: request.url(),
@@ -71,7 +79,7 @@ try {
     }
   });
   desktopPage.on("response", (response) => {
-    if (isNotoFontRequest(response.url())) {
+    if (isServiceFontAuditActive && isNotoFontRequest(response.url(), baseUrl)) {
       fontAssetResponses.push({ status: response.status(), url: response.url() });
     }
   });
@@ -135,7 +143,17 @@ try {
   await desktopPage.locator('[data-view-content="service"]').waitFor();
   await desktopPage.setViewportSize({ height: 1264, width: 1726 });
   assert.equal(await desktopPage.evaluate(() => window.scrollY), 0);
-  const serviceFontAudit = await loadServiceFont(desktopPage);
+  fontNetworkFailures.length = 0;
+  fontAssetResponses.length = 0;
+  isServiceFontAuditActive = true;
+  let serviceFontAudit;
+
+  try {
+    serviceFontAudit = await loadServiceFont(desktopPage);
+  } finally {
+    isServiceFontAuditActive = false;
+  }
+
   assert.equal(serviceFontAudit.loadError, null, "service Noto explicit load error");
   assert.ok(serviceFontAudit.loadedFaceCount > 0, "service Noto explicit load result");
   assert.ok(serviceFontAudit.matchingLoadedCount > 0, "service loaded Noto FontFace");
