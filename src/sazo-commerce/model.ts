@@ -266,7 +266,8 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
         ...state,
         gramLoading: false,
         overlay: "none",
-        selectedGramPostId: action.view === "gram-detail" ? state.selectedGramPostId : null,
+        selectedGramPostId:
+          action.view === "gram-detail" ? state.selectedGramPostId : null,
         view: action.view,
       };
     case "set-catalog-mode":
@@ -331,7 +332,9 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
         gramLoadToken: state.gramLoadToken + 1,
       };
     case "gram-loaded":
-      return action.token === state.gramLoadToken ? { ...state, gramLoading: false } : state;
+      return action.token === state.gramLoadToken
+        ? { ...state, gramLoading: false }
+        : state;
     case "open-gram-post":
       return {
         ...state,
