@@ -7,7 +7,7 @@ export interface ProductCardProps {
   mediaHidden?: boolean;
   onOpen: (productId: string) => void;
   product: Product;
-  variant?: "compact" | "standard";
+  variant?: "compact" | "interest" | "standard";
 }
 
 export function ProductCard({
@@ -45,8 +45,27 @@ export function ProductCard({
           )}
         </div>
         <div className="sazo-product-copy">
-          <span className="sazo-product-brand">{product.brand}</span>
-          <h3>{product.name}</h3>
+          {variant === "interest" ? (
+            <div className="sazo-product-title-row">
+              {product.sourceIcon === undefined ? null : (
+                <img
+                  alt=""
+                  aria-hidden
+                  className="sazo-product-source-icon"
+                  decoding="async"
+                  height={18}
+                  src={product.sourceIcon}
+                  width={18}
+                />
+              )}
+              <h3>{product.name}</h3>
+            </div>
+          ) : (
+            <>
+              <span className="sazo-product-brand">{product.brand}</span>
+              <h3>{product.name}</h3>
+            </>
+          )}
           <p className="sazo-product-price">
             {product.badge === undefined ? null : (
               <span className="sazo-product-badge">{product.badge}</span>

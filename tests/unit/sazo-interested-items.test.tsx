@@ -2,8 +2,18 @@
 
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import React from "react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { I18nextProvider } from "react-i18next";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { createI18n } from "@/i18n/createI18n";
+import { ProductCard } from "@/sazo-commerce/ProductCard";
 import { getProductDetail, interestedProducts } from "@/sazo-commerce/fixtures";
+
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 describe("J-Planet interested items fixtures", () => {
   it("keeps the five source products in the captured order", () => {
@@ -44,5 +54,46 @@ describe("J-Planet interested items fixtures", () => {
       expect(existsSync(resolve(`public${product.image}`))).toBe(true);
       expect(getProductDetail(product.id).product).toEqual(product);
     }
+  });
+});
+
+describe("J-Planet interested item card", () => {
+  it("renders the compact source identity without losing card interactions", async () => {
+    const i18n = await createI18n("ja");
+    const onOpen = vi.fn();
+    const product = interestedProducts[0];
+    expect(product).toBeDefined();
+    if (product === undefined) {
+      throw new Error("Expected the interested-items fixture to include a product");
+    }
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <ProductCard onOpen={onOpen} product={product} variant="interest" />
+      </I18nextProvider>,
+    );
+    const card = container.querySelector('[data-variant="interest"]');
+
+    expect(card).not.toBeNull();
+    expect(card?.querySelector(".sazo-product-brand")).toBeNull();
+    expect(
+      card?.querySelector<HTMLImageElement>(".sazo-product-source-icon")?.src,
+    ).toContain("/sazo-commerce/interested-items/source-11st.png");
+    expect(card?.querySelector(".sazo-product-title-row h3")?.textContent).toBe(
+      product.name,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: `商品詳細を開く: ${product.name}`,
+      }),
+    );
+    expect(onOpen).toHaveBeenCalledWith(product.id);
+
+    const favorite = screen.getByRole("button", {
+      name: `${product.name}をお気に入りに追加`,
+    });
+    fireEvent.click(favorite);
+    expect(favorite.getAttribute("aria-pressed")).toBe("true");
+    expect(onOpen).toHaveBeenCalledTimes(1);
   });
 });
