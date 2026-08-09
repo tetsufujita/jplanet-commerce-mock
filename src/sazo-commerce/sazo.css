@@ -1562,8 +1562,9 @@
 .sazo-root .sazo-gram-filter {
   display: flex;
   gap: 10px;
-  margin-bottom: 36px;
+  margin: -6px -6px 30px;
   overflow-x: auto;
+  padding: 6px;
   scrollbar-width: none;
 }
 
@@ -4090,8 +4091,9 @@
   }
 
   .sazo-root .sazo-gram-filter {
-    margin: -6px -16px 18px -6px;
-    padding: 6px 16px 6px 6px;
+    margin-right: -16px;
+    margin-bottom: 18px;
+    padding-right: 16px;
   }
 
   .sazo-root .sazo-gram-filter button {

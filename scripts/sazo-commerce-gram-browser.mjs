@@ -151,9 +151,9 @@ async function getFocusedChipClearance(page, rail, chip, label) {
     requiredExtent: chipMetrics.requiredExtent,
   };
 
-  assert.notEqual(
+  assert.equal(
     metrics.outlineStyle,
-    "none",
+    "solid",
     `${label} outline style=${metrics.outlineStyle}`,
   );
   assert.equal(
@@ -253,6 +253,7 @@ async function assertDesktopJourney(browser, baseUrl, failures) {
   try {
     await openGramFromHome(page, baseUrl);
     const catalogue = page.locator('[data-view-content="gram"]');
+    await page.evaluate(() => document.fonts.ready);
     assert.equal(await page.getByRole("button", { name: /カテゴリ:/ }).count(), 11);
     assert.equal(await page.getByRole("button", { name: /投稿を開く:/ }).count(), 10);
 
@@ -265,11 +266,73 @@ async function assertDesktopJourney(browser, baseUrl, failures) {
     const catalogueRow = await getFirstRowGeometry(
       page.getByRole("button", { name: /投稿を開く:/ }),
     );
+    const filter = page.locator(".sazo-gram-filter");
+    const categoryChips = page.getByRole("button", { name: /カテゴリ:/ });
+    const alignment = await catalogue.evaluate((element) => {
+      const title = element.querySelector(":scope > h1");
+      const firstChip = element.querySelector(".sazo-gram-filter button");
+      const firstCard = element.querySelector(".sazo-gram-catalog-card");
+      if (
+        !(title instanceof HTMLElement) ||
+        !(firstChip instanceof HTMLElement) ||
+        !(firstCard instanceof HTMLElement)
+      ) {
+        throw new Error("desktop GRAM alignment targets missing");
+      }
+      const titleBounds = title.getBoundingClientRect();
+      const chipBounds = firstChip.getBoundingClientRect();
+      const gridBounds = firstCard.getBoundingClientRect();
+
+      return {
+        chipToGridGap: gridBounds.top - chipBounds.bottom,
+        chipX: chipBounds.x,
+        gridX: gridBounds.x,
+        titleToChipGap: chipBounds.top - titleBounds.bottom,
+        titleX: titleBounds.x,
+      };
+    });
+    assert(
+      Math.abs(alignment.gridX - alignment.titleX) < 0.5 &&
+        Math.abs(alignment.chipX - alignment.titleX) < 0.5,
+      `desktop alignment title=${String(alignment.titleX)} chip=${String(alignment.chipX)} grid=${String(alignment.gridX)}`,
+    );
+    assert(
+      Math.abs(alignment.titleToChipGap - 24) < 0.5,
+      `desktop title-to-chip gap=${String(alignment.titleToChipGap)}`,
+    );
+    assert(
+      Math.abs(alignment.chipToGridGap - 36) < 0.5,
+      `desktop chip-to-grid gap=${String(alignment.chipToGridGap)}`,
+    );
     assert.equal(
       catalogueRow.lefts.length,
       5,
       `desktop first-row columns=${String(catalogueRow.lefts.length)}`,
     );
+    const focusClearance = {
+      first: await getFocusedChipClearance(
+        page,
+        filter,
+        categoryChips.first(),
+        "desktop first category",
+      ),
+      last: await getFocusedChipClearance(
+        page,
+        filter,
+        categoryChips.last(),
+        "desktop last category",
+      ),
+    };
+    const documentWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+    assert.equal(documentWidth, desktopViewport.width);
+    await filter.evaluate((element) => {
+      element.scrollLeft = 0;
+    });
+    await page.evaluate(() => {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    });
     assert.equal(await catalogue.locator(".sazo-gram-catalog-product img").count(), 10);
     assert.equal(await catalogue.locator(".sazo-gram-catalog-discount").count(), 5);
     const catalogueImageCount = await waitForImages(catalogue);
@@ -353,15 +416,22 @@ async function assertDesktopJourney(browser, baseUrl, failures) {
       activeChipHeight: activeChipBounds.height,
       catalogueImageCount,
       catalogueWidth: catalogueBounds.width,
+      contentAlignmentX: alignment.titleX,
       detailColumns: 2,
       detailImageCount,
+      documentWidth,
       firstRowCardWidths: catalogueRow.cardWidths,
       firstRowLefts: catalogueRow.lefts,
+      focusClearance,
       playerWidth: playerBounds.width,
       toggleBounds: {
         bottom: toggleBounds.y + toggleBounds.height,
         height: toggleBounds.height,
         top: toggleBounds.y,
+      },
+      verticalFootprint: {
+        chipToGridGap: alignment.chipToGridGap,
+        titleToChipGap: alignment.titleToChipGap,
       },
     };
   } finally {
