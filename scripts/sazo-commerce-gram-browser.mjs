@@ -128,7 +128,9 @@ async function getFocusedChipClearance(page, rail, chip, label) {
           right: chipBounds.right,
           top: chipBounds.top,
         },
+        outlineColor: style.outlineColor,
         outlineOffset,
+        outlineStyle: style.outlineStyle,
         outlineWidth,
         requiredExtent: outlineWidth + Math.max(0, outlineOffset),
       };
@@ -143,14 +145,30 @@ async function getFocusedChipClearance(page, rail, chip, label) {
       top: chipMetrics.bounds.top - railBounds.y,
     },
     outlineOffset: chipMetrics.outlineOffset,
+    outlineColor: chipMetrics.outlineColor,
+    outlineStyle: chipMetrics.outlineStyle,
     outlineWidth: chipMetrics.outlineWidth,
     requiredExtent: chipMetrics.requiredExtent,
   };
 
+  assert.notEqual(
+    metrics.outlineStyle,
+    "none",
+    `${label} outline style=${metrics.outlineStyle}`,
+  );
+  assert.equal(
+    metrics.outlineColor,
+    "rgb(254, 162, 172)",
+    `${label} outline color=${metrics.outlineColor}`,
+  );
+  assert.equal(metrics.outlineWidth, 3, `${label} outline width`);
+  assert.equal(metrics.outlineOffset, 3, `${label} outline offset`);
+  assert.equal(metrics.requiredExtent, 6, `${label} focus extent`);
+
   for (const [edge, clearance] of Object.entries(metrics.clearance)) {
     assert(
-      clearance >= metrics.requiredExtent,
-      `${label} ${edge} focus clearance=${String(clearance)} required=${String(metrics.requiredExtent)}`,
+      clearance >= 6,
+      `${label} ${edge} focus clearance=${String(clearance)} required=6`,
     );
   }
 
