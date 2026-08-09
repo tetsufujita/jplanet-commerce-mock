@@ -341,6 +341,7 @@
       "progress": "Post playback position",
       "viewProduct": "View product: {{name}}",
       "linked": "Linked",
+      "bookmark": "Bookmark",
       "selected": "Selected"
     },
     "views": {

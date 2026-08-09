@@ -1,5 +1,5 @@
 import { useEffect, useState, type Dispatch } from "react";
-import { Pause, Play, VolumeX } from "lucide-react";
+import { Bookmark, Pause, Play, VolumeX } from "lucide-react";
 import { useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import {
@@ -191,7 +191,12 @@ function GramMediaPlayer({
 
   return (
     <section aria-label={t("sazo.gram.mediaRegion")} className="sazo-gram-player">
-      <img alt="" className="sazo-gram-player-poster" decoding="async" src={post.image} />
+      <img
+        alt={post.caption}
+        className="sazo-gram-player-poster"
+        decoding="async"
+        src={post.image}
+      />
       <div className="sazo-gram-player-controls">
         <button
           aria-label={playing ? t("sazo.gram.pause") : t("sazo.gram.play")}
@@ -255,11 +260,29 @@ function GramProductList({
               }}
               type="button"
             >
-              <img alt="" decoding="async" loading="lazy" src={product.image} />
+              <span className="sazo-gram-product-media">
+                <img alt="" decoding="async" loading="lazy" src={product.image} />
+                <span
+                  aria-label={t("sazo.gram.bookmark")}
+                  className="sazo-gram-product-bookmark"
+                  role="img"
+                >
+                  <Bookmark aria-hidden fill="currentColor" size={18} />
+                </span>
+              </span>
               <span className="sazo-gram-product-copy">
                 <strong>{product.name}</strong>
-                <span>{product.price}</span>
-                {selected ? <em>{t("sazo.gram.selected")}</em> : null}
+                <span className="sazo-gram-product-meta">
+                  {product.discount === undefined ? null : (
+                    <em className="sazo-gram-product-discount">{product.discount}</em>
+                  )}
+                  <span className="sazo-gram-product-price">{product.price}</span>
+                </span>
+                {selected ? (
+                  <em className="sazo-gram-product-selected">
+                    {t("sazo.gram.selected")}
+                  </em>
+                ) : null}
               </span>
             </button>
           );

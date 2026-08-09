@@ -155,6 +155,24 @@ it("opens an existing product detail and leaves demo-only products local", async
   });
 });
 
+it("shows gram-03 discount, bookmarks, and meaningful poster text", async () => {
+  await renderGram(
+    { ...createInitialSazoState(), selectedGramPostId: "gram-03", view: "gram-detail" },
+    vi.fn(),
+    "detail",
+  );
+
+  const productCards = screen.getAllByRole("button", { name: /商品を見る:/ });
+  expect(productCards).toHaveLength(2);
+  const primaryProduct = productCards[0];
+  if (primaryProduct === undefined) {
+    throw new Error("The primary gram-03 product is missing");
+  }
+  expect(within(primaryProduct).getByText("20%")).toBeTruthy();
+  expect(screen.getAllByRole("img", { name: "ブックマーク" })).toHaveLength(2);
+  expect(screen.getByAltText("日本限定スタバ新作 2026夏グッズ発売！")).toBeTruthy();
+});
+
 it("renders the recorded category order and ten interactive post cards", async () => {
   await renderGram({ ...createInitialSazoState(), view: "gram" });
 

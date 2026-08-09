@@ -341,6 +341,7 @@
       "progress": "Posição de reprodução",
       "viewProduct": "Ver produto: {{name}}",
       "linked": "Vinculado",
+      "bookmark": "Favorito",
       "selected": "Selecionado"
     },
     "views": {

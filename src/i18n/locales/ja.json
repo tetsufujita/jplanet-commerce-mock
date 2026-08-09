@@ -341,6 +341,7 @@
       "progress": "投稿の再生位置",
       "viewProduct": "商品を見る: {{name}}",
       "linked": "リンク済み",
+      "bookmark": "ブックマーク",
       "selected": "選択中"
     },
     "views": {
