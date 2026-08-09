@@ -186,6 +186,7 @@ describe("SAZO home composition", () => {
       "新規特典がリニューアル",
       "J-Planet特集",
       "ブラジル最大級",
+      "気になっているアイテム",
       "みんなの口コミ",
       "J-Planet GRAM",
       "レビュー高評価のおすすめ",

@@ -7,8 +7,10 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createI18n } from "@/i18n/createI18n";
+import { HomeView } from "@/sazo-commerce/HomeView";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 import { getProductDetail, interestedProducts } from "@/sazo-commerce/fixtures";
+import { createInitialSazoState } from "@/sazo-commerce/model";
 
 afterEach(() => {
   cleanup();
@@ -95,5 +97,108 @@ describe("J-Planet interested item card", () => {
     fireEvent.click(favorite);
     expect(favorite.getAttribute("aria-pressed")).toBe("true");
     expect(onOpen).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("J-Planet interested items rail", () => {
+  it("places the interested rail between the intro and customer reviews", async () => {
+    const i18n = await createI18n("ja");
+    const dispatch = vi.fn();
+    const firstInterestedProduct = interestedProducts[0];
+
+    if (firstInterestedProduct === undefined) {
+      throw new Error("Expected the interested-items fixture to include a product");
+    }
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <HomeView dispatch={dispatch} state={createInitialSazoState()} />
+      </I18nextProvider>,
+    );
+    const children = Array.from(
+      container.querySelector("[data-home-view]")?.children ?? [],
+    );
+    const introIndex = children.findIndex((child) =>
+      child.classList.contains("sazo-home-intro"),
+    );
+    const interestedIndex = children.findIndex((child) =>
+      child.classList.contains("sazo-interested-items"),
+    );
+    const reviewsIndex = children.findIndex((child) =>
+      child.classList.contains("sazo-review-section"),
+    );
+
+    expect(introIndex).toBeGreaterThanOrEqual(0);
+    expect([introIndex, interestedIndex, reviewsIndex]).toEqual([
+      introIndex,
+      introIndex + 1,
+      introIndex + 2,
+    ]);
+    expect(
+      screen.getByRole("heading", { name: "気になっているアイテム" }),
+    ).toBeTruthy();
+    expect(container.querySelectorAll('[data-variant="interest"]')).toHaveLength(5);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: `商品詳細を開く: ${firstInterestedProduct.name}`,
+      }),
+    );
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "open-product",
+      productId: "interested-nike-rope",
+    });
+  });
+
+  it("scrolls one card and wraps to the start with reduced-motion support", async () => {
+    const i18n = await createI18n("ja");
+    const matchMedia = vi.fn().mockReturnValue({
+      addEventListener: vi.fn(),
+      matches: false,
+      removeEventListener: vi.fn(),
+    });
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: matchMedia,
+    });
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <HomeView dispatch={() => undefined} state={createInitialSazoState()} />
+      </I18nextProvider>,
+    );
+    const track = screen.getByTestId("interested-items-track");
+    const firstCard = track.querySelector<HTMLElement>(".sazo-product-card");
+    Object.defineProperties(track, {
+      clientWidth: { configurable: true, value: 1_140 },
+      scrollLeft: { configurable: true, value: 0, writable: true },
+      scrollWidth: { configurable: true, value: 1_430 },
+    });
+    vi.spyOn(firstCard as HTMLElement, "getBoundingClientRect").mockReturnValue({
+      bottom: 0,
+      height: 0,
+      left: 0,
+      right: 276,
+      top: 0,
+      width: 276,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    const scrollTo = vi.fn(({ left }: ScrollToOptions) => {
+      track.scrollLeft = Number(left ?? 0);
+    });
+    Object.defineProperty(track, "scrollTo", { configurable: true, value: scrollTo });
+    const next = screen.getByRole("button", { name: "次の商品を表示" });
+
+    fireEvent.click(next);
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: "smooth", left: 290 });
+
+    track.scrollLeft = 290;
+    fireEvent.click(next);
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: "smooth", left: 0 });
+
+    matchMedia.mockReturnValue({ matches: true });
+    fireEvent.click(next);
+    expect(scrollTo).toHaveBeenLastCalledWith({ behavior: "auto", left: 290 });
+    expect(container.querySelector(".sazo-interested-items-next svg")).not.toBeNull();
   });
 });

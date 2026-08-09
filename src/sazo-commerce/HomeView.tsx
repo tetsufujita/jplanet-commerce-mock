@@ -26,6 +26,7 @@ import {
 } from "@/sazo-commerce/fixtures";
 import type { SazoAction, SazoState } from "@/sazo-commerce/model";
 import { JplanetShortcutIcon } from "@/sazo-commerce/JplanetShortcutIcon";
+import { InterestedItemsRail } from "@/sazo-commerce/InterestedItemsRail";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 import { useSazoHero } from "@/sazo-commerce/useSazoHero";
 
@@ -511,6 +512,7 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
         </button>
       </section>
 
+      <InterestedItemsRail dispatch={dispatch} />
       <ReviewStrip dispatch={dispatch} state={state} />
       <GramStrip dispatch={dispatch} />
       <RecommendedReviews dispatch={dispatch} />
