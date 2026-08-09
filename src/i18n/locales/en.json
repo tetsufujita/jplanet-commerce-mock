@@ -332,7 +332,16 @@
       "categoriesLabel": "J-Planet GRAM categories",
       "categoryLabel": "Category: {{category}}",
       "openPost": "Open post: {{caption}}",
-      "loading": "Loading posts"
+      "loading": "Loading posts",
+      "mediaRegion": "Vertical post media",
+      "productList": "Products",
+      "play": "Play",
+      "pause": "Pause",
+      "mute": "Muted",
+      "progress": "Post playback position",
+      "viewProduct": "View product: {{name}}",
+      "linked": "Linked",
+      "selected": "Selected"
     },
     "views": {
       "common": {

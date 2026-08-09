@@ -7,7 +7,7 @@ import { act, cleanup, fireEvent, render, screen, within } from "@testing-librar
 import { I18nextProvider } from "react-i18next";
 import { afterEach, expect, it, vi } from "vitest";
 import { createI18n } from "@/i18n/createI18n";
-import { GramCatalogView } from "@/sazo-commerce/GramView";
+import { GramCatalogView, GramDetailView } from "@/sazo-commerce/GramView";
 import { SazoCommercePage } from "@/sazo-commerce/SazoCommercePage";
 import {
   createInitialSazoState,
@@ -47,25 +47,113 @@ async function renderCommercePage() {
   );
 }
 
-async function renderGram(state: SazoState, dispatch: Dispatch<SazoAction> = vi.fn()) {
+async function renderGram(
+  state: SazoState,
+  dispatch: Dispatch<SazoAction> = vi.fn(),
+  view: "catalog" | "detail" = "catalog",
+) {
   const i18n = await createI18n("ja");
-  const result = render(
-    <I18nextProvider i18n={i18n}>
-      <GramCatalogView dispatch={dispatch} state={state} />
-    </I18nextProvider>,
-  );
+  const content = (nextState: SazoState) =>
+    view === "detail" ? (
+      <GramDetailView dispatch={dispatch} state={nextState} />
+    ) : (
+      <GramCatalogView dispatch={dispatch} state={nextState} />
+    );
+  const result = render(<I18nextProvider i18n={i18n}>{content(state)}</I18nextProvider>);
 
   return {
     ...result,
     rerenderWithState: (nextState: SazoState) => {
       result.rerender(
-        <I18nextProvider i18n={i18n}>
-          <GramCatalogView dispatch={dispatch} state={nextState} />
-        </I18nextProvider>,
+        <I18nextProvider i18n={i18n}>{content(nextState)}</I18nextProvider>,
       );
     },
   };
 }
+
+it("opens a post detail with vertical media and related products", async () => {
+  const dispatch = vi.fn();
+  await renderGram({ ...createInitialSazoState(), view: "gram" }, dispatch);
+  const firstPost = screen.getAllByRole("button", { name: /投稿を開く:/ })[0];
+  if (firstPost === undefined) {
+    throw new Error("The first GRAM post is missing");
+  }
+  fireEvent.click(firstPost);
+  expect(dispatch).toHaveBeenCalledWith({ type: "open-gram-post", postId: "gram-01" });
+
+  cleanup();
+  await renderGram(
+    { ...createInitialSazoState(), selectedGramPostId: "gram-01", view: "gram-detail" },
+    dispatch,
+    "detail",
+  );
+  expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("SPAO");
+  expect(screen.getByRole("region", { name: "縦型投稿メディア" })).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "商品一覧" })).toBeTruthy();
+  expect(screen.getAllByRole("button", { name: /商品を見る:/ })).toHaveLength(2);
+});
+
+it("plays, advances, and pauses the demo progress", async () => {
+  vi.useFakeTimers();
+  installReducedMotion(false);
+  await renderGram(
+    { ...createInitialSazoState(), selectedGramPostId: "gram-01", view: "gram-detail" },
+    vi.fn(),
+    "detail",
+  );
+  const progress = screen.getByRole("progressbar", { name: "投稿の再生位置" });
+
+  fireEvent.click(screen.getByRole("button", { name: "再生" }));
+  act(() => {
+    vi.advanceTimersByTime(1_000);
+  });
+  expect(Number(progress.getAttribute("aria-valuenow"))).toBeGreaterThan(0);
+  fireEvent.click(screen.getByRole("button", { name: "一時停止" }));
+  const paused = progress.getAttribute("aria-valuenow");
+  act(() => {
+    vi.advanceTimersByTime(1_000);
+  });
+  expect(progress.getAttribute("aria-valuenow")).toBe(paused);
+});
+
+it("keeps progress static when reduced motion is requested", async () => {
+  vi.useFakeTimers();
+  installReducedMotion(true);
+  await renderGram(
+    { ...createInitialSazoState(), selectedGramPostId: "gram-01", view: "gram-detail" },
+    vi.fn(),
+    "detail",
+  );
+  fireEvent.click(screen.getByRole("button", { name: "再生" }));
+  act(() => {
+    vi.advanceTimersByTime(1_000);
+  });
+  expect(
+    screen
+      .getByRole("progressbar", { name: "投稿の再生位置" })
+      .getAttribute("aria-valuenow"),
+  ).toBe("0");
+});
+
+it("opens an existing product detail and leaves demo-only products local", async () => {
+  const dispatch = vi.fn();
+  await renderGram(
+    { ...createInitialSazoState(), selectedGramPostId: "gram-01", view: "gram-detail" },
+    dispatch,
+    "detail",
+  );
+  const local = screen.getByRole("button", { name: /商品を見る: \[たまごっち\]/ });
+  fireEvent.click(local);
+  expect(local.getAttribute("aria-pressed")).toBe("true");
+  expect(dispatch).not.toHaveBeenCalled();
+
+  const linked = screen.getByRole("button", { name: /商品を見る:.*リンク済み/ });
+  fireEvent.click(linked);
+  expect(dispatch).toHaveBeenCalledWith({
+    type: "open-product",
+    productId: "p01",
+  });
+});
 
 it("renders the recorded category order and ten interactive post cards", async () => {
   await renderGram({ ...createInitialSazoState(), view: "gram" });
