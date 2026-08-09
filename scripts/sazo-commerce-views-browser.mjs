@@ -68,19 +68,29 @@ try {
   const desktopPage = await browser.newPage({ viewport: { height: 828, width: 1511 } });
   const fontNetworkFailures = [];
   const fontAssetResponses = [];
+  const serviceFontAuditRequests = new Set();
   let isServiceFontAuditActive = false;
 
-  desktopPage.on("requestfailed", (request) => {
+  desktopPage.on("request", (request) => {
     if (isServiceFontAuditActive && isNotoFontRequest(request.url(), baseUrl)) {
+      serviceFontAuditRequests.add(request);
+    }
+  });
+  desktopPage.on("requestfailed", (request) => {
+    if (serviceFontAuditRequests.has(request)) {
       fontNetworkFailures.push({
         failure: request.failure()?.errorText ?? "unknown",
         url: request.url(),
       });
+      serviceFontAuditRequests.delete(request);
     }
   });
   desktopPage.on("response", (response) => {
-    if (isServiceFontAuditActive && isNotoFontRequest(response.url(), baseUrl)) {
+    const request = response.request();
+
+    if (serviceFontAuditRequests.has(request)) {
       fontAssetResponses.push({ status: response.status(), url: response.url() });
+      serviceFontAuditRequests.delete(request);
     }
   });
 
@@ -145,25 +155,27 @@ try {
   assert.equal(await desktopPage.evaluate(() => window.scrollY), 0);
   fontNetworkFailures.length = 0;
   fontAssetResponses.length = 0;
+  serviceFontAuditRequests.clear();
   isServiceFontAuditActive = true;
   let serviceFontAudit;
 
   try {
     serviceFontAudit = await loadServiceFont(desktopPage);
+    isServiceFontAuditActive = false;
+    assert.equal(serviceFontAudit.loadError, null, "service Noto explicit load error");
+    assert.ok(serviceFontAudit.loadedFaceCount > 0, "service Noto explicit load result");
+    assert.ok(serviceFontAudit.matchingLoadedCount > 0, "service loaded Noto FontFace");
+    assert.equal(serviceFontAudit.check, true, "service document.fonts.check");
+    assert.deepEqual(fontNetworkFailures, [], "service Noto font request failures");
+    assert.ok(fontAssetResponses.length > 0, "service Noto local font responses");
+    assert.ok(
+      fontAssetResponses.every(({ status }) => status === 200),
+      "service Noto local font response status",
+    );
   } finally {
     isServiceFontAuditActive = false;
+    serviceFontAuditRequests.clear();
   }
-
-  assert.equal(serviceFontAudit.loadError, null, "service Noto explicit load error");
-  assert.ok(serviceFontAudit.loadedFaceCount > 0, "service Noto explicit load result");
-  assert.ok(serviceFontAudit.matchingLoadedCount > 0, "service loaded Noto FontFace");
-  assert.equal(serviceFontAudit.check, true, "service document.fonts.check");
-  assert.deepEqual(fontNetworkFailures, [], "service Noto font request failures");
-  assert.ok(fontAssetResponses.length > 0, "service Noto local font responses");
-  assert.ok(
-    fontAssetResponses.every(({ status }) => status === 200),
-    "service Noto local font response status",
-  );
   const serviceEntry = desktopPage.locator(".sazo-service-url-entry").first();
   const serviceInput = serviceEntry.locator("input");
   const serviceButton = serviceEntry.locator("button");
