@@ -39,6 +39,7 @@ export interface Product {
   price: string;
   image: SazoImagePath;
   badge?: string;
+  sourceIcon?: SazoImagePath;
 }
 
 export interface ProductDetail {
@@ -425,6 +426,46 @@ export const products = [
     name: "優しい人形室 手編みマカロン綿糸",
     price: "¥104",
     image: "/sazo-commerce/products/12.webp",
+  },
+] satisfies readonly Product[];
+
+export const interestedProducts = [
+  {
+    id: "interested-nike-rope",
+    brand: "11ST",
+    name: "[ナイキ] ファンダメンタル 重量減り(AC4197-010)",
+    price: "¥3,339",
+    image: "/sazo-commerce/interested-items/01.webp",
+    sourceIcon: "/sazo-commerce/interested-items/source-11st.png",
+  },
+  {
+    id: "interested-nike-mind",
+    brand: "KREAM",
+    name: "Nike Mind 001 Black Chrome",
+    price: "¥17,432",
+    image: "/sazo-commerce/interested-items/02.webp",
+    sourceIcon: "/sazo-commerce/interested-items/source-kream.png",
+  },
+  {
+    id: "interested-sprint-sister",
+    brand: "29CM",
+    name: "[インフルエンサーPick]スプリントシスターW - [リザーロック：オーシャンキューブ：ダークシンダー：セール / IR5693-256]",
+    price: "¥12,803",
+    image: "/sazo-commerce/interested-items/03.webp",
+  },
+  {
+    id: "interested-meat-keyring",
+    brand: "29CM",
+    name: "肉ラバーかわいいギフトおいしい肉キリング役に立たない無駄な面白い人形動物キーホルダー",
+    price: "¥1,048",
+    image: "/sazo-commerce/interested-items/04.webp",
+  },
+  {
+    id: "interested-duck-cushion",
+    brand: "11ST",
+    name: "アヒル人形睡眠モチ大型抱擁者クッション動物ぬいぐるみアヒル人形かわいい大型大王小さな巨大動物ボディ",
+    price: "¥1,651",
+    image: "/sazo-commerce/interested-items/05.webp",
   },
 ] satisfies readonly Product[];
 
@@ -1343,6 +1384,7 @@ const productRegistry = new Map<string, Product>();
 
 for (const product of [
   ...products,
+  ...interestedProducts,
   ...searchDiscoveryProducts,
   ...catalogInventory.map(({ product }) => product),
   ...reviewRecommendations.map(({ product }) => product),
