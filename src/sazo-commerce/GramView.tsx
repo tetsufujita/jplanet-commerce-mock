@@ -60,12 +60,14 @@ function GramSkeletonGrid() {
   const { t } = useTranslation();
 
   return (
-    <>
+    <div className="sazo-gram-skeleton-grid">
       <div
         aria-label={t("sazo.gram.loading")}
-        className="sazo-gram-loading"
+        className="sazo-gram-loading-spinner"
         role="status"
-      />
+      >
+        <span aria-hidden />
+      </div>
       <div aria-hidden className="sazo-gram-catalog-grid">
         {Array.from({ length: 10 }, (_, index) => (
           <div aria-hidden className="sazo-gram-skeleton-card" key={index}>
@@ -77,7 +79,7 @@ function GramSkeletonGrid() {
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 }
 

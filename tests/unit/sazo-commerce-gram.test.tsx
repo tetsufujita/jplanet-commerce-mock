@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 
 import type { Dispatch } from "react";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { afterEach, expect, it, vi } from "vitest";
@@ -91,7 +93,11 @@ it("dispatches category selection and preserves a ten-card loading outline", asy
     gramLoading: true,
     view: "gram",
   });
-  expect(screen.getByRole("status", { name: "投稿を読み込み中" })).toBeTruthy();
+  expect(
+    screen
+      .getByRole("status", { name: "投稿を読み込み中" })
+      .classList.contains("sazo-gram-loading-spinner"),
+  ).toBe(true);
   expect(document.querySelectorAll(".sazo-gram-skeleton-card")).toHaveLength(10);
 });
 
@@ -122,4 +128,15 @@ it("keeps the last selected category loading for a full 500ms", async () => {
   expect(
     screen.getByRole("button", { name: "カテゴリ: 日用品" }).getAttribute("aria-pressed"),
   ).toBe("true");
+});
+
+it("disables GRAM loading and hover motion for reduced-motion users", () => {
+  const css = readFileSync(join(process.cwd(), "src/sazo-commerce/sazo.css"), "utf8");
+
+  expect(css).toMatch(
+    /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.sazo-root \.sazo-gram-skeleton-card::after,\s*\.sazo-root \.sazo-gram-loading-spinner\s*{[^}]*animation:\s*none/s,
+  );
+  expect(css).toMatch(
+    /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.sazo-root \.sazo-gram-catalog-card:hover\s*{[^}]*transform:\s*none/s,
+  );
 });
