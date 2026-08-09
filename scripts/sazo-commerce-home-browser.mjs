@@ -141,6 +141,19 @@ try {
   const desktopFavorite = interestedCards.first().locator(".sazo-product-favorite");
   await desktopFavorite.click();
   assert.equal(await desktopFavorite.getAttribute("aria-pressed"), "true");
+  const desktopFavoriteSelectedColors = await desktopFavorite.evaluate((element) => {
+    const icon = element.querySelector("svg");
+
+    return {
+      buttonColor: getComputedStyle(element).color,
+      iconFill: icon === null ? "missing" : getComputedStyle(icon).fill,
+    };
+  });
+  assert.deepEqual(desktopFavoriteSelectedColors, {
+    buttonColor: "rgb(31, 56, 100)",
+    iconFill: "rgb(31, 56, 100)",
+  });
+  assert.notEqual(desktopFavoriteSelectedColors.iconFill, "rgb(255, 255, 255)");
   assert.equal(await page.locator(".sazo-root").getAttribute("data-view"), "home");
   assert.equal(
     await interestedCards.nth(4).evaluate((element) => {

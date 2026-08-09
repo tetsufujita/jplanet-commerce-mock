@@ -1294,6 +1294,12 @@
   filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--jplanet-ink) 55%, transparent));
 }
 
+.sazo-root
+  .sazo-product-card[data-variant="interest"]
+  .sazo-product-favorite[aria-pressed="true"] {
+  color: var(--jplanet-navy);
+}
+
 .sazo-root .sazo-interested-items-next {
   position: absolute;
   top: calc(50% - 28px);
