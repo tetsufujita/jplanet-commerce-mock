@@ -490,7 +490,9 @@ function MobileAgentSearch({ dispatch }: Pick<HomeViewProps, "dispatch">) {
         <button
           className="sazo-mobile-agent-entry-main"
           data-mobile-agent-search
-          onClick={() => dispatch({ type: "open-agent-hub", intent: "compose" })}
+          onClick={() => {
+            dispatch({ type: "open-agent-hub", intent: "compose" });
+          }}
           type="button"
         >
           <Sparkles aria-hidden size={24} />
@@ -503,7 +505,9 @@ function MobileAgentSearch({ dispatch }: Pick<HomeViewProps, "dispatch">) {
           aria-label={t("sazo.home.agentImageEntry")}
           className="sazo-mobile-agent-image-entry"
           data-mobile-agent-image-entry
-          onClick={() => dispatch({ type: "open-agent-hub", intent: "image-picker" })}
+          onClick={() => {
+            dispatch({ type: "open-agent-hub", intent: "image-picker" });
+          }}
           type="button"
         >
           <ImagePlus aria-hidden size={24} />

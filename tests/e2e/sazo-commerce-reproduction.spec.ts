@@ -447,6 +447,62 @@ async function replayMobileScenario(page: Page) {
   expect(applicationExternalRequests(externalRequests)).toEqual([]);
 }
 
+test("opens the J-Planet BEAUTY route with inline search and touch rails", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "BEAUTY reproduction is mobile-first");
+  await page.goto(routePath);
+  const shortcutGroup = page.getByRole("group", { exact: true, name: "J-Planetショートカット" });
+  await shortcutGroup.getByRole("button", { exact: true, name: "コスメ" }).click();
+
+  const beauty = page.locator("[data-beauty-view]");
+  await expect(beauty).toBeVisible();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "beauty");
+  await expect(beauty.locator(".sazo-beauty-logo img")).toBeVisible();
+  await expect(beauty.getByText("BEAUTY", { exact: true })).toBeVisible();
+
+  const search = beauty.getByRole("searchbox", { name: "BEAUTYの商品を検索" });
+  await search.fill("美容液");
+  await search.press("Enter");
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "beauty");
+  await expect(page.getByRole("dialog", { name: "J-Planet AIエージェント" })).toHaveCount(0);
+  await search.fill("");
+  await search.press("Enter");
+
+  const categoryRail = beauty.locator(".sazo-beauty-category-rail");
+  const categoryBox = await categoryRail.boundingBox();
+  if (categoryBox === null) throw new Error("Missing BEAUTY category rail geometry");
+  await dispatchNativeTouchGesture(page, [
+    { x: categoryBox.x + categoryBox.width - 18, y: categoryBox.y + categoryBox.height / 2 },
+    { x: categoryBox.x + categoryBox.width / 2, y: categoryBox.y + categoryBox.height / 2 },
+    { x: categoryBox.x + 22, y: categoryBox.y + categoryBox.height / 2 },
+  ]);
+  await expect.poll(() => categoryRail.evaluate((node) => node.scrollLeft)).toBeGreaterThan(0);
+
+  await beauty.getByRole("button", { exact: true, name: "マスクパック" }).click();
+  await expect(beauty.getByRole("status", { name: "マスクパックの商品を読み込んでいます" })).toBeVisible();
+  await expect(beauty.getByRole("button", { exact: true, name: "マスクパック" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+    { timeout: 800 },
+  );
+  await expect(beauty.locator(".sazo-beauty-product-card")).toHaveCount(6);
+
+  const productRail = beauty.locator(".sazo-beauty-product-rail");
+  const productBox = await productRail.boundingBox();
+  if (productBox === null) throw new Error("Missing BEAUTY product rail geometry");
+  await dispatchNativeTouchGesture(page, [
+    { x: productBox.x + productBox.width - 18, y: productBox.y + productBox.height / 2 },
+    { x: productBox.x + productBox.width / 2, y: productBox.y + productBox.height / 2 },
+    { x: productBox.x + 22, y: productBox.y + productBox.height / 2 },
+  ]);
+  await expect.poll(() => productRail.evaluate((node) => node.scrollLeft)).toBeGreaterThan(0);
+
+  await beauty.locator(".sazo-beauty-product-card button").first().click();
+  await expect(page.locator("[data-product-detail]")).toBeVisible();
+  await page.locator(".sazo-product-detail-header .sazo-product-detail-back").click();
+  await expect(beauty).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "モバイルメニュー" })).toBeVisible();
+});
+
 test("replays the deterministic SAZO commerce journey", async ({ page }, testInfo) => {
   expect(await page.evaluate(() => window.devicePixelRatio)).toBe(2);
 
