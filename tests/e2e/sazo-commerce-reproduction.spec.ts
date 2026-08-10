@@ -66,17 +66,22 @@ async function replayMobileScenario(page: Page) {
   await expect(page.getByTestId("sazo-hero")).toBeVisible();
   externalRequests.length = 0;
 
-  const secondaryNavigation = page.getByRole("navigation", {
+  const mobileNavigation = page.getByRole("navigation", {
     exact: true,
-    name: "モバイルサブメニュー",
+    name: "モバイルメニュー",
   });
-  await secondaryNavigation
-    .getByRole("button", { exact: true, name: "カテゴリー" })
+  await mobileNavigation
+    .getByRole("button", { exact: true, name: "エージェント" })
     .click();
-  const categories = page.locator('[data-view-content="categories"]');
-  await expect(categories).toBeVisible();
-  await categories.getByRole("button", { exact: true, name: "スキンケア" }).click();
-
+  const agent = page.getByRole("dialog", {
+    exact: true,
+    name: "J-Planet AIエージェント",
+  });
+  await expect(agent).toBeVisible();
+  await agent.getByRole("textbox").fill("日本限定スニーカー");
+  await agent
+    .getByRole("button", { exact: true, name: "AIに探してもらう" })
+    .click();
   const catalog = page.locator('[data-view-content="catalog"]');
   const catalogProducts = catalog.locator("[data-catalog-mode]");
   await expect(catalog).toBeVisible();
@@ -84,11 +89,9 @@ async function replayMobileScenario(page: Page) {
   await catalog.getByRole("button", { exact: true, name: "グリッド表示" }).click();
   await expect(catalogProducts).toHaveAttribute("data-catalog-mode", "grid");
 
-  const mobileNavigation = page.getByRole("navigation", {
-    exact: true,
-    name: "モバイルメニュー",
-  });
-  await mobileNavigation.getByRole("button", { exact: true, name: "ログイン" }).click();
+  await mobileNavigation
+    .getByRole("button", { exact: true, name: "マイページ" })
+    .click();
   const provider = page.getByRole("dialog", {
     exact: true,
     name: "ログイン または会員登録",

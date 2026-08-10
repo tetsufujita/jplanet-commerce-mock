@@ -38,6 +38,17 @@ function stateWithCatalogMode(mode: CatalogMode): SazoState {
   return { ...createInitialSazoState(), catalogMode: mode, view: "catalog" };
 }
 
+function openAgentCatalog(mobileNavigation: HTMLElement) {
+  fireEvent.click(within(mobileNavigation).getByRole("button", { name: "エージェント" }));
+
+  const agent = screen.getByRole("dialog", { name: "J-Planet AIエージェント" });
+  expect(agent).toBeTruthy();
+  fireEvent.change(within(agent).getByRole("textbox"), {
+    target: { value: "日本限定スニーカー" },
+  });
+  fireEvent.click(within(agent).getByRole("button", { name: "AIに探してもらう" }));
+}
+
 describe("SAZO captured view contracts", () => {
   it("renders the catalog search state without populated product cards", async () => {
     const state = {
@@ -363,7 +374,7 @@ describe("SAZO captured view contracts", () => {
       container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
     ).getByRole("navigation", { name: "メインメニュー" });
 
-    fireEvent.click(within(mobileNav).getByRole("button", { name: "検索" }));
+    openAgentCatalog(mobileNav);
     fireEvent.click(screen.getByRole("button", { name: "グリッド表示" }));
     expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(1);
     expect(
@@ -371,7 +382,7 @@ describe("SAZO captured view contracts", () => {
     ).toBe("grid");
 
     fireEvent.click(within(desktopNav).getByRole("button", { name: "ホーム" }));
-    fireEvent.click(within(mobileNav).getByRole("button", { name: "検索" }));
+    openAgentCatalog(mobileNav);
 
     expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(1);
     expect(
@@ -379,22 +390,27 @@ describe("SAZO captured view contracts", () => {
     ).toBe("grid");
   });
 
-  it("exposes the recorded mobile secondary destinations as real navigation", async () => {
+  it("uses the captured mobile home navigation without a secondary rail", async () => {
     const { container } = await renderWithI18n(<SazoCommercePage />);
     const mobileShell =
       container.querySelector<HTMLElement>('[data-shell="mobile"]') ?? container;
-    const secondary = within(mobileShell).getByRole("navigation", {
-      name: "モバイルサブメニュー",
+    const primary = within(mobileShell).getByRole("navigation", {
+      name: "モバイルメニュー",
     });
 
     expect(
-      within(secondary)
+      within(mobileShell).queryByRole("navigation", {
+        name: "モバイルサブメニュー",
+      }),
+    ).toBeNull();
+    expect(
+      within(primary)
         .getAllByRole("button")
         .map((button) => button.textContent),
-    ).toEqual(["ホーム", "サービス紹介", "人気ブランド", "カテゴリー", "レビュー"]);
+    ).toEqual(["ホーム", "通知", "エージェント", "お気に入り", "マイページ"]);
 
-    fireEvent.click(within(secondary).getByRole("button", { name: "人気ブランド" }));
-    expect(container.querySelector('[data-view-content="brands"]')).not.toBeNull();
+    fireEvent.click(within(primary).getByRole("button", { name: "エージェント" }));
+    expect(screen.getByRole("dialog", { name: "J-Planet AIエージェント" })).toBeTruthy();
   });
 
   it("filters the brand inventory from its active control", async () => {
@@ -461,7 +477,7 @@ describe("SAZO captured view contracts", () => {
       container.querySelector<HTMLElement>('[data-shell="mobile"]') ?? container,
     ).getByRole("navigation", { name: "モバイルメニュー" });
 
-    fireEvent.click(within(mobileNav).getByRole("button", { name: "検索" }));
+    openAgentCatalog(mobileNav);
     const initialCount = container.querySelectorAll(
       ".sazo-catalog-products .sazo-product-card",
     ).length;
