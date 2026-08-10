@@ -79,6 +79,7 @@ async function inspectMobileHomeGeometry(page, expectedWidth) {
   const primary = await page.locator(".sazo-mobile-header-primary").boundingBox();
   const secondary = await page.locator(".sazo-mobile-secondary-nav").boundingBox();
   const hero = await page.locator(".sazo-hero-viewport").boundingBox();
+  const heroStatus = await page.locator(".sazo-hero-status").boundingBox();
   const searchLocator = page.locator("[data-mobile-agent-search]");
   const search = await searchLocator.boundingBox();
   const searchLabel = await searchLocator
@@ -104,6 +105,7 @@ async function inspectMobileHomeGeometry(page, expectedWidth) {
       primary &&
       secondary &&
       hero &&
+      heroStatus &&
       search &&
       searchLabel &&
       shortcuts &&
@@ -182,6 +184,7 @@ async function inspectMobileHomeGeometry(page, expectedWidth) {
   }
   const searchOverlapRatio = (hero.y + hero.height - search.y) / search.height;
   assert(Math.abs(searchOverlapRatio - 0.6) <= 0.08);
+  assert(heroStatus.y + heroStatus.height <= search.y - 6);
   assert(
     Math.abs(
       searchLabel.x + searchLabel.width / 2 - (search.x + search.width / 2),
@@ -202,6 +205,7 @@ async function inspectMobileHomeGeometry(page, expectedWidth) {
     header,
     headerSurface,
     hero,
+    heroStatus,
     interested,
     intro,
     primary,
