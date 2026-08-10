@@ -8354,6 +8354,10 @@
     border-radius: 0;
   }
 
+  .sazo-root[data-view="home"] .sazo-hero-viewport {
+    touch-action: pan-y;
+  }
+
   .sazo-root[data-view="home"] .sazo-mobile-search-overlap {
     position: relative;
     z-index: 7;

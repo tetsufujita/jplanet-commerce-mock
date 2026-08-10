@@ -1,5 +1,9 @@
-import type { CSSProperties, Dispatch } from "react";
-import { useCallback, useEffect, useState } from "react";
+import type {
+  CSSProperties,
+  Dispatch,
+  PointerEvent as ReactPointerEvent,
+} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Camera,
@@ -38,6 +42,14 @@ interface HeroSlideStyle extends CSSProperties {
   "--sazo-slide-left": string;
   "--sazo-slide-left-mobile": string;
 }
+
+interface HeroPointerStart {
+  pointerId: number;
+  x: number;
+  y: number;
+}
+
+const heroSwipeThreshold = 40;
 
 export interface HomeViewProps {
   dispatch: Dispatch<SazoAction>;
@@ -183,6 +195,49 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
       dispatch({ type: "hero-next" });
     }
   }, [dispatch, visibleHeroSlides.length]);
+  const pointerStart = useRef<HeroPointerStart | null>(null);
+  const handlePointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (!event.isPrimary) return;
+
+      pointerStart.current = {
+        pointerId: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+      };
+    },
+    [],
+  );
+  const handlePointerCancel = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (pointerStart.current?.pointerId === event.pointerId) {
+        pointerStart.current = null;
+      }
+    },
+    [],
+  );
+  const handlePointerUp = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const start = pointerStart.current;
+      pointerStart.current = null;
+
+      if (!event.isPrimary || start?.pointerId !== event.pointerId) return;
+
+      const deltaX = event.clientX - start.x;
+      const deltaY = event.clientY - start.y;
+
+      if (
+        Math.abs(deltaX) < heroSwipeThreshold ||
+        Math.abs(deltaX) <= Math.abs(deltaY)
+      ) {
+        return;
+      }
+
+      if (deltaX < 0) goNext();
+      else goPrevious();
+    },
+    [goNext, goPrevious],
+  );
 
   useSazoHero({
     intervalMs: 5_000,
@@ -197,7 +252,12 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
       data-hero-index={state.heroIndex}
       data-testid="sazo-hero"
     >
-      <div className="sazo-hero-viewport">
+      <div
+        className="sazo-hero-viewport"
+        onPointerCancel={handlePointerCancel}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+      >
         {visibleHeroSlides.map((slide, index) => {
           const offset = getCircularHeroOffset(
             index,

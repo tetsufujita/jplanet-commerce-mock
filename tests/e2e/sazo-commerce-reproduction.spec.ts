@@ -108,6 +108,41 @@ async function replayMobileScenario(page: Page) {
   await page.goto(routePath);
   await expect(page).toHaveURL(`${localOrigin}${routePath}`);
   await expect(page.getByTestId("sazo-hero")).toBeVisible();
+  const heroViewport = page.locator(".sazo-hero-viewport");
+  const heroCounter = page.getByTestId("sazo-hero-counter");
+
+  await expect(heroCounter).toHaveText("1/5");
+  await heroViewport.dispatchEvent("pointerdown", {
+    clientX: 320,
+    clientY: 210,
+    isPrimary: true,
+    pointerId: 41,
+    pointerType: "touch",
+  });
+  await heroViewport.dispatchEvent("pointerup", {
+    clientX: 250,
+    clientY: 214,
+    isPrimary: true,
+    pointerId: 41,
+    pointerType: "touch",
+  });
+  await expect(heroCounter).toHaveText("2/5");
+
+  await heroViewport.dispatchEvent("pointerdown", {
+    clientX: 250,
+    clientY: 210,
+    isPrimary: true,
+    pointerId: 42,
+    pointerType: "touch",
+  });
+  await heroViewport.dispatchEvent("pointerup", {
+    clientX: 245,
+    clientY: 285,
+    isPrimary: true,
+    pointerId: 42,
+    pointerType: "touch",
+  });
+  await expect(heroCounter).toHaveText("2/5");
   await expectLoadedMobilePicks(page, mobilePickFailures);
   externalRequests.length = 0;
 

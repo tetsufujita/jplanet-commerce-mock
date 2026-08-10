@@ -15,6 +15,24 @@ import { searchDiscoveryMediaCrops } from "@/sazo-commerce/fixtures";
 import { createInitialSazoState } from "@/sazo-commerce/model";
 import { useSazoHero } from "@/sazo-commerce/useSazoHero";
 
+if (!("PointerEvent" in window)) {
+  class TestPointerEvent extends MouseEvent {
+    isPrimary: boolean;
+    pointerId: number;
+
+    constructor(type: string, init: PointerEventInit = {}) {
+      super(type, init);
+      this.isPrimary = init.isPrimary ?? false;
+      this.pointerId = init.pointerId ?? 0;
+    }
+  }
+
+  Object.defineProperty(window, "PointerEvent", {
+    configurable: true,
+    value: TestPointerEvent,
+  });
+}
+
 afterEach(() => {
   cleanup();
   Reflect.deleteProperty(window, "matchMedia");
@@ -411,6 +429,93 @@ describe("SAZO home composition", () => {
 });
 
 describe("SAZO hero controls", () => {
+  it("changes slides for thresholded horizontal pointer swipes", async () => {
+    installReducedMotion(false);
+    vi.useFakeTimers();
+    const { container } = await renderHomePage();
+    const viewport = container.querySelector<HTMLElement>(".sazo-hero-viewport");
+    const counter = screen.getByTestId("sazo-hero-counter");
+
+    expect(viewport).not.toBeNull();
+    if (viewport === null) throw new Error("Missing hero viewport");
+
+    fireEvent.pointerDown(viewport, {
+      clientX: 300,
+      clientY: 100,
+      isPrimary: true,
+      pointerId: 1,
+    });
+    fireEvent.pointerUp(viewport, {
+      clientX: 240,
+      clientY: 106,
+      isPrimary: true,
+      pointerId: 1,
+    });
+    expect(counter.textContent).toBe("2/5");
+
+    fireEvent.pointerDown(viewport, {
+      clientX: 140,
+      clientY: 100,
+      isPrimary: true,
+      pointerId: 2,
+    });
+    fireEvent.pointerUp(viewport, {
+      clientX: 200,
+      clientY: 103,
+      isPrimary: true,
+      pointerId: 2,
+    });
+    expect(counter.textContent).toBe("1/5");
+  });
+
+  it("ignores short, vertical, canceled, and mismatched pointer gestures", async () => {
+    installReducedMotion(false);
+    vi.useFakeTimers();
+    const { container } = await renderHomePage();
+    const viewport = container.querySelector<HTMLElement>(".sazo-hero-viewport");
+    const counter = screen.getByTestId("sazo-hero-counter");
+
+    expect(viewport).not.toBeNull();
+    if (viewport === null) throw new Error("Missing hero viewport");
+
+    const swipe = (
+      start: { x: number; y: number; pointerId: number },
+      end: { x: number; y: number; pointerId: number },
+    ) => {
+      fireEvent.pointerDown(viewport, {
+        clientX: start.x,
+        clientY: start.y,
+        isPrimary: true,
+        pointerId: start.pointerId,
+      });
+      fireEvent.pointerUp(viewport, {
+        clientX: end.x,
+        clientY: end.y,
+        isPrimary: true,
+        pointerId: end.pointerId,
+      });
+    };
+
+    swipe({ x: 200, y: 100, pointerId: 3 }, { x: 170, y: 101, pointerId: 3 });
+    swipe({ x: 200, y: 100, pointerId: 4 }, { x: 140, y: 180, pointerId: 4 });
+    swipe({ x: 200, y: 100, pointerId: 5 }, { x: 140, y: 101, pointerId: 6 });
+    fireEvent.pointerDown(viewport, {
+      clientX: 200,
+      clientY: 100,
+      isPrimary: true,
+      pointerId: 7,
+    });
+    fireEvent.pointerCancel(viewport, { isPrimary: true, pointerId: 7 });
+    fireEvent.pointerUp(viewport, {
+      clientX: 140,
+      clientY: 101,
+      isPrimary: true,
+      pointerId: 7,
+    });
+
+    expect(counter.textContent).toBe("1/5");
+  });
+
   it("advances, reverses, wraps, and pauses through the live controls", async () => {
     installReducedMotion(false);
     vi.useFakeTimers();
