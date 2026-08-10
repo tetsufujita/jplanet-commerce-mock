@@ -105,6 +105,10 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
       setSubmitted(false);
     };
 
+    const openImagePicker = () => {
+      fileInputRef.current?.click();
+    };
+
     const changeImage = (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
 
@@ -210,10 +214,13 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
                 tabIndex={-1}
                 type="file"
               />
+              <label className="sazo-visually-hidden" htmlFor={imageInputId}>
+                {t("sazo.agentHub.composer.selectImage")}
+              </label>
               {imageUrl === null || imageFile === null ? (
-                <label htmlFor={imageInputId}>
+                <button onClick={openImagePicker} type="button">
                   {t("sazo.agentHub.composer.selectImage")}
-                </label>
+                </button>
               ) : (
                 <>
                   <img
@@ -223,9 +230,9 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
                     src={imageUrl}
                   />
                   <p>{imageFile.name}</p>
-                  <label htmlFor={imageInputId}>
+                  <button onClick={openImagePicker} type="button">
                     {t("sazo.agentHub.composer.replaceImage")}
-                  </label>
+                  </button>
                   <button
                     onClick={() => {
                       replaceImage(null);

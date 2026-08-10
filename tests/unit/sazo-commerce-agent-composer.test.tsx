@@ -81,6 +81,23 @@ describe("MobileAgentComposer", () => {
     expect(revoke).toHaveBeenCalledWith("blob:preview");
   });
 
+  it("keeps the visible image fallback focusable and opens the hidden picker", async () => {
+    const click = vi.spyOn(HTMLInputElement.prototype, "click");
+    await renderComposer({ entryIntent: "image-picker" });
+    click.mockClear();
+
+    const fallback = screen.getByRole<HTMLButtonElement>("button", {
+      name: "画像を選択",
+    });
+    fallback.focus();
+
+    expect(fallback.type).toBe("button");
+    expect(fallback.tabIndex).toBe(0);
+    expect(document.activeElement).toBe(fallback);
+    fireEvent.click(fallback);
+    expect(click).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects a non-image file without rendering a preview", async () => {
     await renderComposer({ entryIntent: "image-picker" });
     const file = new File(["text"], "notes.txt", { type: "text/plain" });
@@ -105,7 +122,8 @@ describe("MobileAgentComposer", () => {
     fireEvent.change(screen.getByLabelText("画像を選択"), {
       target: { files: [firstFile] },
     });
-    fireEvent.change(screen.getByLabelText("画像を差し替える"), {
+    fireEvent.click(screen.getByRole("button", { name: "画像を差し替える" }));
+    fireEvent.change(screen.getByLabelText("画像を選択"), {
       target: { files: [secondFile] },
     });
     fireEvent.click(screen.getByRole("button", { name: "画像を削除" }));
