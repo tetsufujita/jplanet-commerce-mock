@@ -188,6 +188,26 @@ describe("MobileAgentHubView", () => {
     );
   });
 
+  it("reapplies the same ranked topic after the draft is edited", async () => {
+    await renderHub("ja");
+    const rankedTopic = screen.getByRole("button", { name: "1位 アニメグッズ" });
+
+    fireEvent.click(rankedTopic);
+    const draft = screen.getByRole<HTMLTextAreaElement>("textbox", {
+      name: "探したい商品",
+    });
+    expect(draft.value).toBe("アニメグッズ");
+
+    fireEvent.change(draft, { target: { value: "編集した相談内容" } });
+    expect(draft.value).toBe("編集した相談内容");
+    fireEvent.click(rankedTopic);
+    await waitFor(() => {
+      expect(scrollIntoView).toHaveBeenCalledTimes(2);
+    });
+
+    expect(draft.value).toBe("アニメグッズ");
+  });
+
   it("consumes the image picker intent through the embedded composer", async () => {
     const dispatch = vi.fn();
     await renderHub("ja", dispatch, "image-picker");

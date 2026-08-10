@@ -5,6 +5,7 @@ import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createI18n } from "@/i18n/createI18n";
 import { MobileAgentComposer } from "@/sazo-commerce/MobileAgentComposer";
+import type { AgentComposerSeedRequest } from "@/sazo-commerce/MobileAgentComposer";
 import type { AgentEntryIntent } from "@/sazo-commerce/model";
 
 afterEach(() => {
@@ -14,10 +15,10 @@ afterEach(() => {
 
 async function renderComposer({
   entryIntent = null,
-  seedProductName = null,
+  seedRequest = null,
 }: {
   entryIntent?: AgentEntryIntent | null;
-  seedProductName?: string | null;
+  seedRequest?: AgentComposerSeedRequest | null;
 } = {}) {
   const i18n = await createI18n("ja");
   const onEntryIntentConsumed = vi.fn();
@@ -30,7 +31,7 @@ async function renderComposer({
         <MobileAgentComposer
           entryIntent={entryIntent}
           onEntryIntentConsumed={onEntryIntentConsumed}
-          seedProductName={seedProductName}
+          seedRequest={seedRequest}
         />
       </I18nextProvider>,
     ),
@@ -142,7 +143,7 @@ describe("MobileAgentComposer", () => {
         <MobileAgentComposer
           entryIntent="image-picker"
           onEntryIntentConsumed={onEntryIntentConsumed}
-          seedProductName={null}
+          seedRequest={null}
         />
       </I18nextProvider>,
     );
@@ -160,7 +161,7 @@ describe("MobileAgentComposer", () => {
         <MobileAgentComposer
           entryIntent="compose"
           onEntryIntentConsumed={onEntryIntentConsumed}
-          seedProductName={null}
+          seedRequest={null}
         />
       </I18nextProvider>,
     );
@@ -176,7 +177,7 @@ describe("MobileAgentComposer", () => {
         <MobileAgentComposer
           entryIntent="image-picker"
           onEntryIntentConsumed={onEntryIntentConsumed}
-          seedProductName={null}
+          seedRequest={null}
         />
       </I18nextProvider>,
     );
@@ -186,7 +187,7 @@ describe("MobileAgentComposer", () => {
   });
 
   it("uses a seed product name as a product-name consultation", async () => {
-    await renderComposer({ seedProductName: "日本限定スニーカー" });
+    await renderComposer({ seedRequest: { revision: 1, value: "日本限定スニーカー" } });
 
     expect(
       screen.getByRole("button", { name: "商品名で相談" }).getAttribute("aria-pressed"),

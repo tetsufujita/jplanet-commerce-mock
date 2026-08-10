@@ -6,7 +6,10 @@ import {
   agentHubRecentConsultations,
   agentHubRecentProducts,
 } from "@/sazo-commerce/agentHubFixtures";
-import { MobileAgentComposer } from "@/sazo-commerce/MobileAgentComposer";
+import {
+  MobileAgentComposer,
+  type AgentComposerSeedRequest,
+} from "@/sazo-commerce/MobileAgentComposer";
 import type { AgentEntryIntent, SazoAction } from "@/sazo-commerce/model";
 
 export interface MobileAgentHubViewProps {
@@ -17,7 +20,7 @@ export interface MobileAgentHubViewProps {
 export function MobileAgentHubView({ dispatch, entryIntent }: MobileAgentHubViewProps) {
   const { t } = useTranslation();
   const composerRef = useRef<HTMLDivElement>(null);
-  const [seedProductName, setSeedProductName] = useState<string | null>(null);
+  const [seedRequest, setSeedRequest] = useState<AgentComposerSeedRequest | null>(null);
   const [showConsultations, setShowConsultations] = useState(true);
   const [showProducts, setShowProducts] = useState(true);
 
@@ -71,7 +74,7 @@ export function MobileAgentHubView({ dispatch, entryIntent }: MobileAgentHubView
             dispatch({ type: "consume-agent-entry-intent" });
           }}
           ref={composerRef}
-          seedProductName={seedProductName}
+          seedRequest={seedRequest}
         />
       </section>
 
@@ -151,7 +154,10 @@ export function MobileAgentHubView({ dispatch, entryIntent }: MobileAgentHubView
                 <button
                   aria-label={rankedTopic}
                   onClick={() => {
-                    setSeedProductName(topic);
+                    setSeedRequest((currentRequest) => ({
+                      revision: (currentRequest?.revision ?? 0) + 1,
+                      value: topic,
+                    }));
                     requestAnimationFrame(focusComposer);
                   }}
                   type="button"

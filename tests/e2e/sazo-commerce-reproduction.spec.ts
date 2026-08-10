@@ -127,6 +127,27 @@ async function expectNoHorizontalPageOverflow(page: Page) {
   expect(geometry.scrollWidth).toBe(geometry.clientWidth);
 }
 
+async function expectComposerBelowAgentHeader(page: Page) {
+  const measureGap = () =>
+    page.evaluate(() => {
+      const header = document.querySelector<HTMLElement>(".sazo-agent-hub-header");
+      const composer = document.querySelector<HTMLElement>(
+        ".sazo-mobile-agent-composer",
+      );
+
+      if (header === null || composer === null) {
+        throw new Error("Missing agent header or composer");
+      }
+
+      return composer.getBoundingClientRect().top - header.getBoundingClientRect().bottom;
+    });
+
+  await expect.poll(measureGap).toBeGreaterThanOrEqual(0);
+  await expect
+    .poll(measureGap)
+    .toBeLessThanOrEqual(1);
+}
+
 async function replayDesktopScenario(page: Page) {
   const externalRequests = trackExternalRequests(page);
 
@@ -385,7 +406,9 @@ async function replayMobileScenario(page: Page) {
   await expect(
     page.getByRole("dialog", { exact: true, name: "J-Planet AIエージェント" }),
   ).toHaveCount(0);
+  await expectComposerBelowAgentHeader(page);
   await hub.getByRole("button", { exact: true, name: "1位 アニメグッズ" }).click();
+  await expectComposerBelowAgentHeader(page);
   const composer = hub.locator(".sazo-mobile-agent-composer");
   await expect(composer.getByRole("button", { exact: true, name: "商品名で相談" }))
     .toHaveAttribute("aria-pressed", "true");

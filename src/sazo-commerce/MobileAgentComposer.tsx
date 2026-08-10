@@ -13,10 +13,15 @@ import type { AgentEntryIntent } from "@/sazo-commerce/model";
 
 export type AgentComposerMode = "url" | "image" | "product-name";
 
+export interface AgentComposerSeedRequest {
+  revision: number;
+  value: string;
+}
+
 export interface MobileAgentComposerProps {
   entryIntent: AgentEntryIntent | null;
   onEntryIntentConsumed: () => void;
-  seedProductName: string | null;
+  seedRequest: AgentComposerSeedRequest | null;
 }
 
 interface ComposerImage {
@@ -26,7 +31,7 @@ interface ComposerImage {
 
 export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentComposerProps>(
   function MobileAgentComposer(
-    { entryIntent, onEntryIntentConsumed, seedProductName },
+    { entryIntent, onEntryIntentConsumed, seedRequest },
     forwardedRef,
   ) {
     const { t } = useTranslation();
@@ -85,13 +90,13 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
     }, [mode]);
 
     useEffect(() => {
-      if (seedProductName === null) {
+      if (seedRequest === null) {
         return;
       }
 
       setMode("product-name");
-      setDraft(seedProductName);
-    }, [seedProductName]);
+      setDraft(seedRequest.value);
+    }, [seedRequest]);
 
     useEffect(() => {
       return () => {
