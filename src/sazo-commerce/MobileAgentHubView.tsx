@@ -22,7 +22,12 @@ export function MobileAgentHubView({ dispatch, entryIntent }: MobileAgentHubView
   const [showProducts, setShowProducts] = useState(true);
 
   const focusComposer = () => {
-    composerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    composerRef.current?.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
   };
 
   const navigateHome = () => {

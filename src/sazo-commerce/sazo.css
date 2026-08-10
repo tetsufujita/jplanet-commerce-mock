@@ -9521,7 +9521,8 @@
 
 /* Task 4: authoritative mobile header and fullscreen J-Planet AI finish. */
 @media (max-width: 760px) {
-  .sazo-root {
+  .sazo-root[data-view="home"],
+  .sazo-root[data-view="agent-hub"] {
     --sazo-mobile-nav-height: 76px;
     width: 100%;
     max-width: 100%;

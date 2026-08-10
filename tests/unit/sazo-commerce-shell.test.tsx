@@ -149,6 +149,38 @@ describe("SazoCommercePage shell", () => {
     ).toBe("true");
   });
 
+  it("keeps the complete mobile secondary menu after opening support", async () => {
+    const { container } = await renderSazoCommercePage();
+    const mobileShell = getShell(container, "mobile");
+    const homeSecondary = within(mobileShell).getByRole("navigation", {
+      name: "モバイルサブメニュー",
+    });
+
+    fireEvent.click(within(homeSecondary).getByRole("button", { name: "ヘルプ" }));
+
+    await waitFor(() => {
+      expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
+        "support",
+      );
+    });
+    const supportSecondary = within(mobileShell).getByRole("navigation", {
+      name: "モバイルサブメニュー",
+    });
+    expect(
+      within(supportSecondary)
+        .getAllByRole("button")
+        .map((button) => button.textContent),
+    ).toEqual([
+      "ホーム",
+      "サービス紹介",
+      "人気ブランド",
+      "カテゴリー",
+      "レビュー",
+      "ヘルプ",
+      "お知らせ",
+    ]);
+  });
+
   it("groups the desktop search, icon actions, and navigation in one header card", async () => {
     const { container } = await renderSazoCommercePage();
     const desktopShell = getShell(container, "desktop");

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createI18n } from "@/i18n/createI18n";
@@ -11,11 +11,32 @@ const originalScrollIntoView = Object.getOwnPropertyDescriptor(
   HTMLElement.prototype,
   "scrollIntoView",
 );
+const originalMatchMedia = Object.getOwnPropertyDescriptor(window, "matchMedia");
+const scrollIntoView = vi.fn();
+
+function installReducedMotion(matches: boolean) {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    value: (query: string): MediaQueryList => ({
+      addEventListener: vi.fn(),
+      addListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+      matches,
+      media: query,
+      onchange: null,
+      removeEventListener: vi.fn(),
+      removeListener: vi.fn(),
+    }),
+    writable: true,
+  });
+}
 
 beforeEach(() => {
+  scrollIntoView.mockClear();
+  installReducedMotion(false);
   Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
     configurable: true,
-    value: vi.fn(),
+    value: scrollIntoView,
     writable: true,
   });
 });
@@ -25,6 +46,10 @@ afterEach(() => {
   Reflect.deleteProperty(HTMLElement.prototype, "scrollIntoView");
   if (originalScrollIntoView !== undefined) {
     Object.defineProperty(HTMLElement.prototype, "scrollIntoView", originalScrollIntoView);
+  }
+  Reflect.deleteProperty(window, "matchMedia");
+  if (originalMatchMedia !== undefined) {
+    Object.defineProperty(window, "matchMedia", originalMatchMedia);
   }
 });
 
@@ -93,6 +118,18 @@ describe("MobileAgentHubView", () => {
     expect(dispatch).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    ["standard motion", false, "smooth"],
+    ["reduced motion", true, "auto"],
+  ] as const)("scrolls to the composer with %s behavior", async (_label, reduced, behavior) => {
+    installReducedMotion(reduced);
+    await renderHub("ja");
+
+    fireEvent.click(screen.getByRole("button", { name: "AIエージェントに相談" }));
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior, block: "start" });
+  });
+
   it("exposes stable hooks for the mobile hub layout", async () => {
     const { container } = await renderHub("ja");
 
@@ -128,7 +165,11 @@ describe("MobileAgentHubView", () => {
       throw new Error("Recent product button is missing");
     }
     fireEvent.click(firstProductButton);
+    scrollIntoView.mockClear();
     fireEvent.click(screen.getByRole("button", { name: "1位 アニメグッズ" }));
+    await waitFor(() => {
+      expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
+    });
 
     expect(dispatch).toHaveBeenNthCalledWith(1, { type: "navigate", view: "home" });
     expect(dispatch).toHaveBeenNthCalledWith(2, {
