@@ -112,6 +112,61 @@ try {
     path: "/tmp/jplanet-mobile-home-top.png",
   });
 
+  const mobileNavigation = page.getByRole("navigation", {
+    exact: true,
+    name: "モバイルメニュー",
+  });
+  await mobileNavigation
+    .getByRole("button", { exact: true, name: "エージェント" })
+    .click();
+  const hub = page.locator("[data-mobile-agent-hub]");
+  await hub.waitFor();
+  await page.evaluate(() => window.scrollTo(0, 0));
+
+  const hubHeader = await hub.locator(".sazo-agent-hub-header").boundingBox();
+  const hubNavigation = await page.locator(".sazo-mobile-nav").boundingBox();
+  assert(hubHeader && hubNavigation);
+  assert(Math.abs(hubHeader.x) < 1);
+  assert(Math.abs(hubHeader.width - 440) < 1);
+  assert(Math.abs(hubNavigation.height - 76) < 2);
+  assert.equal(await page.locator(".sazo-mobile-header").count(), 0);
+  assert.equal(await mobileNavigation.getByRole("button").count(), 5);
+  assert.equal(await hub.locator(".sazo-agent-hub-product-card").count(), 3);
+  assert.equal(await hub.locator(".sazo-agent-hub-ranked-row").count(), 20);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 440);
+
+  const hubProductImages = hub.locator(".sazo-agent-hub-product-card img");
+  assert.equal(await hubProductImages.count(), 3);
+  await page.waitForFunction(() =>
+    Array.from(document.querySelectorAll(".sazo-agent-hub-product-card img")).every(
+      (element) =>
+        element instanceof HTMLImageElement && element.complete && element.naturalWidth > 0,
+    ),
+  );
+  assert.deepEqual(
+    await hubProductImages.evaluateAll((elements) =>
+      elements
+        .filter(
+          (element) =>
+            !(element instanceof HTMLImageElement) ||
+            !element.complete ||
+            element.naturalWidth <= 0,
+        )
+        .map((element) => element.getAttribute("src")),
+    ),
+    [],
+  );
+
+  await page.screenshot({
+    animations: "disabled",
+    caret: "hide",
+    path: "/tmp/jplanet-mobile-agent-hub.png",
+  });
+
+  await hub.getByRole("button", { exact: true, name: "ホームへ戻る" }).click();
+  await page.locator("[data-mobile-home]").waitFor();
+  await page.evaluate(() => window.scrollTo(0, 0));
+
   const checkpoints = [
     ["reviews", ".sazo-review-section"],
     ["gift", ".sazo-mobile-gift-fairs"],
@@ -146,6 +201,36 @@ try {
     caret: "hide",
     path: "/tmp/jplanet-mobile-home-341x735.png",
   });
+
+  await compactPage.goto(`${url}?qa=1&view=agent-hub`, { waitUntil: "networkidle" });
+  const compactHub = compactPage.locator("[data-mobile-agent-hub]");
+  await compactHub.waitFor();
+  assert.equal(
+    await compactPage.evaluate(() => document.documentElement.scrollWidth),
+    341,
+  );
+  const compactLauncher = compactHub.locator(".sazo-agent-hub-launcher > span");
+  const compactLauncherGeometry = await compactLauncher.evaluate((element) => {
+    const style = getComputedStyle(element);
+
+    return {
+      clientWidth: element.clientWidth,
+      lineHeight: style.lineHeight,
+      overflow: style.overflow,
+      scrollWidth: element.scrollWidth,
+      textOverflow: style.textOverflow,
+      whiteSpace: style.whiteSpace,
+    };
+  });
+  assert.equal(compactLauncherGeometry.overflow, "hidden");
+  assert.equal(compactLauncherGeometry.textOverflow, "ellipsis");
+  assert.equal(compactLauncherGeometry.whiteSpace, "nowrap");
+  assert(compactLauncherGeometry.scrollWidth > compactLauncherGeometry.clientWidth);
+  await compactPage.screenshot({
+    animations: "disabled",
+    caret: "hide",
+    path: "/tmp/jplanet-mobile-agent-hub-341x735.png",
+  });
   await compactPage.close();
 
   const desktopPage = await browser.newPage({
@@ -168,6 +253,9 @@ try {
     `${JSON.stringify({
       header,
       hero,
+      hubHeader,
+      hubNavigation,
+      compactLauncherGeometry,
       navigation,
       search,
       shortcuts,

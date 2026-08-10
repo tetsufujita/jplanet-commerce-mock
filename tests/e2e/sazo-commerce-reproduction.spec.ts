@@ -146,6 +146,36 @@ async function replayMobileScenario(page: Page) {
   await mobileNavigation
     .getByRole("button", { exact: true, name: "エージェント" })
     .click();
+  const agentNavigation = mobileNavigation.getByRole("button", {
+    exact: true,
+    name: "エージェント",
+  });
+  const hub = page.locator("[data-mobile-agent-hub]");
+  await expect(hub).toBeVisible();
+  await expect(hub.getByRole("heading", { exact: true, name: "最近の相談" })).toBeVisible();
+  await expect(hub.getByRole("heading", { exact: true, name: "最近見た商品" })).toBeVisible();
+  await expect(
+    hub.getByRole("heading", {
+      exact: true,
+      name: "ブラジルで人気の日本アイテム",
+    }),
+  ).toBeVisible();
+  await expect(agentNavigation).toHaveAttribute("aria-pressed", "true");
+
+  await hub.getByRole("button", { exact: true, name: "最近の相談を削除" }).click();
+  await expect(hub.getByText("日本限定スニーカーを探したい", { exact: true })).toHaveCount(
+    0,
+  );
+  await expect(hub.getByRole("button", { name: /商品詳細を見る/ })).toHaveCount(3);
+
+  await hub.getByRole("button", { name: /商品詳細を見る/ }).first().click();
+  const product = page.locator("[data-product-detail]");
+  await expect(product).toBeVisible();
+  await product.locator(".sazo-product-detail-header .sazo-product-detail-back").click();
+  await expect(hub).toBeVisible();
+  await expect(agentNavigation).toHaveAttribute("aria-pressed", "true");
+
+  await hub.getByRole("button", { exact: true, name: "AIエージェントに相談" }).click();
   agent = page.getByRole("dialog", {
     exact: true,
     name: "J-Planet AIエージェント",
