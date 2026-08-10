@@ -8234,3 +8234,197 @@
     width: min(390px, 100%);
   }
 }
+/* Mobile purchasing agent composer. */
+.sazo-root > .sazo-agent-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  background: rgb(31 46 79 / 46%);
+}
+
+.sazo-root .sazo-agent-sheet {
+  width: min(520px, 100%);
+  max-height: min(720px, calc(100dvh - 16px));
+  overflow-y: auto;
+  padding: 10px 20px max(24px, env(safe-area-inset-bottom));
+  border-radius: 24px 24px 0 0;
+  background: var(--jplanet-surface);
+  box-shadow: 0 -18px 52px rgb(31 46 79 / 18%);
+}
+
+.sazo-root .sazo-agent-handle {
+  width: 42px;
+  height: 4px;
+  margin: 0 auto 16px;
+  border-radius: 999px;
+  background: var(--jplanet-line);
+}
+
+.sazo-root .sazo-agent-header,
+.sazo-root .sazo-agent-header > div,
+.sazo-root .sazo-agent-chips,
+.sazo-root .sazo-agent-chips button,
+.sazo-root .sazo-agent-submit {
+  display: flex;
+  align-items: center;
+}
+
+.sazo-root .sazo-agent-header {
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.sazo-root .sazo-agent-header > div {
+  gap: 10px;
+}
+
+.sazo-root .sazo-agent-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 13px;
+  background: var(--jplanet-sakura-soft);
+  color: var(--jplanet-sakura);
+}
+
+.sazo-root .sazo-agent-header p,
+.sazo-root .sazo-agent-header h1,
+.sazo-root .sazo-agent-intro,
+.sazo-root .sazo-agent-file-name {
+  margin: 0;
+}
+
+.sazo-root .sazo-agent-header p {
+  color: var(--jplanet-sakura);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.sazo-root .sazo-agent-header h1 {
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+.sazo-root .sazo-agent-close {
+  display: grid;
+  width: 52px;
+  min-height: 52px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--jplanet-muted);
+  cursor: pointer;
+}
+
+.sazo-root .sazo-agent-intro {
+  margin-top: 20px;
+  color: var(--jplanet-muted);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.65;
+}
+
+.sazo-root .sazo-agent-chips {
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.sazo-root .sazo-agent-chips button {
+  min-height: 52px;
+  gap: 7px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--jplanet-sakura) 40%, var(--jplanet-line));
+  border-radius: 999px;
+  background: var(--jplanet-sakura-soft);
+  color: var(--jplanet-navy);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-agent-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.sazo-root .sazo-agent-form textarea {
+  width: 100%;
+  min-height: 112px;
+  padding: 14px;
+  resize: vertical;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 16px;
+  background: var(--jplanet-soft);
+  color: var(--jplanet-ink);
+  line-height: 1.55;
+}
+
+.sazo-root .sazo-agent-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.sazo-root .sazo-agent-file-name {
+  overflow-wrap: anywhere;
+  color: var(--jplanet-navy);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.sazo-root .sazo-agent-submit {
+  justify-content: center;
+  min-height: 52px;
+  gap: 8px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--jplanet-navy);
+  color: var(--jplanet-surface);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-agent-submit:disabled {
+  background: #b8c2d4;
+  cursor: not-allowed;
+}
+
+.sazo-root .sazo-agent-close:focus-visible,
+.sazo-root .sazo-agent-chips button:focus-visible,
+.sazo-root .sazo-agent-form textarea:focus-visible,
+.sazo-root .sazo-agent-submit:focus-visible {
+  outline: 3px solid var(--jplanet-sakura);
+  outline-offset: 3px;
+}
+
+@media (min-width: 768px) {
+  .sazo-root > .sazo-agent-backdrop {
+    align-items: center;
+    padding: 24px;
+  }
+
+  .sazo-root .sazo-agent-sheet {
+    border-radius: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sazo-root .sazo-agent-sheet,
+  .sazo-root .sazo-agent-backdrop {
+    scroll-behavior: auto;
+  }
+}

@@ -7,6 +7,7 @@ import {
   ProfileView,
 } from "@/sazo-commerce/AccountViews";
 import { AuthFlow } from "@/sazo-commerce/AuthFlow";
+import { AgentComposerSheet } from "@/sazo-commerce/AgentComposerSheet";
 import { CatalogView } from "@/sazo-commerce/CatalogView";
 import { CampaignView } from "@/sazo-commerce/CampaignView";
 import { ChatPanel } from "@/sazo-commerce/ChatPanel";
@@ -135,6 +136,9 @@ export function SazoCommercePage() {
         ) : null}
         {state.overlay === "chat" ? (
           <ChatPanel dispatch={dispatch} key="sazo-chat" />
+        ) : null}
+        {state.overlay === "agent" ? (
+          <AgentComposerSheet dispatch={dispatch} key="sazo-agent" />
         ) : null}
       </AnimatePresence>
     </div>
