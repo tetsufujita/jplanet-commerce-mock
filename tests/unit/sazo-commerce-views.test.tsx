@@ -58,7 +58,7 @@ function stateWithCatalogMode(mode: CatalogMode): SazoState {
 
 function openAgentCatalog() {
   fireEvent.click(
-    screen.getByRole("button", { name: "URL・画像・商品名をAIに相談" }),
+    screen.getByRole("button", { name: "何を注文しますか？" }),
   );
 
   const agent = screen.getByRole("dialog", { name: "J-Planet AIエージェント" });
@@ -408,7 +408,7 @@ describe("SAZO captured view contracts", () => {
     ).toBe("grid");
   });
 
-  it("uses the captured mobile home navigation without a secondary rail", async () => {
+  it("uses the captured two-row mobile home navigation", async () => {
     const { container } = await renderWithI18n(<SazoCommercePage />);
     const mobileShell =
       container.querySelector<HTMLElement>('[data-shell="mobile"]') ?? container;
@@ -416,11 +416,11 @@ describe("SAZO captured view contracts", () => {
       name: "モバイルメニュー",
     });
 
-    expect(
-      within(mobileShell).queryByRole("navigation", {
-        name: "モバイルサブメニュー",
-      }),
-    ).toBeNull();
+    const secondary = within(mobileShell).getByRole("navigation", {
+      name: "モバイルサブメニュー",
+    });
+
+    expect(within(secondary).getAllByRole("button")).toHaveLength(5);
     expect(
       within(primary)
         .getAllByRole("button")

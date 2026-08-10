@@ -223,12 +223,26 @@ describe("SAZO home composition", () => {
       ".sazo-home-intro",
       ".sazo-interested-items",
     ];
-    const elements = selectors.map((selector) => home?.querySelector(selector));
+    const elements = selectors.map((selector) => {
+      const element = home?.querySelector(selector);
 
-    expect(elements.every(Boolean)).toBe(true);
+      if (element === null || element === undefined) {
+        throw new Error(`Missing mobile home element: ${selector}`);
+      }
+
+      return element;
+    });
+
     for (let index = 1; index < elements.length; index += 1) {
+      const previousElement = elements.at(index - 1);
+      const currentElement = elements.at(index);
+
+      if (previousElement === undefined || currentElement === undefined) {
+        throw new Error(`Missing mobile home hierarchy element at index ${String(index)}`);
+      }
+
       expect(
-        elements[index - 1]?.compareDocumentPosition(elements[index] as Node) &
+        previousElement.compareDocumentPosition(currentElement) &
           Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
     }

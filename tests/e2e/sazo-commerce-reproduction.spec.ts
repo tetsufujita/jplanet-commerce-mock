@@ -111,9 +111,21 @@ async function replayMobileScenario(page: Page) {
   await expectLoadedMobilePicks(page, mobilePickFailures);
   externalRequests.length = 0;
 
+  const mobileSecondaryNavigation = page.getByRole("navigation", {
+    exact: true,
+    name: "モバイルサブメニュー",
+  });
+  await expect(mobileSecondaryNavigation).toBeVisible();
+  await expect(mobileSecondaryNavigation.getByRole("button")).toHaveCount(5);
+  await expect(
+    page
+      .getByRole("group", { exact: true, name: "J-Planetショートカット" })
+      .getByRole("button"),
+  ).toHaveCount(5);
+
   const topLauncher = page.getByRole("button", {
     exact: true,
-    name: "URL・画像・商品名をAIに相談",
+    name: "何を注文しますか？",
   });
   await topLauncher.click();
   let agent = page.getByRole("dialog", {
