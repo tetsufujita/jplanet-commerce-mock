@@ -50,6 +50,10 @@ describe("sazoReducer", () => {
     expect(createInitialSazoState(`?qa=1&view=${view}`).view).toBe(view);
   });
 
+  it("accepts the dedicated BEAUTY QA route", () => {
+    expect(createInitialSazoState("?qa=1&view=beauty").view).toBe("beauty");
+  });
+
   it("uses the recorded account balances and profile values", () => {
     expect(sazoAccountFixture).toMatchObject({
       birthday: "2001-08-22",

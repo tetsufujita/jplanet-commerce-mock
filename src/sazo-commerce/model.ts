@@ -28,7 +28,8 @@ export type SazoView =
   | "product"
   | "gram"
   | "gram-detail"
-  | "agent-hub";
+  | "agent-hub"
+  | "beauty";
 
 export type SazoNonProductView = Exclude<SazoView, "product">;
 
@@ -209,6 +210,7 @@ const qaViews = new Set<SazoView>([
   "gram",
   "gram-detail",
   "agent-hub",
+  "beauty",
 ]);
 const qaAuthSteps = new Set<SazoAuthStep>(["provider", "google", "birthday", "phone"]);
 
