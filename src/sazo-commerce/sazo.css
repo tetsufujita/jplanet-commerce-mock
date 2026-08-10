@@ -9357,3 +9357,85 @@
     scroll-behavior: auto;
   }
 }
+
+@media (min-width: 768px) and (max-width: 899px) {
+  .sazo-root .sazo-mobile-shell {
+    display: contents;
+  }
+
+  .sazo-root .sazo-mobile-header,
+  .sazo-root .sazo-mobile-shell > .sazo-main,
+  .sazo-root .sazo-mobile-shell > .sazo-footer {
+    display: none;
+  }
+
+  .sazo-root .sazo-mobile-nav {
+    position: fixed;
+    z-index: 20;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    min-height: 76px;
+    padding: 5px max(8px, env(safe-area-inset-right))
+      max(5px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+    border: 0;
+    border-radius: 20px 20px 0 0;
+    background: var(--jplanet-surface);
+    box-shadow: 0 -5px 21px color-mix(in srgb, var(--jplanet-navy) 11%, transparent);
+  }
+
+  .sazo-root .sazo-mobile-nav .sazo-nav-button {
+    width: 100%;
+    min-width: 0;
+    min-height: 64px;
+    gap: 3px;
+    padding: 5px 4px;
+    color: var(--jplanet-muted);
+    font-size: 10px;
+  }
+
+  .sazo-root .sazo-mobile-nav .sazo-nav-button svg {
+    width: 27px;
+    height: 27px;
+    stroke-width: 2;
+  }
+
+  .sazo-root .sazo-mobile-nav .sazo-nav-button[aria-pressed="true"] {
+    color: var(--jplanet-sakura);
+  }
+
+  .sazo-root:not([data-view="service"]):not([data-view="campaign"]):not([data-view="product"])
+    .sazo-content-main {
+    padding-bottom: 88px;
+  }
+
+  .sazo-root:not([data-view="service"]):not([data-view="campaign"]):not([data-view="product"])
+    .sazo-desktop-shell
+    > .sazo-footer {
+    padding-bottom: 92px;
+  }
+
+  .sazo-root:not([data-view="service"]):not([data-view="campaign"]):not([data-view="product"])
+    .sazo-chat-button {
+    right: 18px;
+    bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+
+  .sazo-root[data-view="service"] .sazo-mobile-nav,
+  .sazo-root[data-view="campaign"] .sazo-mobile-nav,
+  .sazo-root[data-view="product"] .sazo-mobile-nav {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .sazo-root[data-view="home"] .sazo-chat-button {
+    right: 14px;
+    bottom: calc(70px + env(safe-area-inset-bottom));
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+  }
+}

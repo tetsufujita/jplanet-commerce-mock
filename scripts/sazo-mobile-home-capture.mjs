@@ -41,6 +41,34 @@ function assertContrastAtLeast(label, foreground, background, minimum) {
   return ratio;
 }
 
+async function inspectBottomNavigation(page, expectedWidth) {
+  const navigation = page.getByRole("navigation", {
+    exact: true,
+    name: "モバイルメニュー",
+  });
+  const navigationBox = await navigation.boundingBox();
+  const chatBox = await page.getByRole("button", { name: "チャットを開く" }).boundingBox();
+  const myPageIconBox = await navigation
+    .getByRole("button", { exact: true, name: "マイページ" })
+    .locator("svg")
+    .boundingBox();
+  const position = await navigation.evaluate((element) => getComputedStyle(element).position);
+
+  assert(navigationBox && chatBox && myPageIconBox);
+  assert.equal(await navigation.getByRole("button").count(), 5);
+  assert.deepEqual(
+    await navigation.getByRole("button").allTextContents(),
+    ["ホーム", "通知", "エージェント", "お気に入り", "マイページ"],
+  );
+  assert.equal(position, "fixed");
+  assert(Math.abs(navigationBox.width - expectedWidth) < 1);
+  assert(Math.abs(navigationBox.height - 76) < 2);
+  assert(chatBox.y + chatBox.height <= myPageIconBox.y);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), expectedWidth);
+
+  return { chatBox, navigationBox };
+}
+
 const server = await createServer({
   logLevel: "error",
   server: { host: "127.0.0.1", port: 0 },
@@ -129,6 +157,7 @@ try {
   );
   assert.deepEqual(failedPickResponses, []);
   assert(Math.abs(navigation.height - 76) < 2);
+  const mobileBottomNavigation = await inspectBottomNavigation(page, 440);
   assert.equal(await page.getByRole("button", { name: "エージェント" }).count(), 1);
   assert.equal(
     await page.getByRole("button", { name: "URL・画像・商品名をAIに相談" }).count(),
@@ -149,6 +178,11 @@ try {
     animations: "disabled",
     caret: "hide",
     path: "/tmp/jplanet-mobile-home-top.png",
+  });
+  await page.screenshot({
+    animations: "disabled",
+    caret: "hide",
+    path: "/tmp/jplanet-bottom-nav-440x956.png",
   });
 
   const mobileNavigation = page.getByRole("navigation", {
@@ -300,6 +334,65 @@ try {
     });
   }
 
+  const tabletPage = await browser.newPage({
+    deviceScaleFactor: 1,
+    viewport: { height: 956, width: 822 },
+  });
+
+  await tabletPage.goto(url, { waitUntil: "networkidle" });
+  await tabletPage.locator("[data-home-view]").waitFor();
+  const tabletBottomNavigation = await inspectBottomNavigation(tabletPage, 822);
+  assert.equal(await tabletPage.locator(".sazo-mobile-header").isVisible(), false);
+  assert.equal(await tabletPage.locator(".sazo-mobile-shell > .sazo-footer").count(), 1);
+  assert.equal(
+    await tabletPage.locator(".sazo-mobile-shell > .sazo-footer").evaluate(
+      (element) => getComputedStyle(element).display,
+    ),
+    "none",
+  );
+  await tabletPage.screenshot({
+    animations: "disabled",
+    caret: "hide",
+    path: "/tmp/jplanet-bottom-nav-822x956.png",
+  });
+  const tabletRoot = tabletPage.locator(".sazo-root");
+
+  for (const view of ["service", "campaign", "product"]) {
+    await tabletRoot.evaluate((element, nextView) => {
+      element.setAttribute("data-view", nextView);
+    }, view);
+    assert.equal(await tabletPage.locator(".sazo-mobile-nav").boundingBox(), null);
+    assert.equal(
+      await tabletPage.locator(".sazo-content-main").evaluate(
+        (element) => getComputedStyle(element).paddingBottom,
+      ),
+      "0px",
+    );
+    assert.equal(
+      await tabletPage.getByRole("button", { name: "チャットを開く" }).evaluate(
+        (element) => getComputedStyle(element).bottom,
+      ),
+      "24px",
+    );
+  }
+
+  await tabletRoot.evaluate((element) => {
+    element.setAttribute("data-view", "home");
+  });
+  await tabletPage.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  const tabletFooterTextBox = await tabletPage
+    .locator(".sazo-desktop-shell > .sazo-footer small")
+    .boundingBox();
+  const tabletNavigationAtBottom = await tabletPage.locator(".sazo-mobile-nav").boundingBox();
+  assert(tabletFooterTextBox && tabletNavigationAtBottom);
+  assert(tabletFooterTextBox.y + tabletFooterTextBox.height <= tabletNavigationAtBottom.y);
+  await tabletPage.screenshot({
+    animations: "disabled",
+    caret: "hide",
+    path: "/tmp/jplanet-bottom-nav-822x956-footer.png",
+  });
+  await tabletPage.close();
+
   const compactPage = await browser.newPage({
     deviceScaleFactor: 1,
     viewport: { height: 735, width: 341 },
@@ -307,6 +400,7 @@ try {
 
   await compactPage.goto(url, { waitUntil: "networkidle" });
   await compactPage.locator("[data-mobile-home]").waitFor();
+  const compactBottomNavigation = await inspectBottomNavigation(compactPage, 341);
   assert.equal(
     await compactPage.evaluate(() => document.documentElement.scrollWidth),
     341,
@@ -348,6 +442,15 @@ try {
   });
   await compactPage.close();
 
+  const desktopBoundaryPage = await browser.newPage({
+    deviceScaleFactor: 1,
+    viewport: { height: 956, width: 900 },
+  });
+  await desktopBoundaryPage.goto(url, { waitUntil: "networkidle" });
+  await desktopBoundaryPage.locator("[data-home-view]").waitFor();
+  assert.equal(await desktopBoundaryPage.locator(".sazo-mobile-nav").boundingBox(), null);
+  await desktopBoundaryPage.close();
+
   const desktopPage = await browser.newPage({
     deviceScaleFactor: 1,
     viewport: { height: 828, width: 1511 },
@@ -355,6 +458,7 @@ try {
 
   await desktopPage.goto(url, { waitUntil: "networkidle" });
   await desktopPage.locator("[data-home-view]").waitFor();
+  assert.equal(await desktopPage.locator(".sazo-mobile-nav").boundingBox(), null);
   assert.equal(await desktopPage.locator("[data-mobile-home]").count(), 0);
   assert.equal(await desktopPage.locator(".sazo-shortcuts .sazo-shortcut").count(), 5);
   await desktopPage.screenshot({
@@ -372,10 +476,13 @@ try {
       hubNavigation,
       hubContrastColors,
       hubContrastRatios,
+      mobileBottomNavigation,
       compactLauncherGeometry,
+      compactBottomNavigation,
       navigation,
       search,
       shortcuts,
+      tabletBottomNavigation,
       url,
     })}\n`,
   );
