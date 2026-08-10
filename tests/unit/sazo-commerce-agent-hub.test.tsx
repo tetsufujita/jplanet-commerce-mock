@@ -65,6 +65,27 @@ describe("MobileAgentHubView", () => {
     expect(dispatch).toHaveBeenCalledTimes(2);
   });
 
+  it("exposes stable hooks for the mobile hub layout", async () => {
+    const { container } = await renderHub("ja");
+
+    expect(
+      container.querySelector(".sazo-agent-hub > .sazo-agent-hub-header"),
+    ).not.toBeNull();
+    expect(
+      container.querySelector(
+        ".sazo-agent-hub-header > .sazo-agent-hub-launcher",
+      ),
+    ).not.toBeNull();
+    expect(container.querySelectorAll(".sazo-agent-hub-consultation-row")).toHaveLength(
+      3,
+    );
+    expect(container.querySelector(".sazo-agent-hub-product-rail")).not.toBeNull();
+    expect(container.querySelectorAll(".sazo-agent-hub-product-card")).toHaveLength(3);
+    expect(container.querySelector(".sazo-agent-hub-ranked-list")).not.toBeNull();
+    expect(container.querySelectorAll(".sazo-agent-hub-ranked-row")).toHaveLength(20);
+    expect(container.querySelector(".sazo-agent-hub-footer")).not.toBeNull();
+  });
+
   it("dispatches shared agent, home, product, and catalog actions", async () => {
     const dispatch = vi.fn();
     await renderHub("ja", dispatch);

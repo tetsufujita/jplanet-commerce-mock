@@ -67,7 +67,9 @@ export function MobileAgentHubView({ dispatch }: MobileAgentHubViewProps) {
         {showConsultations ? (
           <ol>
             {agentHubRecentConsultations.map((consultation) => (
-              <li key={consultation.id}>{consultation.label}</li>
+              <li className="sazo-agent-hub-consultation-row" key={consultation.id}>
+                {consultation.label}
+              </li>
             ))}
           </ol>
         ) : null}
@@ -87,9 +89,9 @@ export function MobileAgentHubView({ dispatch }: MobileAgentHubViewProps) {
           </button>
         </header>
         {showProducts ? (
-          <ol>
+          <ol className="sazo-agent-hub-product-rail">
             {agentHubRecentProducts.map((product) => (
-              <li key={product.id}>
+              <li className="sazo-agent-hub-product-card" key={product.id}>
                 <button
                   aria-label={t("sazo.agentHub.productDetails", { name: product.name })}
                   onClick={() => {
@@ -111,13 +113,17 @@ export function MobileAgentHubView({ dispatch }: MobileAgentHubViewProps) {
       <section data-section="popular-topics" data-testid="agent-hub-section">
         <p>{t("sazo.agentHub.brand")}</p>
         <h2>{t("sazo.agentHub.popularTitle")}</h2>
-        <ol>
+        <ol className="sazo-agent-hub-ranked-list">
           {agentHubPopularTopics.map(({ id, labelKey, rank }) => {
             const topic = t(labelKey);
             const rankedTopic = t("sazo.agentHub.rankedTopic", { rank, topic });
 
             return (
-              <li aria-label={rankedTopic} key={id}>
+              <li
+                aria-label={rankedTopic}
+                className="sazo-agent-hub-ranked-row"
+                key={id}
+              >
                 <button
                   aria-label={rankedTopic}
                   onClick={() => {
@@ -134,7 +140,11 @@ export function MobileAgentHubView({ dispatch }: MobileAgentHubViewProps) {
         </ol>
       </section>
 
-      <footer data-section="footer" data-testid="agent-hub-section">
+      <footer
+        className="sazo-agent-hub-footer"
+        data-section="footer"
+        data-testid="agent-hub-section"
+      >
         <nav aria-label={t("sazo.auth.page.companyLinksLabel")}>
           <a href="#sazo-company">{t("sazo.auth.page.company")}</a>
           <a href="#sazo-careers">{t("sazo.auth.page.careers")}</a>

@@ -158,6 +158,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
   const { t } = useTranslation();
   const loginExpanded = state.overlay === "login";
   const serviceView = state.view === "service";
+  const agentHubView = state.view === "agent-hub";
   const accountView = ["mypage", "favorites", "profile", "cards"].includes(state.view);
   const accountAvailable = state.authenticated || accountView;
 
@@ -265,47 +266,49 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
       </div>
 
       <div className="sazo-mobile-shell" data-shell="mobile">
-        <header className="sazo-mobile-header">
-          <div className="sazo-mobile-header-primary">
-            <Wordmark dispatch={dispatch} homeLabel={t("sazo.brand.homeLabel")} />
-            <div
-              aria-label="モバイルヘッダー操作"
-              className="sazo-mobile-header-actions"
-              role="group"
-            >
-              {state.view === "home" ? null : (
-                <>
-                  <button aria-label={t("sazo.actions.language")} type="button">
-                    <span aria-hidden>🇯🇵</span>
-                  </button>
-                  <button aria-label={t("sazo.navigation.search")} type="button">
-                    <Search aria-hidden size={22} strokeWidth={2.2} />
-                  </button>
-                </>
-              )}
-              <button aria-label={t("sazo.actions.cart")} type="button">
-                <ShoppingCart aria-hidden size={23} strokeWidth={2.2} />
-              </button>
+        {agentHubView ? null : (
+          <header className="sazo-mobile-header">
+            <div className="sazo-mobile-header-primary">
+              <Wordmark dispatch={dispatch} homeLabel={t("sazo.brand.homeLabel")} />
+              <div
+                aria-label="モバイルヘッダー操作"
+                className="sazo-mobile-header-actions"
+                role="group"
+              >
+                {state.view === "home" ? null : (
+                  <>
+                    <button aria-label={t("sazo.actions.language")} type="button">
+                      <span aria-hidden>🇯🇵</span>
+                    </button>
+                    <button aria-label={t("sazo.navigation.search")} type="button">
+                      <Search aria-hidden size={22} strokeWidth={2.2} />
+                    </button>
+                  </>
+                )}
+                <button aria-label={t("sazo.actions.cart")} type="button">
+                  <ShoppingCart aria-hidden size={23} strokeWidth={2.2} />
+                </button>
+              </div>
             </div>
-          </div>
-          {state.view === "home" ? null : (
-            <nav
-              aria-label={t("sazo.navigation.mobileSecondaryLabel")}
-              className="sazo-mobile-secondary-nav"
-            >
-              {mobileSecondaryNavigation.map((item) => (
-                <NavigationButton
-                  className="sazo-mobile-secondary-button"
-                  dispatch={dispatch}
-                  key={item.translationKey}
-                  label={t(item.translationKey)}
-                  state={state}
-                  view={item.view}
-                />
-              ))}
-            </nav>
-          )}
-        </header>
+            {state.view === "home" ? null : (
+              <nav
+                aria-label={t("sazo.navigation.mobileSecondaryLabel")}
+                className="sazo-mobile-secondary-nav"
+              >
+                {mobileSecondaryNavigation.map((item) => (
+                  <NavigationButton
+                    className="sazo-mobile-secondary-button"
+                    dispatch={dispatch}
+                    key={item.translationKey}
+                    label={t(item.translationKey)}
+                    state={state}
+                    view={item.view}
+                  />
+                ))}
+              </nav>
+            )}
+          </header>
+        )}
 
         <main className="sazo-main sazo-mobile-main" />
         <ShellFooter copyright={t("sazo.footer.copyright")} />

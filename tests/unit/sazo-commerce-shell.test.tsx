@@ -19,6 +19,7 @@ import { SazoCommercePage } from "@/sazo-commerce/SazoCommercePage";
 
 afterEach(() => {
   cleanup();
+  window.history.replaceState({}, "", "/");
 });
 
 async function renderSazoCommercePage(locale: "ja" | "en" | "pt-BR" = "ja") {
@@ -241,6 +242,17 @@ describe("SazoCommercePage shell", () => {
     );
     expect(agent.getAttribute("aria-pressed")).toBe("true");
     expect(screen.queryByRole("dialog", { name: "J-Planet AIエージェント" })).toBeNull();
+  });
+
+  it("mounts the dedicated hub without the generic mobile header", async () => {
+    window.history.replaceState({}, "", "/sazo-commerce-mock/?qa=1&view=agent-hub");
+    const { container } = await renderSazoCommercePage();
+
+    expect(container.querySelector("[data-mobile-agent-hub]")).not.toBeNull();
+    expect(
+      container.querySelector(".sazo-mobile-shell .sazo-mobile-header"),
+    ).toBeNull();
+    expect(container.querySelector(".sazo-mobile-nav")).not.toBeNull();
   });
 
   it.each([

@@ -14,6 +14,7 @@ import { ChatPanel } from "@/sazo-commerce/ChatPanel";
 import { BrandsView, CategoriesView } from "@/sazo-commerce/DirectoryViews";
 import { RankingView, ReviewsView } from "@/sazo-commerce/EditorialViews";
 import { HomeView } from "@/sazo-commerce/HomeView";
+import { MobileAgentHubView } from "@/sazo-commerce/MobileAgentHubView";
 import { GramCatalogView, GramDetailView } from "@/sazo-commerce/GramView";
 import { ProductDetailView } from "@/sazo-commerce/ProductDetailView";
 import { SazoShell } from "@/sazo-commerce/SazoShell";
@@ -91,6 +92,9 @@ export function SazoCommercePage() {
       ) : (
         <SazoShell dispatch={dispatch} state={state}>
           {state.view === "home" ? <HomeView dispatch={dispatch} state={state} /> : null}
+          {state.view === "agent-hub" ? (
+            <MobileAgentHubView dispatch={dispatch} />
+          ) : null}
           {state.view === "campaign" ? (
             <CampaignView dispatch={dispatch} loaded={state.campaignLoaded} />
           ) : null}

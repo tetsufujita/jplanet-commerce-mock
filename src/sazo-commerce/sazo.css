@@ -8805,6 +8805,359 @@
   .sazo-root .sazo-mobile-nav .sazo-nav-button[aria-pressed="true"] {
     color: var(--jplanet-sakura);
   }
+
+  .sazo-root[data-view="agent-hub"] {
+    overflow-x: clip;
+    background: var(--jplanet-surface);
+    color: var(--jplanet-navy);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-content-main {
+    min-width: 0;
+    min-height: 100dvh;
+    padding: 0;
+    background: var(--jplanet-surface);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-shell > .sazo-footer {
+    display: none;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub {
+    width: 100%;
+    min-width: 0;
+    background: var(--jplanet-surface);
+    color: var(--jplanet-navy);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-header {
+    position: sticky;
+    z-index: 21;
+    top: env(safe-area-inset-top);
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 40px 40px;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    height: 52px;
+    padding: 0 12px;
+    border-bottom: 1px solid var(--jplanet-line);
+    background: var(--jplanet-surface);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-header > button {
+    display: inline-flex;
+    min-width: 0;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--jplanet-navy);
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub-header
+    > button:first-child,
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub-header
+    > button:last-child {
+    border: 1px solid var(--jplanet-line);
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub-header
+    > button:first-child
+    > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub-header
+    > button:nth-child(3) {
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.05;
+    text-align: center;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-launcher {
+    min-width: 0;
+    gap: 6px;
+    padding: 0 10px;
+    border: 1px solid
+      color-mix(in srgb, var(--jplanet-sakura) 44%, var(--jplanet-line));
+    background: var(--jplanet-sakura-soft);
+    color: var(--jplanet-navy);
+    font-size: 13px;
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-launcher svg {
+    flex: 0 0 auto;
+    color: var(--jplanet-sakura);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-launcher > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub > section {
+    min-width: 0;
+    padding: 16px;
+    border-top: 1px solid var(--jplanet-line);
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub
+    > section:first-of-type {
+    border-top: 0;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub > section > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub h2 {
+    margin: 0;
+    color: var(--jplanet-navy);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub
+    > section
+    > header
+    > button {
+    display: grid;
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--jplanet-sakura-soft);
+    color: var(--jplanet-sakura);
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub ol {
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-consultation-row {
+    min-width: 0;
+    padding: 12px 0;
+    overflow: hidden;
+    border-bottom: 1px solid var(--jplanet-line);
+    color: var(--jplanet-ink);
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub-consultation-row:last-child {
+    border-bottom: 0;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-product-rail {
+    display: grid;
+    grid-auto-columns: 124px;
+    grid-auto-flow: column;
+    gap: 12px;
+    width: calc(100% + 16px);
+    margin-right: -16px;
+    padding-right: 16px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub-product-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-product-card,
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-product-card > button {
+    width: 124px;
+    min-width: 0;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-product-card > button {
+    display: grid;
+    gap: 4px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--jplanet-ink);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-product-card img {
+    display: block;
+    width: 124px;
+    height: 124px;
+    margin-bottom: 3px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 12px;
+    background: var(--jplanet-soft);
+    object-fit: cover;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-product-card span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub-product-card
+    span:first-of-type {
+    color: var(--jplanet-muted);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub-product-card
+    span:nth-of-type(2) {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub-product-card
+    span:last-of-type {
+    color: var(--jplanet-navy);
+    font-size: 14px;
+    font-weight: 850;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub
+    > section[data-section="popular-topics"]
+    > p {
+    margin: 0 0 4px;
+    color: var(--jplanet-sakura);
+    font-size: 13px;
+    font-weight: 850;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-ranked-list {
+    border-top: 1px solid var(--jplanet-line);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-ranked-row > button {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    align-items: center;
+    width: 100%;
+    min-height: 42px;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--jplanet-line);
+    background: transparent;
+    color: var(--jplanet-ink);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub-ranked-row
+    > button
+    > span:first-child {
+    color: var(--jplanet-muted);
+    font-size: 13px;
+    font-weight: 850;
+    text-align: center;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub-ranked-row:nth-child(-n + 3)
+    > button
+    > span:first-child {
+    color: var(--jplanet-sakura);
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub-ranked-row
+    > button
+    > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-footer {
+    padding: 28px 16px calc(96px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--jplanet-line);
+    background: var(--jplanet-surface);
+    color: var(--jplanet-muted);
+    font-size: 12px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-footer a {
+    color: var(--jplanet-navy);
+    font-weight: 750;
+    text-underline-offset: 3px;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-footer > div {
+    margin: 20px 0;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-footer p {
+    margin: 0;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub button:focus-visible,
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub a:focus-visible {
+    outline: 3px solid var(--jplanet-sakura);
+    outline-offset: 2px;
+  }
 }
 
 /* Mobile purchasing agent composer. */
