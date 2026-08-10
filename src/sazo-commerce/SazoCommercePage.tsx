@@ -11,6 +11,7 @@ import { AgentComposerSheet } from "@/sazo-commerce/AgentComposerSheet";
 import { CatalogView } from "@/sazo-commerce/CatalogView";
 import { CampaignView } from "@/sazo-commerce/CampaignView";
 import { ChatPanel } from "@/sazo-commerce/ChatPanel";
+import { BeautyView } from "@/sazo-commerce/BeautyView";
 import { BrandsView, CategoriesView } from "@/sazo-commerce/DirectoryViews";
 import { RankingView, ReviewsView } from "@/sazo-commerce/EditorialViews";
 import { HomeView } from "@/sazo-commerce/HomeView";
@@ -92,6 +93,7 @@ export function SazoCommercePage() {
       ) : (
         <SazoShell dispatch={dispatch} state={state}>
           {state.view === "home" ? <HomeView dispatch={dispatch} state={state} /> : null}
+          {state.view === "beauty" ? <BeautyView dispatch={dispatch} /> : null}
           {state.view === "agent-hub" ? (
             <MobileAgentHubView dispatch={dispatch} entryIntent={state.agentEntryIntent} />
           ) : null}

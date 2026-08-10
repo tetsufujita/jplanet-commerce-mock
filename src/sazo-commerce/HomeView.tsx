@@ -374,7 +374,7 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
   );
 }
 
-function ShortcutRow() {
+function ShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
 
   return (
@@ -388,6 +388,11 @@ function ShortcutRow() {
           aria-label={shortcut.label}
           className="sazo-shortcut"
           key={shortcut.id}
+          onClick={
+            shortcut.id === "cosmetics"
+              ? () => dispatch({ type: "navigate", view: "beauty" })
+              : undefined
+          }
           type="button"
         >
           <span className="sazo-shortcut-icon" data-icon={shortcut.id}>
@@ -862,7 +867,7 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
         <>
           <HeroCarousel dispatch={dispatch} state={{ ...state, heroFeed: "large-first" }} />
           <MobileAgentSearch dispatch={dispatch} />
-          <ShortcutRow />
+          <ShortcutRow dispatch={dispatch} />
           <HomeIntro />
           <InterestedItemsRail dispatch={dispatch} />
           <ReviewStrip dispatch={dispatch} state={state} title="利用者レビュー" />
@@ -874,7 +879,7 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
       ) : (
         <>
           <HeroCarousel dispatch={dispatch} state={state} />
-          <ShortcutRow />
+          <ShortcutRow dispatch={dispatch} />
           <HomeIntro />
           <InterestedItemsRail dispatch={dispatch} />
           <ReviewStrip dispatch={dispatch} state={state} />

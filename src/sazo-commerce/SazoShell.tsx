@@ -159,6 +159,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
   const loginExpanded = state.overlay === "login";
   const serviceView = state.view === "service";
   const agentHubView = state.view === "agent-hub";
+  const dedicatedMobileHeader = agentHubView || state.view === "beauty";
   const accountView = ["mypage", "favorites", "profile", "cards"].includes(state.view);
   const accountAvailable = state.authenticated || accountView;
 
@@ -266,7 +267,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
       </div>
 
       <div className="sazo-mobile-shell" data-shell="mobile">
-        {agentHubView ? null : (
+        {dedicatedMobileHeader ? null : (
           <header className="sazo-mobile-header">
             <div className="sazo-mobile-header-primary">
               <Wordmark dispatch={dispatch} homeLabel={t("sazo.brand.homeLabel")} />

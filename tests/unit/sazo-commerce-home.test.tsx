@@ -292,6 +292,15 @@ describe("SAZO home composition", () => {
     expect(screen.queryByRole("dialog", { name: "J-Planet AIエージェント" })).toBeNull();
   });
 
+  it("routes the cosmetics shortcut to the dedicated BEAUTY view", async () => {
+    const dispatch = vi.fn();
+    await renderHomePage("ja", dispatch);
+
+    fireEvent.click(screen.getByRole("button", { name: "コスメ" }));
+
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "beauty" });
+  });
+
   it("routes the image action with an image-picker intent", async () => {
     const dispatch = vi.fn();
     await renderHomePage("ja", dispatch);
