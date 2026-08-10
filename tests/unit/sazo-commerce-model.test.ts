@@ -320,6 +320,13 @@ describe("sazoReducer", () => {
     expect(state.overlay).toBe("chat");
   });
 
+  it("opens and closes the purchasing-agent overlay", () => {
+    const opened = sazoReducer(createInitialSazoState(), { type: "open-agent" });
+
+    expect(opened.overlay).toBe("agent");
+    expect(sazoReducer(opened, { type: "close-overlay" }).overlay).toBe("none");
+  });
+
   it("returns a catalog login to home before showing the registration page", () => {
     let state = sazoReducer(createInitialSazoState(), {
       type: "navigate",

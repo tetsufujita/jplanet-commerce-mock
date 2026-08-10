@@ -19,7 +19,7 @@ export type SazoView =
 
 export type SazoNonProductView = Exclude<SazoView, "product">;
 
-export type SazoOverlay = "none" | "login" | "chat";
+export type SazoOverlay = "none" | "login" | "chat" | "agent";
 export type SazoAuthStep = "provider" | "google" | "birthday" | "phone";
 export type SazoLoadingSurface =
   | "none"
@@ -131,6 +131,7 @@ export type SazoAction =
   | { type: "advance-auth"; step: SazoAuthStep }
   | { type: "complete-auth" }
   | { type: "open-chat" }
+  | { type: "open-agent" }
   | { type: "close-overlay" }
   | { type: "select-directory-category"; category: DirectoryCategoryId }
   | { type: "select-brand-filter"; filter: BrandFilterId }
@@ -294,6 +295,8 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
       };
     case "open-chat":
       return { ...state, overlay: "chat" };
+    case "open-agent":
+      return { ...state, overlay: "agent" };
     case "close-overlay":
       return { ...state, overlay: "none" };
     case "select-directory-category":
