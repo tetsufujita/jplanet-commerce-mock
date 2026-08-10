@@ -1,7 +1,6 @@
 import { useEffect, useState, type Dispatch, type ReactElement } from "react";
 import {
   ArrowRight,
-  Camera,
   ChevronRight,
   Globe2,
   ImagePlus,
@@ -32,7 +31,9 @@ export function BeautyView({ dispatch }: BeautyViewProps): ReactElement {
       setPendingCategory(null);
     }, 500);
 
-    return () => window.clearTimeout(timeout);
+    return () => {
+      window.clearTimeout(timeout);
+    };
   }, [pendingCategory]);
 
   const normalizedQuery = submittedQuery.toLocaleLowerCase("ja-JP");
@@ -55,7 +56,9 @@ export function BeautyView({ dispatch }: BeautyViewProps): ReactElement {
         <BeautySearch
           inputValue={inputValue}
           onInputChange={setInputValue}
-          onSubmit={() => setSubmittedQuery(inputValue.trim())}
+          onSubmit={() => {
+            setSubmittedQuery(inputValue.trim());
+          }}
         />
         <BeautySearchGuidance />
       </section>
@@ -89,7 +92,9 @@ function BeautyHeader({ dispatch }: BeautyViewProps): ReactElement {
         <button
           aria-label="ホームへ戻る"
           className="sazo-beauty-logo"
-          onClick={() => dispatch({ type: "navigate", view: "home" })}
+          onClick={() => {
+            dispatch({ type: "navigate", view: "home" });
+          }}
           type="button"
         >
           <JplanetLogo />
@@ -131,7 +136,9 @@ function BeautySearch(props: {
       <Search aria-hidden className="sazo-beauty-search-icon" />
       <input
         id="sazo-beauty-search-input"
-        onChange={(event) => props.onInputChange(event.target.value)}
+        onChange={(event) => {
+          props.onInputChange(event.target.value);
+        }}
         placeholder="キーワードまたはURLを入力"
         type="search"
         value={props.inputValue}
@@ -168,7 +175,9 @@ function BeautyCategoryRail({
         <button
           aria-pressed={activeCategory === category.id}
           key={category.id}
-          onClick={() => onSelect(category.id)}
+          onClick={() => {
+            onSelect(category.id);
+          }}
           type="button"
         >
           {category.label}
@@ -203,7 +212,9 @@ function BeautyProductRail({
           <button
             aria-label={`商品を開く ${product.name}`}
             className="sazo-beauty-product-open"
-            onClick={() => dispatch({ type: "open-product", productId: product.detailProductId })}
+            onClick={() => {
+              dispatch({ type: "open-product", productId: product.detailProductId });
+            }}
             type="button"
           >
             <BeautyProductImage product={product} />
@@ -226,7 +237,13 @@ function BeautyProductImage({ product }: { product: BeautyProduct }): ReactEleme
 
   return (
     <span className="sazo-beauty-product-image">
-      <img alt={product.name} onError={() => setFailed(true)} src={product.image} />
+      <img
+        alt={product.name}
+        onError={() => {
+          setFailed(true);
+        }}
+        src={product.image}
+      />
     </span>
   );
 }
@@ -242,7 +259,12 @@ function BeautyTrendList({ dispatch }: BeautyViewProps): ReactElement {
         {beautyTrendKeywords.map((keyword, index) => (
           <li aria-label={`トレンドキーワード ${keyword}`} key={keyword}>
             <span>{index + 1}</span>
-            <button onClick={() => dispatch({ type: "open-product", productId: beautyTrendProducts[index % beautyTrendProducts.length]?.detailProductId ?? "p01" })} type="button">
+            <button
+              onClick={() => {
+                dispatch({ type: "open-product", productId: beautyTrendProducts[index % beautyTrendProducts.length]?.detailProductId ?? "p01" });
+              }}
+              type="button"
+            >
               {keyword}
             </button>
           </li>

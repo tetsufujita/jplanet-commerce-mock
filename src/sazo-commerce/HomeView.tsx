@@ -390,7 +390,9 @@ function ShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
           key={shortcut.id}
           onClick={
             shortcut.id === "cosmetics"
-              ? () => dispatch({ type: "navigate", view: "beauty" })
+              ? () => {
+                  dispatch({ type: "navigate", view: "beauty" });
+                }
               : undefined
           }
           type="button"
