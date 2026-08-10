@@ -10335,3 +10335,89 @@
     touch-action: pan-x;
   }
 }
+
+@media (max-width: 360px) {
+  .sazo-root[data-view="beauty"] .sazo-content-main {
+    padding-top: 70px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-header {
+    height: 70px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-header-main {
+    height: 44px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-header-nav {
+    height: 26px;
+    gap: 22px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-hero {
+    padding-top: 20px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-hero h1 {
+    margin: 8px 0 9px;
+    font-size: 36px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-hero > p {
+    font-size: 12px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search {
+    height: 52px;
+    margin-top: 12px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search > button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search-guidance {
+    min-height: 56px;
+    padding-top: 0;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search-guidance p {
+    margin-top: 10px;
+    font-size: 10px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-discovery h2,
+  .sazo-root[data-view="beauty"] .sazo-beauty-trends h2 {
+    margin-bottom: 10px;
+    font-size: 17px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail {
+    margin-bottom: 9px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail button {
+    height: 36px;
+    padding: 0 13px;
+    font-size: 12px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-brand {
+    margin-top: 5px;
+    font-size: 8px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-open strong {
+    font-size: 11px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-open b {
+    margin-top: 3px;
+    font-size: 12px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-trends {
+    margin-top: 24px;
+  }
+}
