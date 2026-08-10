@@ -275,38 +275,32 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
                 className="sazo-mobile-header-actions"
                 role="group"
               >
-                {state.view === "home" ? null : (
-                  <>
-                    <button aria-label={t("sazo.actions.language")} type="button">
-                      <span aria-hidden>🇯🇵</span>
-                    </button>
-                    <button aria-label={t("sazo.navigation.search")} type="button">
-                      <Search aria-hidden size={22} strokeWidth={2.2} />
-                    </button>
-                  </>
-                )}
+                <button aria-label={t("sazo.actions.language")} type="button">
+                  <span aria-hidden>🇯🇵</span>
+                </button>
+                <button aria-label={t("sazo.navigation.search")} type="button">
+                  <Search aria-hidden size={22} strokeWidth={2.2} />
+                </button>
                 <button aria-label={t("sazo.actions.cart")} type="button">
                   <ShoppingCart aria-hidden size={23} strokeWidth={2.2} />
                 </button>
               </div>
             </div>
-            {state.view === "home" ? null : (
-              <nav
-                aria-label={t("sazo.navigation.mobileSecondaryLabel")}
-                className="sazo-mobile-secondary-nav"
-              >
-                {mobileSecondaryNavigation.map((item) => (
-                  <NavigationButton
-                    className="sazo-mobile-secondary-button"
-                    dispatch={dispatch}
-                    key={item.translationKey}
-                    label={t(item.translationKey)}
-                    state={state}
-                    view={item.view}
-                  />
-                ))}
-              </nav>
-            )}
+            <nav
+              aria-label={t("sazo.navigation.mobileSecondaryLabel")}
+              className="sazo-mobile-secondary-nav"
+            >
+              {mobileSecondaryNavigation.map((item) => (
+                <NavigationButton
+                  className="sazo-mobile-secondary-button"
+                  dispatch={dispatch}
+                  key={item.translationKey}
+                  label={t(item.translationKey)}
+                  state={state}
+                  view={item.view}
+                />
+              ))}
+            </nav>
           </header>
         )}
 

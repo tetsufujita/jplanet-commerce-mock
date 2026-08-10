@@ -129,18 +129,22 @@ describe("SazoCommercePage shell", () => {
     }
   });
 
-  it("uses the captured mobile home header controls", async () => {
+  it("renders the two-row mobile home header", async () => {
     const { container } = await renderSazoCommercePage();
     const mobileShell = getShell(container, "mobile");
     const mobileHeader = within(mobileShell).getByRole("banner");
 
-    expect(within(mobileHeader).getByRole("button", { name: "カート" })).toBeTruthy();
+    for (const label of ["言語", "検索", "カート"]) {
+      expect(within(mobileHeader).getByRole("button", { name: label })).toBeTruthy();
+    }
+
+    const secondary = within(mobileHeader).getByRole("navigation", {
+      name: "モバイルサブメニュー",
+    });
+    expect(within(secondary).getAllByRole("button")).toHaveLength(5);
     expect(
-      within(mobileHeader).queryByRole("button", { name: "言語" }),
-    ).toBeNull();
-    expect(
-      within(mobileHeader).queryByRole("button", { name: "検索" }),
-    ).toBeNull();
+      within(secondary).getByRole("button", { name: "ホーム" }).getAttribute("aria-pressed"),
+    ).toBe("true");
   });
 
   it("groups the desktop search, icon actions, and navigation in one header card", async () => {
@@ -261,7 +265,9 @@ describe("SazoCommercePage shell", () => {
     ["pt-BR", "Agente"],
   ] as const)("localizes the mobile agent navigation for %s", async (locale, label) => {
     const { container } = await renderSazoCommercePage(locale);
-    const mobileNav = within(getShell(container, "mobile")).getByRole("navigation");
+    const mobileNav = within(getShell(container, "mobile")).getByRole("navigation", {
+      name: "モバイルメニュー",
+    });
 
     expect(within(mobileNav).getByRole("button", { name: label })).toBeTruthy();
   });
@@ -311,9 +317,7 @@ describe("App route safety", () => {
     await waitFor(() => {
       expect(container.querySelector(".sazo-root")).not.toBeNull();
     });
-    expect(await screen.findAllByRole("button", { name: "人気ブランド" })).toHaveLength(
-      1,
-    );
+    expect(await screen.findAllByRole("button", { name: "人気ブランド" })).toHaveLength(2);
   });
 
   it("keeps the existing localized home route reachable", async () => {
