@@ -227,18 +227,20 @@ describe("SazoCommercePage shell", () => {
     expect(within(mobileShell).getByRole("banner")).toBeTruthy();
   });
 
-  it("opens the agent overlay from the mobile agent control", async () => {
+  it("navigates to the dedicated hub from the fixed agent item", async () => {
     const { container } = await renderSazoCommercePage();
-    const root = container.querySelector<HTMLElement>(".sazo-root");
-    const mobileNav = within(getShell(container, "mobile")).getByRole("navigation", {
-      name: "モバイルメニュー",
+    const mobileNav = getShell(container, "mobile").querySelector(".sazo-mobile-nav");
+    const agent = within(mobileNav as HTMLElement).getByRole("button", {
+      name: "エージェント",
     });
-    const agent = within(mobileNav).getByRole("button", { name: "エージェント" });
 
     fireEvent.click(agent);
 
-    expect(root?.dataset.overlay).toBe("agent");
+    expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
+      "agent-hub",
+    );
     expect(agent.getAttribute("aria-pressed")).toBe("true");
+    expect(screen.queryByRole("dialog", { name: "J-Planet AIエージェント" })).toBeNull();
   });
 
   it.each([

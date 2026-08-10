@@ -133,6 +133,18 @@ describe("sazoReducer", () => {
     );
   });
 
+  it("supports the mobile agent hub as a reducer and QA view", () => {
+    const navigated = sazoReducer(createInitialSazoState(), {
+      type: "navigate",
+      view: "agent-hub",
+    });
+    const qaState = createInitialSazoState("?qa=1&view=agent-hub");
+
+    expect(navigated.view).toBe("agent-hub");
+    expect(navigated.overlay).toBe("none");
+    expect(qaState.view).toBe("agent-hub");
+  });
+
   it("opens product detail and returns to the source view", () => {
     const catalog = { ...createInitialSazoState(), view: "catalog" } as SazoState;
     const detail = sazoReducer(catalog, { type: "open-product", productId: "p01" });

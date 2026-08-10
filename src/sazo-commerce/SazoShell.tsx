@@ -328,15 +328,13 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
             icon={Bell}
             label={t("sazo.navigation.notification")}
           />
-          <ControlButton
+          <NavigationButton
             className="sazo-nav-button sazo-agent-nav-button"
-            expanded={state.overlay === "agent"}
+            dispatch={dispatch}
             icon={Sparkles}
             label={t("sazo.agent.navigation")}
-            onPress={() => {
-              dispatch({ type: "open-agent" });
-            }}
-            pressed={state.overlay === "agent"}
+            state={state}
+            view="agent-hub"
           />
           <NavigationButton
             dispatch={dispatch}
