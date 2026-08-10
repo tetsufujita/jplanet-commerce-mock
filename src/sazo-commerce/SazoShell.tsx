@@ -9,6 +9,7 @@ import {
   MessageCircle,
   Search,
   ShoppingCart,
+  Sparkles,
   UserRound,
   type LucideIcon,
 } from "lucide-react";
@@ -93,6 +94,7 @@ interface ControlButtonProps {
   icon: LucideIcon;
   label: string;
   onPress?: () => void;
+  pressed?: boolean;
   testId?: string;
 }
 
@@ -102,11 +104,13 @@ function ControlButton({
   icon: Icon,
   label,
   onPress,
+  pressed,
   testId,
 }: ControlButtonProps) {
   return (
     <button
       aria-expanded={expanded}
+      aria-pressed={pressed}
       className={className}
       data-testid={testId}
       onClick={onPress}
@@ -269,32 +273,38 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
               className="sazo-mobile-header-actions"
               role="group"
             >
-              <button aria-label={t("sazo.actions.language")} type="button">
-                <span aria-hidden>🇯🇵</span>
-              </button>
-              <button aria-label={t("sazo.navigation.search")} type="button">
-                <Search aria-hidden size={22} strokeWidth={2.2} />
-              </button>
+              {state.view === "home" ? null : (
+                <>
+                  <button aria-label={t("sazo.actions.language")} type="button">
+                    <span aria-hidden>🇯🇵</span>
+                  </button>
+                  <button aria-label={t("sazo.navigation.search")} type="button">
+                    <Search aria-hidden size={22} strokeWidth={2.2} />
+                  </button>
+                </>
+              )}
               <button aria-label={t("sazo.actions.cart")} type="button">
                 <ShoppingCart aria-hidden size={23} strokeWidth={2.2} />
               </button>
             </div>
           </div>
-          <nav
-            aria-label={t("sazo.navigation.mobileSecondaryLabel")}
-            className="sazo-mobile-secondary-nav"
-          >
-            {mobileSecondaryNavigation.map((item) => (
-              <NavigationButton
-                className="sazo-mobile-secondary-button"
-                dispatch={dispatch}
-                key={item.translationKey}
-                label={t(item.translationKey)}
-                state={state}
-                view={item.view}
-              />
-            ))}
-          </nav>
+          {state.view === "home" ? null : (
+            <nav
+              aria-label={t("sazo.navigation.mobileSecondaryLabel")}
+              className="sazo-mobile-secondary-nav"
+            >
+              {mobileSecondaryNavigation.map((item) => (
+                <NavigationButton
+                  className="sazo-mobile-secondary-button"
+                  dispatch={dispatch}
+                  key={item.translationKey}
+                  label={t(item.translationKey)}
+                  state={state}
+                  view={item.view}
+                />
+              ))}
+            </nav>
+          )}
         </header>
 
         <main className="sazo-main sazo-mobile-main" />
@@ -318,12 +328,15 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
             icon={Bell}
             label={t("sazo.navigation.notification")}
           />
-          <NavigationButton
-            dispatch={dispatch}
-            icon={Search}
-            label={t("sazo.navigation.search")}
-            state={state}
-            view="catalog"
+          <ControlButton
+            className="sazo-nav-button sazo-agent-nav-button"
+            expanded={state.overlay === "agent"}
+            icon={Sparkles}
+            label="エージェント"
+            onPress={() => {
+              dispatch({ type: "open-agent" });
+            }}
+            pressed={state.overlay === "agent"}
           />
           <NavigationButton
             dispatch={dispatch}
@@ -345,7 +358,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
               className="sazo-nav-button"
               expanded={loginExpanded}
               icon={UserRound}
-              label={t("sazo.actions.login")}
+              label={t("sazo.navigation.mypage")}
               onPress={() => {
                 dispatch({ type: "open-login" });
               }}

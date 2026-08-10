@@ -17,6 +17,7 @@ import { useSazoHero } from "@/sazo-commerce/useSazoHero";
 
 afterEach(() => {
   cleanup();
+  Reflect.deleteProperty(window, "matchMedia");
   vi.useRealTimers();
   vi.restoreAllMocks();
 });
@@ -195,6 +196,44 @@ describe("SAZO home composition", () => {
     expect(markup).toContain('aria-label="次のバナー"');
     expect(markup).toContain("1/5");
     expect(markup).toContain("¥3,799");
+  });
+
+  it("renders the captured mobile discovery and catalog sequence", async () => {
+    installReducedMotion(true);
+    const { container } = await renderHomePage();
+    const home = container.querySelector("[data-home-view]");
+    const mobileDiscovery = home?.querySelector("[data-mobile-home]");
+
+    expect(mobileDiscovery).not.toBeNull();
+    expect(
+      mobileDiscovery?.querySelectorAll("[data-mobile-shortcut-grid] button"),
+    ).toHaveLength(10);
+    expect(home?.querySelectorAll("[data-mobile-gift-fair]")).toHaveLength(4);
+    expect(
+      home?.querySelectorAll("[data-mobile-picks-grid] .sazo-product-card"),
+    ).toHaveLength(31);
+    includesInOrder(home?.textContent ?? "", [
+      "URL・画像・商品名をAIに相談",
+      "ブラジル最大級",
+      "利用者レビュー",
+      "MY GIFT FAIR",
+      "J-Planet GRAM",
+      "J-Planet's PICK",
+    ]);
+  });
+
+  it("opens the AI agent from the mobile home entry", async () => {
+    installReducedMotion(true);
+    await renderHomePage();
+
+    const agentEntry = screen.getByRole("button", {
+      name: "URL・画像・商品名をAIに相談",
+    });
+    fireEvent.click(agentEntry);
+
+    expect(
+      screen.getByRole("dialog", { name: "J-Planet AIエージェント" }),
+    ).toBeTruthy();
   });
 
   it("renders crisp pop J-Planet shortcut artwork", async () => {

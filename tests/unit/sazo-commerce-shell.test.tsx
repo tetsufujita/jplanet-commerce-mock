@@ -117,9 +117,29 @@ describe("SazoCommercePage shell", () => {
     ).toBe("true");
 
     expect(within(mobileNav).getAllByRole("button")).toHaveLength(5);
-    for (const label of ["ホーム", "通知", "検索", "お気に入り", "ログイン"]) {
+    for (const label of [
+      "ホーム",
+      "通知",
+      "エージェント",
+      "お気に入り",
+      "マイページ",
+    ]) {
       expect(within(mobileNav).getByRole("button", { name: label })).toBeTruthy();
     }
+  });
+
+  it("uses the captured mobile home header controls", async () => {
+    const { container } = await renderSazoCommercePage();
+    const mobileShell = getShell(container, "mobile");
+    const mobileHeader = within(mobileShell).getByRole("banner");
+
+    expect(within(mobileHeader).getByRole("button", { name: "カート" })).toBeTruthy();
+    expect(
+      within(mobileHeader).queryByRole("button", { name: "言語" }),
+    ).toBeNull();
+    expect(
+      within(mobileHeader).queryByRole("button", { name: "検索" }),
+    ).toBeNull();
   });
 
   it("groups the desktop search, icon actions, and navigation in one header card", async () => {
@@ -207,18 +227,18 @@ describe("SazoCommercePage shell", () => {
     expect(within(mobileShell).getByRole("banner")).toBeTruthy();
   });
 
-  it("dispatches catalog navigation from the mobile search control", async () => {
+  it("opens the agent overlay from the mobile agent control", async () => {
     const { container } = await renderSazoCommercePage();
     const root = container.querySelector<HTMLElement>(".sazo-root");
     const mobileNav = within(getShell(container, "mobile")).getByRole("navigation", {
       name: "モバイルメニュー",
     });
-    const search = within(mobileNav).getByRole("button", { name: "検索" });
+    const agent = within(mobileNav).getByRole("button", { name: "エージェント" });
 
-    fireEvent.click(search);
+    fireEvent.click(agent);
 
-    expect(root?.dataset.view).toBe("catalog");
-    expect(search.getAttribute("aria-pressed")).toBe("true");
+    expect(root?.dataset.overlay).toBe("agent");
+    expect(agent.getAttribute("aria-pressed")).toBe("true");
   });
 
   it("dispatches login and exposes the expanded overlay state", async () => {
@@ -227,7 +247,7 @@ describe("SazoCommercePage shell", () => {
     const mobileNav = within(getShell(container, "mobile")).getByRole("navigation", {
       name: "モバイルメニュー",
     });
-    const login = within(mobileNav).getByRole("button", { name: "ログイン" });
+    const login = within(mobileNav).getByRole("button", { name: "マイページ" });
 
     fireEvent.click(login);
 
@@ -267,7 +287,7 @@ describe("App route safety", () => {
       expect(container.querySelector(".sazo-root")).not.toBeNull();
     });
     expect(await screen.findAllByRole("button", { name: "人気ブランド" })).toHaveLength(
-      2,
+      1,
     );
   });
 
