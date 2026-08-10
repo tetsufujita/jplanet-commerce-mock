@@ -198,37 +198,47 @@ describe("SAZO home composition", () => {
     expect(markup).toContain("¥3,799");
   });
 
-  it("renders the captured mobile discovery and catalog sequence", async () => {
+  it("renders the SAZO mobile home hierarchy with J-Planet content", async () => {
     installReducedMotion(true);
     const { container } = await renderHomePage();
     const home = container.querySelector("[data-home-view]");
-    const mobileDiscovery = home?.querySelector("[data-mobile-home]");
 
-    expect(mobileDiscovery).not.toBeNull();
-    expect(
-      mobileDiscovery?.querySelectorAll("[data-mobile-shortcut-grid] button"),
-    ).toHaveLength(10);
-    expect(home?.querySelectorAll("[data-mobile-gift-fair]")).toHaveLength(4);
-    expect(
-      home?.querySelectorAll("[data-mobile-picks-grid] .sazo-product-card"),
-    ).toHaveLength(31);
+    expect(home?.querySelectorAll(".sazo-shortcuts .sazo-shortcut")).toHaveLength(5);
+    expect(home?.querySelector("[data-mobile-shortcut-grid]")).toBeNull();
     includesInOrder(home?.textContent ?? "", [
-      "URL・画像・商品名をAIに相談",
+      "何を注文しますか？",
+      "J-Planet特集",
       "ブラジル最大級",
+      "気になっているアイテム",
       "利用者レビュー",
       "MY GIFT FAIR",
       "J-Planet GRAM",
       "J-Planet's PICK",
     ]);
+
+    const selectors = [
+      "[data-testid='sazo-hero']",
+      "[data-mobile-agent-search]",
+      ".sazo-shortcuts",
+      ".sazo-home-intro",
+      ".sazo-interested-items",
+    ];
+    const elements = selectors.map((selector) => home?.querySelector(selector));
+
+    expect(elements.every(Boolean)).toBe(true);
+    for (let index = 1; index < elements.length; index += 1) {
+      expect(
+        elements[index - 1]?.compareDocumentPosition(elements[index] as Node) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    }
   });
 
   it("opens the AI agent from the mobile home entry", async () => {
     installReducedMotion(true);
     await renderHomePage();
 
-    const agentEntry = screen.getByRole("button", {
-      name: "URL・画像・商品名をAIに相談",
-    });
+    const agentEntry = screen.getByRole("button", { name: "何を注文しますか？" });
     fireEvent.click(agentEntry);
 
     expect(
@@ -237,9 +247,9 @@ describe("SAZO home composition", () => {
   });
 
   it.each([
-    ["ja", "URL・画像・商品名をAIに相談"],
-    ["en", "Ask AI about a URL, image, or product name"],
-    ["pt-BR", "Consulte a IA com URL, imagem ou nome do produto"],
+    ["ja", "何を注文しますか？"],
+    ["en", "何を注文しますか？"],
+    ["pt-BR", "何を注文しますか？"],
   ] as const)("localizes the mobile agent entry for %s", async (locale, label) => {
     installReducedMotion(true);
     await renderHomePage(locale);

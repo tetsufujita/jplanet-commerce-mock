@@ -5,7 +5,6 @@ import {
   Camera,
   ChevronLeft,
   ChevronRight,
-  ImagePlus,
   MessageCircle,
   Pause,
   Play,
@@ -49,19 +48,6 @@ interface SectionHeadingProps {
   onMore?: () => void;
   title: string;
 }
-
-const mobileShortcutItems = [
-  { glyph: "💎", id: "sale", label: "特価" },
-  { glyph: "🏷️", id: "limited", label: "限定" },
-  { glyph: "🏆", id: "ranking", label: "ランキング" },
-  { glyph: "💬", id: "reviews", label: "レビュー" },
-  { glyph: "🛒", id: "flea-market", label: "フリマ" },
-  { glyph: "🛍️", id: "brands", label: "ブランド" },
-  { glyph: "💄", id: "cosmetics", label: "化粧品" },
-  { glyph: "🎤", id: "hobby", label: "趣味" },
-  { glyph: "📱", id: "electronics", label: "家電" },
-  { glyph: "🍪", id: "food", label: "食品" },
-] as const;
 
 function requiredProduct(list: readonly Product[], index: number) {
   const product = list[index];
@@ -308,10 +294,6 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
         </div>
       </div>
 
-      <div className="sazo-hero-search" role="search">
-        <Search aria-hidden size={25} strokeWidth={2.1} />
-        <span>{t("sazo.home.mobileSearchPlaceholder")}</span>
-      </div>
     </section>
   );
 }
@@ -412,35 +394,25 @@ function HomeIntro() {
   );
 }
 
-function MobileDiscoveryTop({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+function MobileAgentSearch({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
+  const label = t("sazo.home.mobileSearchPlaceholder");
 
   return (
-    <section className="sazo-mobile-discovery" data-mobile-home>
+    <div className="sazo-mobile-search-overlap" data-mobile-home>
       <button
-        aria-label={t("sazo.agent.launcher")}
+        aria-label={label}
         className="sazo-mobile-search-pill sazo-mobile-agent-entry"
+        data-mobile-agent-search
         onClick={() => {
           dispatch({ type: "open-agent" });
         }}
         type="button"
       >
-        <Sparkles aria-hidden size={22} strokeWidth={2} />
-        <span className="sazo-mobile-agent-badge">AI</span>
-        <span>{t("sazo.agent.launcher")}</span>
-        <ImagePlus aria-hidden size={20} strokeWidth={1.9} />
+        <Search aria-hidden size={25} strokeWidth={2.1} />
+        <span>{label}</span>
       </button>
-      <div className="sazo-mobile-shortcut-grid" data-mobile-shortcut-grid>
-        {mobileShortcutItems.map((item) => (
-          <button aria-label={item.label} key={item.id} type="button">
-            <span aria-hidden className="sazo-mobile-shortcut-art">
-              {item.glyph}
-            </span>
-            <span>{item.label}</span>
-          </button>
-        ))}
-      </div>
-    </section>
+    </div>
   );
 }
 
@@ -798,9 +770,11 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
     <div className="sazo-home" data-home-view>
       {mobileHome ? (
         <>
-          <MobileDiscoveryTop dispatch={dispatch} />
           <HeroCarousel dispatch={dispatch} state={{ ...state, heroFeed: "large-first" }} />
+          <MobileAgentSearch dispatch={dispatch} />
+          <ShortcutRow />
           <HomeIntro />
+          <InterestedItemsRail dispatch={dispatch} />
           <ReviewStrip dispatch={dispatch} state={state} title="利用者レビュー" />
           <MobileGiftFair dispatch={dispatch} />
           <MobileGramGrid dispatch={dispatch} />
