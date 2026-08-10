@@ -44,7 +44,7 @@ try {
     await page.locator("[data-mobile-picks-grid] .sazo-product-card").count(),
     31,
   );
-  assert(navigation.height >= 74);
+  assert(Math.abs(navigation.height - 76) < 2);
   assert.equal(await page.getByRole("button", { name: "エージェント" }).count(), 1);
   assert.equal(
     await page.getByRole("button", { name: "URL・画像・商品名をAIに相談" }).count(),
