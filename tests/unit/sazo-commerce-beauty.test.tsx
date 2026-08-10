@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 import React from "react";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -55,7 +57,10 @@ describe("J-Planet BEAUTY fixtures", () => {
 
     const input = screen.getByRole("searchbox", { name: "BEAUTYの商品を検索" });
     fireEvent.change(input, { target: { value: "美容液" } });
-    fireEvent.submit(input.closest("form")!);
+    const form = input.closest("form");
+    expect(form).not.toBeNull();
+    if (form === null) return;
+    fireEvent.submit(form);
 
     expect((input as HTMLInputElement).value).toBe("美容液");
     expect(dispatch).not.toHaveBeenCalledWith({ type: "open-agent" });
@@ -88,7 +93,10 @@ describe("J-Planet BEAUTY fixtures", () => {
 
     const input = screen.getByRole("searchbox", { name: "BEAUTYの商品を検索" });
     fireEvent.change(input, { target: { value: "__該当なし__" } });
-    fireEvent.submit(input.closest("form")!);
+    const form = input.closest("form");
+    expect(form).not.toBeNull();
+    if (form === null) return;
+    fireEvent.submit(form);
     expect(screen.getByText("該当する商品がありません")).toBeTruthy();
     expect(screen.getByRole("searchbox", { name: "BEAUTYの商品を検索" })).toBeTruthy();
   });
@@ -113,5 +121,17 @@ describe("J-Planet BEAUTY fixtures", () => {
     await waitFor(() => {
     expect(screen.getByTestId("sazo-beauty-image-fallback")).toBeTruthy();
     });
+  });
+
+  it("keeps the recorded mobile geometry contract in the authoritative stylesheet", () => {
+    const css = readFileSync(join(process.cwd(), "src/sazo-commerce/sazo.css"), "utf8");
+
+    expect(css).toContain('.sazo-root[data-view="beauty"] .sazo-beauty-header');
+    expect(css).toContain("position: fixed");
+    expect(css).toContain("--sazo-beauty-green: #63df16");
+    expect(css).toContain("grid-auto-columns: calc((100% - 16px) / 3)");
+    expect(css).toContain("overflow-x: auto");
+    expect(css).toContain("touch-action: pan-y");
+    expect(css).toContain('.sazo-root[data-view="beauty"] .sazo-beauty-search:focus-within');
   });
 });
