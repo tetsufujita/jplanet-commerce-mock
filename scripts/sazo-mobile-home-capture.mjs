@@ -74,14 +74,22 @@ async function inspectBottomNavigation(page, expectedWidth) {
 }
 
 async function inspectMobileHomeGeometry(page, expectedWidth) {
-  const header = await page.locator(".sazo-mobile-header").boundingBox();
+  const headerLocator = page.locator(".sazo-mobile-header");
+  const header = await headerLocator.boundingBox();
   const primary = await page.locator(".sazo-mobile-header-primary").boundingBox();
   const secondary = await page.locator(".sazo-mobile-secondary-nav").boundingBox();
   const hero = await page.locator(".sazo-hero-viewport").boundingBox();
-  const search = await page.locator("[data-mobile-agent-search]").boundingBox();
+  const searchLocator = page.locator("[data-mobile-agent-search]");
+  const search = await searchLocator.boundingBox();
+  const searchLabel = await searchLocator
+    .locator("> span:not(.sazo-mobile-agent-badge)")
+    .boundingBox();
   const shortcuts = await page.locator(".sazo-shortcuts").boundingBox();
   const intro = await page.locator(".sazo-home-intro").boundingBox();
   const interested = await page.locator(".sazo-interested-items").boundingBox();
+  const languageButton = page.locator(
+    ".sazo-mobile-header-actions button:first-child",
+  );
   const secondaryNavigation = page.getByRole("navigation", {
     exact: true,
     name: "モバイルサブメニュー",
@@ -91,8 +99,20 @@ async function inspectMobileHomeGeometry(page, expectedWidth) {
     name: "ホーム",
   });
 
-  assert(header && primary && secondary && hero && search && shortcuts && intro && interested);
-  assert(header.height >= 120 && header.height <= 132);
+  assert(
+    header &&
+      primary &&
+      secondary &&
+      hero &&
+      search &&
+      searchLabel &&
+      shortcuts &&
+      intro &&
+      interested,
+  );
+  assert(Math.abs(header.height - 98) <= 2);
+  assert(Math.abs(primary.height - 56) <= 2);
+  assert(Math.abs(secondary.height - 42) <= 2);
   assert(Math.abs(header.height - primary.height - secondary.height) < 2);
   assert.equal(await secondaryNavigation.getByRole("button").count(), 5);
   assert.equal(await selectedHome.getAttribute("aria-pressed"), "true");
@@ -122,9 +142,51 @@ async function inspectMobileHomeGeometry(page, expectedWidth) {
     selectedHomeColors.background,
     4.5,
   );
+  const headerSurface = await headerLocator.evaluate((element) => {
+    const style = getComputedStyle(element);
+
+    return {
+      borderBottomLeftRadius: Number.parseFloat(style.borderBottomLeftRadius),
+      borderBottomRightRadius: Number.parseFloat(style.borderBottomRightRadius),
+      boxShadow: style.boxShadow,
+      boxShadowAlpha: Number(
+        style.boxShadow.match(/\/\s*([\d.]+)\)/)?.[1] ?? "1",
+      ),
+    };
+  });
+  const languageUnderline = await languageButton.evaluate((element) => {
+    const style = getComputedStyle(element, "::after");
+
+    return {
+      height: Number.parseFloat(style.height),
+      width: Number.parseFloat(style.width),
+    };
+  });
+  assert(headerSurface.borderBottomLeftRadius >= 16);
+  assert(headerSurface.borderBottomLeftRadius <= 18);
+  assert(headerSurface.borderBottomRightRadius >= 16);
+  assert(headerSurface.borderBottomRightRadius <= 18);
+  assert.notEqual(headerSurface.boxShadow, "none");
+  assert(headerSurface.boxShadowAlpha >= 0.05);
+  assert(headerSurface.boxShadowAlpha <= 0.1);
+  assert(Math.abs(languageUnderline.width - 18) <= 1);
+  assert(Math.abs(languageUnderline.height - 2) <= 1);
   assert(Math.abs(hero.y - (header.y + header.height)) < 2);
+  assert(Math.abs(hero.y - 99) <= 2);
+  if (expectedWidth === 440) {
+    assert(Math.abs(hero.height - 220) <= 2);
+    assert(search.y >= 288 && search.y <= 292);
+    assert(Math.abs(search.height - 48) <= 1);
+    assert(shortcuts.y >= 364 && shortcuts.y <= 371);
+    assert(intro.y >= 499 && intro.y <= 511);
+  }
   const searchOverlapRatio = (hero.y + hero.height - search.y) / search.height;
-  assert(Math.abs(searchOverlapRatio - 0.5) <= 0.1);
+  assert(Math.abs(searchOverlapRatio - 0.6) <= 0.08);
+  assert(
+    Math.abs(
+      searchLabel.x + searchLabel.width / 2 - (search.x + search.width / 2),
+    ) <= 3,
+  );
   assert(hero.y < search.y);
   assert(search.y < shortcuts.y);
   assert(shortcuts.y < intro.y);
@@ -138,15 +200,18 @@ async function inspectMobileHomeGeometry(page, expectedWidth) {
 
   return {
     header,
+    headerSurface,
     hero,
     interested,
     intro,
     primary,
     search,
+    searchLabel,
     searchOverlapRatio,
     secondary,
     selectedHomeColors,
     shortcuts,
+    languageUnderline,
   };
 }
 
