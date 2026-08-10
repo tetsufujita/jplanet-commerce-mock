@@ -2,6 +2,45 @@ import assert from "node:assert/strict";
 import { chromium } from "@playwright/test";
 import { createServer } from "vite";
 
+function parseCssRgb(color) {
+  const channels = color.match(/[\d.]+/g)?.slice(0, 3).map(Number);
+
+  assert(channels && channels.length === 3, `Expected an RGB color, received ${color}`);
+  return channels;
+}
+
+function relativeLuminance(color) {
+  const [red, green, blue] = parseCssRgb(color).map((channel) => {
+    const normalized = channel / 255;
+
+    return normalized <= 0.04045
+      ? normalized / 12.92
+      : ((normalized + 0.055) / 1.055) ** 2.4;
+  });
+
+  return 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+}
+
+function contrastRatio(foreground, background) {
+  const foregroundLuminance = relativeLuminance(foreground);
+  const backgroundLuminance = relativeLuminance(background);
+  const lighter = Math.max(foregroundLuminance, backgroundLuminance);
+  const darker = Math.min(foregroundLuminance, backgroundLuminance);
+
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function assertContrastAtLeast(label, foreground, background, minimum) {
+  const ratio = contrastRatio(foreground, background);
+
+  assert(
+    ratio >= minimum,
+    `${label} contrast ${ratio.toFixed(2)}:1 is below ${minimum}:1 (${foreground} on ${background})`,
+  );
+
+  return ratio;
+}
+
 const server = await createServer({
   logLevel: "error",
   server: { host: "127.0.0.1", port: 0 },
@@ -135,6 +174,82 @@ try {
   assert.equal(await hub.locator(".sazo-agent-hub-ranked-row").count(), 20);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 440);
 
+  const hubContrastColors = await hub.evaluate((element) => {
+    const getColors = (selector) => {
+      const target = element.querySelector(selector);
+
+      if (!(target instanceof HTMLElement)) {
+        throw new Error(`Missing contrast target: ${selector}`);
+      }
+
+      const style = getComputedStyle(target);
+
+      return {
+        background: style.backgroundColor,
+        foreground: style.color,
+      };
+    };
+    const surface = getComputedStyle(element).backgroundColor;
+
+    return {
+      brand: getColors('[data-section="popular-topics"] > p'),
+      clear: getColors('[data-section="consultations"] > header > button'),
+      rank: getColors(
+        ".sazo-agent-hub-ranked-row:first-child > button > span:first-child",
+      ),
+      surface,
+    };
+  });
+  const hubContrastRatios = {
+    brand: assertContrastAtLeast(
+      "Agent hub brand text",
+      hubContrastColors.brand.foreground,
+      hubContrastColors.surface,
+      4.5,
+    ),
+    clear: assertContrastAtLeast(
+      "Agent hub clear icon",
+      hubContrastColors.clear.foreground,
+      hubContrastColors.clear.background,
+      3,
+    ),
+    rank: assertContrastAtLeast(
+      "Agent hub top rank text",
+      hubContrastColors.rank.foreground,
+      hubContrastColors.surface,
+      4.5,
+    ),
+  };
+
+  await page.keyboard.press("Tab");
+  await hub.locator(".sazo-agent-hub-header > button:first-child").focus();
+  const focusVisible = hub.locator(":focus-visible");
+  assert.equal(await focusVisible.count(), 1);
+  const focusColors = await focusVisible.evaluate((element) => {
+    const style = getComputedStyle(element);
+    const parentStyle = getComputedStyle(element.parentElement ?? element);
+
+    return {
+      background: parentStyle.backgroundColor,
+      foreground: style.outlineColor,
+      style: style.outlineStyle,
+      width: style.outlineWidth,
+    };
+  });
+  assert.notEqual(focusColors.style, "none");
+  assert(parseFloat(focusColors.width) >= 3);
+  hubContrastRatios.focus = assertContrastAtLeast(
+    "Agent hub focus outline",
+    focusColors.foreground,
+    focusColors.background,
+    3,
+  );
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  });
+
   const hubProductImages = hub.locator(".sazo-agent-hub-product-card img");
   assert.equal(await hubProductImages.count(), 3);
   await page.waitForFunction(() =>
@@ -255,6 +370,8 @@ try {
       hero,
       hubHeader,
       hubNavigation,
+      hubContrastColors,
+      hubContrastRatios,
       compactLauncherGeometry,
       navigation,
       search,
