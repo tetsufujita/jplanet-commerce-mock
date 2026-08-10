@@ -69,6 +69,44 @@ async function inspectBottomNavigation(page, expectedWidth) {
   return { chatBox, navigationBox };
 }
 
+async function inspectMobileHomeGeometry(page, expectedWidth) {
+  const header = await page.locator(".sazo-mobile-header").boundingBox();
+  const primary = await page.locator(".sazo-mobile-header-primary").boundingBox();
+  const secondary = await page.locator(".sazo-mobile-secondary-nav").boundingBox();
+  const hero = await page.locator(".sazo-hero-viewport").boundingBox();
+  const search = await page.locator("[data-mobile-agent-search]").boundingBox();
+  const shortcuts = await page.locator(".sazo-shortcuts").boundingBox();
+  const intro = await page.locator(".sazo-home-intro").boundingBox();
+  const interested = await page.locator(".sazo-interested-items").boundingBox();
+
+  assert(header && primary && secondary && hero && search && shortcuts && intro && interested);
+  assert(header.height >= 120 && header.height <= 132);
+  assert(Math.abs(header.height - primary.height - secondary.height) < 2);
+  assert.equal(await page.locator(".sazo-mobile-secondary-button").count(), 5);
+  assert.equal(
+    await page
+      .locator(".sazo-mobile-secondary-button")
+      .first()
+      .getAttribute("aria-pressed"),
+    "true",
+  );
+  assert(Math.abs(hero.y - (header.y + header.height)) < 2);
+  assert(search.y < hero.y + hero.height);
+  assert(search.y + search.height / 2 > hero.y + hero.height);
+  assert(hero.y < search.y);
+  assert(search.y < shortcuts.y);
+  assert(shortcuts.y < intro.y);
+  assert(intro.y < interested.y);
+  assert.equal(await page.locator(".sazo-shortcuts .sazo-shortcut").count(), 5);
+  assert(
+    Math.abs(
+      (await page.evaluate(() => document.documentElement.scrollWidth)) - expectedWidth,
+    ) <= 1,
+  );
+
+  return { header, hero, interested, intro, primary, search, secondary, shortcuts };
+}
+
 const server = await createServer({
   logLevel: "error",
   server: { host: "127.0.0.1", port: 0 },
@@ -109,20 +147,10 @@ try {
   await page.locator("[data-mobile-home]").waitFor();
   await page.evaluate(async () => document.fonts.ready);
 
-  const header = await page.locator(".sazo-mobile-header").boundingBox();
-  const search = await page.locator(".sazo-mobile-search-pill").boundingBox();
-  const shortcuts = await page.locator(".sazo-mobile-shortcut-grid").boundingBox();
-  const hero = await page.locator(".sazo-hero-viewport").boundingBox();
+  const mobileHomeGeometry = await inspectMobileHomeGeometry(page, 440);
   const navigation = await page.locator(".sazo-mobile-nav").boundingBox();
 
-  assert(header && search && shortcuts && hero && navigation);
-  assert(Math.abs(header.height - 84) < 2);
-  assert(Math.abs(search.width - 416) < 2);
-  assert(Math.abs(search.height - 50) < 2);
-  assert.equal(
-    await page.locator("[data-mobile-shortcut-grid] button").count(),
-    10,
-  );
+  assert(navigation);
   assert.equal(await page.locator("[data-mobile-gift-fair]").count(), 4);
   assert.equal(
     await page.locator("[data-mobile-picks-grid] .sazo-product-card").count(),
@@ -159,12 +187,10 @@ try {
   assert(Math.abs(navigation.height - 76) < 2);
   const mobileBottomNavigation = await inspectBottomNavigation(page, 440);
   assert.equal(await page.getByRole("button", { name: "エージェント" }).count(), 1);
-  assert.equal(
-    await page.getByRole("button", { name: "URL・画像・商品名をAIに相談" }).count(),
-    1,
-  );
+  const mobileAgentSearch = page.locator("[data-mobile-agent-search]");
+  assert.equal(await mobileAgentSearch.count(), 1);
 
-  await page.getByRole("button", { name: "URL・画像・商品名をAIに相談" }).click();
+  await mobileAgentSearch.click();
   const agent = page.getByRole("dialog", { name: "J-Planet AIエージェント" });
   await agent.waitFor();
   await page.screenshot({
@@ -177,7 +203,7 @@ try {
   await page.screenshot({
     animations: "disabled",
     caret: "hide",
-    path: "/tmp/jplanet-mobile-home-top.png",
+    path: "/tmp/jplanet-mobile-home-440x956.png",
   });
   await page.screenshot({
     animations: "disabled",
@@ -400,6 +426,7 @@ try {
 
   await compactPage.goto(url, { waitUntil: "networkidle" });
   await compactPage.locator("[data-mobile-home]").waitFor();
+  const compactHomeGeometry = await inspectMobileHomeGeometry(compactPage, 341);
   const compactBottomNavigation = await inspectBottomNavigation(compactPage, 341);
   assert.equal(
     await compactPage.evaluate(() => document.documentElement.scrollWidth),
@@ -442,18 +469,38 @@ try {
   });
   await compactPage.close();
 
+  const largeMobilePage = await browser.newPage({
+    deviceScaleFactor: 1,
+    viewport: { height: 1472, width: 676 },
+  });
+  await largeMobilePage.goto(url, { waitUntil: "networkidle" });
+  await largeMobilePage.locator("[data-mobile-home]").waitFor();
+  const largeMobileHomeGeometry = await inspectMobileHomeGeometry(largeMobilePage, 676);
+  await inspectBottomNavigation(largeMobilePage, 676);
+  await largeMobilePage.screenshot({
+    animations: "disabled",
+    caret: "hide",
+    path: "/tmp/jplanet-mobile-home-676x1472.png",
+  });
+  await largeMobilePage.close();
+
   const desktopBoundaryPage = await browser.newPage({
     deviceScaleFactor: 1,
-    viewport: { height: 956, width: 900 },
+    viewport: { height: 900, width: 900 },
   });
   await desktopBoundaryPage.goto(url, { waitUntil: "networkidle" });
   await desktopBoundaryPage.locator("[data-home-view]").waitFor();
   assert.equal(await desktopBoundaryPage.locator(".sazo-mobile-nav").boundingBox(), null);
+  await desktopBoundaryPage.screenshot({
+    animations: "disabled",
+    caret: "hide",
+    path: "/tmp/jplanet-mobile-home-900x900.png",
+  });
   await desktopBoundaryPage.close();
 
   const desktopPage = await browser.newPage({
     deviceScaleFactor: 1,
-    viewport: { height: 828, width: 1511 },
+    viewport: { height: 900, width: 1511 },
   });
 
   await desktopPage.goto(url, { waitUntil: "networkidle" });
@@ -464,24 +511,23 @@ try {
   await desktopPage.screenshot({
     animations: "disabled",
     caret: "hide",
-    path: "/tmp/jplanet-desktop-home-regression.png",
+    path: "/tmp/jplanet-desktop-home-1511x900.png",
   });
   await desktopPage.close();
 
   process.stdout.write(
     `${JSON.stringify({
-      header,
-      hero,
+      compactHomeGeometry,
       hubHeader,
       hubNavigation,
       hubContrastColors,
       hubContrastRatios,
+      largeMobileHomeGeometry,
       mobileBottomNavigation,
       compactLauncherGeometry,
       compactBottomNavigation,
       navigation,
-      search,
-      shortcuts,
+      mobileHomeGeometry,
       tabletBottomNavigation,
       url,
     })}\n`,
