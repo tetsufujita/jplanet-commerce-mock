@@ -2,22 +2,44 @@
 
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createI18n } from "@/i18n/createI18n";
 import { MobileAgentHubView } from "@/sazo-commerce/MobileAgentHubView";
+import type { AgentEntryIntent } from "@/sazo-commerce/model";
+
+const originalScrollIntoView = Object.getOwnPropertyDescriptor(
+  HTMLElement.prototype,
+  "scrollIntoView",
+);
+
+beforeEach(() => {
+  Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+    configurable: true,
+    value: vi.fn(),
+    writable: true,
+  });
+});
 
 afterEach(() => {
   cleanup();
+  Reflect.deleteProperty(HTMLElement.prototype, "scrollIntoView");
+  if (originalScrollIntoView !== undefined) {
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", originalScrollIntoView);
+  }
 });
 
-async function renderHub(locale: "ja" | "en" | "pt-BR" = "ja", dispatch = vi.fn()) {
+async function renderHub(
+  locale: "ja" | "en" | "pt-BR" = "ja",
+  dispatch = vi.fn(),
+  entryIntent: AgentEntryIntent | null = null,
+) {
   const i18n = await createI18n(locale);
 
   return {
     dispatch,
     ...render(
       <I18nextProvider i18n={i18n}>
-        <MobileAgentHubView dispatch={dispatch} />
+        <MobileAgentHubView dispatch={dispatch} entryIntent={entryIntent} />
       </I18nextProvider>,
     ),
   };
@@ -31,7 +53,13 @@ describe("MobileAgentHubView", () => {
       screen
         .getAllByTestId("agent-hub-section")
         .map((section) => section.dataset.section),
-    ).toEqual(["consultations", "recent-products", "popular-topics", "footer"]);
+    ).toEqual([
+      "composer",
+      "consultations",
+      "recent-products",
+      "popular-topics",
+      "footer",
+    ]);
     expect(screen.getByText("最近の相談")).toBeTruthy();
     expect(screen.getByText("最近見た商品")).toBeTruthy();
     expect(screen.getByText("J-Planet AI")).toBeTruthy();
@@ -60,9 +88,9 @@ describe("MobileAgentHubView", () => {
     fireEvent.click(home);
     fireEvent.click(cart);
 
-    expect(dispatch).toHaveBeenNthCalledWith(1, { type: "open-agent" });
-    expect(dispatch).toHaveBeenNthCalledWith(2, { type: "navigate", view: "home" });
-    expect(dispatch).toHaveBeenCalledTimes(2);
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "home" });
+    expect(dispatch).not.toHaveBeenCalledWith({ type: "open-agent" });
+    expect(dispatch).toHaveBeenCalledTimes(1);
   });
 
   it("exposes stable hooks for the mobile hub layout", async () => {
@@ -86,7 +114,7 @@ describe("MobileAgentHubView", () => {
     expect(container.querySelector(".sazo-agent-hub-footer")).not.toBeNull();
   });
 
-  it("dispatches shared agent, home, product, and catalog actions", async () => {
+  it("dispatches home and product actions while seeding the composer from ranked topics", async () => {
     const dispatch = vi.fn();
     await renderHub("ja", dispatch);
 
@@ -101,18 +129,28 @@ describe("MobileAgentHubView", () => {
     fireEvent.click(firstProductButton);
     fireEvent.click(screen.getByRole("button", { name: "1位 アニメグッズ" }));
 
-    expect(dispatch).toHaveBeenNthCalledWith(1, { type: "open-agent" });
-    expect(dispatch).toHaveBeenNthCalledWith(2, { type: "navigate", view: "home" });
-    expect(dispatch).toHaveBeenNthCalledWith(3, {
+    expect(dispatch).toHaveBeenNthCalledWith(1, { type: "navigate", view: "home" });
+    expect(dispatch).toHaveBeenNthCalledWith(2, {
       type: "open-product",
       // Vitest's asymmetric matcher is intentionally typed as any.
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       productId: expect.any(String),
     });
-    expect(dispatch).toHaveBeenNthCalledWith(4, {
-      type: "navigate",
-      view: "catalog",
-    });
+    expect(dispatch).not.toHaveBeenCalledWith({ type: "open-agent" });
+    expect(dispatch).toHaveBeenCalledTimes(2);
+    expect(
+      screen.getByRole("button", { name: "商品名で相談" }).getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(screen.getByRole<HTMLTextAreaElement>("textbox", { name: "探したい商品" }).value).toBe(
+      "アニメグッズ",
+    );
+  });
+
+  it("consumes the image picker intent through the embedded composer", async () => {
+    const dispatch = vi.fn();
+    await renderHub("ja", dispatch, "image-picker");
+
+    expect(dispatch).toHaveBeenCalledWith({ type: "consume-agent-entry-intent" });
   });
 
   it("clears only the requested transient section", async () => {

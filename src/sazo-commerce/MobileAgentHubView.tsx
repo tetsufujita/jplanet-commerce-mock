@@ -1,4 +1,4 @@
-import { useState, type Dispatch } from "react";
+import { useRef, useState, type Dispatch } from "react";
 import { ArrowLeft, ShoppingCart, Sparkles, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -6,16 +6,24 @@ import {
   agentHubRecentConsultations,
   agentHubRecentProducts,
 } from "@/sazo-commerce/agentHubFixtures";
-import type { SazoAction } from "@/sazo-commerce/model";
+import { MobileAgentComposer } from "@/sazo-commerce/MobileAgentComposer";
+import type { AgentEntryIntent, SazoAction } from "@/sazo-commerce/model";
 
 export interface MobileAgentHubViewProps {
   dispatch: Dispatch<SazoAction>;
+  entryIntent: AgentEntryIntent | null;
 }
 
-export function MobileAgentHubView({ dispatch }: MobileAgentHubViewProps) {
+export function MobileAgentHubView({ dispatch, entryIntent }: MobileAgentHubViewProps) {
   const { t } = useTranslation();
+  const composerRef = useRef<HTMLDivElement>(null);
+  const [seedProductName, setSeedProductName] = useState<string | null>(null);
   const [showConsultations, setShowConsultations] = useState(true);
   const [showProducts, setShowProducts] = useState(true);
+
+  const focusComposer = () => {
+    composerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const navigateHome = () => {
     dispatch({ type: "navigate", view: "home" });
@@ -32,7 +40,7 @@ export function MobileAgentHubView({ dispatch }: MobileAgentHubViewProps) {
           aria-label={t("sazo.agentHub.launcherLabel")}
           className="sazo-agent-hub-launcher"
           onClick={() => {
-            dispatch({ type: "open-agent" });
+            focusComposer();
           }}
           type="button"
         >
@@ -50,6 +58,17 @@ export function MobileAgentHubView({ dispatch }: MobileAgentHubViewProps) {
           <ShoppingCart aria-hidden size={20} />
         </button>
       </header>
+
+      <section data-section="composer" data-testid="agent-hub-section">
+        <MobileAgentComposer
+          entryIntent={entryIntent}
+          onEntryIntentConsumed={() => {
+            dispatch({ type: "consume-agent-entry-intent" });
+          }}
+          ref={composerRef}
+          seedProductName={seedProductName}
+        />
+      </section>
 
       <section data-section="consultations" data-testid="agent-hub-section">
         <header>
@@ -127,7 +146,8 @@ export function MobileAgentHubView({ dispatch }: MobileAgentHubViewProps) {
                 <button
                   aria-label={rankedTopic}
                   onClick={() => {
-                    dispatch({ type: "navigate", view: "catalog" });
+                    setSeedProductName(topic);
+                    requestAnimationFrame(focusComposer);
                   }}
                   type="button"
                 >

@@ -56,17 +56,9 @@ function stateWithCatalogMode(mode: CatalogMode): SazoState {
   return { ...createInitialSazoState(), catalogMode: mode, view: "catalog" };
 }
 
-function openAgentCatalog() {
-  fireEvent.click(
-    screen.getByRole("button", { name: "何を注文しますか？" }),
-  );
-
-  const agent = screen.getByRole("dialog", { name: "J-Planet AIエージェント" });
-  expect(agent).toBeTruthy();
-  fireEvent.change(within(agent).getByRole("textbox"), {
-    target: { value: "日本限定スニーカー" },
-  });
-  fireEvent.click(within(agent).getByRole("button", { name: "AIに探してもらう" }));
+function openCatalogFromCategoryDirectory(navigation: HTMLElement, category: string) {
+  fireEvent.click(within(navigation).getByRole("button", { name: "カテゴリー" }));
+  fireEvent.click(screen.getByRole("button", { name: category }));
 }
 
 describe("SAZO captured view contracts", () => {
@@ -392,7 +384,7 @@ describe("SAZO captured view contracts", () => {
       container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
     ).getByRole("navigation", { name: "メインメニュー" });
 
-    openAgentCatalog();
+    openCatalogFromCategoryDirectory(desktopNav, "ベースメイク");
     fireEvent.click(screen.getByRole("button", { name: "グリッド表示" }));
     expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(1);
     expect(
@@ -400,7 +392,7 @@ describe("SAZO captured view contracts", () => {
     ).toBe("grid");
 
     fireEvent.click(within(desktopNav).getByRole("button", { name: "ホーム" }));
-    openAgentCatalog();
+    openCatalogFromCategoryDirectory(desktopNav, "ベースメイク");
 
     expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(1);
     expect(
@@ -435,6 +427,7 @@ describe("SAZO captured view contracts", () => {
     );
     expect(agent.getAttribute("aria-pressed")).toBe("true");
     expect(screen.queryByRole("dialog", { name: "J-Planet AIエージェント" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "J-Planet AIエージェント" })).toBeTruthy();
   });
 
   it("filters the brand inventory from its active control", async () => {
@@ -498,8 +491,11 @@ describe("SAZO captured view contracts", () => {
   it("filters catalog products with an active chip", async () => {
     installMobileHome();
     const { container } = await renderWithI18n(<SazoCommercePage />);
+    const desktopNav = within(
+      container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
+    ).getByRole("navigation", { name: "メインメニュー" });
 
-    openAgentCatalog();
+    openCatalogFromCategoryDirectory(desktopNav, "スキンケア");
     const initialCount = container.querySelectorAll(
       ".sazo-catalog-products .sazo-product-card",
     ).length;

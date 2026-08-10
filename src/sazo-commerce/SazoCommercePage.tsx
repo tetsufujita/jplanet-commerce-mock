@@ -93,7 +93,7 @@ export function SazoCommercePage() {
         <SazoShell dispatch={dispatch} state={state}>
           {state.view === "home" ? <HomeView dispatch={dispatch} state={state} /> : null}
           {state.view === "agent-hub" ? (
-            <MobileAgentHubView dispatch={dispatch} />
+            <MobileAgentHubView dispatch={dispatch} entryIntent={state.agentEntryIntent} />
           ) : null}
           {state.view === "campaign" ? (
             <CampaignView dispatch={dispatch} loaded={state.campaignLoaded} />
