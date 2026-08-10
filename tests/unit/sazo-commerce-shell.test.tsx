@@ -241,6 +241,17 @@ describe("SazoCommercePage shell", () => {
     expect(agent.getAttribute("aria-pressed")).toBe("true");
   });
 
+  it.each([
+    ["ja", "エージェント"],
+    ["en", "Agent"],
+    ["pt-BR", "Agente"],
+  ] as const)("localizes the mobile agent navigation for %s", async (locale, label) => {
+    const { container } = await renderSazoCommercePage(locale);
+    const mobileNav = within(getShell(container, "mobile")).getByRole("navigation");
+
+    expect(within(mobileNav).getByRole("button", { name: label })).toBeTruthy();
+  });
+
   it("dispatches login and exposes the expanded overlay state", async () => {
     const { container } = await renderSazoCommercePage();
     const root = container.querySelector<HTMLElement>(".sazo-root");

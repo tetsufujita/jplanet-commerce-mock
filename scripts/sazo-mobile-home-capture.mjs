@@ -20,6 +20,23 @@ try {
     deviceScaleFactor: 1,
     viewport: { height: 956, width: 440 },
   });
+  const failedPickResponses = [];
+
+  page.on("requestfailed", (request) => {
+    if (new URL(request.url()).pathname.startsWith("/sazo-commerce/mobile-picks/")) {
+      failedPickResponses.push(
+        `${request.url()}: ${request.failure()?.errorText ?? "request failed"}`,
+      );
+    }
+  });
+  page.on("response", (response) => {
+    if (
+      new URL(response.url()).pathname.startsWith("/sazo-commerce/mobile-picks/") &&
+      !response.ok()
+    ) {
+      failedPickResponses.push(`${response.url()}: HTTP ${String(response.status())}`);
+    }
+  });
 
   await page.goto(url, { waitUntil: "networkidle" });
   await page.locator("[data-mobile-home]").waitFor();
@@ -44,6 +61,34 @@ try {
     await page.locator("[data-mobile-picks-grid] .sazo-product-card").count(),
     31,
   );
+  const pickImages = page.locator(
+    '[data-mobile-picks-grid] img[src^="/sazo-commerce/mobile-picks/"]',
+  );
+  assert.equal(await pickImages.count(), 31);
+  await page.waitForFunction(() =>
+    Array.from(
+      document.querySelectorAll(
+        '[data-mobile-picks-grid] img[src^="/sazo-commerce/mobile-picks/"]',
+      ),
+    ).every(
+      (element) =>
+        element instanceof HTMLImageElement && element.complete && element.naturalWidth > 0,
+    ),
+  );
+  assert.deepEqual(
+    await pickImages.evaluateAll((elements) =>
+      elements
+        .filter(
+          (element) =>
+            !(element instanceof HTMLImageElement) ||
+            !element.complete ||
+            element.naturalWidth <= 0,
+        )
+        .map((element) => element.getAttribute("src")),
+    ),
+    [],
+  );
+  assert.deepEqual(failedPickResponses, []);
   assert(Math.abs(navigation.height - 76) < 2);
   assert.equal(await page.getByRole("button", { name: "エージェント" }).count(), 1);
   assert.equal(
@@ -51,7 +96,7 @@ try {
     1,
   );
 
-  await page.getByRole("button", { name: "エージェント" }).click();
+  await page.getByRole("button", { name: "URL・画像・商品名をAIに相談" }).click();
   const agent = page.getByRole("dialog", { name: "J-Planet AIエージェント" });
   await agent.waitFor();
   await page.screenshot({

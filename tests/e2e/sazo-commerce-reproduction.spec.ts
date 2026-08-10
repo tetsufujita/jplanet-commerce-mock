@@ -27,6 +27,49 @@ function applicationExternalRequests(requests: readonly string[]) {
   });
 }
 
+function isMobilePickRequest(url: string) {
+  return new URL(url).pathname.startsWith("/sazo-commerce/mobile-picks/");
+}
+
+function trackMobilePickFailures(page: Page) {
+  const failures: string[] = [];
+
+  page.on("requestfailed", (request) => {
+    if (isMobilePickRequest(request.url())) {
+      failures.push(`${request.url()}: ${request.failure()?.errorText ?? "request failed"}`);
+    }
+  });
+  page.on("response", (response) => {
+    if (isMobilePickRequest(response.url()) && !response.ok()) {
+      failures.push(`${response.url()}: HTTP ${String(response.status())}`);
+    }
+  });
+
+  return failures;
+}
+
+async function expectLoadedMobilePicks(page: Page, failures: readonly string[]) {
+  const images = page.locator(
+    '[data-mobile-picks-grid] img[src^="/sazo-commerce/mobile-picks/"]',
+  );
+
+  await expect(images).toHaveCount(31);
+  await expect
+    .poll(() =>
+      images.evaluateAll((elements) =>
+        elements
+          .filter(
+            (element) =>
+              element instanceof HTMLImageElement &&
+              (!element.complete || element.naturalWidth <= 0),
+          )
+          .map((element) => (element as HTMLImageElement).src),
+      ),
+    )
+    .toEqual([]);
+  expect(failures).toEqual([]);
+}
+
 async function replayDesktopScenario(page: Page) {
   const externalRequests = trackExternalRequests(page);
 
@@ -60,11 +103,41 @@ async function replayDesktopScenario(page: Page) {
 
 async function replayMobileScenario(page: Page) {
   const externalRequests = trackExternalRequests(page);
+  const mobilePickFailures = trackMobilePickFailures(page);
 
   await page.goto(routePath);
   await expect(page).toHaveURL(`${localOrigin}${routePath}`);
   await expect(page.getByTestId("sazo-hero")).toBeVisible();
+  await expectLoadedMobilePicks(page, mobilePickFailures);
   externalRequests.length = 0;
+
+  const topLauncher = page.getByRole("button", {
+    exact: true,
+    name: "URL・画像・商品名をAIに相談",
+  });
+  await topLauncher.click();
+  let agent = page.getByRole("dialog", {
+    exact: true,
+    name: "J-Planet AIエージェント",
+  });
+  const background = page.locator(".sazo-shell-background");
+  const textbox = agent.getByRole("textbox");
+
+  await expect(agent).toBeVisible();
+  await expect(textbox).toBeFocused();
+  await expect(background).toHaveAttribute("inert", "");
+  await expect(agent.locator('input[type="file"]')).toHaveCSS("display", "none");
+  await expect(agent.getByRole("button", { exact: true, name: "画像を追加" })).toHaveCount(
+    1,
+  );
+  await page.keyboard.press("Tab");
+  await expect(agent.getByRole("button", { exact: true, name: "閉じる" })).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(textbox).toBeFocused();
+  await agent.getByRole("button", { exact: true, name: "閉じる" }).click();
+  await expect(agent).toBeHidden();
+  await expect(topLauncher).toBeFocused();
+  await expect(background).not.toHaveAttribute("inert", "");
 
   const mobileNavigation = page.getByRole("navigation", {
     exact: true,
@@ -73,15 +146,27 @@ async function replayMobileScenario(page: Page) {
   await mobileNavigation
     .getByRole("button", { exact: true, name: "エージェント" })
     .click();
-  const agent = page.getByRole("dialog", {
+  agent = page.getByRole("dialog", {
     exact: true,
     name: "J-Planet AIエージェント",
   });
   await expect(agent).toBeVisible();
   await agent.getByRole("textbox").fill("日本限定スニーカー");
-  await agent
-    .getByRole("button", { exact: true, name: "AIに探してもらう" })
-    .click();
+  const submit = agent.getByRole("button", { exact: true, name: "AIに探してもらう" });
+  const [submitBackground, sakuraColor] = await Promise.all([
+    submit.evaluate((element) => getComputedStyle(element).backgroundColor),
+    page.locator(".sazo-root").evaluate((element) => {
+      const swatch = document.createElement("span");
+      swatch.style.color = getComputedStyle(element).getPropertyValue("--jplanet-sakura");
+      document.body.append(swatch);
+      const color = getComputedStyle(swatch).color;
+      swatch.remove();
+
+      return color;
+    }),
+  ]);
+  expect(submitBackground).toBe(sakuraColor);
+  await submit.click();
   const catalog = page.locator('[data-view-content="catalog"]');
   const catalogProducts = catalog.locator("[data-catalog-mode]");
   await expect(catalog).toBeVisible();

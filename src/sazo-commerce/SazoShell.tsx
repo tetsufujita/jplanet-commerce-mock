@@ -332,7 +332,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
             className="sazo-nav-button sazo-agent-nav-button"
             expanded={state.overlay === "agent"}
             icon={Sparkles}
-            label="エージェント"
+            label={t("sazo.agent.navigation")}
             onPress={() => {
               dispatch({ type: "open-agent" });
             }}

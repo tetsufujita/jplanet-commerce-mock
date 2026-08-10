@@ -298,6 +298,21 @@
       "placeholder": "メッセージを入力",
       "send": "メッセージを送信"
     },
+    "agent": {
+      "launcher": "Consulte a IA com URL, imagem ou nome do produto",
+      "navigation": "Agente",
+      "eyebrow": "J-Planet AI",
+      "title": "Agente de IA J-Planet",
+      "close": "Fechar",
+      "intro": "A IA ajuda a encontrar e comprar produtos no Japão e entregá-los no Brasil.",
+      "inputMethods": "Formas de entrada",
+      "pasteUrl": "Colar uma URL",
+      "addImage": "Adicionar imagem",
+      "productName": "Consultar pelo nome",
+      "draftLabel": "Produto desejado",
+      "placeholder": "Cole a URL do produto ou descreva o que deseja",
+      "submit": "Pedir para a IA encontrar"
+    },
     "home": {
       "heroLabel": "キャンペーンバナー",
       "previousBanner": "前のバナー",

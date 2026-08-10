@@ -8,6 +8,7 @@ import {
 } from "react";
 import { ImagePlus, Link, Search, Sparkles, X } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
+import { useTranslation } from "react-i18next";
 import type { SazoAction } from "@/sazo-commerce/model";
 
 export interface AgentComposerSheetProps {
@@ -15,6 +16,7 @@ export interface AgentComposerSheetProps {
 }
 
 export function AgentComposerSheet({ dispatch }: AgentComposerSheetProps) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -37,13 +39,61 @@ export function AgentComposerSheet({ dispatch }: AgentComposerSheetProps) {
     const previousActive =
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousOverflow = document.body.style.overflow;
+    const background = document.querySelector<HTMLElement>(".sazo-shell-background");
+    const backgroundHadInert = background?.hasAttribute("inert") ?? false;
+    const previousInertValue = background?.getAttribute("inert") ?? "";
+
     document.body.style.overflow = "hidden";
+    background?.setAttribute("inert", "");
     inputRef.current?.focus({ preventScroll: true });
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
         close();
+
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      const dialog = dialogRef.current;
+
+      if (dialog === null) {
+        return;
+      }
+
+      const focusable = Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          [
+            'a[href]',
+            'button:not([disabled])',
+            'input:not([disabled]):not([tabindex="-1"])',
+            'select:not([disabled])',
+            'textarea:not([disabled])',
+            '[tabindex]:not([tabindex="-1"])',
+          ].join(","),
+        ),
+      );
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      const active = document.activeElement;
+
+      if (first === undefined || last === undefined) {
+        event.preventDefault();
+        dialog.focus({ preventScroll: true });
+
+        return;
+      }
+
+      if (event.shiftKey && (active === first || !dialog.contains(active))) {
+        event.preventDefault();
+        last.focus({ preventScroll: true });
+      } else if (!event.shiftKey && (active === last || !dialog.contains(active))) {
+        event.preventDefault();
+        first.focus({ preventScroll: true });
       }
     };
 
@@ -52,6 +102,11 @@ export function AgentComposerSheet({ dispatch }: AgentComposerSheetProps) {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = previousOverflow;
+      if (backgroundHadInert) {
+        background?.setAttribute("inert", previousInertValue);
+      } else {
+        background?.removeAttribute("inert");
+      }
       previousActive?.focus({ preventScroll: true });
     };
   }, [close]);
@@ -82,21 +137,29 @@ export function AgentComposerSheet({ dispatch }: AgentComposerSheetProps) {
         }}
         ref={dialogRef}
         role="dialog"
+        tabIndex={-1}
         transition={transition}
       >
         <div className="sazo-agent-handle" aria-hidden="true" />
         <header className="sazo-agent-header">
           <div>
             <span className="sazo-agent-icon" aria-hidden="true">
-              <Sparkles size={20} strokeWidth={2} />
+              <img
+                alt=""
+                aria-hidden
+                data-jplanet-sakura-mark
+                height={42}
+                src="/sazo-commerce/jplanet-sakura-mark.png"
+                width={42}
+              />
             </span>
             <div>
-              <p>J-Planet AI</p>
-              <h1 id="sazo-agent-title">J-Planet AIエージェント</h1>
+              <p>{t("sazo.agent.eyebrow")}</p>
+              <h1 id="sazo-agent-title">{t("sazo.agent.title")}</h1>
             </div>
           </div>
           <button
-            aria-label="閉じる"
+            aria-label={t("sazo.agent.close")}
             className="sazo-agent-close"
             onClick={close}
             type="button"
@@ -105,11 +168,13 @@ export function AgentComposerSheet({ dispatch }: AgentComposerSheetProps) {
           </button>
         </header>
 
-        <p className="sazo-agent-intro">
-          欲しい商品のURL・画像・名前を送ると、ぴったりのアイテムを探します。
-        </p>
+        <p className="sazo-agent-intro">{t("sazo.agent.intro")}</p>
 
-        <div className="sazo-agent-chips" aria-label="入力方法">
+        <div
+          aria-label={t("sazo.agent.inputMethods")}
+          className="sazo-agent-chips"
+          role="group"
+        >
           <button
             onClick={() => {
               inputRef.current?.focus();
@@ -117,7 +182,7 @@ export function AgentComposerSheet({ dispatch }: AgentComposerSheetProps) {
             type="button"
           >
             <Link aria-hidden="true" size={18} />
-            URLを貼る
+            {t("sazo.agent.pasteUrl")}
           </button>
           <button
             onClick={() => {
@@ -126,7 +191,7 @@ export function AgentComposerSheet({ dispatch }: AgentComposerSheetProps) {
             type="button"
           >
             <ImagePlus aria-hidden="true" size={18} />
-            画像を追加
+            {t("sazo.agent.addImage")}
           </button>
           <button
             onClick={() => {
@@ -135,38 +200,40 @@ export function AgentComposerSheet({ dispatch }: AgentComposerSheetProps) {
             type="button"
           >
             <Search aria-hidden="true" size={18} />
-            商品名で相談
+            {t("sazo.agent.productName")}
           </button>
         </div>
 
         <form className="sazo-agent-form" onSubmit={submit}>
           <label className="sazo-visually-hidden" htmlFor="sazo-agent-draft">
-            探したい商品
+            {t("sazo.agent.draftLabel")}
           </label>
           <textarea
             id="sazo-agent-draft"
             onChange={(event) => {
               setDraft(event.target.value);
             }}
-            placeholder="商品URLを貼る、または欲しいものを入力"
+            placeholder={t("sazo.agent.placeholder")}
             ref={inputRef}
             rows={4}
             value={draft}
           />
           <input
             accept="image/*"
-            aria-label="画像を追加"
+            aria-hidden="true"
             className="sazo-agent-file-input"
+            hidden
             onChange={(event) => {
               setFileName(event.target.files?.[0]?.name ?? null);
             }}
             ref={fileRef}
+            tabIndex={-1}
             type="file"
           />
           {fileName !== null ? <p className="sazo-agent-file-name">{fileName}</p> : null}
           <button className="sazo-agent-submit" disabled={!canSubmit} type="submit">
             <Sparkles aria-hidden="true" size={19} />
-            AIに探してもらう
+            {t("sazo.agent.submit")}
           </button>
         </form>
       </motion.div>

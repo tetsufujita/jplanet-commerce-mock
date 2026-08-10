@@ -413,10 +413,12 @@ function HomeIntro() {
 }
 
 function MobileDiscoveryTop({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+  const { t } = useTranslation();
+
   return (
     <section className="sazo-mobile-discovery" data-mobile-home>
       <button
-        aria-label="URL・画像・商品名をAIに相談"
+        aria-label={t("sazo.agent.launcher")}
         className="sazo-mobile-search-pill sazo-mobile-agent-entry"
         onClick={() => {
           dispatch({ type: "open-agent" });
@@ -425,7 +427,7 @@ function MobileDiscoveryTop({ dispatch }: Pick<HomeViewProps, "dispatch">) {
       >
         <Sparkles aria-hidden size={22} strokeWidth={2} />
         <span className="sazo-mobile-agent-badge">AI</span>
-        <span>URL・画像・商品名をAIに相談</span>
+        <span>{t("sazo.agent.launcher")}</span>
         <ImagePlus aria-hidden size={20} strokeWidth={1.9} />
       </button>
       <div className="sazo-mobile-shortcut-grid" data-mobile-shortcut-grid>

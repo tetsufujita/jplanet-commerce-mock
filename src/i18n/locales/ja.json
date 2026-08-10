@@ -298,6 +298,21 @@
       "placeholder": "メッセージを入力",
       "send": "メッセージを送信"
     },
+    "agent": {
+      "launcher": "URL・画像・商品名をAIに相談",
+      "navigation": "エージェント",
+      "eyebrow": "J-Planet AI",
+      "title": "J-Planet AIエージェント",
+      "close": "閉じる",
+      "intro": "日本の商品探し・購入からブラジルへの配送まで、AIがサポートします。",
+      "inputMethods": "入力方法",
+      "pasteUrl": "URLを貼る",
+      "addImage": "画像を追加",
+      "productName": "商品名で相談",
+      "draftLabel": "探したい商品",
+      "placeholder": "商品URLを貼る、または欲しいものを入力",
+      "submit": "AIに探してもらう"
+    },
     "home": {
       "heroLabel": "キャンペーンバナー",
       "previousBanner": "前のバナー",

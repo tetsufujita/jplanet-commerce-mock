@@ -53,8 +53,8 @@ function installReducedMotion(matches: boolean) {
   });
 }
 
-async function renderHomePage() {
-  const i18n = await createI18n("ja");
+async function renderHomePage(locale: "ja" | "en" | "pt-BR" = "ja") {
+  const i18n = await createI18n(locale);
 
   return render(
     <I18nextProvider i18n={i18n}>
@@ -234,6 +234,17 @@ describe("SAZO home composition", () => {
     expect(
       screen.getByRole("dialog", { name: "J-Planet AIエージェント" }),
     ).toBeTruthy();
+  });
+
+  it.each([
+    ["ja", "URL・画像・商品名をAIに相談"],
+    ["en", "Ask AI about a URL, image, or product name"],
+    ["pt-BR", "Consulte a IA com URL, imagem ou nome do produto"],
+  ] as const)("localizes the mobile agent entry for %s", async (locale, label) => {
+    installReducedMotion(true);
+    await renderHomePage(locale);
+
+    expect(screen.getByRole("button", { name: label })).toBeTruthy();
   });
 
   it("renders crisp pop J-Planet shortcut artwork", async () => {

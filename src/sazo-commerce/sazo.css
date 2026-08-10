@@ -8865,6 +8865,13 @@
   color: var(--jplanet-sakura);
 }
 
+.sazo-root .sazo-agent-icon img {
+  display: block;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
 .sazo-root .sazo-agent-header p,
 .sazo-root .sazo-agent-header h1,
 .sazo-root .sazo-agent-intro,
@@ -8942,13 +8949,7 @@
 }
 
 .sazo-root .sazo-agent-file-input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
+  display: none;
 }
 
 .sazo-root .sazo-agent-file-name {
@@ -8965,14 +8966,15 @@
   padding: 0 20px;
   border: 0;
   border-radius: 14px;
-  background: var(--jplanet-navy);
-  color: var(--jplanet-surface);
+  background: var(--jplanet-sakura);
+  color: var(--jplanet-navy);
   font-weight: 800;
   cursor: pointer;
 }
 
 .sazo-root .sazo-agent-submit:disabled {
-  background: #b8c2d4;
+  background: color-mix(in srgb, var(--jplanet-line) 72%, var(--jplanet-surface));
+  color: var(--jplanet-muted);
   cursor: not-allowed;
 }
 
