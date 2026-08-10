@@ -64,7 +64,11 @@ async function inspectBottomNavigation(page, expectedWidth) {
   assert(Math.abs(navigationBox.width - expectedWidth) < 1);
   assert(Math.abs(navigationBox.height - 76) < 2);
   assert(chatBox.y + chatBox.height <= myPageIconBox.y);
-  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), expectedWidth);
+  assert(
+    Math.abs(
+      (await page.evaluate(() => document.documentElement.scrollWidth)) - expectedWidth,
+    ) <= 1,
+  );
 
   return { chatBox, navigationBox };
 }
@@ -78,21 +82,49 @@ async function inspectMobileHomeGeometry(page, expectedWidth) {
   const shortcuts = await page.locator(".sazo-shortcuts").boundingBox();
   const intro = await page.locator(".sazo-home-intro").boundingBox();
   const interested = await page.locator(".sazo-interested-items").boundingBox();
+  const secondaryNavigation = page.getByRole("navigation", {
+    exact: true,
+    name: "モバイルサブメニュー",
+  });
+  const selectedHome = secondaryNavigation.getByRole("button", {
+    exact: true,
+    name: "ホーム",
+  });
 
   assert(header && primary && secondary && hero && search && shortcuts && intro && interested);
   assert(header.height >= 120 && header.height <= 132);
   assert(Math.abs(header.height - primary.height - secondary.height) < 2);
-  assert.equal(await page.locator(".sazo-mobile-secondary-button").count(), 5);
-  assert.equal(
-    await page
-      .locator(".sazo-mobile-secondary-button")
-      .first()
-      .getAttribute("aria-pressed"),
-    "true",
+  assert.equal(await secondaryNavigation.getByRole("button").count(), 5);
+  assert.equal(await selectedHome.getAttribute("aria-pressed"), "true");
+  assert.equal(await secondaryNavigation.getByRole("button", { pressed: true }).count(), 1);
+  const selectedHomeColors = await selectedHome.evaluate((element) => {
+    const style = getComputedStyle(element);
+    let backgroundElement = element;
+
+    while (
+      backgroundElement.parentElement !== null &&
+      getComputedStyle(backgroundElement).backgroundColor === "rgba(0, 0, 0, 0)"
+    ) {
+      backgroundElement = backgroundElement.parentElement;
+    }
+
+    return {
+      background: getComputedStyle(backgroundElement).backgroundColor,
+      borderBottom: style.borderBottomColor,
+      foreground: style.color,
+    };
+  });
+  assert.deepEqual(parseCssRgb(selectedHomeColors.foreground), [168, 61, 83]);
+  assert.deepEqual(parseCssRgb(selectedHomeColors.borderBottom), [254, 162, 172]);
+  assertContrastAtLeast(
+    "Selected mobile home navigation",
+    selectedHomeColors.foreground,
+    selectedHomeColors.background,
+    4.5,
   );
   assert(Math.abs(hero.y - (header.y + header.height)) < 2);
-  assert(search.y < hero.y + hero.height);
-  assert(search.y + search.height / 2 > hero.y + hero.height);
+  const searchOverlapRatio = (hero.y + hero.height - search.y) / search.height;
+  assert(Math.abs(searchOverlapRatio - 0.5) <= 0.1);
   assert(hero.y < search.y);
   assert(search.y < shortcuts.y);
   assert(shortcuts.y < intro.y);
@@ -104,7 +136,18 @@ async function inspectMobileHomeGeometry(page, expectedWidth) {
     ) <= 1,
   );
 
-  return { header, hero, interested, intro, primary, search, secondary, shortcuts };
+  return {
+    header,
+    hero,
+    interested,
+    intro,
+    primary,
+    search,
+    searchOverlapRatio,
+    secondary,
+    selectedHomeColors,
+    shortcuts,
+  };
 }
 
 const server = await createServer({

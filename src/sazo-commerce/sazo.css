@@ -4,6 +4,7 @@
   --jplanet-navy: #1f3864;
   --jplanet-deep-navy: #1f2e4f;
   --jplanet-sakura: #fea2ac;
+  --jplanet-sakura-ink: #a83d53;
   --jplanet-sakura-soft: #fff4f5;
   --jplanet-blue-soft: #f3f6fb;
   --jplanet-ink: var(--jplanet-deep-navy);
@@ -8298,6 +8299,12 @@
     border-bottom-width: 3px;
     font-size: clamp(12px, 3.2vw, 15px);
     white-space: nowrap;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-secondary-button[aria-pressed="true"] {
+    border-bottom-color: var(--jplanet-sakura);
+    color: var(--jplanet-sakura-ink);
   }
 
   .sazo-root[data-view="home"] .sazo-content-main {
