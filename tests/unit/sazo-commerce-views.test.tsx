@@ -412,7 +412,19 @@ describe("SAZO captured view contracts", () => {
       name: "モバイルサブメニュー",
     });
 
-    expect(within(secondary).getAllByRole("button")).toHaveLength(5);
+    expect(
+      within(secondary)
+        .getAllByRole("button")
+        .map((button) => button.textContent),
+    ).toEqual([
+      "ホーム",
+      "サービス紹介",
+      "人気ブランド",
+      "カテゴリー",
+      "レビュー",
+      "ヘルプ",
+      "お知らせ",
+    ]);
     expect(
       within(primary)
         .getAllByRole("button")

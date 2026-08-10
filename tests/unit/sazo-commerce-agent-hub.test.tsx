@@ -96,6 +96,7 @@ describe("MobileAgentHubView", () => {
   it("exposes stable hooks for the mobile hub layout", async () => {
     const { container } = await renderHub("ja");
 
+    expect(container.querySelector(".sazo-mobile-agent-composer")).not.toBeNull();
     expect(
       container.querySelector(".sazo-agent-hub > .sazo-agent-hub-header"),
     ).not.toBeNull();

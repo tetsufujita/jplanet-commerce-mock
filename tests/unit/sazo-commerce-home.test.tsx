@@ -279,7 +279,10 @@ describe("SAZO home composition", () => {
 
   it("routes the mobile AI entry to the fullscreen hub", async () => {
     const dispatch = vi.fn();
-    await renderHomePage("ja", dispatch);
+    const { container } = await renderHomePage("ja", dispatch);
+
+    expect(container.querySelector(".sazo-mobile-agent-entry-main")).not.toBeNull();
+    expect(container.querySelector(".sazo-mobile-agent-image-entry")).not.toBeNull();
 
     fireEvent.click(
       screen.getByRole("button", { name: "URL・画像・商品名をAIに相談" }),

@@ -39,6 +39,8 @@ const mobileSecondaryNavigation = [
   { translationKey: "sazo.navigation.brands", view: "brands" },
   { translationKey: "sazo.navigation.categories", view: "categories" },
   { translationKey: "sazo.navigation.reviews", view: "reviews" },
+  { translationKey: "sazo.navigation.help", view: "support" },
+  { translationKey: "sazo.navigation.news" },
 ] satisfies readonly NavigationItem[];
 
 export interface SazoShellProps {

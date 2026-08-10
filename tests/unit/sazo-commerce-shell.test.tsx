@@ -141,7 +141,9 @@ describe("SazoCommercePage shell", () => {
     const secondary = within(mobileHeader).getByRole("navigation", {
       name: "モバイルサブメニュー",
     });
-    expect(within(secondary).getAllByRole("button")).toHaveLength(5);
+    expect(within(secondary).getAllByRole("button")).toHaveLength(7);
+    expect(within(secondary).getByRole("button", { name: "ヘルプ" })).toBeTruthy();
+    expect(within(secondary).getByRole("button", { name: "お知らせ" })).toBeTruthy();
     expect(
       within(secondary).getByRole("button", { name: "ホーム" }).getAttribute("aria-pressed"),
     ).toBe("true");
