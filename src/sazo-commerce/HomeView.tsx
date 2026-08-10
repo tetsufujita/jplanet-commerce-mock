@@ -1,6 +1,7 @@
 import type {
   CSSProperties,
   Dispatch,
+  MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
 } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -196,10 +197,12 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
     }
   }, [dispatch, visibleHeroSlides.length]);
   const pointerStart = useRef<HeroPointerStart | null>(null);
+  const suppressNextClick = useRef(false);
   const handlePointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
       if (!event.isPrimary) return;
 
+      suppressNextClick.current = false;
       pointerStart.current = {
         pointerId: event.pointerId,
         x: event.clientX,
@@ -233,10 +236,21 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
         return;
       }
 
+      suppressNextClick.current = true;
       if (deltaX < 0) goNext();
       else goPrevious();
     },
     [goNext, goPrevious],
+  );
+  const handleClickCapture = useCallback(
+    (event: ReactMouseEvent<HTMLDivElement>) => {
+      if (!suppressNextClick.current || event.detail === 0) return;
+
+      suppressNextClick.current = false;
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    [],
   );
 
   useSazoHero({
@@ -254,6 +268,7 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
     >
       <div
         className="sazo-hero-viewport"
+        onClickCapture={handleClickCapture}
         onPointerCancel={handlePointerCancel}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}

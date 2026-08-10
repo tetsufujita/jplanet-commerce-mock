@@ -70,11 +70,85 @@ async function expectLoadedMobilePicks(page: Page, failures: readonly string[]) 
   expect(failures).toEqual([]);
 }
 
+interface TouchPoint {
+  x: number;
+  y: number;
+}
+
+async function dispatchNativeTouchGesture(
+  page: Page,
+  points: readonly [TouchPoint, ...TouchPoint[]],
+) {
+  const session = await page.context().newCDPSession(page);
+
+  try {
+    await session.send("Emulation.setTouchEmulationEnabled", {
+      enabled: true,
+      maxTouchPoints: 1,
+    });
+    await session.send("Input.dispatchTouchEvent", {
+      touchPoints: [{ ...points[0], id: 1 }],
+      type: "touchStart",
+    });
+
+    for (const point of points.slice(1)) {
+      await session.send("Input.dispatchTouchEvent", {
+        touchPoints: [{ ...point, id: 1 }],
+        type: "touchMove",
+      });
+    }
+
+    await session.send("Input.dispatchTouchEvent", {
+      touchPoints: [],
+      type: "touchEnd",
+    });
+  } finally {
+    await session.detach();
+  }
+}
+
+async function pointInsideHero(page: Page, xRatio: number, yRatio: number) {
+  const box = await page.locator(".sazo-hero-viewport").boundingBox();
+
+  if (box === null) throw new Error("Missing hero viewport bounds");
+
+  return {
+    x: box.x + box.width * xRatio,
+    y: box.y + box.height * yRatio,
+  };
+}
+
 async function replayDesktopScenario(page: Page) {
   const externalRequests = trackExternalRequests(page);
 
   await page.goto(routePath);
   await expect(page).toHaveURL(`${localOrigin}${routePath}`);
+  await expect(page.getByTestId("sazo-hero")).toBeVisible();
+  const heroCounter = page.getByTestId("sazo-hero-counter");
+  const heroRoot = page.locator(".sazo-root");
+  const campaign = page.getByRole("button", {
+    exact: true,
+    name: "クーポンキャンペーンを見る",
+  });
+
+  await page.getByRole("button", { exact: true, name: "次のバナー" }).click();
+  await expect(heroCounter).toHaveText("2/5");
+
+  const dragStart = await pointInsideHero(page, 0.65, 0.5);
+  const dragEnd = await pointInsideHero(page, 0.35, 0.52);
+  await page.mouse.move(dragStart.x, dragStart.y);
+  await page.mouse.down();
+  await page.mouse.move(dragEnd.x, dragEnd.y, { steps: 4 });
+  await page.mouse.up();
+
+  await expect(heroRoot).toHaveAttribute("data-view", "home");
+  await expect(heroCounter).toHaveText("3/5");
+
+  await page.getByRole("button", { exact: true, name: "前のバナー" }).click();
+  await campaign.click();
+  await expect(heroRoot).toHaveAttribute("data-view", "campaign");
+
+  await page.goto(routePath);
   await expect(page.getByTestId("sazo-hero")).toBeVisible();
   externalRequests.length = 0;
 
@@ -143,6 +217,53 @@ async function replayMobileScenario(page: Page) {
     pointerType: "touch",
   });
   await expect(heroCounter).toHaveText("2/5");
+
+  await heroViewport.dispatchEvent("pointerdown", {
+    clientX: 245,
+    clientY: 210,
+    isPrimary: true,
+    pointerId: 43,
+    pointerType: "touch",
+  });
+  await heroViewport.dispatchEvent("pointerup", {
+    clientX: 315,
+    clientY: 214,
+    isPrimary: true,
+    pointerId: 43,
+    pointerType: "touch",
+  });
+  await expect(heroCounter).toHaveText("1/5");
+
+  const nativeStart = await pointInsideHero(page, 0.8, 0.5);
+  const nativeMiddle = await pointInsideHero(page, 0.6, 0.51);
+  const nativeEnd = await pointInsideHero(page, 0.35, 0.52);
+  await dispatchNativeTouchGesture(page, [nativeStart, nativeMiddle, nativeEnd]);
+  await expect(heroCounter).toHaveText("2/5");
+
+  const campaignStart = await pointInsideHero(page, 0.75, 0.5);
+  const campaignMiddle = await pointInsideHero(page, 0.55, 0.51);
+  const campaignEnd = await pointInsideHero(page, 0.3, 0.52);
+  await dispatchNativeTouchGesture(page, [
+    campaignStart,
+    campaignMiddle,
+    campaignEnd,
+  ]);
+  await expect(heroCounter).toHaveText("3/5");
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
+
+  const scrollBefore = await page.evaluate(() => window.scrollY);
+  const verticalStart = await pointInsideHero(page, 0.5, 0.8);
+  const verticalMiddle = await pointInsideHero(page, 0.5, 0.5);
+  const verticalEnd = await pointInsideHero(page, 0.5, 0.2);
+  await dispatchNativeTouchGesture(page, [
+    verticalStart,
+    verticalMiddle,
+    verticalEnd,
+  ]);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(
+    scrollBefore,
+  );
+  await expect(heroCounter).toHaveText("3/5");
   await expectLoadedMobilePicks(page, mobilePickFailures);
   externalRequests.length = 0;
 

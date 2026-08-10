@@ -516,6 +516,60 @@ describe("SAZO hero controls", () => {
     expect(counter.textContent).toBe("1/5");
   });
 
+  it("suppresses the swipe compatibility click without blocking the next campaign tap", async () => {
+    installReducedMotion(false);
+    vi.useFakeTimers();
+    const { container } = await renderHomePage();
+    const viewport = container.querySelector<HTMLElement>(".sazo-hero-viewport");
+    const counter = screen.getByTestId("sazo-hero-counter");
+    const root = container.querySelector<HTMLElement>(".sazo-root");
+
+    expect(viewport).not.toBeNull();
+    expect(root).not.toBeNull();
+    if (viewport === null) throw new Error("Missing hero viewport");
+    if (root === null) throw new Error("Missing SAZO root");
+
+    fireEvent.click(screen.getByRole("button", { name: "次のバナー" }));
+    expect(counter.textContent).toBe("2/5");
+    const campaign = screen.getByRole("button", {
+      name: "クーポンキャンペーンを見る",
+    });
+
+    fireEvent.pointerDown(campaign, {
+      clientX: 240,
+      clientY: 100,
+      isPrimary: true,
+      pointerId: 8,
+    });
+    fireEvent.pointerUp(campaign, {
+      clientX: 180,
+      clientY: 104,
+      isPrimary: true,
+      pointerId: 8,
+    });
+    fireEvent.click(campaign, { detail: 1 });
+
+    expect(counter.textContent).toBe("3/5");
+    expect(root.dataset.view).toBe("home");
+
+    fireEvent.click(screen.getByRole("button", { name: "前のバナー" }));
+    fireEvent.pointerDown(campaign, {
+      clientX: 200,
+      clientY: 100,
+      isPrimary: true,
+      pointerId: 9,
+    });
+    fireEvent.pointerUp(campaign, {
+      clientX: 200,
+      clientY: 100,
+      isPrimary: true,
+      pointerId: 9,
+    });
+    fireEvent.click(campaign, { detail: 1 });
+
+    expect(root.dataset.view).toBe("campaign");
+  });
+
   it("advances, reverses, wraps, and pauses through the live controls", async () => {
     installReducedMotion(false);
     vi.useFakeTimers();
