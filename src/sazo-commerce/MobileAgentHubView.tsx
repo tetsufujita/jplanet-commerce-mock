@@ -24,6 +24,21 @@ export function MobileAgentHubView({ dispatch }: MobileAgentHubViewProps) {
   return (
     <div className="sazo-agent-hub" data-mobile-agent-hub>
       <header className="sazo-agent-hub-header">
+        <button onClick={navigateHome} type="button">
+          <ArrowLeft aria-hidden size={20} />
+          <span>{t("sazo.agentHub.backHome")}</span>
+        </button>
+        <button
+          aria-label={t("sazo.agentHub.launcherLabel")}
+          className="sazo-agent-hub-launcher"
+          onClick={() => {
+            dispatch({ type: "open-agent" });
+          }}
+          type="button"
+        >
+          <Sparkles aria-hidden size={20} />
+          <span>{t("sazo.agentHub.launcher")}</span>
+        </button>
         <button
           aria-label={t("sazo.brand.homeLabel")}
           onClick={navigateHome}
@@ -31,26 +46,10 @@ export function MobileAgentHubView({ dispatch }: MobileAgentHubViewProps) {
         >
           {t("sazo.brand.wordmark")}
         </button>
-        <button onClick={navigateHome} type="button">
-          <ArrowLeft aria-hidden size={20} />
-          <span>{t("sazo.agentHub.backHome")}</span>
-        </button>
         <button aria-label={t("sazo.actions.cart")} type="button">
           <ShoppingCart aria-hidden size={20} />
         </button>
       </header>
-
-      <button
-        aria-label={t("sazo.agentHub.launcherLabel")}
-        className="sazo-agent-hub-launcher"
-        onClick={() => {
-          dispatch({ type: "open-agent" });
-        }}
-        type="button"
-      >
-        <Sparkles aria-hidden size={20} />
-        <span>{t("sazo.agentHub.launcher")}</span>
-      </button>
 
       <section data-section="consultations" data-testid="agent-hub-section">
         <header>

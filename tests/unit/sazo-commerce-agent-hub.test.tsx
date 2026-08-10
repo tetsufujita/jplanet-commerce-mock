@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createI18n } from "@/i18n/createI18n";
@@ -37,6 +37,32 @@ describe("MobileAgentHubView", () => {
     expect(screen.getByText("J-Planet AI")).toBeTruthy();
     expect(screen.getByText("ブラジルで人気の日本アイテム")).toBeTruthy();
     expect(screen.getAllByRole("listitem", { name: /位/ })).toHaveLength(20);
+  });
+
+  it("keeps the four header controls in order and leaves the cart inert", async () => {
+    const dispatch = vi.fn();
+    const { container } = await renderHub("ja", dispatch);
+
+    const header = container.querySelector<HTMLElement>(".sazo-agent-hub-header");
+    if (header === null) {
+      throw new Error("Agent hub header is missing");
+    }
+    const back = within(header).getByRole("button", { name: "ホームへ戻る" });
+    const launcher = within(header).getByRole("button", {
+      name: "AIエージェントに相談",
+    });
+    const home = within(header).getByRole("button", { name: "J-Planet ホーム" });
+    const cart = within(header).getByRole("button", { name: "カート" });
+
+    expect(within(header).getAllByRole("button")).toEqual([back, launcher, home, cart]);
+
+    fireEvent.click(launcher);
+    fireEvent.click(home);
+    fireEvent.click(cart);
+
+    expect(dispatch).toHaveBeenNthCalledWith(1, { type: "open-agent" });
+    expect(dispatch).toHaveBeenNthCalledWith(2, { type: "navigate", view: "home" });
+    expect(dispatch).toHaveBeenCalledTimes(2);
   });
 
   it("dispatches shared agent, home, product, and catalog actions", async () => {
