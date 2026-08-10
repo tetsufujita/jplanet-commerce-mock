@@ -246,16 +246,20 @@ describe("SAZO home composition", () => {
     ).toBeTruthy();
   });
 
-  it.each([
-    ["ja", "何を注文しますか？"],
-    ["en", "何を注文しますか？"],
-    ["pt-BR", "何を注文しますか？"],
-  ] as const)("localizes the mobile agent entry for %s", async (locale, label) => {
-    installReducedMotion(true);
-    await renderHomePage(locale);
+  it.each(["ja", "en", "pt-BR"] as const)(
+    "localizes the mobile agent entry for %s",
+    async (locale) => {
+      installReducedMotion(true);
+      const i18n = await createI18n(locale);
+      await renderHomePage(locale);
 
-    expect(screen.getByRole("button", { name: label })).toBeTruthy();
-  });
+      expect(
+        screen.getByRole("button", {
+          name: i18n.t("sazo.home.mobileSearchPlaceholder"),
+        }),
+      ).toBeTruthy();
+    },
+  );
 
   it("renders crisp pop J-Planet shortcut artwork", async () => {
     const { container } = await renderHomePage();
