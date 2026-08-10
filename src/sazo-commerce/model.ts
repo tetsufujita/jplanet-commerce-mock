@@ -33,6 +33,7 @@ export type SazoView =
 export type SazoNonProductView = Exclude<SazoView, "product">;
 
 export type SazoOverlay = "none" | "login" | "chat" | "agent";
+export type AgentEntryIntent = "compose" | "image-picker";
 export type SazoAuthStep = "provider" | "google" | "birthday" | "phone";
 export type SazoLoadingSurface =
   | "none"
@@ -110,6 +111,7 @@ export type RankingMetric = "purchases" | "views";
 export interface SazoState {
   view: SazoView;
   overlay: SazoOverlay;
+  agentEntryIntent: AgentEntryIntent | null;
   authStep: SazoAuthStep;
   catalogMode: CatalogMode;
   catalogTab: CatalogTabId;
@@ -135,6 +137,8 @@ export interface SazoState {
 
 export type SazoAction =
   | { type: "navigate"; view: SazoView }
+  | { type: "open-agent-hub"; intent: AgentEntryIntent }
+  | { type: "consume-agent-entry-intent" }
   | { type: "set-catalog-mode"; mode: CatalogMode }
   | { type: "hero-next" }
   | { type: "toggle-hero-pause" }
@@ -212,6 +216,7 @@ export function createInitialSazoState(search = ""): SazoState {
   const state: SazoState = {
     view: "home",
     overlay: "none",
+    agentEntryIntent: null,
     authStep: "provider",
     catalogMode: "list",
     catalogTab: "skincare",
@@ -288,12 +293,22 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
     case "navigate":
       return {
         ...state,
+        agentEntryIntent: null,
         gramLoading: false,
         overlay: "none",
         selectedGramPostId:
           action.view === "gram-detail" ? state.selectedGramPostId : null,
         view: action.view,
       };
+    case "open-agent-hub":
+      return {
+        ...state,
+        agentEntryIntent: action.intent,
+        overlay: "none",
+        view: "agent-hub",
+      };
+    case "consume-agent-entry-intent":
+      return { ...state, agentEntryIntent: null };
     case "set-catalog-mode":
       return { ...state, catalogMode: action.mode };
     case "hero-next":

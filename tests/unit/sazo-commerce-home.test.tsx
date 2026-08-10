@@ -12,7 +12,7 @@ import { createI18n } from "@/i18n/createI18n";
 import { HomeView } from "@/sazo-commerce/HomeView";
 import { SazoCommercePage } from "@/sazo-commerce/SazoCommercePage";
 import { searchDiscoveryMediaCrops } from "@/sazo-commerce/fixtures";
-import { createInitialSazoState } from "@/sazo-commerce/model";
+import { createInitialSazoState, type SazoAction } from "@/sazo-commerce/model";
 import { useSazoHero } from "@/sazo-commerce/useSazoHero";
 
 if (!("PointerEvent" in window)) {
@@ -71,12 +71,23 @@ function installReducedMotion(matches: boolean) {
   });
 }
 
-async function renderHomePage(locale: "ja" | "en" | "pt-BR" = "ja") {
+async function renderHomePage(
+  locale: "ja" | "en" | "pt-BR" = "ja",
+  dispatch?: (action: SazoAction) => void,
+) {
   const i18n = await createI18n(locale);
+
+  if (dispatch !== undefined) {
+    installReducedMotion(true);
+  }
 
   return render(
     <I18nextProvider i18n={i18n}>
-      <SazoCommercePage />
+      {dispatch === undefined ? (
+        <SazoCommercePage />
+      ) : (
+        <HomeView dispatch={dispatch} state={createInitialSazoState()} />
+      )}
     </I18nextProvider>,
   );
 }
@@ -224,7 +235,7 @@ describe("SAZO home composition", () => {
     expect(home?.querySelectorAll(".sazo-shortcuts .sazo-shortcut")).toHaveLength(5);
     expect(home?.querySelector("[data-mobile-shortcut-grid]")).toBeNull();
     includesInOrder(home?.textContent ?? "", [
-      "何を注文しますか？",
+      "URL・画像・商品名をAIに相談",
       "J-Planet特集",
       "ブラジル最大級",
       "気になっているアイテム",
@@ -266,16 +277,31 @@ describe("SAZO home composition", () => {
     }
   });
 
-  it("opens the AI agent from the mobile home entry", async () => {
-    installReducedMotion(true);
-    await renderHomePage();
+  it("routes the mobile AI entry to the fullscreen hub", async () => {
+    const dispatch = vi.fn();
+    await renderHomePage("ja", dispatch);
 
-    const agentEntry = screen.getByRole("button", { name: "何を注文しますか？" });
-    fireEvent.click(agentEntry);
+    fireEvent.click(
+      screen.getByRole("button", { name: "URL・画像・商品名をAIに相談" }),
+    );
 
-    expect(
-      screen.getByRole("dialog", { name: "J-Planet AIエージェント" }),
-    ).toBeTruthy();
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "open-agent-hub",
+      intent: "compose",
+    });
+    expect(screen.queryByRole("dialog", { name: "J-Planet AIエージェント" })).toBeNull();
+  });
+
+  it("routes the image action with an image-picker intent", async () => {
+    const dispatch = vi.fn();
+    await renderHomePage("ja", dispatch);
+
+    fireEvent.click(screen.getByRole("button", { name: "画像からAIに相談" }));
+
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "open-agent-hub",
+      intent: "image-picker",
+    });
   });
 
   it.each(["ja", "en", "pt-BR"] as const)(
@@ -287,11 +313,24 @@ describe("SAZO home composition", () => {
 
       expect(
         screen.getByRole("button", {
-          name: i18n.t("sazo.home.mobileSearchPlaceholder"),
+          name: i18n.t("sazo.agentHub.launcher"),
         }),
       ).toBeTruthy();
     },
   );
+
+  it("keeps the mobile agent entry localization keys aligned across locales", async () => {
+    for (const locale of ["ja", "en", "pt-BR"] as const) {
+      const i18n = await createI18n(locale);
+
+      expect(i18n.getResource(locale, "translation", "sazo.home.agentEntryGroup")).toEqual(
+        expect.any(String),
+      );
+      expect(i18n.getResource(locale, "translation", "sazo.home.agentImageEntry")).toEqual(
+        expect.any(String),
+      );
+    }
+  });
 
   it("renders crisp pop J-Planet shortcut artwork", async () => {
     const { container } = await renderHomePage();

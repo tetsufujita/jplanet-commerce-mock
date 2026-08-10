@@ -171,6 +171,22 @@ describe("sazoReducer", () => {
     expect(qaState.view).toBe("agent-hub");
   });
 
+  it("opens and consumes a fullscreen agent entry intent", () => {
+    const opened = sazoReducer(createInitialSazoState(), {
+      type: "open-agent-hub",
+      intent: "image-picker",
+    });
+
+    expect(opened).toMatchObject({
+      agentEntryIntent: "image-picker",
+      overlay: "none",
+      view: "agent-hub",
+    });
+    expect(
+      sazoReducer(opened, { type: "consume-agent-entry-intent" }),
+    ).toMatchObject({ agentEntryIntent: null, view: "agent-hub" });
+  });
+
   it("opens product detail and returns to the source view", () => {
     const catalog = { ...createInitialSazoState(), view: "catalog" } as SazoState;
     const detail = sazoReducer(catalog, { type: "open-product", productId: "p01" });

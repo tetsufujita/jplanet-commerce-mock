@@ -10,6 +10,7 @@ import {
   Camera,
   ChevronLeft,
   ChevronRight,
+  ImagePlus,
   MessageCircle,
   Pause,
   Play,
@@ -471,22 +472,36 @@ function HomeIntro() {
 
 function MobileAgentSearch({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
-  const label = t("sazo.home.mobileSearchPlaceholder");
 
   return (
     <div className="sazo-mobile-search-overlap" data-mobile-home>
-      <button
-        aria-label={label}
-        className="sazo-mobile-search-pill sazo-mobile-agent-entry"
-        data-mobile-agent-search
-        onClick={() => {
-          dispatch({ type: "open-agent" });
-        }}
-        type="button"
+      <div
+        aria-label={t("sazo.home.agentEntryGroup")}
+        className="sazo-mobile-agent-entry"
+        role="group"
       >
-        <Search aria-hidden size={25} strokeWidth={2.1} />
-        <span>{label}</span>
-      </button>
+        <button
+          className="sazo-mobile-agent-entry-main"
+          data-mobile-agent-search
+          onClick={() => dispatch({ type: "open-agent-hub", intent: "compose" })}
+          type="button"
+        >
+          <Sparkles aria-hidden size={24} />
+          <span className="sazo-mobile-agent-badge" aria-hidden>
+            AI
+          </span>
+          <span>{t("sazo.agentHub.launcher")}</span>
+        </button>
+        <button
+          aria-label={t("sazo.home.agentImageEntry")}
+          className="sazo-mobile-agent-image-entry"
+          data-mobile-agent-image-entry
+          onClick={() => dispatch({ type: "open-agent-hub", intent: "image-picker" })}
+          type="button"
+        >
+          <ImagePlus aria-hidden size={24} />
+        </button>
+      </div>
     </div>
   );
 }
