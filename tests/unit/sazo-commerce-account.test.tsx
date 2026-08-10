@@ -297,7 +297,7 @@ describe("SAZO recorded account views", () => {
     expect(screen.getByRole("heading", { name: "マイページ" })).toBeTruthy();
     expect(screen.getByText("Tetsu Fujita さん")).toBeTruthy();
     expect(screen.getByText("500")).toBeTruthy();
-    expect(screen.getByText("0")).toBeTruthy();
+    expect(screen.getByText("1")).toBeTruthy();
     for (const label of [
       "注文履歴",
       "お気に入り",

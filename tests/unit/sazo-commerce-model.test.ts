@@ -20,6 +20,7 @@ import {
   products,
   rankingKeywords,
   reviews,
+  sazoAccountFixture,
   shortcuts,
 } from "@/sazo-commerce/fixtures";
 import {
@@ -35,6 +36,31 @@ import {
 } from "@/sazo-commerce/model";
 
 describe("sazoReducer", () => {
+  it.each([
+    "orders",
+    "coupons",
+    "points",
+    "review-create",
+    "review-history",
+    "delivery",
+    "address",
+    "notifications",
+    "support",
+  ] as const)("accepts the recorded account QA route %s", (view) => {
+    expect(createInitialSazoState(`?qa=1&view=${view}`).view).toBe(view);
+  });
+
+  it("uses the recorded account balances and profile values", () => {
+    expect(sazoAccountFixture).toMatchObject({
+      birthday: "2001-08-22",
+      coupons: 1,
+      expiringPoints: 500,
+      pendingPoints: 0,
+      phone: "08039390822",
+      points: 500,
+    });
+  });
+
   it("defines the recorded GRAM categories and complete local post feed", () => {
     expect(gramCategories.map(({ label }) => label)).toEqual([
       "全体",

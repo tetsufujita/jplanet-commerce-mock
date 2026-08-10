@@ -212,16 +212,24 @@ export interface SazoCountryOption {
 }
 
 export interface SazoAccountFixture {
+  birthday: string;
   coupons: number;
   displayName: string;
   email: string;
+  expiringPoints: number;
+  pendingPoints: number;
+  phone: string;
   points: number;
 }
 
 export const sazoAccountFixture = {
-  coupons: 0,
+  birthday: "2001-08-22",
+  coupons: 1,
   displayName: "Tetsu Fujita",
   email: "tetsu.fujita@andes.global",
+  expiringPoints: 500,
+  pendingPoints: 0,
+  phone: "08039390822",
   points: 500,
 } satisfies SazoAccountFixture;
 

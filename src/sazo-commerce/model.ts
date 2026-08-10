@@ -1,6 +1,22 @@
 import type { GramCategoryId } from "@/sazo-commerce/gramFixtures";
 
+export type SazoAccountView =
+  | "mypage"
+  | "favorites"
+  | "profile"
+  | "cards"
+  | "orders"
+  | "coupons"
+  | "points"
+  | "review-create"
+  | "review-history"
+  | "delivery"
+  | "address"
+  | "notifications"
+  | "support";
+
 export type SazoView =
+  | SazoAccountView
   | "home"
   | "service"
   | "brands"
@@ -9,10 +25,6 @@ export type SazoView =
   | "campaign"
   | "reviews"
   | "ranking"
-  | "mypage"
-  | "favorites"
-  | "profile"
-  | "cards"
   | "product"
   | "gram"
   | "gram-detail"
@@ -180,6 +192,15 @@ const qaViews = new Set<SazoView>([
   "favorites",
   "profile",
   "cards",
+  "orders",
+  "coupons",
+  "points",
+  "review-create",
+  "review-history",
+  "delivery",
+  "address",
+  "notifications",
+  "support",
   "product",
   "gram",
   "gram-detail",
