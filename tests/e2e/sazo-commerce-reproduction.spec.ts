@@ -118,6 +118,15 @@ async function pointInsideHero(page: Page, xRatio: number, yRatio: number) {
   };
 }
 
+async function expectNoHorizontalPageOverflow(page: Page) {
+  const geometry = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+
+  expect(geometry.scrollWidth).toBe(geometry.clientWidth);
+}
+
 async function replayDesktopScenario(page: Page) {
   const externalRequests = trackExternalRequests(page);
 
@@ -182,6 +191,7 @@ async function replayMobileScenario(page: Page) {
   await page.goto(routePath);
   await expect(page).toHaveURL(`${localOrigin}${routePath}`);
   await expect(page.getByTestId("sazo-hero")).toBeVisible();
+  await expectNoHorizontalPageOverflow(page);
   const heroViewport = page.locator(".sazo-hero-viewport");
   const heroCounter = page.getByTestId("sazo-hero-counter");
 
@@ -272,7 +282,25 @@ async function replayMobileScenario(page: Page) {
     name: "モバイルサブメニュー",
   });
   await expect(mobileSecondaryNavigation).toBeVisible();
-  await expect(mobileSecondaryNavigation.getByRole("button")).toHaveCount(5);
+  await expect(mobileSecondaryNavigation.getByRole("button")).toHaveCount(7);
+  await mobileSecondaryNavigation.scrollIntoViewIfNeeded();
+  const secondaryOverflow = await mobileSecondaryNavigation.evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+  }));
+  expect(secondaryOverflow.scrollWidth).toBeGreaterThan(secondaryOverflow.clientWidth);
+  await mobileSecondaryNavigation.evaluate((element) => {
+    element.scrollTo({ left: element.scrollWidth });
+  });
+  await expect
+    .poll(() => mobileSecondaryNavigation.evaluate((element) => element.scrollLeft))
+    .toBeGreaterThan(0);
+  await expect(
+    mobileSecondaryNavigation.getByRole("button", { exact: true, name: "お知らせ" }),
+  ).toBeInViewport();
+  await page.setViewportSize({ height: 956, width: 440 });
+  await expectNoHorizontalPageOverflow(page);
+  await page.setViewportSize(mobileViewport);
   await expect(
     page
       .getByRole("group", { exact: true, name: "J-Planetショートカット" })
@@ -281,31 +309,42 @@ async function replayMobileScenario(page: Page) {
 
   const topLauncher = page.getByRole("button", {
     exact: true,
-    name: "何を注文しますか？",
+    name: "URL・画像・商品名をAIに相談",
   });
   await topLauncher.click();
-  let agent = page.getByRole("dialog", {
-    exact: true,
-    name: "J-Planet AIエージェント",
-  });
-  const background = page.locator(".sazo-shell-background");
-  const textbox = agent.getByRole("textbox");
+  const hub = page.locator("[data-mobile-agent-hub]");
+  await expect(hub).toBeVisible();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
+  await expect(
+    page.getByRole("dialog", { exact: true, name: "J-Planet AIエージェント" }),
+  ).toHaveCount(0);
+  await expect(hub.getByRole("button", { exact: true, name: "AIに探してもらう" }))
+    .toBeDisabled();
+  await expectNoHorizontalPageOverflow(page);
+  await page.setViewportSize({ height: 956, width: 440 });
+  await expectNoHorizontalPageOverflow(page);
+  await page.setViewportSize(mobileViewport);
 
-  await expect(agent).toBeVisible();
-  await expect(textbox).toBeFocused();
-  await expect(background).toHaveAttribute("inert", "");
-  await expect(agent.locator('input[type="file"]')).toHaveCSS("display", "none");
-  await expect(agent.getByRole("button", { exact: true, name: "画像を追加" })).toHaveCount(
-    1,
-  );
-  await page.keyboard.press("Tab");
-  await expect(agent.getByRole("button", { exact: true, name: "閉じる" })).toBeFocused();
-  await page.keyboard.press("Shift+Tab");
-  await expect(textbox).toBeFocused();
-  await agent.getByRole("button", { exact: true, name: "閉じる" }).click();
-  await expect(agent).toBeHidden();
-  await expect(topLauncher).toBeFocused();
-  await expect(background).not.toHaveAttribute("inert", "");
+  await hub.getByRole("button", { exact: true, name: "ホームへ戻る" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
+  await page.getByRole("button", { exact: true, name: "画像からAIに相談" }).click();
+  await expect(hub).toBeVisible();
+  await expect(hub.getByRole("button", { exact: true, name: "画像を追加" }))
+    .toHaveAttribute("aria-pressed", "true");
+  await hub.locator('input[type="file"][accept="image/*"]').setInputFiles({
+    name: "sample.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Z7xkAAAAASUVORK5CYII=",
+      "base64",
+    ),
+  });
+  await expect(hub.getByRole("img", { name: "選択した画像: sample.png" })).toBeVisible();
+  await expect(hub.getByRole("button", { exact: true, name: "AIに探してもらう" }))
+    .toBeEnabled();
+
+  await hub.getByRole("button", { exact: true, name: "ホームへ戻る" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
 
   const mobileNavigation = page.getByRole("navigation", {
     exact: true,
@@ -318,7 +357,6 @@ async function replayMobileScenario(page: Page) {
     exact: true,
     name: "エージェント",
   });
-  const hub = page.locator("[data-mobile-agent-hub]");
   await expect(hub).toBeVisible();
   await expect(hub.getByRole("heading", { exact: true, name: "最近の相談" })).toBeVisible();
   await expect(hub.getByRole("heading", { exact: true, name: "最近見た商品" })).toBeVisible();
@@ -344,13 +382,19 @@ async function replayMobileScenario(page: Page) {
   await expect(agentNavigation).toHaveAttribute("aria-pressed", "true");
 
   await hub.getByRole("button", { exact: true, name: "AIエージェントに相談" }).click();
-  agent = page.getByRole("dialog", {
+  await expect(
+    page.getByRole("dialog", { exact: true, name: "J-Planet AIエージェント" }),
+  ).toHaveCount(0);
+  await hub.getByRole("button", { exact: true, name: "1位 アニメグッズ" }).click();
+  const composer = hub.locator(".sazo-mobile-agent-composer");
+  await expect(composer.getByRole("button", { exact: true, name: "商品名で相談" }))
+    .toHaveAttribute("aria-pressed", "true");
+  await expect(composer.getByRole("textbox", { name: "探したい商品" }))
+    .toHaveValue("アニメグッズ");
+  const submit = composer.getByRole("button", {
     exact: true,
-    name: "J-Planet AIエージェント",
+    name: "AIに探してもらう",
   });
-  await expect(agent).toBeVisible();
-  await agent.getByRole("textbox").fill("日本限定スニーカー");
-  const submit = agent.getByRole("button", { exact: true, name: "AIに探してもらう" });
   const [submitBackground, sakuraColor] = await Promise.all([
     submit.evaluate((element) => getComputedStyle(element).backgroundColor),
     page.locator(".sazo-root").evaluate((element) => {
@@ -365,12 +409,9 @@ async function replayMobileScenario(page: Page) {
   ]);
   expect(submitBackground).toBe(sakuraColor);
   await submit.click();
-  const catalog = page.locator('[data-view-content="catalog"]');
-  const catalogProducts = catalog.locator("[data-catalog-mode]");
-  await expect(catalog).toBeVisible();
-  await expect(catalogProducts).toHaveAttribute("data-catalog-mode", "list");
-  await catalog.getByRole("button", { exact: true, name: "グリッド表示" }).click();
-  await expect(catalogProducts).toHaveAttribute("data-catalog-mode", "grid");
+  await expect(composer.getByRole("status")).toHaveText(
+    "AIエージェントが商品を探し始めました",
+  );
 
   await mobileNavigation
     .getByRole("button", { exact: true, name: "マイページ" })
