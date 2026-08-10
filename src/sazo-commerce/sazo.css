@@ -10327,3 +10327,11 @@
     display: none;
   }
 }
+
+/* Native horizontal touch scrolling for the dedicated BEAUTY rails. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail,
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-rail {
+    touch-action: pan-x;
+  }
+}
