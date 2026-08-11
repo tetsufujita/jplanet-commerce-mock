@@ -152,11 +152,11 @@ describe("SazoCommercePage shell", () => {
   it("keeps the complete mobile secondary menu after opening support", async () => {
     const { container } = await renderSazoCommercePage();
     const mobileShell = getShell(container, "mobile");
-    const desktopNav = within(getShell(container, "desktop")).getByRole("navigation", {
-      name: "メインメニュー",
+    const shortcutRail = screen.getByRole("group", {
+      name: "J-Planetショートカット",
     });
 
-    fireEvent.click(within(desktopNav).getByRole("button", { name: "ヘルプ" }));
+    fireEvent.click(within(shortcutRail).getByRole("button", { name: "ヘルプ" }));
 
     await waitFor(() => {
       expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(

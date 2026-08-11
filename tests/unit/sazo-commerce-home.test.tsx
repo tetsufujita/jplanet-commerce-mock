@@ -275,7 +275,21 @@ describe("SAZO home composition", () => {
       name: "J-Planetショートカット",
     });
 
-    expect(shortcutGroup.querySelectorAll("button")).toHaveLength(9);
+    expect(
+      within(shortcutGroup)
+        .getAllByRole("button")
+        .map((button) => button.getAttribute("aria-label")),
+    ).toEqual([
+      "J-Planet特集",
+      "限定",
+      "フリマ",
+      "サービス紹介",
+      "人気ブランド",
+      "カテゴリー",
+      "レビュー",
+      "ヘルプ",
+      "お知らせ",
+    ]);
     expect(within(shortcutGroup).getByRole("button", { name: "サービス紹介" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "コスメ" })).toBeNull();
     expect(screen.queryByRole("button", { name: "K-POP" })).toBeNull();
@@ -354,6 +368,20 @@ describe("SAZO home composition", () => {
     fireEvent.click(screen.getByRole("button", { name: label }));
 
     expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view });
+  });
+
+  it("keeps the news shortcut inert", async () => {
+    const dispatch = vi.fn();
+    await renderHomePage("ja", dispatch);
+
+    fireEvent.click(
+      within(screen.getByRole("group", { name: "J-Planetショートカット" })).getByRole(
+        "button",
+        { name: "お知らせ" },
+      ),
+    );
+
+    expect(dispatch).not.toHaveBeenCalled();
   });
 
   it("routes the image action with an image-picker intent", async () => {
