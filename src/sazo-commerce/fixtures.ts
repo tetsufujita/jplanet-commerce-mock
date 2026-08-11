@@ -372,7 +372,7 @@ export const shortcuts = [
   { badge: "new", id: "k-pop", label: "K-POP" },
 ] satisfies readonly Shortcut[];
 
-export const homeShortcutItems = [
+export const homeShortcutItems: readonly HomeShortcutItem[] = [
   { id: "feature", labelKey: "feature", icon: "feature" },
   { id: "limited", labelKey: "limited", icon: "limited" },
   { id: "flea-market", labelKey: "fleaMarket", icon: "flea-market" },
@@ -815,7 +815,7 @@ export const categoryDirectory = [
   },
 ] satisfies readonly CategoryDirectoryEntry[];
 
-export const homeCategoryItems = [
+export const homeCategoryItems: readonly HomeCategoryItem[] = [
   {
     id: "beauty",
     labelKey: "beauty",

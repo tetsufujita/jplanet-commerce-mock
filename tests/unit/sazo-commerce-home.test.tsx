@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { I18nextProvider } from "react-i18next";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, expectTypeOf, it, vi } from "vitest";
 import { PNG } from "pngjs";
 import { createI18n } from "@/i18n/createI18n";
 import { HomeView } from "@/sazo-commerce/HomeView";
@@ -15,6 +15,8 @@ import {
   homeCategoryItems,
   homeShortcutItems,
   searchDiscoveryMediaCrops,
+  type HomeCategoryItem,
+  type HomeShortcutItem,
 } from "@/sazo-commerce/fixtures";
 import { createInitialSazoState, type SazoAction } from "@/sazo-commerce/model";
 import { useSazoHero } from "@/sazo-commerce/useSazoHero";
@@ -112,6 +114,9 @@ function HeroTicker({
 
 describe("SAZO home composition", () => {
   it("defines the mobile shortcut and photo-category fixture contracts", async () => {
+    expectTypeOf<readonly HomeShortcutItem[]>().toMatchTypeOf<typeof homeShortcutItems>();
+    expectTypeOf<readonly HomeCategoryItem[]>().toMatchTypeOf<typeof homeCategoryItems>();
+
     expect(homeShortcutItems.map((item) => item.labelKey)).toEqual([
       "feature",
       "limited",
