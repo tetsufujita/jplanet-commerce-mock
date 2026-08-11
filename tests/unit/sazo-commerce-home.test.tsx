@@ -297,11 +297,12 @@ describe("SAZO home composition", () => {
     includesInOrder(home?.textContent ?? "", [
       "URL・画像・商品名をAIに相談",
       "J-Planet特集",
-      "ブラジル最大級",
+      "クーポンを受け取る",
       "気になっているアイテム",
       "利用者レビュー",
       "MY GIFT FAIR",
       "J-Planet GRAM",
+      "カテゴリーから探す",
       "J-Planet's PICK",
     ]);
 
@@ -309,7 +310,7 @@ describe("SAZO home composition", () => {
       "[data-testid='sazo-hero']",
       "[data-mobile-agent-search]",
       ".sazo-shortcuts",
-      ".sazo-home-intro",
+      "[data-mobile-coupon-banner]",
       ".sazo-interested-items",
     ];
     const elements = selectors.map((selector) => {
@@ -353,6 +354,30 @@ describe("SAZO home composition", () => {
       intent: "compose",
     });
     expect(screen.queryByRole("dialog", { name: "J-Planet AIエージェント" })).toBeNull();
+  });
+
+  it("replaces the mobile intro with a coupon and follows GRAM with category discovery", async () => {
+    const dispatch = vi.fn();
+
+    await renderHomePage("ja", dispatch);
+
+    const coupon = screen.getByTestId("mobile-coupon-banner");
+    const gram = screen.getByTestId("mobile-gram-section");
+    const categoryRail = screen.getByTestId("mobile-category-rail");
+
+    expect(coupon).not.toBeNull();
+    expect(screen.queryByText("ブラジル最大級 日本直輸入ショップ")).toBeNull();
+    expect(categoryRail).not.toBeNull();
+    expect(within(categoryRail).getAllByRole("button")).toHaveLength(
+      homeCategoryItems.length,
+    );
+    expect(
+      gram.compareDocumentPosition(categoryRail) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: /クーポン/ }));
+
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "coupons" });
   });
 
   it.each([

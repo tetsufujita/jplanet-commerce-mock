@@ -8518,6 +8518,61 @@
     transform: none;
   }
 
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-banner {
+    width: 100%;
+    max-width: 100%;
+    padding: 28px 17px 36px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-banner > button {
+    position: relative;
+    display: block;
+    width: min(100%, 620px);
+    margin: 0 auto;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    border-radius: 16px;
+    background: var(--jplanet-navy);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-banner img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-banner > button > span {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 24px 0 11px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 92%);
+    color: var(--jplanet-deep-navy);
+    font-size: clamp(11px, 2.8vw, 14px);
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-banner > button > svg {
+    position: absolute;
+    right: 14px;
+    bottom: 15px;
+    color: var(--jplanet-deep-navy);
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-banner > button:focus-visible,
+  .sazo-root[data-view="home"] .sazo-mobile-category-tile:focus-visible {
+    outline: 3px solid var(--jplanet-sakura);
+    outline-offset: 3px;
+  }
+
   .sazo-root[data-view="home"] .sazo-interested-items {
     display: block;
     width: 100%;
@@ -8680,6 +8735,84 @@
 
   .sazo-root .sazo-mobile-gram-section {
     padding-bottom: 42px;
+  }
+
+  .sazo-root .sazo-mobile-category-section {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    padding: 34px 0 40px;
+    border-top: 8px solid #f5f6f8;
+  }
+
+  .sazo-root .sazo-mobile-category-section .sazo-section-heading {
+    margin: 0 17px 19px;
+  }
+
+  .sazo-root .sazo-mobile-category-rail {
+    display: grid;
+    grid-auto-columns: clamp(78px, 22vw, 104px);
+    grid-auto-flow: column;
+    gap: 10px;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding: 0 17px 6px;
+    scroll-behavior: smooth;
+    scroll-snap-type: inline mandatory;
+    scrollbar-width: none;
+    touch-action: pan-x;
+  }
+
+  .sazo-root .sazo-mobile-category-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sazo-root .sazo-mobile-category-tile {
+    display: grid;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--jplanet-ink);
+    font: inherit;
+    font-size: clamp(11px, 2.8vw, 14px);
+    font-weight: 750;
+    line-height: 1.3;
+    scroll-snap-align: start;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .sazo-root .sazo-mobile-category-image {
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--jplanet-navy) 12%, transparent);
+    border-radius: 50%;
+    background: var(--jplanet-soft);
+  }
+
+  .sazo-root .sazo-mobile-category-image > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .sazo-root .sazo-mobile-category-label {
+    display: -webkit-box;
+    min-height: 2.6em;
+    margin-top: 8px;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sazo-root .sazo-mobile-category-rail {
+      scroll-behavior: auto;
+    }
   }
 
   .sazo-root .sazo-mobile-gram-grid {

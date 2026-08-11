@@ -28,6 +28,7 @@ import { useTranslation } from "react-i18next";
 import {
   getHeroSlidesForFeed,
   homeShortcutItems,
+  homeCategoryItems,
   homeGramEntries,
   homeReviews,
   interestedProducts,
@@ -556,6 +557,34 @@ function MobileAgentSearch({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   );
 }
 
+function MobileCouponBanner({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+  const { t } = useTranslation();
+
+  return (
+    <section
+      aria-label={t("sazo.home.couponBannerLabel")}
+      className="sazo-mobile-coupon-banner"
+      data-mobile-coupon-banner
+      data-testid="mobile-coupon-banner"
+    >
+      <button
+        onClick={() => {
+          dispatch({ type: "navigate", view: "coupons" });
+        }}
+        type="button"
+      >
+        <img
+          alt={t("sazo.home.couponBannerArtwork")}
+          decoding="async"
+          src="/sazo-commerce/campaign/jplanet-coupon-banner.svg"
+        />
+        <span>{t("sazo.home.couponBannerCta")}</span>
+        <ChevronRight aria-hidden size={18} />
+      </button>
+    </section>
+  );
+}
+
 function MobileGiftFair({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   return (
     <div className="sazo-mobile-gift-fairs">
@@ -585,7 +614,7 @@ function MobileGiftFair({ dispatch }: Pick<HomeViewProps, "dispatch">) {
 
 function MobileGramGrid({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   return (
-    <section className="sazo-mobile-gram-section">
+    <section className="sazo-mobile-gram-section" data-testid="mobile-gram-section">
       <SectionHeading
         onMore={() => {
           dispatch({ type: "navigate", view: "gram" });
@@ -611,6 +640,51 @@ function MobileGramGrid({ dispatch }: Pick<HomeViewProps, "dispatch">) {
             </div>
           </article>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function MobileCategoryRail({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+  const { t } = useTranslation();
+
+  return (
+    <section
+      aria-label={t("sazo.home.categoryRailLabel")}
+      className="sazo-mobile-category-section"
+      data-mobile-category-rail
+      data-testid="mobile-category-rail"
+    >
+      <div className="sazo-section-heading">
+        <h2>{t("sazo.home.categoryRailTitle")}</h2>
+      </div>
+      <div
+        aria-label={t("sazo.home.categoryRailLabel")}
+        className="sazo-mobile-category-rail"
+        role="group"
+      >
+        {homeCategoryItems.map((category) => {
+          const label = t(`sazo.home.categories.${category.labelKey}`);
+
+          return (
+            <button
+              aria-label={label}
+              className="sazo-mobile-category-tile"
+              key={category.id}
+              onClick={() => {
+                if (category.view !== undefined) {
+                  dispatch({ type: "navigate", view: category.view });
+                }
+              }}
+              type="button"
+            >
+              <span className="sazo-mobile-category-image">
+                <img alt="" aria-hidden decoding="async" src={category.image} />
+              </span>
+              <span className="sazo-mobile-category-label">{label}</span>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
@@ -913,11 +987,12 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
           <HeroCarousel dispatch={dispatch} state={{ ...state, heroFeed: "large-first" }} />
           <MobileAgentSearch dispatch={dispatch} />
           <ShortcutRow dispatch={dispatch} />
-          <HomeIntro />
+          <MobileCouponBanner dispatch={dispatch} />
           <InterestedItemsRail dispatch={dispatch} />
           <ReviewStrip dispatch={dispatch} state={state} title="利用者レビュー" />
           <MobileGiftFair dispatch={dispatch} />
           <MobileGramGrid dispatch={dispatch} />
+          <MobileCategoryRail dispatch={dispatch} />
           <MobilePicksGrid dispatch={dispatch} />
           <MobileSupportFooter />
         </>
