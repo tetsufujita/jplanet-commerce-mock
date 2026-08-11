@@ -90,18 +90,21 @@ async function dispatchNativeTouchGesture(
       touchPoints: [{ ...points[0], force: 1, id: 1, radiusX: 1, radiusY: 1 }],
       type: "touchStart",
     });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
 
     for (const point of points.slice(1)) {
       await session.send("Input.dispatchTouchEvent", {
         touchPoints: [{ ...point, force: 1, id: 1, radiusX: 1, radiusY: 1 }],
         type: "touchMove",
       });
+      await page.evaluate(() => new Promise(requestAnimationFrame));
     }
 
     await session.send("Input.dispatchTouchEvent", {
       touchPoints: [],
       type: "touchEnd",
     });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
   } finally {
     await session.detach();
   }
@@ -181,6 +184,25 @@ async function replayDesktopScenario(page: Page) {
   await page.goto(routePath);
   await expect(page).toHaveURL(`${localOrigin}${routePath}`);
   await expect(page.getByTestId("sazo-hero")).toBeVisible();
+  const desktopShortcuts = page.getByRole("group", {
+    exact: true,
+    name: "J-Planetショートカット",
+  });
+  await expect
+    .poll(() =>
+      desktopShortcuts
+        .getByRole("button")
+        .evaluateAll((buttons) => buttons.map((button) => button.getAttribute("aria-label"))),
+    )
+    .toEqual(["J-Planet特集", "限定", "フリマ", "コスメ", "K-POP"]);
+  await desktopShortcuts.getByRole("button", { exact: true, name: "コスメ" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "beauty");
+  await expect(page.locator("[data-beauty-view]")).toBeVisible();
+  await page
+    .getByRole("navigation", { exact: true, name: "メインメニュー" })
+    .getByRole("button", { exact: true, name: "ホーム" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
   const heroCounter = page.getByTestId("sazo-hero-counter");
   const heroRoot = page.locator(".sazo-root");
   const campaign = page.getByRole("button", {
@@ -362,6 +384,11 @@ async function replayMobileScenario(page: Page) {
   ).toBe(true);
   await couponBanner.getByRole("button").click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "coupons");
+  const coupons = page.locator('[data-view-content="coupons"]');
+  await expect(coupons).toBeVisible();
+  await expect(
+    coupons.getByRole("heading", { exact: true, level: 1, name: "クーポン" }),
+  ).toBeVisible();
   await mobileNavigation.getByRole("button", { exact: true, name: "ホーム" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
   await expect(
@@ -389,6 +416,20 @@ async function replayMobileScenario(page: Page) {
   await page.setViewportSize({ height: 956, width: 440 });
   await expectNoHorizontalPageOverflow(page);
   await page.setViewportSize(mobileViewport);
+
+  for (const label of ["メンズ", "食品"] as const) {
+    const currentCategoryRail = page
+      .getByTestId("mobile-category-rail")
+      .getByRole("group", { exact: true, name: "商品カテゴリーから探す" });
+    await currentCategoryRail.getByRole("button", { exact: true, name: label }).click();
+    await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "categories");
+    await expect(page.locator('[data-view-content="categories"]')).toBeVisible();
+    await expect(
+      page.getByRole("button", { exact: true, name: label }),
+    ).toHaveAttribute("aria-current", "page");
+    await mobileNavigation.getByRole("button", { exact: true, name: "ホーム" }).click();
+    await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
+  }
 
   const topLauncher = page.getByRole("button", {
     exact: true,

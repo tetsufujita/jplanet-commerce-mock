@@ -223,6 +223,12 @@
         "notifications": "通知設定",
         "support": "サポート",
         "logout": "ログアウト"
+      },
+      "coupons": {
+        "title": "Cupons", "registerTitle": "Cadastrar cupom", "numberLabel": "Código do cupom",
+        "numberPlaceholder": "Digite o código do cupom", "register": "Cadastrar",
+        "available": "Cupons disponíveis", "discount": "50% de desconto no frete",
+        "name": "Cupom de 50% no frete (até R$ 40)", "expiry": "Expira em 29 dias (8 de setembro de 2026 às 15:54)"
       }
     },
     "favorites": {
@@ -377,7 +383,7 @@
       "mobileSearchPlaceholder": "何を注文しますか？",
       "agentEntryGroup": "Consulta de produto com IA",
       "agentImageEntry": "Consultar a IA usando uma imagem",
-      "shortcutLabel": "J-Planetショートカット",
+      "shortcutLabel": "Atalhos da J-Planet",
       "shortcuts": {
         "feature": "Destaques da J-Planet",
         "limited": "Limitados",

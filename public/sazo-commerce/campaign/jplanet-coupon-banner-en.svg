@@ -1,0 +1,34 @@
+<svg viewBox="0 0 1364 466" role="img" aria-labelledby="title desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="title">J-Planet welcome coupons</title>
+  <desc id="desc">Three coupons for shopping Japanese products from Brazil</desc>
+  <rect width="1364" height="466" fill="#1f2e4f"/>
+  <circle cx="1210" cy="60" r="230" fill="#fea2ac" opacity=".22"/>
+  <circle cx="120" cy="430" r="250" fill="#fea2ac" opacity=".14"/>
+  <path d="M0 368C224 294 394 421 610 354c240-75 390-9 754-105v217H0Z" fill="#ffffff" opacity=".08"/>
+  <text x="682" y="142" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="6">WELCOME COUPONS</text>
+  <text x="682" y="170" text-anchor="middle" fill="#fea2ac" font-family="Arial, sans-serif" font-size="16" font-weight="700">SHOP JAPANESE PRODUCTS IN BRAZIL · THROUGH AUGUST 31</text>
+  <g transform="translate(310 185)">
+    <rect width="220" height="150" rx="20" fill="#ffffff"/>
+    <circle cx="0" cy="75" r="14" fill="#1f2e4f"/>
+    <circle cx="220" cy="75" r="14" fill="#1f2e4f"/>
+    <text x="110" y="37" text-anchor="middle" fill="#1f3864" font-family="Arial, sans-serif" font-size="15" font-weight="700">PRODUCT COUPON</text>
+    <text x="110" y="88" text-anchor="middle" fill="#1f2e4f" font-family="Arial, sans-serif" font-size="38" font-weight="800">R$ 20</text>
+    <text x="110" y="123" text-anchor="middle" fill="#667085" font-family="Arial, sans-serif" font-size="13">FIRST PURCHASE ONLY</text>
+  </g>
+  <g transform="translate(572 185)">
+    <rect width="220" height="150" rx="20" fill="#fff4f5"/>
+    <circle cx="0" cy="75" r="14" fill="#1f2e4f"/>
+    <circle cx="220" cy="75" r="14" fill="#1f2e4f"/>
+    <text x="110" y="37" text-anchor="middle" fill="#1f3864" font-family="Arial, sans-serif" font-size="15" font-weight="700">SHIPPING COUPON</text>
+    <text x="110" y="88" text-anchor="middle" fill="#1f2e4f" font-family="Arial, sans-serif" font-size="38" font-weight="800">50% OFF</text>
+    <text x="110" y="123" text-anchor="middle" fill="#667085" font-family="Arial, sans-serif" font-size="13">FIRST PURCHASE ONLY</text>
+  </g>
+  <g transform="translate(834 185)">
+    <rect width="220" height="150" rx="20" fill="#ffffff"/>
+    <circle cx="0" cy="75" r="14" fill="#1f2e4f"/>
+    <circle cx="220" cy="75" r="14" fill="#1f2e4f"/>
+    <text x="110" y="37" text-anchor="middle" fill="#1f3864" font-family="Arial, sans-serif" font-size="15" font-weight="700">BUNDLE SAVINGS</text>
+    <text x="110" y="88" text-anchor="middle" fill="#1f2e4f" font-family="Arial, sans-serif" font-size="38" font-weight="800">R$ 30</text>
+    <text x="110" y="123" text-anchor="middle" fill="#667085" font-family="Arial, sans-serif" font-size="13">FIRST PURCHASE ONLY</text>
+  </g>
+</svg>

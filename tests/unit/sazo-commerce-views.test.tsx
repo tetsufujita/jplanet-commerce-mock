@@ -400,7 +400,8 @@ describe("SAZO captured view contracts", () => {
     ).toBe("grid");
   });
 
-  it("uses the captured two-row mobile home navigation", async () => {
+  it("uses home shortcuts with bottom Home and keeps secondary navigation off home", async () => {
+    installMobileHome();
     const { container } = await renderWithI18n(<SazoCommercePage />);
     const mobileShell =
       container.querySelector<HTMLElement>('[data-shell="mobile"]') ?? container;
@@ -408,10 +409,40 @@ describe("SAZO captured view contracts", () => {
       name: "モバイルメニュー",
     });
 
+    const shortcuts = screen.getByRole("group", {
+      name: "J-Planetショートカット",
+    });
+
+    expect(
+      within(shortcuts)
+        .getAllByRole("button")
+        .map((button) => button.textContent),
+    ).toEqual([
+      "J-Planet特集",
+      "限定",
+      "フリマ",
+      "サービス紹介",
+      "人気ブランド",
+      "カテゴリー",
+      "レビュー",
+      "ヘルプ",
+      "お知らせ",
+    ]);
+    expect(
+      within(mobileShell).queryByRole("navigation", {
+        name: "モバイルサブメニュー",
+      }),
+    ).toBeNull();
+    expect(
+      within(primary)
+        .getAllByRole("button")
+        .map((button) => button.textContent),
+    ).toEqual(["ホーム", "通知", "エージェント", "お気に入り", "マイページ"]);
+
+    fireEvent.click(within(shortcuts).getByRole("button", { name: "サービス紹介" }));
     const secondary = within(mobileShell).getByRole("navigation", {
       name: "モバイルサブメニュー",
     });
-
     expect(
       within(secondary)
         .getAllByRole("button")
@@ -425,11 +456,8 @@ describe("SAZO captured view contracts", () => {
       "ヘルプ",
       "お知らせ",
     ]);
-    expect(
-      within(primary)
-        .getAllByRole("button")
-        .map((button) => button.textContent),
-    ).toEqual(["ホーム", "通知", "エージェント", "お気に入り", "マイページ"]);
+
+    fireEvent.click(within(secondary).getByRole("button", { name: "ホーム" }));
 
     const agent = within(primary).getByRole("button", { name: "エージェント" });
     fireEvent.click(agent);

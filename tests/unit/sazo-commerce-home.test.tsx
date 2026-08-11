@@ -114,8 +114,8 @@ function HeroTicker({
 
 describe("SAZO home composition", () => {
   it("defines the mobile shortcut and photo-category fixture contracts", async () => {
-    expectTypeOf<readonly HomeShortcutItem[]>().toMatchTypeOf<typeof homeShortcutItems>();
-    expectTypeOf<readonly HomeCategoryItem[]>().toMatchTypeOf<typeof homeCategoryItems>();
+    expectTypeOf<readonly HomeShortcutItem[]>().toExtend<typeof homeShortcutItems>();
+    expectTypeOf<readonly HomeCategoryItem[]>().toExtend<typeof homeCategoryItems>();
 
     expect(homeShortcutItems.map((item) => item.labelKey)).toEqual([
       "feature",
@@ -266,6 +266,30 @@ describe("SAZO home composition", () => {
     expect(markup).toContain("¥3,799");
   });
 
+  it("keeps the desktop home shortcut contract and cosmetics destination unchanged", async () => {
+    installReducedMotion(false);
+    const dispatch = vi.fn();
+    const i18n = await createI18n("ja");
+    render(
+      <I18nextProvider i18n={i18n}>
+        <HomeView dispatch={dispatch} state={createInitialSazoState()} />
+      </I18nextProvider>,
+    );
+    const shortcutGroup = screen.getByRole("group", {
+      name: "J-Planetショートカット",
+    });
+
+    expect(
+      within(shortcutGroup)
+        .getAllByRole("button")
+        .map((button) => button.textContent.replace("new", "")),
+    ).toEqual(["J-Planet特集", "限定", "フリマ", "コスメ", "K-POP"]);
+
+    fireEvent.click(within(shortcutGroup).getByRole("button", { name: "コスメ" }));
+
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "beauty" });
+  });
+
   it("renders the SAZO mobile home hierarchy with J-Planet content", async () => {
     installReducedMotion(true);
     const { container } = await renderHomePage();
@@ -378,6 +402,91 @@ describe("SAZO home composition", () => {
     fireEvent.click(screen.getByRole("button", { name: /クーポン/ }));
 
     expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "coupons" });
+
+    dispatch.mockClear();
+    fireEvent.click(within(categoryRail).getByRole("button", { name: "メンズ" }));
+
+    expect(dispatch).toHaveBeenNthCalledWith(1, {
+      type: "select-directory-category",
+      category: "mens",
+    });
+    expect(dispatch).toHaveBeenNthCalledWith(2, {
+      type: "navigate",
+      view: "categories",
+    });
+  });
+
+  it("opens usable coupon content from the mobile home CTA", async () => {
+    installReducedMotion(true);
+    const { container } = await renderHomePage();
+
+    fireEvent.click(screen.getByRole("button", { name: "J-Planet 初回限定クーポン" }));
+
+    expect(container.querySelector('[data-view-content="coupons"]')).not.toBeNull();
+    expect(screen.getByRole("heading", { level: 1, name: "クーポン" })).toBeTruthy();
+  });
+
+  it.each([
+    ["ja", "J-Planetショートカット", "クーポンを受け取る", "jplanet-coupon-banner.svg"],
+    ["en", "J-Planet shortcuts", "Get coupons", "jplanet-coupon-banner-en.svg"],
+    ["pt-BR", "Atalhos da J-Planet", "Ver cupons", "jplanet-coupon-banner-pt-BR.svg"],
+  ] as const)(
+    "localizes visible and accessible coupon content for %s",
+    async (locale, shortcutLabel, cta, artwork) => {
+      const dispatch = vi.fn();
+      await renderHomePage(locale, dispatch);
+      const shortcutGroup = screen.getByRole("group", { name: shortcutLabel });
+      const coupon = screen.getByTestId("mobile-coupon-banner");
+      const image = within(coupon).getByRole("img");
+      const button = within(coupon).getByRole("button", {
+        name: image.getAttribute("alt") ?? undefined,
+      });
+
+      expect(shortcutGroup).toBeTruthy();
+      expect(within(button).getByText(cta)).toBeTruthy();
+      expect(new URL(image.getAttribute("src") ?? "", window.location.origin).pathname).toBe(
+        `/sazo-commerce/campaign/${artwork}`,
+      );
+      expect(image.getAttribute("alt")).not.toBe("");
+
+      cleanup();
+    },
+  );
+
+  it.each(["メンズ", "食品"] as const)(
+    "opens the selected %s category instead of the default",
+    async (label) => {
+      installReducedMotion(true);
+      const { container } = await renderHomePage();
+      const rail = screen.getByTestId("mobile-category-rail");
+
+      fireEvent.click(within(rail).getByRole("button", { name: label }));
+
+      expect(container.querySelector('[data-view-content="categories"]')).not.toBeNull();
+      expect(screen.getByRole("button", { name: label }).getAttribute("aria-current")).toBe(
+        "page",
+      );
+      expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
+        "categories",
+      );
+    },
+  );
+
+  it("uses a neutral J-Planet artwork when a category image fails", async () => {
+    const dispatch = vi.fn();
+    await renderHomePage("ja", dispatch);
+    const mens = screen.getByRole("button", { name: "メンズ" });
+    const image = mens.querySelector("img");
+
+    expect(image).not.toBeNull();
+
+    if (image !== null) {
+      fireEvent.error(image);
+    }
+
+    const fallback = mens.querySelector("[data-category-image-fallback]");
+    expect(fallback).not.toBeNull();
+    expect(fallback?.getAttribute("src")).toBe("/sazo-commerce/jplanet-sakura-mark.png");
   });
 
   it.each([
@@ -450,7 +559,7 @@ describe("SAZO home composition", () => {
   });
 
   it("renders crisp pop J-Planet shortcut artwork", async () => {
-    const { container } = await renderHomePage();
+    const { container } = await renderHomePage("ja", vi.fn());
     const shortcutGroup = screen.getByRole("group", {
       name: "J-Planetショートカット",
     });

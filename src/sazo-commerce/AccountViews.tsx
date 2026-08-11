@@ -430,6 +430,53 @@ export function ProfileView({ dispatch }: AccountViewProps) {
   );
 }
 
+export function CouponsView({ dispatch }: AccountViewProps) {
+  const { t } = useTranslation();
+
+  return (
+    <AccountViewFrame
+      backView="mypage"
+      dispatch={dispatch}
+      title={t("sazo.account.coupons.title")}
+      view="coupons"
+    >
+      <div className="sazo-account-screen-content sazo-coupons-content">
+        <form
+          className="sazo-coupon-register"
+          onSubmit={(event) => {
+            event.preventDefault();
+          }}
+        >
+          <label htmlFor="sazo-coupon-number">{t("sazo.account.coupons.registerTitle")}</label>
+          <div>
+            <input
+              aria-label={t("sazo.account.coupons.numberLabel")}
+              id="sazo-coupon-number"
+              placeholder={t("sazo.account.coupons.numberPlaceholder")}
+              type="text"
+            />
+            <button type="submit">{t("sazo.account.coupons.register")}</button>
+          </div>
+        </form>
+        <div className="sazo-coupon-count">
+          <span>{t("sazo.account.coupons.available")}</span>
+          <strong>{sazoAccountFixture.coupons}</strong>
+        </div>
+        <article className="sazo-coupon-card">
+          <div className="sazo-coupon-card-icon">
+            <Ticket aria-hidden size={28} />
+          </div>
+          <div>
+            <strong>{t("sazo.account.coupons.discount")}</strong>
+            <h2>{t("sazo.account.coupons.name")}</h2>
+            <p>{t("sazo.account.coupons.expiry")}</p>
+          </div>
+        </article>
+      </div>
+    </AccountViewFrame>
+  );
+}
+
 export function CardsView({ dispatch }: AccountViewProps) {
   const { t } = useTranslation();
 

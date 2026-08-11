@@ -223,6 +223,12 @@
         "notifications": "通知設定",
         "support": "サポート",
         "logout": "ログアウト"
+      },
+      "coupons": {
+        "title": "Coupons", "registerTitle": "Register a coupon", "numberLabel": "Coupon code",
+        "numberPlaceholder": "Enter a coupon code", "register": "Register",
+        "available": "Available coupons", "discount": "50% off shipping",
+        "name": "50% off shipping coupon (up to R$ 40)", "expiry": "Expires in 29 days (September 8, 2026 at 15:54)"
       }
     },
     "favorites": {
@@ -377,7 +383,7 @@
       "mobileSearchPlaceholder": "何を注文しますか？",
       "agentEntryGroup": "AI product assistance",
       "agentImageEntry": "Ask AI using an image",
-      "shortcutLabel": "J-Planetショートカット",
+      "shortcutLabel": "J-Planet shortcuts",
       "shortcuts": {
         "feature": "J-Planet features",
         "limited": "Limited",

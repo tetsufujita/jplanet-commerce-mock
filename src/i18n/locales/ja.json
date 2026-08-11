@@ -223,6 +223,17 @@
         "notifications": "通知設定",
         "support": "サポート",
         "logout": "ログアウト"
+      },
+      "coupons": {
+        "title": "クーポン",
+        "registerTitle": "クーポン登録",
+        "numberLabel": "クーポン番号",
+        "numberPlaceholder": "クーポン番号を入力してください",
+        "register": "登録",
+        "available": "使用可能なクーポン",
+        "discount": "送料 50%割引",
+        "name": "送料50%割引クーポン（最大1,000円・アプリ）",
+        "expiry": "29日後に満了 (2026-09-08 15:54)"
       }
     },
     "favorites": {

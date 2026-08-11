@@ -2,6 +2,7 @@ import { useEffect, useReducer, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import {
   CardsView,
+  CouponsView,
   FavoritesView,
   MyPageView,
   ProfileView,
@@ -133,6 +134,7 @@ export function SazoCommercePage() {
           {state.view === "favorites" ? <FavoritesView dispatch={dispatch} /> : null}
           {state.view === "profile" ? <ProfileView dispatch={dispatch} /> : null}
           {state.view === "cards" ? <CardsView dispatch={dispatch} /> : null}
+          {state.view === "coupons" ? <CouponsView dispatch={dispatch} /> : null}
         </SazoShell>
       )}
 

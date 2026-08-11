@@ -38,6 +38,7 @@ import {
   recordedDesktopRankingReviews,
   recordedMobileProfileReviews,
   searchDiscoveryProducts,
+  shortcuts,
   type HomeShortcutIconId,
   type Product,
   type ShortcutIconId,
@@ -415,7 +416,7 @@ function ShortcutArtwork({ icon }: { icon?: HomeShortcutIconId }) {
   return <Icon aria-hidden />;
 }
 
-function ShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+function MobileShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
 
   return (
@@ -448,6 +449,44 @@ function ShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function DesktopShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+  const { t } = useTranslation();
+
+  return (
+    <div
+      aria-label={t("sazo.home.shortcutLabel")}
+      className="sazo-shortcuts"
+      role="group"
+    >
+      {shortcuts.map((shortcut) => (
+        <button
+          aria-label={shortcut.label}
+          className="sazo-shortcut"
+          key={shortcut.id}
+          onClick={
+            shortcut.id === "cosmetics"
+              ? () => {
+                  dispatch({ type: "navigate", view: "beauty" });
+                }
+              : undefined
+          }
+          type="button"
+        >
+          <span className="sazo-shortcut-icon" data-icon={shortcut.id}>
+            <JplanetShortcutIcon id={shortcut.id} />
+            {shortcut.badge ? (
+              <span aria-hidden className="sazo-shortcut-badge">
+                {shortcut.badge}
+              </span>
+            ) : null}
+          </span>
+          <span>{shortcut.label}</span>
+        </button>
+      ))}
     </div>
   );
 }
@@ -558,7 +597,17 @@ function MobileAgentSearch({ dispatch }: Pick<HomeViewProps, "dispatch">) {
 }
 
 function MobileCouponBanner({ dispatch }: Pick<HomeViewProps, "dispatch">) {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const artworkByLocale = {
+    en: "/sazo-commerce/campaign/jplanet-coupon-banner-en.svg",
+    ja: "/sazo-commerce/campaign/jplanet-coupon-banner.svg",
+    "pt-BR": "/sazo-commerce/campaign/jplanet-coupon-banner-pt-BR.svg",
+  } as const;
+  const locale = i18n.resolvedLanguage;
+  const artwork =
+    locale === "en" || locale === "pt-BR"
+      ? artworkByLocale[locale]
+      : artworkByLocale.ja;
 
   return (
     <section
@@ -568,6 +617,7 @@ function MobileCouponBanner({ dispatch }: Pick<HomeViewProps, "dispatch">) {
       data-testid="mobile-coupon-banner"
     >
       <button
+        aria-label={t("sazo.home.couponBannerArtwork")}
         onClick={() => {
           dispatch({ type: "navigate", view: "coupons" });
         }}
@@ -576,12 +626,31 @@ function MobileCouponBanner({ dispatch }: Pick<HomeViewProps, "dispatch">) {
         <img
           alt={t("sazo.home.couponBannerArtwork")}
           decoding="async"
-          src="/sazo-commerce/campaign/jplanet-coupon-banner.svg"
+          src={artwork}
         />
         <span>{t("sazo.home.couponBannerCta")}</span>
         <ChevronRight aria-hidden size={18} />
       </button>
     </section>
+  );
+}
+
+function MobileCategoryArtwork({ image }: { image: string }) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  return (
+    <img
+      alt=""
+      aria-hidden
+      data-category-image-fallback={imageFailed ? "true" : undefined}
+      decoding="async"
+      onError={() => {
+        setImageFailed(true);
+      }}
+      src={
+        imageFailed ? "/sazo-commerce/jplanet-sakura-mark.png" : image
+      }
+    />
   );
 }
 
@@ -672,6 +741,10 @@ function MobileCategoryRail({ dispatch }: Pick<HomeViewProps, "dispatch">) {
               className="sazo-mobile-category-tile"
               key={category.id}
               onClick={() => {
+                dispatch({
+                  type: "select-directory-category",
+                  category: category.id,
+                });
                 if (category.view !== undefined) {
                   dispatch({ type: "navigate", view: category.view });
                 }
@@ -679,7 +752,7 @@ function MobileCategoryRail({ dispatch }: Pick<HomeViewProps, "dispatch">) {
               type="button"
             >
               <span className="sazo-mobile-category-image">
-                <img alt="" aria-hidden decoding="async" src={category.image} />
+                <MobileCategoryArtwork image={category.image} />
               </span>
               <span className="sazo-mobile-category-label">{label}</span>
             </button>
@@ -986,7 +1059,7 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
         <>
           <HeroCarousel dispatch={dispatch} state={{ ...state, heroFeed: "large-first" }} />
           <MobileAgentSearch dispatch={dispatch} />
-          <ShortcutRow dispatch={dispatch} />
+          <MobileShortcutRow dispatch={dispatch} />
           <MobileCouponBanner dispatch={dispatch} />
           <InterestedItemsRail dispatch={dispatch} />
           <ReviewStrip dispatch={dispatch} state={state} title="利用者レビュー" />
@@ -999,7 +1072,7 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
       ) : (
         <>
           <HeroCarousel dispatch={dispatch} state={state} />
-          <ShortcutRow dispatch={dispatch} />
+          <DesktopShortcutRow dispatch={dispatch} />
           <HomeIntro />
           <InterestedItemsRail dispatch={dispatch} />
           <ReviewStrip dispatch={dispatch} state={state} />
