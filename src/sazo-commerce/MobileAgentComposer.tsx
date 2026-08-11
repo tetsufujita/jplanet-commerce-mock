@@ -7,11 +7,11 @@ import {
   type ChangeEvent,
   type SyntheticEvent,
 } from "react";
-import { ImagePlus, Link, Search, Sparkles } from "lucide-react";
+import { Camera, ImagePlus, Plus, Sparkles, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { AgentEntryIntent } from "@/sazo-commerce/model";
 
-export type AgentComposerMode = "url" | "image" | "product-name";
+export type AgentComposerMode = "text" | "image";
 
 export interface AgentComposerSeedRequest {
   revision: number;
@@ -35,15 +35,16 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
     forwardedRef,
   ) {
     const { t } = useTranslation();
-    const [mode, setMode] = useState<AgentComposerMode>(
-      entryIntent === "image-picker" ? "image" : "product-name",
-    );
+    const [mode, setMode] = useState<AgentComposerMode>("text");
+    const [menuOpen, setMenuOpen] = useState(false);
     const [draft, setDraft] = useState("");
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [submitted, setSubmitted] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+    const textInputRef = useRef<HTMLTextAreaElement>(null);
     const imageUrlRef = useRef<string | null>(null);
     const consumedIntentRef = useRef<AgentEntryIntent | null>(null);
     const shouldOpenImagePickerRef = useRef(false);
@@ -94,7 +95,7 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
         return;
       }
 
-      setMode("product-name");
+      setMode("text");
       setDraft(seedRequest.value);
     }, [seedRequest]);
 
@@ -104,14 +105,12 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
       };
     }, [replaceImage]);
 
-    const chooseMode = (nextMode: AgentComposerMode) => {
-      setMode(nextMode);
-      setError(null);
-      setSubmitted(false);
-    };
-
     const openImagePicker = () => {
       fileInputRef.current?.click();
+    };
+
+    const openCamera = () => {
+      cameraInputRef.current?.click();
     };
 
     const changeImage = (event: ChangeEvent<HTMLInputElement>) => {
@@ -128,6 +127,7 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
         return;
       }
 
+      setMode("image");
       replaceImage({ file, url: URL.createObjectURL(file) });
       setError(null);
       setSubmitted(false);
@@ -144,8 +144,8 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
     };
 
     const imageInputId = "sazo-mobile-agent-image";
+    const cameraInputId = "sazo-mobile-agent-camera";
     const textInputId = "sazo-mobile-agent-draft";
-    const isImageMode = mode === "image";
 
     return (
       <div className="sazo-mobile-agent-composer" ref={forwardedRef}>
@@ -164,123 +164,142 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
           </div>
         </header>
 
-        <ol className="sazo-mobile-agent-composer-steps">
-          <li>{t("sazo.agentHub.composer.stepUrl")}</li>
-          <li>{t("sazo.agentHub.composer.stepName")}</li>
-        </ol>
-
-        <div
-          aria-label={t("sazo.agentHub.composer.modesLabel")}
-          className="sazo-mobile-agent-composer-modes"
-          role="group"
-        >
-          <button
-            aria-pressed={mode === "url"}
-            onClick={() => {
-              chooseMode("url");
-            }}
-            type="button"
-          >
-            <Link aria-hidden="true" size={18} />
-            {t("sazo.agentHub.composer.urlMode")}
-          </button>
-          <button
-            aria-pressed={isImageMode}
-            onClick={() => {
-              chooseMode("image");
-            }}
-            type="button"
-          >
-            <ImagePlus aria-hidden="true" size={18} />
-            {t("sazo.agentHub.composer.imageMode")}
-          </button>
-          <button
-            aria-pressed={mode === "product-name"}
-            onClick={() => {
-              chooseMode("product-name");
-            }}
-            type="button"
-          >
-            <Search aria-hidden="true" size={18} />
-            {t("sazo.agentHub.composer.productMode")}
-          </button>
-        </div>
-
         <form className="sazo-mobile-agent-composer-form" onSubmit={submit}>
-          {isImageMode ? (
-            <div className="sazo-mobile-agent-composer-image">
-              <input
-                accept="image/*"
+          <input
+            accept="image/*"
+            aria-hidden="true"
+            hidden
+            id={imageInputId}
+            onChange={changeImage}
+            ref={fileInputRef}
+            tabIndex={-1}
+            type="file"
+          />
+          <label className="sazo-visually-hidden" htmlFor={imageInputId}>
+            {t("sazo.agentHub.composer.selectPhoto")}
+          </label>
+          <input
+            accept="image/*"
+            aria-hidden="true"
+            capture="environment"
+            hidden
+            id={cameraInputId}
+            onChange={changeImage}
+            ref={cameraInputRef}
+            tabIndex={-1}
+            type="file"
+          />
+          <label className="sazo-visually-hidden" htmlFor={cameraInputId}>
+            {t("sazo.agentHub.composer.takePhoto")}
+          </label>
+
+          <div className="sazo-mobile-agent-composer-input-shell">
+            <button
+              aria-expanded={menuOpen}
+              aria-haspopup="menu"
+              aria-label={t("sazo.agentHub.composer.menuLabel")}
+              className="sazo-mobile-agent-composer-plus"
+              onClick={() => {
+                setMenuOpen((open) => !open);
+              }}
+              type="button"
+            >
+              <Plus aria-hidden="true" size={21} />
+            </button>
+            <label className="sazo-visually-hidden" htmlFor={textInputId}>
+              {t("sazo.agentHub.composer.draftLabel")}
+            </label>
+            <textarea
+              id={textInputId}
+              onChange={(event) => {
+                setDraft(event.target.value);
+                setSubmitted(false);
+              }}
+              placeholder={t("sazo.agentHub.composer.inputPlaceholder")}
+              ref={textInputRef}
+              rows={1}
+              value={draft}
+            />
+            <button
+              aria-label={t("sazo.agentHub.composer.send")}
+              className="sazo-mobile-agent-composer-submit"
+              disabled={!canSubmit}
+              type="submit"
+            >
+              <Sparkles
                 aria-hidden="true"
-                hidden
-                id={imageInputId}
-                onChange={changeImage}
-                ref={fileInputRef}
-                tabIndex={-1}
-                type="file"
+                className="sazo-mobile-agent-composer-ai-mark"
+                data-testid="composer-ai-mark"
+                size={19}
               />
-              <label className="sazo-visually-hidden" htmlFor={imageInputId}>
-                {t("sazo.agentHub.composer.selectImage")}
-              </label>
-              {imageUrl === null || imageFile === null ? (
-                <button onClick={openImagePicker} type="button">
-                  {t("sazo.agentHub.composer.selectImage")}
-                </button>
-              ) : (
-                <>
-                  <img
-                    alt={t("sazo.agentHub.composer.selectedImageAlt", {
-                      name: imageFile.name,
-                    })}
-                    src={imageUrl}
-                  />
-                  <p>{imageFile.name}</p>
-                  <button onClick={openImagePicker} type="button">
-                    {t("sazo.agentHub.composer.replaceImage")}
-                  </button>
-                  <button
-                    onClick={() => {
-                      replaceImage(null);
-                      setError(null);
-                      setSubmitted(false);
-                    }}
-                    type="button"
-                  >
-                    {t("sazo.agentHub.composer.removeImage")}
-                  </button>
-                </>
-              )}
+              <span>{t("sazo.agentHub.composer.send")}</span>
+            </button>
+          </div>
+
+          {menuOpen ? (
+            <div
+              aria-label={t("sazo.agentHub.composer.menuLabel")}
+              className="sazo-mobile-agent-composer-menu"
+              role="menu"
+            >
+              <button
+                onClick={() => {
+                  setMode("image");
+                  setMenuOpen(false);
+                  openCamera();
+                }}
+                role="menuitem"
+                type="button"
+              >
+                <Camera aria-hidden="true" size={18} />
+                {t("sazo.agentHub.composer.takePhoto")}
+              </button>
+              <button
+                onClick={() => {
+                  setMode("image");
+                  setMenuOpen(false);
+                  openImagePicker();
+                }}
+                role="menuitem"
+                type="button"
+              >
+                <ImagePlus aria-hidden="true" size={18} />
+                {t("sazo.agentHub.composer.selectPhoto")}
+              </button>
             </div>
-          ) : (
-            <>
-              <label className="sazo-visually-hidden" htmlFor={textInputId}>
-                {t("sazo.agentHub.composer.draftLabel")}
-              </label>
-              <textarea
-                id={textInputId}
-                onChange={(event) => {
-                  setDraft(event.target.value);
+          ) : null}
+
+          {imageUrl !== null && imageFile !== null ? (
+            <div className="sazo-mobile-agent-composer-image">
+              <img
+                alt={t("sazo.agentHub.composer.selectedImageAlt", {
+                  name: imageFile.name,
+                })}
+                src={imageUrl}
+              />
+              <p>{imageFile.name}</p>
+              <button onClick={openImagePicker} type="button">
+                {t("sazo.agentHub.composer.replaceImage")}
+              </button>
+              <button
+                onClick={() => {
+                  replaceImage(null);
+                  setMode("text");
+                  setError(null);
                   setSubmitted(false);
                 }}
-                placeholder={t(
-                  mode === "url"
-                    ? "sazo.agentHub.composer.urlPlaceholder"
-                    : "sazo.agentHub.composer.productPlaceholder",
-                )}
-                rows={4}
-                value={draft}
-              />
-            </>
-          )}
+                type="button"
+              >
+                <X aria-hidden="true" size={17} />
+                {t("sazo.agentHub.composer.removeImage")}
+              </button>
+            </div>
+          ) : null}
 
           {error === null ? null : <p role="status">{error}</p>}
           {submitted ? (
             <p role="status">{t("sazo.agentHub.composer.submitted")}</p>
           ) : null}
-          <button disabled={!canSubmit} type="submit">
-            <Sparkles aria-hidden="true" size={19} />
-            {t("sazo.agentHub.composer.submit")}
-          </button>
         </form>
       </div>
     );

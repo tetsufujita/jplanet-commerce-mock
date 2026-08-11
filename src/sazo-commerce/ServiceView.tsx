@@ -7,6 +7,7 @@ import {
   Minus,
   Plus,
   Search,
+  ShoppingCart,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ViewHeader, type ViewDispatchProps } from "@/sazo-commerce/DirectoryViews";
@@ -103,6 +104,17 @@ const partnerCategories = [
   "クラファン",
 ] as const;
 
+const partnerLogoPaths = [
+  "/sazo-commerce/service-lp/logo-gmarket.png",
+  "/sazo-commerce/service-lp/logo-coupang.png",
+  "/sazo-commerce/service-lp/logo-bungae.png",
+  "/sazo-commerce/service-lp/logo-aliexpress.png",
+  "/sazo-commerce/service-lp/logo-smile24.png",
+  "/sazo-commerce/service-lp/logo-webtoonfriends.png",
+  "/sazo-commerce/service-lp/logo-toyland.png",
+  "/sazo-commerce/service-lp/logo-tumblbug.png",
+] as const;
+
 const trustItems = [
   {
     body: "日本での購入内容を確認後、費用をわかりやすくご案内します。",
@@ -170,11 +182,27 @@ const footerLinks = [
 ] as const;
 const serviceStepTones = ["yellow", "green", "blue"] as const;
 
+const serviceVideoTopThumbnails = [
+  "/sazo-commerce/campaign/thumb-01.png",
+  "/sazo-commerce/campaign/thumb-02.png",
+  "/sazo-commerce/campaign/thumb-03.png",
+  "/sazo-commerce/campaign/thumb-04.png",
+  "/sazo-commerce/campaign/thumb-05-top-partial.png",
+] as const;
+
+const serviceVideoBottomThumbnails = [
+  "/sazo-commerce/campaign/thumb-05-partial.png",
+  "/sazo-commerce/campaign/thumb-04.png",
+  "/sazo-commerce/campaign/thumb-03.png",
+  "/sazo-commerce/campaign/thumb-02.png",
+  "/sazo-commerce/campaign/thumb-01.png",
+] as const;
+
 function ServiceUrlSearch({ id }: { id: string }) {
   return (
-    <div className="sazo-service-url-search">
+    <div className="sazo-service-url-search" data-url-demo="typing">
       <p>ここに欲しい商品のURLを入力してショッピングをしましょう！</p>
-      <div className="sazo-service-url-entry" role="search">
+      <div className="sazo-service-url-entry" data-demo-input role="search">
         <label className="sazo-visually-hidden" htmlFor={id}>
           日本のショップURL
         </label>
@@ -188,6 +216,115 @@ function ServiceUrlSearch({ id }: { id: string }) {
   );
 }
 
+function ServiceVideoRail({
+  images,
+  reverse = false,
+}: {
+  images: readonly string[];
+  reverse?: boolean;
+}) {
+  return (
+    <div
+      aria-hidden="true"
+      className="sazo-service-video-rail"
+      data-direction={reverse ? "reverse" : "forward"}
+      data-service-video-rail
+    >
+      {[...images, ...images].map((image, index) => (
+        <span className="sazo-service-video-thumb" key={`${image}-${String(index)}`}>
+          <img alt="" src={image} />
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ServiceVideoIntro({ dispatch }: ViewDispatchProps) {
+  return (
+    <section className="sazo-service-video-intro" data-service-video-intro>
+      <header className="sazo-service-video-header">
+        <button
+          aria-label="J-Planetホーム"
+          className="sazo-service-video-wordmark"
+          onClick={() => {
+            dispatch({ type: "navigate", view: "home" });
+          }}
+          type="button"
+        >
+          <JplanetLogo />
+        </button>
+        <div aria-label="サービスメニュー" className="sazo-service-video-actions" role="group">
+          <button aria-label="言語設定" type="button">
+            🇯🇵
+          </button>
+          <button aria-label="検索" type="button">
+            <Search aria-hidden size={21} />
+          </button>
+          <button aria-label="カート" type="button">
+            <ShoppingCart aria-hidden size={23} />
+          </button>
+        </div>
+      </header>
+
+      <div className="sazo-service-video-banner">
+        <img
+          alt="日本の商品をブラジルへ届ける初回限定クーポン"
+          src="/sazo-commerce/campaign/coupon-banner.png"
+        />
+      </div>
+
+      <ServiceVideoRail images={serviceVideoTopThumbnails} />
+
+      <section className="sazo-service-video-message">
+        <span>購入代行の面倒さゼロ！</span>
+        <h1>
+          <strong>超お得な</strong>
+          <br />
+          <small>日本の商品がたくさん！</small>
+        </h1>
+      </section>
+
+      <ServiceVideoRail images={serviceVideoBottomThumbnails} reverse />
+
+      <div className="sazo-service-video-url" role="search">
+        <Search aria-hidden size={22} strokeWidth={2.1} />
+        <span>日本のショップURLを入力してね</span>
+        <button aria-label="URLを検索" type="button">
+          <Search aria-hidden size={20} />
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function ServiceVideoHowToUse() {
+  const howToImages = [
+    "/sazo-commerce/service-lp/jplanet-how-to-use-1.svg",
+    "/sazo-commerce/service-lp/jplanet-how-to-use-2.svg",
+    "/sazo-commerce/service-lp/jplanet-how-to-use-3.svg",
+  ] as const;
+
+  return (
+    <section className="sazo-service-video-howto" data-service-video-howto>
+      <span>HOW TO USE</span>
+      <h2>URL入力のやり方</h2>
+      <div className="sazo-service-video-howto-card">
+        {howToImages.map((image, index) => (
+          <img
+            alt="日本の商品URLを入力する手順"
+            data-frame={String(index + 1)}
+            key={image}
+            src={image}
+          />
+        ))}
+      </div>
+      <p>
+        日本の商品URLを貼るだけで、商品情報を読み取り、J-Planetで購入できます。
+      </p>
+    </section>
+  );
+}
+
 export function ServiceView({ dispatch }: ViewDispatchProps) {
   const { t } = useTranslation();
   const [openFaq, setOpenFaq] = useState<string | null>(null);
@@ -195,8 +332,10 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
   return (
     <div className="sazo-service-view" data-view-content="service">
       <ViewHeader dispatch={dispatch} title={t("sazo.views.service.title")} />
+      <ServiceVideoIntro dispatch={dispatch} />
+      <ServiceVideoHowToUse />
 
-      <section className="sazo-service-hero">
+      <section className="sazo-service-hero sazo-service-legacy-hero">
         <div className="sazo-service-hero-grid">
           <img
             alt="プレゼントを持つ女性"
@@ -402,12 +541,29 @@ export function ServiceView({ dispatch }: ViewDispatchProps) {
         <h2>
           <small>フリマ・クラファンなど</small>日本の<span>どの通販</span>でも！
         </h2>
-        <div className="sazo-service-partner-grid">
-          {partnerCategories.map((category) => (
-            <article className="sazo-service-partner-card" key={category}>
-              {category}
-            </article>
-          ))}
+        <div
+          aria-label="日本の通販サイトのロゴ"
+          className="sazo-service-partner-grid"
+          role="region"
+        >
+          <div
+            className="sazo-service-partner-marquee-track"
+            data-direction="forward"
+          >
+            {[...partnerCategories, ...partnerCategories].map((category, index) => {
+              const logoPath = partnerLogoPaths[index % partnerCategories.length];
+              return (
+                <article
+                  aria-hidden={index >= partnerCategories.length}
+                  className="sazo-service-partner-card"
+                  key={`${category}-${String(index)}`}
+                >
+                  <img alt="" aria-hidden height={115} src={logoPath} width={260} />
+                  <span>{category}</span>
+                </article>
+              );
+            })}
+          </div>
         </div>
       </section>
 

@@ -224,6 +224,28 @@
         "support": "サポート",
         "logout": "ログアウト"
       },
+      "footer": {
+        "companyLinksLabel": "会社情報",
+        "company": "会社紹介",
+        "recruit": "採用情報",
+        "press": "プレスリリース",
+        "companyCopy": "© 2024-2026 J-Planet Brasil",
+        "address": "São Paulo - SP, Brasil",
+        "policyLinksLabel": "規約とポリシー",
+        "terms": "利用規約",
+        "privacy": "プライバシー規約",
+        "commercial": "特定商取引法に基づく表記"
+      },
+      "orders": {
+        "title": "注文履歴",
+        "tabsLabel": "注文状況",
+        "tabs": { "all": "すべて", "payment": "決済完了", "shipping": "配送中" },
+        "period": "期間",
+        "periodOption": "過去3ヶ月",
+        "search": "検索",
+        "emptyTitle": "検索結果が見つかりませんでした。",
+        "emptyBody": "入力内容とフィルターを再確認してください。"
+      },
       "coupons": {
         "title": "クーポン",
         "registerTitle": "クーポン登録",
@@ -234,6 +256,85 @@
         "discount": "送料 50%割引",
         "name": "送料50%割引クーポン（最大1,000円・アプリ）",
         "expiry": "29日後に満了 (2026-09-08 15:54)"
+      },
+      "points": {
+        "title": "ポイント",
+        "available": "使用可能ポイント",
+        "pending": "付与予定ポイント",
+        "expiring": "失効予定ポイント",
+        "tabsLabel": "ポイント履歴",
+        "tabs": { "all": "全履歴", "earned": "獲得済み", "used": "利用済み" },
+        "granted": "管理者による付与",
+        "grantedExpiry": "10.01満了"
+      },
+      "reviewCreate": {
+        "title": "レビュー作成",
+        "noticeTitle": "下記の場合はレビュー作成ができないため、表示されない可能性がございます。",
+        "reviewed": "レビュー済みの場合",
+        "notDelivered": "配送が完了していない場合",
+        "empty": "レビューを作成できる商品がございません"
+      },
+      "reviewHistory": {
+        "title": "作成したレビュー",
+        "count": "作成したレビュー {{count}}",
+        "empty": "作成したレビューがございません"
+      },
+      "delivery": {
+        "title": "配送先管理",
+        "empty": "登録されたお届け先住所がありません。",
+        "add": "配送先を追加"
+      },
+      "address": {
+        "title": "住所の追加・変更",
+        "intro": "日本国内のご自身名義の自宅の住所をご入力ください。",
+        "label": "配送先",
+        "home": "自宅",
+        "name": "氏名",
+        "familyName": "姓",
+        "givenName": "名",
+        "phone": "電話番号",
+        "postal": "郵便番号",
+        "city": "都道府県（市区町村）",
+        "street": "番地",
+        "next": "次へ"
+      },
+      "notifications": {
+        "title": "通知設定",
+        "noticeHeading": "お知らせ",
+        "settingsHeading": "通知設定",
+        "filterLabel": "お知らせの種類",
+        "filters": { "all": "全体", "orders": "注文・配送", "announcements": "J-Planetのご案内" },
+        "readAll": "すべてを既読にする",
+        "unread": "未読のお知らせ",
+        "demo": {
+          "orderTitle": "注文を受け付けました",
+          "orderBody": "日本の商品を確認しています。注文内容はマイページから確認できます。",
+          "orderMeta": "たった今 · 注文番号 JP-240810",
+          "documentsTitle": "追加書類が必要です",
+          "documentsBody": "配送に必要な書類を追加してください。ご注文全体を確認して手続きを進められます。",
+          "documentsMeta": "重要 · ご注文 JP-240810",
+          "announcementTitle": "J-Planetからのお知らせ",
+          "announcementBody": "日本からブラジルへの配送状況をお知らせします。",
+          "announcementMeta": "今日 · J-Planetサポート"
+        },
+        "email": { "title": "メール通知", "body": "注文や配送に関するお知らせをメールで受け取ります。" },
+        "mobile": { "title": "携帯通知", "body": "重要なお知らせを携帯電話で受け取ります。" }
+      },
+      "support": {
+        "title": "ヘルプ",
+        "heading": "何かお困りですか？",
+        "intro": "よくある質問からすぐに解決策を探せます。",
+        "searchLabel": "ヘルプを検索",
+        "searchPlaceholder": "質問を検索してください",
+        "faq": "よくある質問",
+        "topics": { "order": "注文について", "payment": "お支払いについて", "shipping": "配送について" },
+        "customerSupport": "カスタマーサポート",
+        "weekday": "平日：10:00〜18:00",
+        "weekend": "土日・祝日：15:00〜18:00",
+        "reply": "チャットよりお問い合わせください。24時間以内に担当者が回答いたします。",
+        "chatNow": "すぐに問い合わせを開始する",
+        "guide": "ご利用ガイド",
+        "guideLink": "J-Planetの使い方を見る"
       }
     },
     "favorites": {
@@ -333,19 +434,42 @@
       "recentProducts": "最近見た商品",
       "clearProducts": "最近見た商品を削除",
       "brand": "J-Planet AI",
-      "popularTitle": "ブラジルで人気の日本アイテム",
+      "purchaseStatusTitle": "進行中の購入依頼",
+      "purchaseStatusCaption": "日本からブラジルへ",
+      "statusChecked": "商品内容を確認",
+      "statusCompleted": "完了",
+      "statusPreparing": "日本側で購入準備中",
+      "statusInProgress": "進行中",
+      "statusShipping": "配送手配",
+      "statusNextStep": "次のステップ",
+      "documentsTitle": "追加書類を添付",
+      "documentsCaption": "必要な時だけで大丈夫です",
+      "documentsIntro": "本人確認や配送に必要な書類を、カメラ・写真・PDFから追加できます。",
+      "captureDocument": "カメラで撮影",
+      "chooseDocumentPhoto": "写真を選択",
+      "attachPdf": "PDFを添付",
+      "documentAdded": "{{name}}を追加しました",
+      "popularTitle": "人気キーワード",
       "productDetails": "{{name}}の商品詳細を見る",
       "rankedTopic": "{{rank}}位 {{topic}}",
       "composer": {
         "title": "J-Planet AIエージェント",
         "intro": "日本の商品探し・購入からブラジルへの配送まで、AIがサポートします。",
+        "menuLabel": "入力メニュー",
+        "inputPlaceholder": "URL・画像・商品名をAIに渡す",
+        "send": "送信",
+        "pasteUrl": "URLを貼る",
+        "selectPhoto": "ギャラリー",
+        "takePhoto": "カメラ",
+        "selectPhotoAction": "写真を選択",
+        "takePhotoAction": "写真を撮る",
         "stepUrl": "日本の商品URLまたは画像を送ってください",
         "stepName": "商品名や希望条件だけでも相談できます",
         "modesLabel": "相談方法",
         "urlMode": "URLを貼る",
         "imageMode": "画像を追加",
         "productMode": "商品名で相談",
-        "draftLabel": "探したい商品",
+        "draftLabel": "URL・画像・商品名をAIに渡す",
         "urlPlaceholder": "日本の商品URLを貼り付けてください",
         "productPlaceholder": "欲しい商品名や条件を入力してください",
         "selectImage": "画像を選択",
@@ -439,6 +563,22 @@
       "rating": "5点中{{rating}}点",
       "favoriteProduct": "{{product}}をお気に入りに追加"
     },
+    "cart": {
+      "title": "ショッピングカート",
+      "back": "ホームへ戻る",
+      "itemsLabel": "カートの商品",
+      "quantity": "数量",
+      "remove": "{{product}}をカートから削除",
+      "option": "バリエーション: {{option}}",
+      "decrease": "数量を減らす",
+      "increase": "数量を増やす",
+      "empty": "カートに商品がありません",
+      "recommendationsTitle": "あなたも気に入るかも",
+      "recommendationsEyebrow": "おすすめ",
+      "selectedCount": "{{count}}件選択中",
+      "continue": "選択した商品を購入",
+      "selectItem": "{{product}}を選択"
+    },
     "gram": {
       "title": "J-Planet GRAM",
       "categoriesLabel": "J-Planet GRAM カテゴリ",
@@ -489,7 +629,7 @@
         "metadata": {
           "purchaseType": "購入方法",
           "purchaseTypes": {
-            "direct": "J-Planet直輸入商品",
+            "direct": "通常日本商品",
             "marketplace": "マーケットプレイス商品"
           },
           "deliveryEstimate": "お届け目安",
@@ -502,7 +642,7 @@
           "favoriteAdd": "お気に入りに追加",
           "favoriteRemove": "お気に入りから削除"
         },
-        "directPurchase": "日本の販売サイトから直接購入",
+        "directPurchase": "日本の素敵な商品をすぐにお届けします。",
         "purchase": {
           "title": "購入内容",
           "required": "必須",
@@ -539,7 +679,10 @@
         "recommendations": {
           "eyebrow": "RECOMMEND",
           "title": "この商品はいかがですか？",
-          "next": "次の商品"
+          "next": "次の商品",
+          "more": "もっと見る",
+          "selectedEyebrow": "MORE FOR YOU",
+          "selectedTitle": "この商品を選んだ人におすすめ"
         },
         "order": {
           "eyebrow": "ORDER FLOW",
@@ -582,7 +725,8 @@
           "eyebrow": "REVIEW",
           "title": "商品レビュー",
           "empty": "レビューがありません。",
-          "emptyBody": "購入後の感想が、次のお客様の商品選びに役立ちます。"
+          "emptyBody": "購入後の感想が、次のお客様の商品選びに役立ちます。",
+          "viewAll": "レビューを見る"
         },
         "cautions": {
           "eyebrow": "CAUTIONS",
@@ -605,18 +749,24 @@
         "benefits": {
           "eyebrow": "J-PLANET BENEFITS",
           "title": "なぜJ-Planetなのか？",
+          "viewAll": "すべて見る",
+          "collapse": "閉じる",
+          "details": "詳細を見る",
           "cards": {
             "fees": {
               "title": "料金がわかりやすい",
-              "copy": "商品価格と手続きに必要な費用を、購入前にひとつの画面で確認できます。"
+              "copy": "商品価格と手続きに必要な費用を、購入前にひとつの画面で確認できます。",
+              "details": "商品代金・国内送料・国際配送費をまとめて確認でき、購入前に支払い総額を把握できます。"
             },
             "search": {
               "title": "日本の商品をまとめて検索",
-              "copy": "複数の販売サイトを行き来せず、気になる日本の商品をまとめて探せます。"
+              "copy": "複数の販売サイトを行き来せず、気になる日本の商品をまとめて探せます。",
+              "details": "URLや画像、商品名をAIに渡すだけで、日本の販売サイトから候補を整理して提案します。"
             },
             "reviews": {
               "title": "利用者レビューで選べる",
-              "copy": "実際に購入した利用者のレビューを、商品選びの参考にできます。"
+              "copy": "実際に購入した利用者のレビューを、商品選びの参考にできます。",
+              "details": "購入者の評価や写真付きレビューを確認しながら、納得して商品を選べます。"
             }
           }
         }

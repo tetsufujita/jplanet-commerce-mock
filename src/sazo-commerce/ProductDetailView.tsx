@@ -1,5 +1,5 @@
 import type { Dispatch, KeyboardEvent } from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   ChevronLeft,
@@ -8,6 +8,7 @@ import {
   Heart,
   Home,
   ImageOff,
+  Info,
   MessageSquareText,
   Search,
   Share2,
@@ -16,10 +17,10 @@ import {
   Sparkles,
   Store,
   Truck,
+  X,
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { ProductCampaignBanner } from "@/sazo-commerce/ProductCampaignBanner";
 import { ProductOrderFlow } from "@/sazo-commerce/ProductOrderFlow";
 import { ProductPurchasePanel } from "@/sazo-commerce/ProductPurchasePanel";
 import { ProductRecommendationRail } from "@/sazo-commerce/ProductRecommendationRail";
@@ -27,13 +28,18 @@ import { ProductSourceLink } from "@/sazo-commerce/ProductSourceLink";
 import {
   catalogInventory,
   getProductDetail,
+  formatYen,
   products,
+  reviews,
   reviewRecommendations,
   searchDiscoveryProducts,
 } from "@/sazo-commerce/fixtures";
 import type { Product } from "@/sazo-commerce/fixtures";
 import type { SazoAction } from "@/sazo-commerce/model";
-import { useProductPurchaseController } from "@/sazo-commerce/useProductPurchaseController";
+import {
+  useProductPurchaseController,
+} from "@/sazo-commerce/useProductPurchaseController";
+import type { PurchaseIntent } from "@/sazo-commerce/useProductPurchaseController";
 
 export interface ProductDetailViewProps {
   dispatch: Dispatch<SazoAction>;
@@ -102,6 +108,13 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
   const recommendations = detail.recommendationIds
     .map((recommendationId) => recommendationById.get(recommendationId))
     .filter(isProduct);
+  const selectedRecommendationPool = recommendationPool
+    .filter((candidate) => candidate.id !== product.id)
+    .filter(
+      (candidate, index, all) =>
+        all.findIndex((item) => item.id === candidate.id) === index,
+    )
+    .slice(0, 10);
   const reduceMotion = useReducedMotion() ?? false;
   const purchaseController = useProductPurchaseController({ detail, dispatch });
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
@@ -110,11 +123,70 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
   );
   const [favorite, setFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState<ProductDetailTab>("information");
+  const [openBenefitDetails, setOpenBenefitDetails] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
+  const [isResolving, setIsResolving] = useState(true);
+  const [shippingGuideOpen, setShippingGuideOpen] = useState(false);
+  const [purchaseSheetOpen, setPurchaseSheetOpen] = useState(false);
+  const [purchaseSheetIntent, setPurchaseSheetIntent] = useState<PurchaseIntent | null>(
+    null,
+  );
+  const [showAllSelectedRecommendations, setShowAllSelectedRecommendations] =
+    useState(false);
+  const galleryPointerStart = useRef<number | null>(null);
   const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const currentGalleryIndex = Math.min(activeGalleryIndex, gallery.length - 1);
   const currentImage = gallery[currentGalleryIndex] ?? product.image;
+  const discountPercent = product.badge?.match(/(\d+)%/)?.[1];
+  const discountAmount = discountPercent === undefined ? 0 : Number(discountPercent);
+  const originalPriceAmount =
+    discountAmount > 0
+      ? Math.ceil(detail.unitPriceAmount / (1 - discountAmount / 100))
+      : 0;
+  const pointsAmount = Math.floor(detail.unitPriceAmount * 0.01);
+  const demoReviews = reviews.slice(0, 5);
+  const allBenefitsOpen = openBenefitDetails.size === benefitCards.length;
+
+  const openPurchaseSheet = (intent: PurchaseIntent) => {
+    setPurchaseSheetIntent(intent);
+    setPurchaseSheetOpen(true);
+  };
+
+  const closePurchaseSheet = () => {
+    setPurchaseSheetOpen(false);
+    setPurchaseSheetIntent(null);
+  };
+
+  const toggleAllBenefits = () => {
+    setOpenBenefitDetails(
+      allBenefitsOpen ? new Set() : new Set(benefitCards.map(({ titleKey }) => titleKey)),
+    );
+  };
+
+  const toggleBenefitDetails = (titleKey: string, open: boolean) => {
+    setOpenBenefitDetails((current) => {
+      const next = new Set(current);
+      if (open) {
+        next.add(titleKey);
+      } else {
+        next.delete(titleKey);
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setIsResolving(false);
+    }, 680);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [product.id]);
 
   const markImageSourceFailed = (source: string) => {
     setFailedImageSources((current) => {
@@ -202,26 +274,54 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
     setShareFeedback(t("sazo.views.productDetail.feedback.shareAvailable"));
   };
 
-  const moveToPurchaseForm = () => {
-    const purchaseForm = document.querySelector<HTMLFormElement>(
-      "form[data-product-purchase-form]",
-    );
-    purchaseForm?.scrollIntoView({
-      behavior: reduceMotion ? "auto" : "smooth",
-      block: "start",
-    });
-    purchaseForm?.querySelector<HTMLSelectElement>("select")?.focus();
-  };
-
   return (
     <motion.article
       animate={{ opacity: 1, y: 0 }}
       className="sazo-product-detail"
       data-product-detail
+      data-product-resolving={isResolving || undefined}
       data-view-content="product"
       initial={reduceMotion ? false : { opacity: 0, y: 10 }}
       transition={{ duration: reduceMotion ? 0 : 0.24, ease: "easeOut" }}
     >
+      {isResolving ? (
+        <div
+          aria-hidden="true"
+          className="sazo-product-resolving"
+          data-testid="product-resolving"
+        >
+          <div className="sazo-product-resolving-header">
+            <button
+              aria-label={t("sazo.views.productDetail.header.back")}
+              onClick={handleBack}
+              type="button"
+            >
+              <ArrowLeft aria-hidden size={20} strokeWidth={2} />
+            </button>
+            <span>{product.name}</span>
+            <div>
+              <Home aria-hidden size={19} strokeWidth={2} />
+              <ShoppingCart aria-hidden size={19} strokeWidth={2} />
+            </div>
+          </div>
+          <div className="sazo-product-resolving-body">
+            <div className="sazo-product-resolving-image">
+              <img alt="" src={product.image} />
+              <span>J-Planet</span>
+            </div>
+            <p>少々お待ちください…</p>
+            <strong>
+              あなたのために
+              <br />
+              商品情報を取得しています！
+            </strong>
+            <small>
+              <Info aria-hidden size={14} strokeWidth={2} />
+              TIP / ご注文の際、特別なリクエストを入力していただけます。
+            </small>
+          </div>
+        </div>
+      ) : null}
       <header className="sazo-product-detail-header">
         <button className="sazo-product-detail-back" onClick={handleBack} type="button">
           <ArrowLeft aria-hidden size={22} strokeWidth={2} />
@@ -241,7 +341,9 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
         <button
           aria-label={t("sazo.views.productDetail.header.cart")}
           className="sazo-product-detail-header-control"
-          onClick={moveToPurchaseForm}
+          onClick={() => {
+            dispatch({ type: "navigate", view: "cart" });
+          }}
           type="button"
         >
           <ShoppingCart aria-hidden size={21} strokeWidth={2} />
@@ -314,7 +416,25 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
             ))}
           </div>
 
-          <div className="sazo-product-detail-primary-media">
+          <div
+            className="sazo-product-detail-primary-media"
+            onPointerDown={(event) => {
+              galleryPointerStart.current = event.clientX;
+            }}
+            onPointerUp={(event) => {
+              const start = galleryPointerStart.current;
+              galleryPointerStart.current = null;
+              if (start === null || gallery.length < 2) {
+                return;
+              }
+
+              const delta = event.clientX - start;
+              if (Math.abs(delta) < 44) {
+                return;
+              }
+              setGalleryIndex(currentGalleryIndex + (delta < 0 ? 1 : -1));
+            }}
+          >
             {failedImageSources.has(currentImage) ? (
               <div
                 aria-label={t("sazo.views.productDetail.gallery.imageUnavailable", {
@@ -393,6 +513,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
                 type="button"
               >
                 <Share2 aria-hidden size={19} strokeWidth={1.9} />
+                <span className="sazo-product-detail-action-label">共有する</span>
               </button>
               <button
                 aria-label={
@@ -412,13 +533,22 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
                   size={20}
                   strokeWidth={1.9}
                 />
+                <span className="sazo-product-detail-action-label">お気に入り追加</span>
               </button>
             </div>
           </div>
 
           <h1>{product.name}</h1>
           <p className="sazo-product-detail-original-name">{detail.originalName}</p>
-          <p className="sazo-product-detail-price">{product.price}</p>
+          {discountAmount > 0 ? (
+            <div className="sazo-product-detail-discount">
+              <span>↓ {discountAmount}% OFF</span>
+              <del>{formatYen(originalPriceAmount)}</del>
+              <strong>{product.price}</strong>
+            </div>
+          ) : (
+            <p className="sazo-product-detail-price">{product.price}</p>
+          )}
           <p className="sazo-product-detail-direct-copy">
             <Sparkles aria-hidden size={18} strokeWidth={1.9} />
             {t("sazo.views.productDetail.directPurchase")}
@@ -436,6 +566,16 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
                 </strong>
               </div>
             </div>
+            <button
+              className="sazo-product-detail-metadata-row sazo-product-detail-points-row"
+              type="button"
+            >
+              <div>
+                <span>ポイント</span>
+                <strong>{pointsAmount}P (1%)</strong>
+              </div>
+              <ChevronRight aria-hidden size={19} strokeWidth={2} />
+            </button>
             <div className="sazo-product-detail-metadata-row">
               <Truck aria-hidden size={19} strokeWidth={1.9} />
               <div>
@@ -474,6 +614,7 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
             controller={purchaseController}
             detail={detail}
             idPrefix="hero"
+            onPurchaseIntent={openPurchaseSheet}
             reduceMotion={reduceMotion}
             showMobileActions
           />
@@ -483,12 +624,28 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
       <ProductRecommendationRail dispatch={dispatch} products={recommendations} />
 
       <div className="sazo-product-detail-commerce-grid">
-        <aside className="sazo-product-detail-checkout-rail">
+        <aside
+          aria-label="ご注文"
+          className="sazo-product-detail-checkout-rail"
+          data-open={purchaseSheetOpen || undefined}
+        >
+          <div className="sazo-product-purchase-sheet-header">
+            <strong>ご注文</strong>
+            <button
+              aria-label="注文シートを閉じる"
+              onClick={closePurchaseSheet}
+              type="button"
+            >
+              <X aria-hidden size={19} strokeWidth={2} />
+            </button>
+          </div>
           <ProductPurchasePanel
             controller={purchaseController}
             detail={detail}
             idPrefix="sticky"
+            onPurchaseIntent={purchaseSheetOpen ? undefined : openPurchaseSheet}
             reduceMotion={reduceMotion}
+            sheetIntent={purchaseSheetOpen ? purchaseSheetIntent ?? undefined : undefined}
           />
         </aside>
 
@@ -530,7 +687,12 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
             >
               {activeTab === "information" ? (
                 <>
-                  <ProductOrderFlow compact />
+                  <ProductOrderFlow
+                    compact
+                    onOpenDetails={() => {
+                      setShippingGuideOpen(true);
+                    }}
+                  />
                   <div id="sazo-product-detail-order-details">
                     <h2>{t("sazo.views.productDetail.tabs.informationTitle")}</h2>
                     <p>{detail.information}</p>
@@ -545,8 +707,6 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
             </div>
           </section>
 
-          <ProductCampaignBanner />
-
           <section className="sazo-product-detail-section sazo-product-detail-review">
             <div className="sazo-product-detail-section-heading">
               <div>
@@ -554,11 +714,36 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
                 <h2>{t("sazo.views.productDetail.review.title")}</h2>
               </div>
             </div>
-            <div className="sazo-product-detail-review-empty">
-              <MessageSquareText aria-hidden size={28} strokeWidth={1.7} />
-              <p>{t("sazo.views.productDetail.review.empty")}</p>
-              <span>{t("sazo.views.productDetail.review.emptyBody")}</span>
-            </div>
+            <details className="sazo-product-detail-review-disclosure" open>
+              <summary>{t("sazo.views.productDetail.review.viewAll")}</summary>
+              <div
+                className="sazo-product-detail-review-list"
+                data-testid="product-review-list"
+              >
+                {demoReviews.map((review) => (
+                  <article className="sazo-product-detail-review-card" key={review.id}>
+                    <div className="sazo-product-detail-review-card-header">
+                      <span aria-hidden className="sazo-product-detail-review-avatar">
+                        {review.author.slice(0, 1)}
+                      </span>
+                      <div>
+                        <strong>{review.author}</strong>
+                        <span
+                          aria-label={`${String(review.rating)}つ星`}
+                          className="sazo-product-detail-review-stars"
+                        >
+                          {"★".repeat(review.rating)}
+                          {"☆".repeat(5 - review.rating)}
+                        </span>
+                      </div>
+                    </div>
+                    <p>{review.comment}</p>
+                    <img alt={`${review.author}さんのレビュー写真`} src={review.image} />
+                    <small>{review.productName}</small>
+                  </article>
+                ))}
+              </div>
+            </details>
           </section>
 
           <section
@@ -588,21 +773,125 @@ export function ProductDetailView({ dispatch, productId }: ProductDetailViewProp
                 <span>{t("sazo.views.productDetail.benefits.eyebrow")}</span>
                 <h2>{t("sazo.views.productDetail.benefits.title")}</h2>
               </div>
+              <button
+                aria-expanded={allBenefitsOpen}
+                className="sazo-product-detail-section-action"
+                onClick={toggleAllBenefits}
+                type="button"
+              >
+                {t(
+                  allBenefitsOpen
+                    ? "sazo.views.productDetail.benefits.collapse"
+                    : "sazo.views.productDetail.benefits.viewAll",
+                )}
+              </button>
             </div>
             <div className="sazo-product-detail-card-grid">
-              {benefitCards.map(({ copyKey, icon: Icon, titleKey }) => (
-                <article className="sazo-product-detail-benefit-card" key={titleKey}>
-                  <span className="sazo-product-detail-benefit-icon">
-                    <Icon aria-hidden size={25} strokeWidth={1.9} />
-                  </span>
-                  <h3>{t(`sazo.views.productDetail.${titleKey}`)}</h3>
-                  <p>{t(`sazo.views.productDetail.${copyKey}`)}</p>
-                </article>
-              ))}
+              {benefitCards.map(({ copyKey, icon: Icon, titleKey }) => {
+                const benefitId = titleKey.split(".").at(-2) ?? "";
+
+                return (
+                  <article className="sazo-product-detail-benefit-card" key={titleKey}>
+                    <span className="sazo-product-detail-benefit-icon">
+                      <Icon aria-hidden size={25} strokeWidth={1.9} />
+                    </span>
+                    <h3>{t(`sazo.views.productDetail.${titleKey}`)}</h3>
+                    <p>{t(`sazo.views.productDetail.${copyKey}`)}</p>
+                    <details
+                      onToggle={(event) => {
+                        toggleBenefitDetails(titleKey, event.currentTarget.open);
+                      }}
+                      open={openBenefitDetails.has(titleKey)}
+                    >
+                      <summary>{t("sazo.views.productDetail.benefits.details")}</summary>
+                      <p>
+                        {t(
+                          `sazo.views.productDetail.benefits.cards.${benefitId}.details`,
+                        )}
+                      </p>
+                    </details>
+                  </article>
+                );
+              })}
             </div>
           </section>
+
+          <ProductRecommendationRail
+            className="sazo-product-detail-selected-recommendations"
+            dispatch={dispatch}
+            eyebrowKey="sazo.views.productDetail.recommendations.selectedEyebrow"
+            layout="grid"
+            onShowMore={
+              showAllSelectedRecommendations
+                ? undefined
+                : () => {
+                    setShowAllSelectedRecommendations(true);
+                  }
+            }
+            products={
+              showAllSelectedRecommendations
+                ? selectedRecommendationPool
+                : selectedRecommendationPool.slice(0, 6)
+            }
+            testId="product-selected-recommendations"
+            titleKey="sazo.views.productDetail.recommendations.selectedTitle"
+          />
         </div>
       </div>
+
+      {shippingGuideOpen ? (
+        <div className="sazo-product-guide-backdrop" role="presentation">
+          <section
+            aria-labelledby="sazo-product-shipping-guide-title"
+            aria-modal="true"
+            className="sazo-product-shipping-guide"
+            role="dialog"
+          >
+            <header>
+              <div>
+                <span>J-Planet</span>
+                <h2 id="sazo-product-shipping-guide-title">国際配送に関するご案内</h2>
+              </div>
+              <button
+                aria-label="配送案内を閉じる"
+                onClick={() => {
+                  setShippingGuideOpen(false);
+                }}
+                type="button"
+              >
+                <X aria-hidden size={20} strokeWidth={2} />
+              </button>
+            </header>
+            <p>日本の販売サイトから購入し、検品後にブラジルまでお届けします。</p>
+            <ol>
+              {[
+                ["手配開始", "日本の販売サイトで在庫と価格を確認します。"],
+                ["手配完了", "商品を購入し、日本の倉庫へ移送します。"],
+                ["検品完了", "到着した商品を確認し、配送準備を進めます。"],
+                ["国際配送", "通関手続きを経てブラジルへ発送します。"],
+                ["お届け", "ご指定の住所までお届けします。"],
+              ].map(([title, copy], index) => (
+                <li data-current={index === 1 || undefined} key={title}>
+                  <span>{index + 1}</span>
+                  <div>
+                    <strong>{title}</strong>
+                    <p>{copy}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <button
+              className="sazo-product-shipping-guide-close"
+              onClick={() => {
+                setShippingGuideOpen(false);
+              }}
+              type="button"
+            >
+              閉じる
+            </button>
+          </section>
+        </div>
+      ) : null}
     </motion.article>
   );
 }

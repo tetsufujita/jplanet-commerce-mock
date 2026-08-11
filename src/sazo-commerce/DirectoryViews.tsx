@@ -10,7 +10,14 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { brands, categoryDirectory, type Brand } from "@/sazo-commerce/fixtures";
+import {
+  brands,
+  catalogInventory,
+  categoryDirectory,
+  homeCategoryItems,
+  type Brand,
+} from "@/sazo-commerce/fixtures";
+import { MobileAgentComposer } from "@/sazo-commerce/MobileAgentComposer";
 import type { BrandFilterId, SazoAction, SazoState } from "@/sazo-commerce/model";
 
 export interface ViewDispatchProps {
@@ -59,6 +66,9 @@ export function ViewHeader({ dispatch, title }: ViewHeaderProps) {
       <button
         aria-label={t("sazo.views.common.cart")}
         className="sazo-view-header-action"
+        onClick={() => {
+          dispatch({ type: "navigate", view: "cart" });
+        }}
         type="button"
       >
         <ShoppingCart aria-hidden size={23} strokeWidth={2} />
@@ -193,9 +203,18 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
     throw new Error("Missing SAZO category directory fixture");
   }
 
+  const parentArtwork = homeCategoryItems.find(({ id }) => id === selected.id)?.image;
+
   return (
     <div className="sazo-directory-view" data-view-content="categories">
       <ViewHeader dispatch={dispatch} title={t("sazo.views.categories.title")} />
+      <section className="sazo-directory-agent sazo-category-agent" data-testid="category-agent-entry">
+        <MobileAgentComposer
+          entryIntent={null}
+          onEntryIntentConsumed={() => undefined}
+          seedRequest={null}
+        />
+      </section>
       {state.loadingSurface === "directory" ? (
         <div
           aria-label="カテゴリーを読み込んでいます"
@@ -253,18 +272,36 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
               <div className="sazo-category-child-list">
                 {selected.children.map((child) => (
                   <button
+                    aria-label={child.label}
+                    className="sazo-category-child-card"
                     key={child.id}
                     onClick={() => {
                       dispatch({
-                        type: "select-catalog-tab",
-                        tab: child.targetCatalogId,
+                        type: "select-directory-category",
+                        category: selected.id,
                       });
-                      dispatch({ type: "navigate", view: "catalog" });
+                      dispatch({ type: "navigate", view: "beauty" });
                     }}
                     type="button"
                   >
-                    <span>{child.label}</span>
-                    <ChevronRight aria-hidden size={20} />
+                    <span className="sazo-category-child-image">
+                      <img
+                        alt=""
+                        aria-hidden
+                        decoding="async"
+                        src={
+                          catalogInventory.find(({ tabIds }) =>
+                            tabIds.some((tabId) => tabId === child.targetCatalogId),
+                          )?.product.image ??
+                          parentArtwork ??
+                          "/sazo-commerce/jplanet-sakura-mark.png"
+                        }
+                      />
+                    </span>
+                    <span className="sazo-category-child-copy">
+                      <span>{child.label}</span>
+                      <ChevronRight aria-hidden size={18} />
+                    </span>
                   </button>
                 ))}
               </div>

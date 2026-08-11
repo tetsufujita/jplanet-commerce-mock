@@ -1,5 +1,10 @@
 import { useRef, useState, type Dispatch } from "react";
-import { ArrowLeft, ShoppingCart, Sparkles, X } from "lucide-react";
+import {
+  ArrowLeft,
+  ShoppingCart,
+  Sparkles,
+  X,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   agentHubPopularTopics,
@@ -25,7 +30,9 @@ export function MobileAgentHubView({ dispatch, entryIntent }: MobileAgentHubView
   const [showProducts, setShowProducts] = useState(true);
 
   const focusComposer = () => {
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reducedMotion =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     composerRef.current?.scrollIntoView({
       behavior: reducedMotion ? "auto" : "smooth",

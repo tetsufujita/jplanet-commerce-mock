@@ -2,6 +2,7 @@ import { LayoutGrid, List } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ViewHeader, type StatefulViewProps } from "@/sazo-commerce/DirectoryViews";
 import { catalogInventory, catalogTabs } from "@/sazo-commerce/fixtures";
+import { MobileAgentComposer } from "@/sazo-commerce/MobileAgentComposer";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 
 export function CatalogView({ dispatch, state }: StatefulViewProps) {
@@ -23,6 +24,13 @@ export function CatalogView({ dispatch, state }: StatefulViewProps) {
   return (
     <div className="sazo-catalog-view" data-view-content="catalog">
       <ViewHeader dispatch={dispatch} title={t("sazo.views.catalog.title")} />
+      <section className="sazo-directory-agent sazo-category-agent" data-testid="catalog-agent-entry">
+        <MobileAgentComposer
+          entryIntent={null}
+          onEntryIntentConsumed={() => undefined}
+          seedRequest={null}
+        />
+      </section>
       <div className="sazo-catalog-sticky-controls">
         <div className="sazo-catalog-tabs" role="tablist">
           {catalogTabs.map((tab) => (

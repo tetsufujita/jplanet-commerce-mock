@@ -1,6 +1,5 @@
 import { useEffect, useState, type Dispatch, type ReactElement } from "react";
 import {
-  ArrowRight,
   ChevronRight,
   Globe2,
   ImagePlus,
@@ -9,15 +8,100 @@ import {
 } from "lucide-react";
 import { beautyCategories, beautyProductsByCategory, beautyTrendKeywords, beautyTrendProducts, type BeautyCategoryId, type BeautyProduct } from "@/sazo-commerce/beautyFixtures";
 import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
-import type { SazoAction } from "@/sazo-commerce/model";
+import { MobileAgentComposer } from "@/sazo-commerce/MobileAgentComposer";
+import type { DirectoryCategoryId, SazoAction } from "@/sazo-commerce/model";
+
+interface CategoryAgentCopy {
+  badge: string;
+  description: string;
+  discoveryTitle: string;
+  guidance: string;
+  nav: readonly [string, string, string];
+  wordmark: string;
+}
+
+const categoryAgentCopy: Record<DirectoryCategoryId, CategoryAgentCopy> = {
+  beauty: {
+    badge: "J-Beauty",
+    description: "日本で人気のビューティーアイテムを、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本のビューティーショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、ビューティー商品をリアルタイム検索！",
+    nav: ["コスメ", "ヘルプ", "お知らせ"],
+    wordmark: "BEAUTY",
+  },
+  ladies: {
+    badge: "J-Fashion",
+    description: "日本で人気のレディースアイテムを、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本のファッションショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、レディース商品をリアルタイム検索！",
+    nav: ["レディース", "ブランド", "お知らせ"],
+    wordmark: "FASHION",
+  },
+  mens: {
+    badge: "J-Mens",
+    description: "日本で人気のメンズアイテムを、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本のメンズショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、メンズ商品をリアルタイム検索！",
+    nav: ["メンズ", "ブランド", "お知らせ"],
+    wordmark: "FASHION",
+  },
+  kids: {
+    badge: "J-Kids",
+    description: "日本で人気のキッズアイテムを、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本のキッズショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、キッズ商品をリアルタイム検索！",
+    nav: ["キッズ", "限定", "お知らせ"],
+    wordmark: "KIDS",
+  },
+  living: {
+    badge: "J-Living",
+    description: "日本で人気の暮らしのアイテムを、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本の暮らしのショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、暮らしの商品をリアルタイム検索！",
+    nav: ["インテリア", "キッチン", "お知らせ"],
+    wordmark: "LIVING",
+  },
+  food: {
+    badge: "J-Food",
+    description: "日本で人気の食品やおやつを、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本の食品ショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、日本の食品をリアルタイム検索！",
+    nav: ["食品", "おやつ", "お知らせ"],
+    wordmark: "FOOD",
+  },
+  pets: {
+    badge: "J-Pets",
+    description: "日本で人気のペットアイテムを、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本のペットショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、ペット商品をリアルタイム検索！",
+    nav: ["ペット", "ケア用品", "お知らせ"],
+    wordmark: "PETS",
+  },
+  appliances: {
+    badge: "J-Select",
+    description: "日本で人気の家電やガジェットを、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本の家電ショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、家電をリアルタイム検索！",
+    nav: ["家電", "ガジェット", "お知らせ"],
+    wordmark: "SELECT",
+  },
+  hobby: {
+    badge: "J-Hobby",
+    description: "日本で人気のホビーアイテムを、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本のホビーショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、ホビー商品をリアルタイム検索！",
+    nav: ["ホビー", "限定", "お知らせ"],
+    wordmark: "HOBBY",
+  },
+};
 
 export interface BeautyViewProps {
   dispatch: Dispatch<SazoAction>;
+  categoryId?: DirectoryCategoryId;
 }
 
-export function BeautyView({ dispatch }: BeautyViewProps): ReactElement {
-  const [inputValue, setInputValue] = useState("");
-  const [submittedQuery, setSubmittedQuery] = useState("");
+export function BeautyView({ dispatch, categoryId = "beauty" }: BeautyViewProps): ReactElement {
+  const copy = categoryAgentCopy[categoryId];
   const [activeCategory, setActiveCategory] = useState<BeautyCategoryId>("skincare");
   const [pendingCategory, setPendingCategory] = useState<BeautyCategoryId | null>(null);
 
@@ -36,35 +120,31 @@ export function BeautyView({ dispatch }: BeautyViewProps): ReactElement {
     };
   }, [pendingCategory]);
 
-  const normalizedQuery = submittedQuery.toLocaleLowerCase("ja-JP");
-  const visibleProducts = beautyProductsByCategory[activeCategory].filter(
-    ({ brand, keywords, name }) =>
-      normalizedQuery.length === 0 ||
-      [brand, name, ...keywords]
-        .join(" ")
-        .toLocaleLowerCase("ja-JP")
-        .includes(normalizedQuery),
-  );
+  const visibleProducts = beautyProductsByCategory[activeCategory];
 
   return (
-    <main className="sazo-beauty" data-beauty-view>
-      <BeautyHeader dispatch={dispatch} />
+    <main className="sazo-beauty" data-beauty-view data-category-id={categoryId}>
+      <BeautyHeader copy={copy} dispatch={dispatch} />
       <section className="sazo-beauty-hero" data-beauty-section="hero">
-        <span className="sazo-beauty-store-badge">J-Beauty</span>
+        <span className="sazo-beauty-store-badge">{copy.badge}</span>
         <h1>これからは<br />J-Planetで探す</h1>
-        <p>日本で人気のJ-ビューティーを、今すぐ見つけて注文しよう！</p>
-        <BeautySearch
-          inputValue={inputValue}
-          onInputChange={setInputValue}
-          onSubmit={() => {
-            setSubmittedQuery(inputValue.trim());
-          }}
-        />
-        <BeautySearchGuidance />
+        <p>{copy.description}</p>
+        <section
+          className="sazo-category-agent"
+          data-category-id={categoryId}
+          data-testid="category-agent-intro"
+        >
+          <MobileAgentComposer
+            entryIntent={null}
+            onEntryIntentConsumed={() => undefined}
+            seedRequest={null}
+          />
+        </section>
+        <BeautySearchGuidance text={copy.guidance} />
       </section>
 
       <section className="sazo-beauty-discovery" data-beauty-section="discovery">
-        <h2>日本のショップから<br />欲しい商品を探してみよう！</h2>
+        <h2>{copy.discoveryTitle}</h2>
         <BeautyCategoryRail
           activeCategory={pendingCategory ?? activeCategory}
           onSelect={setPendingCategory}
@@ -81,9 +161,9 @@ export function BeautyView({ dispatch }: BeautyViewProps): ReactElement {
   );
 }
 
-function BeautyHeader({ dispatch }: BeautyViewProps): ReactElement {
+function BeautyHeader({ copy, dispatch }: BeautyViewProps & { copy: CategoryAgentCopy }): ReactElement {
   const focusSearch = () => {
-    document.getElementById("sazo-beauty-search-input")?.focus();
+    document.querySelector<HTMLTextAreaElement>(".sazo-category-agent textarea")?.focus();
   };
 
   return (
@@ -100,64 +180,40 @@ function BeautyHeader({ dispatch }: BeautyViewProps): ReactElement {
           <JplanetLogo />
           <span>J-Planet</span>
         </button>
-        <strong className="sazo-beauty-wordmark">BEAUTY</strong>
+        <strong className="sazo-beauty-wordmark">{copy.wordmark}</strong>
         <div className="sazo-beauty-header-actions">
           <button aria-label="言語" type="button"><Globe2 aria-hidden /></button>
           <button aria-label="検索へ移動" onClick={focusSearch} type="button"><Search aria-hidden /></button>
-          <button aria-label="カート" type="button"><ShoppingCart aria-hidden /></button>
+          <button
+            aria-label="カート"
+            onClick={() => {
+              dispatch({ type: "navigate", view: "cart" });
+            }}
+            type="button"
+          >
+            <ShoppingCart aria-hidden />
+          </button>
         </div>
       </div>
-      <nav aria-label="BEAUTYサブメニュー" className="sazo-beauty-header-nav">
-        <button aria-current="page" type="button">コスメ</button>
-        <button type="button">ヘルプ</button>
-        <button type="button">お知らせ</button>
+      <nav aria-label={`${copy.wordmark}サブメニュー`} className="sazo-beauty-header-nav">
+        {copy.nav.map((label, index) => (
+          <button aria-current={index === 0 ? "page" : undefined} key={label} type="button">
+            {label}
+          </button>
+        ))}
       </nav>
     </header>
   );
 }
 
-function BeautySearch(props: {
-  inputValue: string;
-  onInputChange: (value: string) => void;
-  onSubmit: () => void;
-}): ReactElement {
-  return (
-    <form
-      className="sazo-beauty-search"
-      onSubmit={(event) => {
-        event.preventDefault();
-        props.onSubmit();
-      }}
-      role="search"
-    >
-      <label className="sazo-visually-hidden" htmlFor="sazo-beauty-search-input">
-        BEAUTYの商品を検索
-      </label>
-      <Search aria-hidden className="sazo-beauty-search-icon" />
-      <input
-        id="sazo-beauty-search-input"
-        onChange={(event) => {
-          props.onInputChange(event.target.value);
-        }}
-        placeholder="キーワードまたはURLを入力"
-        type="search"
-        value={props.inputValue}
-      />
-      <button aria-label="検索する" type="submit">
-        <ArrowRight aria-hidden />
-      </button>
-    </form>
-  );
-}
-
-function BeautySearchGuidance(): ReactElement {
+function BeautySearchGuidance({ text }: { text: string }): ReactElement {
   return (
     <div className="sazo-beauty-search-guidance">
       <svg aria-hidden focusable="false" viewBox="0 0 140 92">
         <path d="M114 84 C86 72 74 92 50 87 C17 82 8 61 15 39 C18 29 33 30 36 20" />
         <path d="M21 25 L36 20 L38 36" />
       </svg>
-      <p>気になる商品名やURLを入力してね</p>
+      <p>{text}</p>
     </div>
   );
 }

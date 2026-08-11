@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 export interface ProductOrderFlowProps {
   compact?: boolean;
+  onOpenDetails?: () => void;
 }
 
 const orderStages = [
@@ -14,7 +15,7 @@ const orderStages = [
   { icon: Home, labelKey: "delivered", state: "pending" },
 ] as const;
 
-export function ProductOrderFlow({ compact = false }: ProductOrderFlowProps) {
+export function ProductOrderFlow({ compact = false, onOpenDetails }: ProductOrderFlowProps) {
   const { t } = useTranslation();
 
   return (
@@ -28,14 +29,28 @@ export function ProductOrderFlow({ compact = false }: ProductOrderFlowProps) {
           <span>{t("sazo.views.productDetail.order.title")}</span>
           <strong>{t("sazo.views.productDetail.order.subtitle")}</strong>
         </h3>
-        <a href="#sazo-product-detail-order-details">
-          {t("sazo.views.productDetail.order.detailsLink")}
-        </a>
+        {onOpenDetails === undefined ? (
+          <a href="#sazo-product-detail-order-details">
+            {t("sazo.views.productDetail.order.detailsLink")}
+          </a>
+        ) : (
+          <a
+            href="#sazo-product-detail-order-details"
+            className="sazo-product-order-flow-details-button"
+            onClick={(event) => {
+              event.preventDefault();
+              onOpenDetails();
+            }}
+          >
+            {t("sazo.views.productDetail.order.detailsLink")}
+          </a>
+        )}
       </div>
       <div className="sazo-product-detail-timeline-scroll">
         <ol
           aria-label={t("sazo.views.productDetail.order.listLabel")}
           className="sazo-product-detail-timeline"
+          data-fit="full"
         >
           {orderStages.map(({ icon: Icon, labelKey, state }, index) => (
             <li

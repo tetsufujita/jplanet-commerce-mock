@@ -1,8 +1,10 @@
 import type {
   CSSProperties,
+  ChangeEvent,
   Dispatch,
   MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
+  SyntheticEvent,
 } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -17,6 +19,7 @@ import {
   Newspaper,
   Pause,
   Play,
+  Plus,
   Search,
   Sparkles,
   Star,
@@ -62,6 +65,12 @@ interface HeroPointerStart {
 }
 
 const heroSwipeThreshold = 40;
+const mobileAgentCompactThreshold = 168;
+
+const mobileCategoryPages = Array.from(
+  { length: Math.ceil(homeCategoryItems.length / 8) },
+  (_, pageIndex) => homeCategoryItems.slice(pageIndex * 8, pageIndex * 8 + 8),
+);
 
 export interface HomeViewProps {
   dispatch: Dispatch<SazoAction>;
@@ -423,6 +432,9 @@ function MobileShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
     <div
       aria-label={t("sazo.home.shortcutLabel")}
       className="sazo-shortcuts"
+      data-mobile-shortcut-grid
+      data-layout="five-column-two-row"
+      data-page-size="10"
       role="group"
     >
       {homeShortcutItems.map((shortcut) => {
@@ -556,41 +568,153 @@ function HomeIntro() {
   );
 }
 
-function MobileAgentSearch({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+function MobileAgentSearch({ compact }: { compact: boolean }) {
   const { t } = useTranslation();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [status, setStatus] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const textInputRef = useRef<HTMLTextAreaElement>(null);
+
+  const choosePhoto = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (file?.type.startsWith("image/") === true) {
+      setStatus(t("sazo.agentHub.composer.selectedImageAlt", { name: file.name }));
+      setMenuOpen(false);
+    }
+
+    event.target.value = "";
+  };
+
+  const submit = (event: SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (draft.trim().length > 0) {
+      setStatus(t("sazo.agentHub.composer.submitted"));
+      setDraft("");
+    }
+  };
 
   return (
-    <div className="sazo-mobile-search-overlap" data-mobile-home>
+    <div
+      className="sazo-mobile-search-overlap"
+      data-compact={compact ? "true" : undefined}
+      data-mobile-home
+    >
       <div
         aria-label={t("sazo.home.agentEntryGroup")}
-        className="sazo-mobile-agent-entry"
+        className="sazo-mobile-agent-entry sazo-home-agent-card"
+        data-home-agent-entry
+        data-compact={compact ? "true" : undefined}
         role="group"
       >
-        <button
-          className="sazo-mobile-agent-entry-main"
-          data-mobile-agent-search
-          onClick={() => {
-            dispatch({ type: "open-agent-hub", intent: "compose" });
-          }}
-          type="button"
-        >
-          <Sparkles aria-hidden size={24} />
-          <span className="sazo-mobile-agent-badge" aria-hidden>
-            AI
-          </span>
-          <span>{t("sazo.agentHub.launcher")}</span>
-        </button>
-        <button
-          aria-label={t("sazo.home.agentImageEntry")}
-          className="sazo-mobile-agent-image-entry"
-          data-mobile-agent-image-entry
-          onClick={() => {
-            dispatch({ type: "open-agent-hub", intent: "image-picker" });
-          }}
-          type="button"
-        >
-          <ImagePlus aria-hidden size={24} />
-        </button>
+        <header className="sazo-home-agent-card-header">
+          <img
+            alt=""
+            aria-hidden="true"
+            data-jplanet-sakura-mark
+            height={28}
+            src="/sazo-commerce/jplanet-sakura-mark.png"
+            width={28}
+          />
+          <div>
+            <strong>{t("sazo.agentHub.composer.title")}</strong>
+            <span>{t("sazo.agentHub.composer.intro")}</span>
+          </div>
+        </header>
+        <form className="sazo-home-agent-form" onSubmit={submit}>
+          <input
+            accept="image/*"
+            aria-hidden="true"
+            className="sazo-mobile-agent-image-entry"
+            data-mobile-agent-image-entry
+            hidden
+            onChange={choosePhoto}
+            ref={fileInputRef}
+            type="file"
+          />
+          <input
+            accept="image/*"
+            aria-hidden="true"
+            capture="environment"
+            hidden
+            onChange={choosePhoto}
+            ref={cameraInputRef}
+            type="file"
+          />
+          <div className="sazo-home-agent-input-shell">
+            <button
+              aria-expanded={menuOpen}
+              aria-haspopup="menu"
+              aria-label={t("sazo.agentHub.composer.menuLabel")}
+              className="sazo-home-agent-plus"
+              onClick={() => {
+                setMenuOpen((open) => !open);
+              }}
+              type="button"
+            >
+              <Plus aria-hidden size={20} />
+            </button>
+            <textarea
+              aria-label={t("sazo.agentHub.composer.draftLabel")}
+              className="sazo-mobile-agent-entry-main"
+              data-mobile-agent-search
+              onChange={(event) => {
+                setDraft(event.target.value);
+                setStatus(null);
+              }}
+              placeholder={t("sazo.agentHub.composer.inputPlaceholder")}
+              ref={textInputRef}
+              rows={1}
+              value={draft}
+            />
+            <button
+              aria-label={t("sazo.agentHub.composer.send")}
+              className="sazo-home-agent-submit"
+              disabled={draft.trim().length === 0}
+              type="submit"
+            >
+              <Sparkles aria-hidden size={18} />
+            </button>
+          </div>
+          {menuOpen ? (
+            <div
+              aria-label={t("sazo.agentHub.composer.menuLabel")}
+              className="sazo-home-agent-menu"
+              role="menu"
+            >
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  cameraInputRef.current?.click();
+                }}
+                role="menuitem"
+                type="button"
+              >
+                <Camera aria-hidden size={17} />
+                {t("sazo.agentHub.composer.takePhoto")}
+              </button>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  fileInputRef.current?.click();
+                }}
+                role="menuitem"
+                type="button"
+              >
+                <ImagePlus aria-hidden size={17} />
+                {t("sazo.agentHub.composer.selectPhoto")}
+              </button>
+            </div>
+          ) : null}
+          {status === null ? null : (
+            <p className="sazo-home-agent-status" role="status">
+              {status}
+            </p>
+          )}
+        </form>
       </div>
     </div>
   );
@@ -643,7 +767,7 @@ function MobileCategoryArtwork({ image }: { image: string }) {
       alt=""
       aria-hidden
       data-category-image-fallback={imageFailed ? "true" : undefined}
-      decoding="async"
+      decoding="sync"
       onError={() => {
         setImageFailed(true);
       }}
@@ -726,38 +850,58 @@ function MobileCategoryRail({ dispatch }: Pick<HomeViewProps, "dispatch">) {
     >
       <div className="sazo-section-heading">
         <h2>{t("sazo.home.categoryRailTitle")}</h2>
+        <button
+          aria-label="カテゴリーをもっと見る"
+          className="sazo-more-link sazo-mobile-category-more"
+          onClick={() => {
+            dispatch({ type: "navigate", view: "categories" });
+          }}
+          type="button"
+        >
+          {t("sazo.home.more")}
+          <ChevronRight aria-hidden size={16} />
+        </button>
       </div>
       <div
         aria-label={t("sazo.home.categoryRailLabel")}
         className="sazo-mobile-category-rail"
+        data-mobile-category-grid
+        data-layout="four-column-page"
+        data-page-size="8"
         role="group"
       >
-        {homeCategoryItems.map((category) => {
-          const label = t(`sazo.home.categories.${category.labelKey}`);
+        {mobileCategoryPages.map((page, pageIndex) => (
+          <div
+            className="sazo-mobile-category-page"
+            data-mobile-category-page
+            key={`category-page-${String(pageIndex)}`}
+          >
+            {page.map((category) => {
+              const label = t(`sazo.home.categories.${category.labelKey}`);
 
-          return (
-            <button
-              aria-label={label}
-              className="sazo-mobile-category-tile"
-              key={category.id}
-              onClick={() => {
-                dispatch({
-                  type: "select-directory-category",
-                  category: category.id,
-                });
-                if (category.view !== undefined) {
-                  dispatch({ type: "navigate", view: category.view });
-                }
-              }}
-              type="button"
-            >
-              <span className="sazo-mobile-category-image">
-                <MobileCategoryArtwork image={category.image} />
-              </span>
-              <span className="sazo-mobile-category-label">{label}</span>
-            </button>
-          );
-        })}
+              return (
+                <button
+                  aria-label={label}
+                  className="sazo-mobile-category-tile"
+                  key={category.id}
+                  onClick={() => {
+                    dispatch({
+                      type: "select-directory-category",
+                      category: category.id,
+                    });
+                    dispatch({ type: "navigate", view: "beauty" });
+                  }}
+                  type="button"
+                >
+                  <span className="sazo-mobile-category-image">
+                    <MobileCategoryArtwork image={category.image} />
+                  </span>
+                  <span className="sazo-mobile-category-label">{label}</span>
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -1052,13 +1196,31 @@ function SearchDiscovery({ dispatch, state }: Pick<HomeViewProps, "dispatch" | "
 
 export function HomeView({ dispatch, state }: HomeViewProps) {
   const mobileHome = useMobileHome();
+  const [compactMobileAgent, setCompactMobileAgent] = useState(false);
+
+  useEffect(() => {
+    if (!mobileHome) {
+      return undefined;
+    }
+
+    const updateCompactState = () => {
+      setCompactMobileAgent(window.scrollY >= mobileAgentCompactThreshold);
+    };
+
+    updateCompactState();
+    window.addEventListener("scroll", updateCompactState, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", updateCompactState);
+    };
+  }, [mobileHome]);
 
   return (
     <div className="sazo-home" data-home-view>
       {mobileHome ? (
         <>
           <HeroCarousel dispatch={dispatch} state={{ ...state, heroFeed: "large-first" }} />
-          <MobileAgentSearch dispatch={dispatch} />
+          <MobileAgentSearch compact={compactMobileAgent} />
           <MobileShortcutRow dispatch={dispatch} />
           <MobileCouponBanner dispatch={dispatch} />
           <InterestedItemsRail dispatch={dispatch} />

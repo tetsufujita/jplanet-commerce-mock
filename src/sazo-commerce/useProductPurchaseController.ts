@@ -93,6 +93,14 @@ export function useProductPurchaseController({
     }
 
     if (intent === "cart") {
+      dispatch({
+        type: "add-to-cart",
+        item: {
+          option: selectedOption,
+          productId: detail.product.id,
+          quantity,
+        },
+      });
       setFeedback({
         kind: "success",
         message: t("sazo.views.productDetail.feedback.cartAdded"),

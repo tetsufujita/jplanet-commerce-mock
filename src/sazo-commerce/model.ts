@@ -29,7 +29,10 @@ export type SazoView =
   | "gram"
   | "gram-detail"
   | "agent-hub"
-  | "beauty";
+  | "agent-designs"
+  | "agent-first"
+  | "beauty"
+  | "cart";
 
 export type SazoNonProductView = Exclude<SazoView, "product">;
 
@@ -134,6 +137,13 @@ export interface SazoState {
   gramLoading: boolean;
   gramLoadToken: number;
   selectedGramPostId: string | null;
+  cartItems: readonly CartItem[];
+}
+
+export interface CartItem {
+  productId: string;
+  option: string;
+  quantity: number;
 }
 
 export type SazoAction =
@@ -162,6 +172,8 @@ export type SazoAction =
   | { type: "select-gram-category"; category: GramCategoryId }
   | { type: "gram-loaded"; token: number }
   | { type: "open-gram-post"; postId: string }
+  | { type: "add-to-cart"; item: CartItem }
+  | { type: "set-cart-item-quantity"; productId: string; option: string; quantity: number }
   | { type: "reset" };
 
 const heroSlideCount = 5;
@@ -210,7 +222,10 @@ const qaViews = new Set<SazoView>([
   "gram",
   "gram-detail",
   "agent-hub",
+  "agent-designs",
+  "agent-first",
   "beauty",
+  "cart",
 ]);
 const qaAuthSteps = new Set<SazoAuthStep>(["provider", "google", "birthday", "phone"]);
 
@@ -240,6 +255,10 @@ export function createInitialSazoState(search = ""): SazoState {
     gramLoading: false,
     gramLoadToken: 0,
     selectedGramPostId: null,
+    cartItems: [
+      { productId: "p01", option: "標準", quantity: 1 },
+      { productId: "p02", option: "標準", quantity: 1 },
+    ],
   };
 
   const parameters = new URLSearchParams(search);
@@ -386,6 +405,40 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
         selectedGramPostId: action.postId,
         view: "gram-detail",
       };
+    case "add-to-cart": {
+      const existing = state.cartItems.find(
+        (item) =>
+          item.productId === action.item.productId && item.option === action.item.option,
+      );
+      return {
+        ...state,
+        cartItems:
+          existing === undefined
+            ? [...state.cartItems, action.item]
+            : state.cartItems.map((item) =>
+                item === existing
+                  ? { ...item, quantity: item.quantity + action.item.quantity }
+                  : item,
+              ),
+      };
+    }
+    case "set-cart-item-quantity": {
+      const quantity = Math.max(0, Math.floor(action.quantity));
+      return {
+        ...state,
+        cartItems:
+          quantity === 0
+            ? state.cartItems.filter(
+                (item) =>
+                  item.productId !== action.productId || item.option !== action.option,
+              )
+            : state.cartItems.map((item) =>
+                item.productId === action.productId && item.option === action.option
+                  ? { ...item, quantity }
+                  : item,
+              ),
+      };
+    }
     case "reset":
       return createInitialSazoState();
     default:

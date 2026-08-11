@@ -195,7 +195,7 @@ export function AuthFlow({ authStep, dispatch }: AuthFlowProps) {
     dispatch({ type: "close-overlay" });
   }, [dispatch]);
   const continueToGoogle = useCallback(() => {
-    dispatch({ type: "advance-auth", step: "google" });
+    dispatch({ type: "complete-auth" });
   }, [dispatch]);
   const continueToBirthday = useCallback(() => {
     dispatch({ type: "advance-auth", step: "birthday" });

@@ -10,11 +10,25 @@ import type { SazoAction } from "@/sazo-commerce/model";
 export interface ProductRecommendationRailProps {
   dispatch: Dispatch<SazoAction>;
   products: readonly Product[];
+  className?: string;
+  eyebrowKey?: string;
+  layout?: "grid" | "rail";
+  moreLabelKey?: string;
+  onShowMore?: () => void;
+  testId?: string;
+  titleKey?: string;
 }
 
 export function ProductRecommendationRail({
+  className,
   dispatch,
+  eyebrowKey = "sazo.views.productDetail.recommendations.eyebrow",
+  layout = "rail",
+  moreLabelKey = "sazo.views.productDetail.recommendations.more",
+  onShowMore,
   products,
+  testId,
+  titleKey = "sazo.views.productDetail.recommendations.title",
 }: ProductRecommendationRailProps) {
   const { t } = useTranslation();
   const reduceMotion = useReducedMotion() ?? false;
@@ -33,27 +47,45 @@ export function ProductRecommendationRail({
     });
   };
 
+  const sectionClassName = [
+    "sazo-product-detail-section",
+    "sazo-product-detail-recommendations",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const title = t(titleKey);
+  const isGrid = layout === "grid";
+
   return (
     <section
-      aria-label={t("sazo.views.productDetail.recommendations.title")}
-      className="sazo-product-detail-section sazo-product-detail-recommendations"
+      aria-label={title}
+      className={sectionClassName}
+      data-testid={testId}
       role="region"
     >
       <div className="sazo-product-detail-section-heading">
         <div>
-          <span>{t("sazo.views.productDetail.recommendations.eyebrow")}</span>
-          <h2>{t("sazo.views.productDetail.recommendations.title")}</h2>
+          <span>{t(eyebrowKey)}</span>
+          <h2>{title}</h2>
         </div>
-        <button
-          aria-label={t("sazo.views.productDetail.recommendations.next")}
-          className="sazo-product-detail-recommendation-next"
-          onClick={showNextProducts}
-          type="button"
-        >
-          <ChevronRight aria-hidden size={22} strokeWidth={2} />
-        </button>
+        {isGrid ? null : (
+          <button
+            aria-label={t("sazo.views.productDetail.recommendations.next")}
+            className="sazo-product-detail-recommendation-next"
+            onClick={showNextProducts}
+            type="button"
+          >
+            <ChevronRight aria-hidden size={22} strokeWidth={2} />
+          </button>
+        )}
       </div>
-      <div className="sazo-product-detail-recommendation-track" ref={trackRef}>
+      <div
+        className="sazo-product-detail-recommendation-track"
+        data-layout={layout}
+        data-scroll-axis={isGrid ? "vertical" : "horizontal"}
+        ref={trackRef}
+      >
         {products.map((product) => (
           <ProductCard
             key={product.id}
@@ -61,10 +93,20 @@ export function ProductRecommendationRail({
               dispatch({ type: "open-product", productId });
             }}
             product={product}
+            showBadge={!isGrid}
             variant="compact"
           />
         ))}
       </div>
+      {onShowMore === undefined ? null : (
+        <button
+          className="sazo-product-detail-recommendation-more"
+          onClick={onShowMore}
+          type="button"
+        >
+          {t(moreLabelKey)}
+        </button>
+      )}
     </section>
   );
 }

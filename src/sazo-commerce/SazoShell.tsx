@@ -14,7 +14,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { SazoAction, SazoState, SazoView } from "@/sazo-commerce/model";
+import type {
+  SazoAccountView,
+  SazoAction,
+  SazoState,
+  SazoView,
+} from "@/sazo-commerce/model";
 import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
 
 interface NavigationItem {
@@ -29,7 +34,7 @@ const desktopNavigation = [
   { translationKey: "sazo.navigation.brands", view: "brands" },
   { translationKey: "sazo.navigation.categories", view: "categories" },
   { translationKey: "sazo.navigation.reviews", view: "reviews" },
-  { translationKey: "sazo.navigation.help" },
+  { translationKey: "sazo.navigation.help", view: "support" },
   { translationKey: "sazo.navigation.news" },
 ] satisfies readonly NavigationItem[];
 
@@ -50,6 +55,7 @@ export interface SazoShellProps {
 }
 
 interface NavigationButtonProps {
+  active?: boolean;
   className?: string;
   dispatch: Dispatch<SazoAction>;
   icon?: LucideIcon;
@@ -60,6 +66,7 @@ interface NavigationButtonProps {
 }
 
 function NavigationButton({
+  active,
   className = "sazo-nav-button",
   dispatch,
   icon: Icon,
@@ -72,7 +79,7 @@ function NavigationButton({
 
   return (
     <button
-      aria-pressed={isNavigable ? state.view === view : undefined}
+      aria-pressed={isNavigable ? (active ?? state.view === view) : undefined}
       className={className}
       data-testid={testId}
       onClick={
@@ -161,9 +168,25 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
   const loginExpanded = state.overlay === "login";
   const serviceView = state.view === "service";
   const agentHubView = state.view === "agent-hub";
-  const dedicatedMobileHeader = agentHubView || state.view === "beauty";
-  const accountView = ["mypage", "favorites", "profile", "cards"].includes(state.view);
-  const accountAvailable = state.authenticated || accountView;
+  const dedicatedMobileHeader = agentHubView || state.view === "beauty" || state.view === "cart";
+  const accountDetailViews = new Set<SazoAccountView>([
+    "mypage",
+    "favorites",
+    "profile",
+    "cards",
+    "orders",
+    "coupons",
+    "points",
+    "review-create",
+    "review-history",
+    "delivery",
+    "address",
+    "notifications",
+  ]);
+  const accountView = accountDetailViews.has(state.view as SazoAccountView);
+  const accountAvailable = state.authenticated || accountView || state.view === "support";
+  const myPageSectionActive =
+    (accountView && state.view !== "favorites") || state.view === "support";
 
   return (
     <div className="sazo-shell-background" data-overlay-background="true">
@@ -204,14 +227,21 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
                   className="sazo-top-action"
                   icon={ShoppingCart}
                   label={t("sazo.actions.cart")}
+                  onPress={() => {
+                    dispatch({ type: "navigate", view: "cart" });
+                  }}
                 />
                 <ControlButton
                   className="sazo-top-action"
                   icon={Bell}
                   label={t("sazo.navigation.notification")}
+                  onPress={() => {
+                    dispatch({ type: "navigate", view: "notifications" });
+                  }}
                 />
                 {accountAvailable ? (
                   <NavigationButton
+                    active={myPageSectionActive}
                     className="sazo-top-action"
                     dispatch={dispatch}
                     icon={UserRound}
@@ -278,14 +308,39 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
                 className="sazo-mobile-header-actions"
                 role="group"
               >
-                <button aria-label={t("sazo.actions.language")} type="button">
-                  <span aria-hidden>🇯🇵</span>
+                <button
+                  aria-label={t("sazo.actions.language")}
+                  className="sazo-mobile-header-action sazo-language-action"
+                  type="button"
+                >
+                  <span aria-hidden className="sazo-language-flag">
+                    🇯🇵
+                  </span>
                 </button>
-                <button aria-label={t("sazo.navigation.search")} type="button">
-                  <Search aria-hidden size={22} strokeWidth={2.2} />
-                </button>
-                <button aria-label={t("sazo.actions.cart")} type="button">
+                <button
+                  aria-label={t("sazo.actions.cart")}
+                  className="sazo-mobile-header-action"
+                  onClick={() => {
+                    dispatch({ type: "navigate", view: "cart" });
+                  }}
+                  type="button"
+                >
                   <ShoppingCart aria-hidden size={23} strokeWidth={2.2} />
+                </button>
+                <button
+                  aria-label={t("sazo.navigation.mypage")}
+                  className="sazo-mobile-header-action"
+                  onClick={() => {
+                    if (accountAvailable) {
+                      dispatch({ type: "navigate", view: "mypage" });
+                      return;
+                    }
+
+                    dispatch({ type: "open-login" });
+                  }}
+                  type="button"
+                >
+                  <UserRound aria-hidden size={23} strokeWidth={2.1} />
                 </button>
               </div>
             </div>
@@ -325,10 +380,12 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
             state={state}
             view="home"
           />
-          <ControlButton
-            className="sazo-nav-button"
+          <NavigationButton
+            dispatch={dispatch}
             icon={Bell}
             label={t("sazo.navigation.notification")}
+            state={state}
+            view="notifications"
           />
           <NavigationButton
             className="sazo-nav-button sazo-agent-nav-button"
@@ -347,6 +404,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
           />
           {accountAvailable ? (
             <NavigationButton
+              active={myPageSectionActive}
               dispatch={dispatch}
               icon={UserRound}
               label={t("sazo.navigation.mypage")}

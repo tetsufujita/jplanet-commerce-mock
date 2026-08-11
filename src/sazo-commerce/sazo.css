@@ -19,6 +19,716 @@
   font-family: Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
 }
 
+/* Desktop category detail layout.  BeautyView owns the mobile-specific
+ * category experience, while the desktop shell supplies the global header.
+ * Keep the detail page in the same centered frame as the category directory
+ * so its hero, agent entry, rails, and trend list never fall back to raw HTML.
+ */
+@media (min-width: 768px) {
+  .sazo-root[data-view="beauty"] .sazo-content-main {
+    min-height: calc(100vh - 116px);
+    background: #fff;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty {
+    width: min(1160px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 34px 0 96px;
+    color: var(--jplanet-ink);
+    overflow: visible;
+  }
+
+  /* SazoCommerceShell already renders the desktop header and navigation. */
+  .sazo-root[data-view="beauty"] .sazo-beauty-header {
+    display: none;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-hero {
+    width: min(960px, 100%);
+    margin: 0 auto;
+    padding: 8px 0 0;
+    text-align: center;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-store-badge {
+    display: inline-flex;
+    min-height: 30px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: var(--sazo-beauty-mint, #e9fbf1);
+    color: #27884d;
+    font-size: 13px;
+    font-weight: 850;
+    letter-spacing: .02em;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-hero h1 {
+    margin: 14px 0 10px;
+    color: #090c12;
+    font-size: clamp(42px, 4.2vw, 60px);
+    font-weight: 950;
+    letter-spacing: -.055em;
+    line-height: 1.02;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-hero > p {
+    margin: 0;
+    color: var(--jplanet-muted);
+    font-size: 17px;
+    font-weight: 650;
+    line-height: 1.55;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent {
+    width: 100%;
+    margin: 26px auto 0;
+    text-align: left;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer {
+    width: 100%;
+    padding: 17px 18px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 22px;
+    background: #fff;
+    color: var(--jplanet-navy);
+    box-shadow: 0 12px 26px color-mix(in srgb, var(--jplanet-ink) 10%, transparent);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-header {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-header img {
+    display: block;
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer h1 {
+    margin: 0;
+    color: var(--jplanet-navy);
+    font-size: 17px;
+    line-height: 1.3;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-header p {
+    margin: 3px 0 0;
+    color: var(--jplanet-muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-form {
+    position: relative;
+    display: block;
+    margin-top: 14px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-input-shell {
+    display: flex;
+    min-height: 52px;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 6px 5px 8px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--jplanet-ink) 9%, transparent);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-plus {
+    display: inline-grid;
+    flex: 0 0 35px;
+    width: 35px;
+    height: 35px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--jplanet-navy);
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-plus[aria-expanded="true"] {
+    background: var(--jplanet-sakura-soft);
+    color: var(--jplanet-sakura-ink);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-input-shell textarea {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    min-height: 36px;
+    max-height: 76px;
+    padding: 7px 2px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--jplanet-navy);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-input-shell textarea::placeholder {
+    color: color-mix(in srgb, var(--jplanet-muted) 78%, #fff);
+    opacity: 1;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-submit {
+    display: inline-grid;
+    flex: 0 0 40px;
+    width: 40px;
+    min-height: 40px;
+    height: 40px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--jplanet-navy);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-submit:disabled {
+    background: var(--jplanet-line);
+    color: var(--jplanet-muted);
+    cursor: not-allowed;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-submit span {
+    display: none;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu {
+    position: absolute;
+    z-index: 40;
+    top: calc(100% + 8px);
+    left: 0;
+    display: grid;
+    width: min(240px, calc(100vw - 46px));
+    gap: 2px;
+    padding: 8px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 18px;
+    background: rgb(255 255 255 / 98%);
+    box-shadow: 0 18px 38px color-mix(in srgb, var(--jplanet-ink) 18%, transparent);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu button {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 11px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--jplanet-ink);
+    font-size: 13px;
+    font-weight: 800;
+    text-align: left;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu button:hover,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu button:focus-visible {
+    background: var(--jplanet-sakura-soft);
+    outline: none;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search-guidance {
+    display: flex;
+    width: min(560px, 100%);
+    min-height: 76px;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0 auto;
+    text-align: left;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search-guidance svg {
+    flex: 0 0 88px;
+    width: 88px;
+    height: 58px;
+    margin-top: 2px;
+    overflow: visible;
+    fill: none;
+    stroke: var(--jplanet-navy);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.4;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search-guidance p {
+    margin: 18px 0 0;
+    color: var(--jplanet-navy);
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.45;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-discovery,
+  .sazo-root[data-view="beauty"] .sazo-beauty-trends {
+    width: min(1080px, 100%);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-discovery {
+    margin-top: 48px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-discovery h2,
+  .sazo-root[data-view="beauty"] .sazo-beauty-trends h2 {
+    margin: 0 0 18px;
+    color: var(--jplanet-ink);
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1.35;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 24px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail button {
+    min-height: 42px;
+    padding: 0 18px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--jplanet-ink);
+    font-size: 14px;
+    font-weight: 750;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail button[aria-pressed="true"] {
+    border-color: var(--jplanet-navy);
+    background: var(--jplanet-navy);
+    color: #fff;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-rail {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px 18px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-card {
+    min-width: 0;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-open {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--jplanet-ink);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-image,
+  .sazo-root[data-view="beauty"] .sazo-beauty-image-fallback {
+    display: grid;
+    width: 100%;
+    aspect-ratio: 1;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #f6f7f8;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-image-fallback {
+    color: var(--jplanet-muted);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-brand {
+    display: block;
+    margin-top: 9px;
+    overflow: hidden;
+    color: var(--jplanet-muted);
+    font-size: 11px;
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-open strong {
+    display: -webkit-box;
+    margin-top: 4px;
+    overflow: hidden;
+    font-size: 15px;
+    font-weight: 750;
+    line-height: 1.35;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-open b {
+    margin-top: 6px;
+    font-size: 17px;
+    font-weight: 900;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-loading,
+  .sazo-root[data-view="beauty"] .sazo-beauty-empty {
+    min-height: 120px;
+    margin: 0;
+    padding: 48px 16px;
+    color: var(--jplanet-muted);
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-trends {
+    margin-top: 64px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-section-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-section-heading h2 {
+    margin-bottom: 0;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-section-heading > button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 2px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--jplanet-navy);
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-section-heading svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-trend-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 36px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-trend-list li {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    align-items: center;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 750;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-trend-list li > span {
+    color: var(--jplanet-sakura);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-trend-list button {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--jplanet-ink);
+    text-align: left;
+    cursor: pointer;
+  }
+}
+
+/* Notification inbox: a compact, actionable demo feed sits above the opt-in settings. */
+.sazo-root .sazo-notifications-feed {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--jplanet-line);
+}
+
+.sazo-root .sazo-notifications-feed-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.sazo-root .sazo-notifications-eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--jplanet-sakura-ink);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.sazo-root .sazo-notifications-feed-heading h2 {
+  margin: 0;
+  color: var(--jplanet-navy);
+  font-size: 24px;
+}
+
+.sazo-root .sazo-notifications-read-all {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 10px;
+  background: var(--jplanet-surface);
+  color: var(--jplanet-navy);
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-notifications-filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.sazo-root .sazo-notifications-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.sazo-root .sazo-notifications-filter {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 15px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 999px;
+  background: var(--jplanet-surface);
+  color: var(--jplanet-navy);
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-notifications-filter[aria-pressed="true"] {
+  border-color: var(--jplanet-ink);
+  background: var(--jplanet-ink);
+  color: var(--jplanet-surface);
+}
+
+.sazo-root .sazo-notifications-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.sazo-root .sazo-notification-card {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 92px;
+  padding: 14px 15px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 15px;
+  background: var(--jplanet-surface);
+  color: var(--jplanet-navy);
+  text-align: left;
+  box-shadow: 0 7px 20px rgb(21 43 83 / 6%);
+  cursor: pointer;
+  transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.sazo-root .sazo-notification-card:hover {
+  border-color: color-mix(in srgb, var(--jplanet-sakura) 45%, var(--jplanet-line));
+  box-shadow: 0 10px 25px rgb(21 43 83 / 10%);
+  transform: translateY(-1px);
+}
+
+.sazo-root .sazo-notification-card.is-read {
+  opacity: 0.68;
+}
+
+.sazo-root .sazo-notification-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--jplanet-blue-soft);
+  color: var(--jplanet-ink);
+}
+
+.sazo-root .sazo-notification-card[data-notification-kind="orders"] .sazo-notification-card-icon {
+  background: color-mix(in srgb, var(--jplanet-sakura) 12%, var(--jplanet-surface));
+  color: var(--jplanet-sakura-ink);
+}
+
+.sazo-root .sazo-notification-card-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.sazo-root .sazo-notification-card-copy strong,
+.sazo-root .sazo-notification-card-copy span,
+.sazo-root .sazo-notification-card-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sazo-root .sazo-notification-card-copy strong {
+  font-size: 14px;
+}
+
+.sazo-root .sazo-notification-card-copy span {
+  color: var(--jplanet-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sazo-root .sazo-notification-card-copy small {
+  color: var(--jplanet-muted);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.sazo-root .sazo-notification-unread {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--jplanet-sakura);
+}
+
+.sazo-root .sazo-notification-card-chevron {
+  color: var(--jplanet-muted);
+}
+
+.sazo-root .sazo-notification-settings {
+  margin-top: 24px;
+}
+
+@media (max-width: 760px) {
+  .sazo-root .sazo-notifications-feed {
+    padding-bottom: 16px;
+  }
+
+  .sazo-root .sazo-notifications-feed-heading {
+    align-items: center;
+    margin-bottom: 9px;
+  }
+
+  .sazo-root .sazo-notifications-eyebrow {
+    margin-bottom: 2px;
+    font-size: 8px;
+  }
+
+  .sazo-root .sazo-notifications-feed-heading h2 {
+    font-size: 18px;
+  }
+
+  .sazo-root .sazo-notifications-read-all {
+    min-height: 31px;
+    padding: 0 9px;
+    border-radius: 8px;
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-notifications-filter {
+    min-height: 32px;
+    padding: 0 11px;
+    font-size: 10px;
+  }
+
+  .sazo-root .sazo-notifications-list {
+    gap: 7px;
+    margin-top: 9px;
+  }
+
+  .sazo-root .sazo-notification-card {
+    grid-template-columns: 32px minmax(0, 1fr) auto auto;
+    gap: 8px;
+    min-height: 69px;
+    padding: 9px 10px;
+    border-radius: 11px;
+  }
+
+  .sazo-root .sazo-notification-card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .sazo-root .sazo-notification-card-icon svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .sazo-root .sazo-notification-card-copy {
+    gap: 1px;
+  }
+
+  .sazo-root .sazo-notification-card-copy strong {
+    font-size: 11px;
+  }
+
+  .sazo-root .sazo-notification-card-copy span {
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-notification-card-copy small {
+    font-size: 8px;
+  }
+
+  .sazo-root .sazo-notification-unread {
+    width: 6px;
+    height: 6px;
+  }
+
+  .sazo-root .sazo-notification-card-chevron {
+    width: 15px;
+    height: 15px;
+  }
+
+  .sazo-root .sazo-notification-settings {
+    margin-top: 14px;
+  }
+}
+
+
 .sazo-root,
 .sazo-root * {
   box-sizing: border-box;
@@ -1329,6 +2039,1437 @@
 @media (prefers-reduced-motion: reduce) {
   .sazo-root .sazo-interested-items-track {
     scroll-behavior: auto;
+  }
+}
+
+/* Dedicated J-Planet BEAUTY mobile composition. Keep this block last so the
+   captured mobile geometry owns the generic home and shell defaults. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="beauty"] {
+    --sazo-beauty-green: #63df16;
+    --sazo-beauty-mint: #effff2;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-content-main {
+    min-height: 100vh;
+    padding-top: 78px;
+    padding-bottom: calc(86px + env(safe-area-inset-bottom));
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-header {
+    position: fixed;
+    z-index: 30;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 78px;
+    border-radius: 0 0 16px 16px;
+    background: #fff;
+    box-shadow: 0 5px 12px rgb(20 31 54 / 12%);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-header-main {
+    display: flex;
+    align-items: center;
+    height: 49px;
+    padding: 0 15px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    margin-right: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--jplanet-navy);
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-logo img {
+    width: 92px;
+    height: auto;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-logo span {
+    display: inline-block;
+    max-width: 0;
+    overflow: hidden;
+    font-size: 0;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-wordmark {
+    margin-right: auto;
+    color: var(--jplanet-sakura-ink);
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-header-actions {
+    display: flex;
+    gap: 11px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-header-actions button {
+    display: grid;
+    width: 30px;
+    height: 36px;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: var(--jplanet-ink);
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-header-actions svg {
+    width: 23px;
+    height: 23px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-header-nav {
+    display: flex;
+    align-items: stretch;
+    height: 29px;
+    gap: 27px;
+    overflow-x: auto;
+    padding: 0 24px;
+    scrollbar-width: none;
+    touch-action: pan-x;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-header-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-header-nav button {
+    flex: 0 0 auto;
+    padding: 0 0 7px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--jplanet-ink);
+    font-size: 13px;
+    font-weight: 750;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-header-nav button[aria-current="page"] {
+    border-bottom-color: var(--jplanet-sakura);
+    color: var(--jplanet-sakura-ink);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-hero {
+    padding: 40px 15px 0;
+    text-align: center;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-store-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 74px;
+    height: 26px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: var(--sazo-beauty-mint);
+    color: #27884d;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-hero h1 {
+    margin: 13px 0 14px;
+    color: #090c12;
+    font-size: clamp(42px, 12.4vw, 48px);
+    font-weight: 950;
+    letter-spacing: -0.055em;
+    line-height: 0.98;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-hero > p {
+    margin: 0;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.5;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr) 50px;
+    align-items: center;
+    height: 58px;
+    margin: 20px 0 0;
+    padding: 4px 4px 4px 20px;
+    border: 1px solid #d5d9df;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 7px 18px rgb(27 41 66 / 14%);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search-icon {
+    width: 23px;
+    height: 23px;
+    color: var(--jplanet-sakura);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search input {
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--jplanet-ink);
+    font: inherit;
+    font-size: 15px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search input::placeholder {
+    color: var(--jplanet-muted);
+    opacity: 1;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search > button {
+    display: grid;
+    width: 50px;
+    height: 50px;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--sazo-beauty-green);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search-guidance {
+    display: flex;
+    align-items: flex-start;
+    min-height: 84px;
+    gap: 3px;
+    padding: 4px 8px 0;
+    text-align: left;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search-guidance svg {
+    flex: 0 0 88px;
+    width: 88px;
+    height: 58px;
+    margin-top: 2px;
+    overflow: visible;
+    fill: none;
+    stroke: var(--jplanet-navy);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.4;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search-guidance p {
+    margin: 18px 0 0;
+    color: var(--jplanet-navy);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-discovery,
+  .sazo-root[data-view="beauty"] .sazo-beauty-trends {
+    padding: 0 15px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-discovery h2,
+  .sazo-root[data-view="beauty"] .sazo-beauty-trends h2 {
+    margin: 0 0 18px;
+    color: #0a0d13;
+    font-size: 19px;
+    font-weight: 900;
+    line-height: 1.45;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail,
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-rail {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    touch-action: pan-y;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail::-webkit-scrollbar,
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail {
+    display: flex;
+    gap: 8px;
+    margin: 0 -15px 14px;
+    padding: 0 15px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail button {
+    flex: 0 0 auto;
+    height: 42px;
+    padding: 0 16px;
+    border: 1px solid #d7dbe1;
+    border-radius: 999px;
+    background: #fff;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 750;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail button[aria-pressed="true"] {
+    border-color: #0b1320;
+    background: #0b1320;
+    color: #fff;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-rail {
+    display: grid;
+    grid-auto-columns: calc((100% - 16px) / 3);
+    grid-auto-flow: column;
+    gap: 8px;
+    margin: 0 -15px;
+    padding: 0 15px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-card {
+    min-width: 0;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-open {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--jplanet-ink);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-image,
+  .sazo-root[data-view="beauty"] .sazo-beauty-image-fallback {
+    display: grid;
+    width: 100%;
+    aspect-ratio: 1;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 9px;
+    background: #f6f7f8;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-image-fallback {
+    color: var(--jplanet-muted);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-brand {
+    display: block;
+    margin-top: 8px;
+    overflow: hidden;
+    color: var(--jplanet-muted);
+    font-size: 10px;
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-open strong {
+    display: -webkit-box;
+    margin-top: 3px;
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.3;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-product-open b {
+    margin-top: 5px;
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-loading,
+  .sazo-root[data-view="beauty"] .sazo-beauty-empty {
+    min-height: 120px;
+    margin: 0;
+    padding: 48px 16px;
+    color: var(--jplanet-muted);
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-trends {
+    margin-top: 42px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-section-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-section-heading h2 {
+    margin-bottom: 0;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-section-heading > button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 2px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--jplanet-navy);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-section-heading svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-trend-list {
+    display: grid;
+    gap: 17px;
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-trend-list li {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    align-items: center;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-trend-list li > span {
+    color: var(--jplanet-sakura);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-trend-list button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--jplanet-ink);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-beauty-search:focus-within,
+  .sazo-root[data-view="beauty"] button:focus-visible {
+    outline: 3px solid var(--jplanet-sakura);
+    outline-offset: 2px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-mobile-shell > .sazo-footer {
+    display: none;
+  }
+}
+
+/* Compact in-place AI entry on the home feed. The home search stays on the
+ * current page; the full agent hub is reserved for richer follow-up work. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="home"] .sazo-mobile-search-overlap {
+    z-index: 19;
+    margin-top: -36px;
+    padding: 0 12px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    padding: 10px 12px 11px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--jplanet-ink) 11%, transparent);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header img {
+    display: block;
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header strong,
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header span {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header strong {
+    color: var(--jplanet-navy);
+    font-size: 13px;
+    line-height: 1.25;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header span {
+    margin-top: 2px;
+    color: var(--jplanet-muted);
+    font-size: 10px;
+    line-height: 1.3;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-form {
+    position: relative;
+    display: grid;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-input-shell {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) 34px;
+    min-width: 0;
+    min-height: 44px;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 5px 4px 6px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 999px;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-plus,
+  .sazo-root[data-view="home"] .sazo-home-agent-submit {
+    display: inline-grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--jplanet-navy);
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-plus[aria-expanded="true"] {
+    background: var(--jplanet-sakura-soft);
+    color: var(--jplanet-sakura-ink);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-submit {
+    background: var(--jplanet-sakura);
+    color: #fff;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-submit:disabled {
+    background: var(--jplanet-blue-soft);
+    color: var(--jplanet-muted);
+    cursor: not-allowed;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry-main {
+    width: 100%;
+    min-width: 0;
+    min-height: 32px;
+    max-height: 64px;
+    resize: none;
+    padding: 6px 2px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--jplanet-navy);
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry-main::placeholder {
+    color: var(--jplanet-muted);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    padding: 5px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 14px;
+    background: var(--jplanet-blue-soft);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu button {
+    display: inline-flex;
+    min-width: 0;
+    min-height: 38px;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 4px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--jplanet-navy);
+    font-size: 10px;
+    font-weight: 750;
+    line-height: 1.15;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu button:hover,
+  .sazo-root[data-view="home"] .sazo-home-agent-menu button:focus-visible {
+    border-color: var(--jplanet-sakura);
+    background: var(--jplanet-sakura-soft);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-status {
+    margin: 0 4px;
+    color: var(--jplanet-muted);
+    font-size: 10px;
+    line-height: 1.35;
+  }
+}
+
+/* Final cascade for the compact home composer. Kept last so legacy SAZO
+ * search rules cannot expand it back into a two-button pill. */
+@keyframes sazo-agent-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 767px) {
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry {
+    display: block;
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 10px 12px 11px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--jplanet-ink) 11%, transparent);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header strong,
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header strong {
+    color: var(--jplanet-navy);
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header span {
+    margin-top: 2px;
+    color: var(--jplanet-muted);
+    font-size: 10px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-form {
+    position: relative;
+    display: grid;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-input-shell {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) 34px;
+    min-height: 44px;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 5px 4px 6px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 999px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    padding: 5px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 14px;
+    background: var(--jplanet-blue-soft);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-actions button {
+    display: inline-flex;
+    min-width: 0;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px 4px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 11px;
+    background: #fff;
+    color: var(--jplanet-navy);
+    font-size: 11px;
+    font-weight: 750;
+    line-height: 1.15;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-actions button svg {
+    flex: 0 0 auto;
+    color: var(--jplanet-sakura-ink);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-actions button:hover,
+  .sazo-root[data-view="home"] .sazo-home-agent-actions button:focus-visible {
+    border-color: var(--jplanet-sakura);
+    background: var(--jplanet-sakura-soft);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-plus,
+  .sazo-root[data-view="home"] .sazo-home-agent-submit {
+    display: inline-grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--jplanet-navy);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-submit {
+    background: var(--jplanet-sakura);
+    color: #fff;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-submit:disabled {
+    background: var(--jplanet-blue-soft);
+    color: var(--jplanet-muted);
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry-main {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 32px;
+    max-height: 64px;
+    padding: 6px 2px;
+    resize: none;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--jplanet-navy);
+    font: inherit;
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry-main::placeholder {
+    color: var(--jplanet-muted);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3px;
+    position: absolute;
+    z-index: 30;
+    top: 51px;
+    left: 4px;
+    width: min(230px, calc(100% - 8px));
+    padding: 8px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 16px;
+    background: rgb(255 255 255 / 98%);
+    box-shadow: 0 15px 30px rgb(21 43 83 / 18%);
+    transform-origin: top left;
+    animation: sazo-agent-menu-in 150ms ease-out both;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu button {
+    display: inline-flex;
+    min-width: 0;
+    min-height: 42px;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--jplanet-navy);
+    font-size: 14px;
+    font-weight: 750;
+    line-height: 1.2;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu button svg {
+    flex: 0 0 auto;
+    color: var(--jplanet-navy);
+  }
+
+  /* Once the hero has cleared the viewport, keep only the input rail pinned
+   * below the header. The explanatory copy stays in the initial composition
+   * so the banner and agent entry never compete while the user is browsing. */
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry[data-compact="true"] {
+    padding: 5px 8px 6px;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 8px 18px color-mix(in srgb, var(--jplanet-ink) 10%, transparent);
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry[data-compact="true"] .sazo-home-agent-card-header {
+    display: none;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry[data-compact="true"] .sazo-home-agent-form {
+    margin-top: 0;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry[data-compact="true"] .sazo-home-agent-input-shell {
+    min-height: 46px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry[data-compact="true"] .sazo-home-agent-actions {
+    display: none;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-search-overlap[data-compact="true"] + .sazo-shortcuts {
+    margin-top: 133px;
+  }
+}
+
+/* Agent hub dashboard: a low-friction progress and document area for cross-
+ * border purchases. The three attachment actions are intentionally explicit
+ * so Brazilian users do not need to guess which file type is accepted. */
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-section-caption {
+  color: var(--jplanet-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-status-list {
+  display: grid;
+  gap: 7px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-status-list li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--jplanet-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-status-list li svg {
+  color: var(--jplanet-muted);
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-status-list li[data-status="done"] svg {
+  color: #258b68;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-status-list li[data-status="active"] {
+  border-color: color-mix(in srgb, var(--jplanet-sakura) 44%, var(--jplanet-line));
+  background: var(--jplanet-sakura-soft);
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-status-list b {
+  color: var(--jplanet-muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-documents-intro {
+  margin: 10px 0 0;
+  color: var(--jplanet-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-document-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-document-actions button {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 54px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 4px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--jplanet-navy);
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-document-actions button:hover,
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-document-actions button:focus-visible {
+  border-color: var(--jplanet-sakura);
+  background: var(--jplanet-sakura-soft);
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-document-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 10px 0 0;
+  color: #258b68;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+/* The full directory and catalog keep the agent visible above their controls. */
+.sazo-root[data-view="categories"] .sazo-directory-agent,
+.sazo-root[data-view="catalog"] .sazo-directory-agent {
+  width: min(1160px, calc(100% - 48px));
+  margin: 20px auto 0;
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer {
+  width: 100%;
+  padding: 17px 18px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 22px;
+  background: #fff;
+  color: var(--jplanet-navy);
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--jplanet-ink) 10%, transparent);
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-header,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-header {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-header img,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-header img {
+  display: block;
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer h1,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer h1 {
+  margin: 0;
+  color: var(--jplanet-navy);
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-header p,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-header p {
+  margin: 3px 0 0;
+  color: var(--jplanet-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-form,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-form {
+  position: relative;
+  display: block;
+  margin-top: 14px;
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-input-shell,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-input-shell {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 6px 5px 8px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--jplanet-ink) 9%, transparent);
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-plus,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-plus {
+  display: inline-grid;
+  flex: 0 0 35px;
+  width: 35px;
+  height: 35px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--jplanet-navy);
+  cursor: pointer;
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-plus[aria-expanded="true"],
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-plus[aria-expanded="true"] {
+  background: var(--jplanet-sakura-soft);
+  color: var(--jplanet-sakura-ink);
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-input-shell textarea,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-input-shell textarea {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  min-height: 36px;
+  max-height: 76px;
+  padding: 7px 2px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--jplanet-navy);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-input-shell textarea::placeholder,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-input-shell textarea::placeholder {
+  color: color-mix(in srgb, var(--jplanet-muted) 78%, #fff);
+  opacity: 1;
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-submit,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-submit {
+  display: inline-grid;
+  flex: 0 0 40px;
+  width: 40px;
+  min-height: 40px;
+  height: 40px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--jplanet-navy);
+  color: #fff;
+  cursor: pointer;
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-submit:disabled,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-submit:disabled {
+  background: var(--jplanet-line);
+  color: var(--jplanet-muted);
+  cursor: not-allowed;
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-submit span,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-submit span {
+  display: none;
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-menu,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 8px);
+  left: 0;
+  display: grid;
+  width: min(240px, calc(100vw - 46px));
+  gap: 2px;
+  padding: 8px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 18px;
+  background: rgb(255 255 255 / 98%);
+  box-shadow: 0 18px 38px color-mix(in srgb, var(--jplanet-ink) 18%, transparent);
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 11px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--jplanet-ink);
+  font-size: 13px;
+  font-weight: 800;
+  text-align: left;
+}
+
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button:hover,
+.sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button:focus-visible,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button:hover,
+.sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button:focus-visible {
+  background: var(--jplanet-sakura-soft);
+  outline: none;
+}
+
+.sazo-root .sazo-category-child-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 16px;
+  padding-top: 20px;
+}
+
+.sazo-root .sazo-category-child-list .sazo-category-child-card {
+  display: grid;
+  min-height: 158px;
+  align-content: start;
+  justify-items: center;
+  gap: 10px;
+  padding: 9px 8px 12px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 7px 16px color-mix(in srgb, var(--jplanet-ink) 7%, transparent);
+  text-align: center;
+}
+
+.sazo-root .sazo-category-child-image {
+  display: grid;
+  width: 92px;
+  height: 92px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--jplanet-navy) 18%, transparent);
+  border-radius: 50%;
+  background: var(--jplanet-soft);
+}
+
+.sazo-root .sazo-category-child-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sazo-root .sazo-category-child-copy {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--jplanet-ink);
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.sazo-root .sazo-mobile-category-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+@media (max-width: 767px) {
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry {
+    overflow: visible;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-directory-agent,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent {
+    width: 100%;
+    margin: 0;
+    padding: 12px 14px 8px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer {
+    padding: 13px 12px;
+    border-radius: 20px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-header,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-header {
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-header img,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-header img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer h1,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer h1 {
+    font-size: 15px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-header p,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-header p {
+    font-size: 10px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-input-shell textarea,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-input-shell textarea {
+    font-size: 13px;
+  }
+
+  .sazo-root .sazo-category-child-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 8px;
+    padding-top: 14px;
+  }
+
+  .sazo-root .sazo-category-child-list .sazo-category-child-card {
+    min-height: 140px;
+    gap: 7px;
+    padding: 8px 5px 10px;
+    border-radius: 13px;
+  }
+
+  .sazo-root .sazo-category-child-image {
+    width: 68px;
+    height: 68px;
+  }
+
+  .sazo-root .sazo-category-child-copy {
+    font-size: 12px;
+  }
+
+  .sazo-root .sazo-mobile-category-section .sazo-section-heading {
+    align-items: center;
+  }
+
+  .sazo-root .sazo-mobile-category-more {
+    font-size: 13px;
+  }
+}
+
+/* Category pages reuse the compact agent composer from the fullscreen hub,
+   while keeping the captured SAZO-style category intro and handwritten hint. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="beauty"] .sazo-category-agent {
+    margin-top: 18px;
+    text-align: left;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer {
+    width: 100%;
+    min-width: 0;
+    padding: 13px 12px;
+    overflow: visible;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 22px;
+    background: #fff;
+    color: var(--jplanet-navy);
+    box-shadow: 0 12px 26px color-mix(in srgb, var(--jplanet-ink) 10%, transparent);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-header {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    align-items: center;
+    gap: 9px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-header img {
+    display: block;
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer h1 {
+    margin: 0;
+    color: var(--jplanet-navy);
+    font-size: 15px;
+    line-height: 1.25;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-header p {
+    margin: 2px 0 0;
+    color: var(--jplanet-muted);
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-form {
+    position: relative;
+    display: block;
+    margin-top: 11px;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-input-shell {
+    display: flex;
+    min-height: 52px;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 6px 5px 8px;
+    border: 1px solid color-mix(in srgb, var(--jplanet-line) 88%, #fff);
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--jplanet-ink) 9%, transparent);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-plus {
+    display: inline-grid;
+    flex: 0 0 35px;
+    width: 35px;
+    height: 35px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--jplanet-navy);
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-plus[aria-expanded="true"] {
+    background: var(--jplanet-sakura-soft);
+    color: var(--jplanet-sakura-ink);
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-input-shell textarea {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    min-height: 36px;
+    max-height: 76px;
+    padding: 7px 2px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--jplanet-navy);
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-input-shell textarea::placeholder {
+    color: color-mix(in srgb, var(--jplanet-muted) 78%, #fff);
+    opacity: 1;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-submit {
+    display: inline-grid;
+    flex: 0 0 38px;
+    width: 38px;
+    min-height: 38px;
+    height: 38px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--jplanet-navy);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-submit:disabled {
+    background: var(--jplanet-line);
+    color: var(--jplanet-muted);
+    cursor: not-allowed;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-submit span {
+    display: none;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu {
+    position: absolute;
+    z-index: 40;
+    top: calc(100% + 8px);
+    left: 0;
+    display: grid;
+    width: min(220px, calc(100vw - 46px));
+    gap: 2px;
+    padding: 8px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 18px;
+    background: rgb(255 255 255 / 98%);
+    box-shadow: 0 18px 38px color-mix(in srgb, var(--jplanet-ink) 18%, transparent);
+    animation: sazo-agent-menu-pop 160ms ease-out both;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu button {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 11px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--jplanet-ink);
+    font-size: 13px;
+    font-weight: 800;
+    text-align: left;
+  }
+
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu button:hover,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu button:focus-visible {
+    background: var(--jplanet-sakura-soft);
+    outline: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu {
+      animation: none;
+    }
   }
 }
 
@@ -2869,9 +5010,436 @@
   scroll-snap-align: start;
 }
 
+.sazo-root .sazo-product-detail-selected-recommendations {
+  margin-top: 46px;
+  padding-top: 28px;
+  border-top: 1px solid var(--jplanet-line);
+}
+
+.sazo-root .sazo-product-detail-selected-recommendations .sazo-product-detail-section-heading {
+  margin-bottom: 18px;
+}
+
+/* The selected-product recommendations continue with the page instead of
+ * opening a second horizontal scroll context. Two equal columns keep the
+ * compact product cards easy to compare on mobile and desktop. */
+.sazo-root
+  .sazo-product-detail-selected-recommendations
+  .sazo-product-detail-recommendation-track[data-layout="grid"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-columns: auto;
+  grid-auto-flow: row;
+  gap: 24px 16px;
+  overflow: visible;
+  padding: 0 0 18px;
+  scroll-snap-type: none;
+}
+
+.sazo-root
+  .sazo-product-detail-selected-recommendations
+  .sazo-product-detail-recommendation-track[data-layout="grid"]
+  .sazo-product-card {
+  min-width: 0;
+  scroll-snap-align: none;
+}
+
+.sazo-root
+  .sazo-product-detail-selected-recommendations
+  .sazo-product-detail-recommendation-next,
+.sazo-root
+  .sazo-product-detail-selected-recommendations
+  .sazo-product-card-rank,
+.sazo-root
+  .sazo-product-detail-selected-recommendations
+  .sazo-product-badge,
+.sazo-root
+  .sazo-product-detail-selected-recommendations
+  .sazo-mobile-rank-badge {
+  display: none;
+}
+
+.sazo-root .sazo-product-detail-recommendation-more {
+  display: block;
+  min-height: 44px;
+  margin: 2px auto 0;
+  padding: 9px 24px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 999px;
+  background: var(--jplanet-surface);
+  color: var(--jplanet-navy);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--jplanet-shadow) 46%, transparent);
+}
+
+.sazo-root .sazo-product-detail-recommendation-more:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--jplanet-sakura) 60%, transparent);
+  outline-offset: 3px;
+}
+
 .sazo-root .sazo-product-detail-timeline-scroll {
   overflow-x: auto;
   padding: 4px 4px 14px;
+}
+
+/* Cart: a Shopee-like vertical item list followed by a dense recommendation grid. */
+.sazo-root .sazo-cart-view {
+  min-height: 100%;
+  padding-bottom: 120px;
+  background: var(--jplanet-surface);
+  color: var(--jplanet-navy);
+}
+
+.sazo-root .sazo-cart-header {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--jplanet-line);
+  background: color-mix(in srgb, var(--jplanet-surface) 96%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--jplanet-shadow) 40%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.sazo-root .sazo-cart-header h1 {
+  margin: 0;
+  font-size: clamp(20px, 2vw, 28px);
+  line-height: 1.2;
+}
+
+.sazo-root .sazo-cart-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sazo-root .sazo-cart-header-button,
+.sazo-root .sazo-cart-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--jplanet-navy);
+}
+
+.sazo-root .sazo-cart-header-button {
+  cursor: pointer;
+}
+
+.sazo-root .sazo-cart-header-button:hover,
+.sazo-root .sazo-cart-header-button:focus-visible {
+  border-color: var(--jplanet-line);
+  background: var(--jplanet-blue-soft);
+}
+
+.sazo-root .sazo-cart-body {
+  width: min(100%, 1080px);
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.sazo-root .sazo-cart-items {
+  display: grid;
+  gap: 14px;
+}
+
+.sazo-root .sazo-cart-item {
+  display: grid;
+  grid-template-columns: auto 112px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 18px;
+  background: var(--jplanet-surface);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--jplanet-shadow) 42%, transparent);
+}
+
+.sazo-root .sazo-cart-item-selection {
+  display: inline-flex;
+  align-items: center;
+}
+
+.sazo-root .sazo-cart-item-selection input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--jplanet-sakura);
+}
+
+.sazo-root .sazo-cart-item-image {
+  width: 112px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 12px;
+  background: var(--jplanet-blue-soft);
+}
+
+.sazo-root .sazo-cart-item-copy {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.sazo-root .sazo-cart-item-brand {
+  color: var(--jplanet-muted);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sazo-root .sazo-cart-item-copy h2 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.sazo-root .sazo-cart-item-option {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 5px;
+  max-width: 100%;
+  padding: 6px 9px;
+  overflow: hidden;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 8px;
+  background: var(--jplanet-blue-soft);
+  color: var(--jplanet-navy);
+  font: inherit;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.sazo-root .sazo-cart-item-copy > strong {
+  font-size: 18px;
+}
+
+.sazo-root .sazo-cart-quantity {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  margin-top: 4px;
+  padding: 3px 6px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 10px;
+}
+
+.sazo-root .sazo-cart-quantity button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--jplanet-navy);
+  cursor: pointer;
+}
+
+.sazo-root .sazo-cart-quantity button:hover,
+.sazo-root .sazo-cart-quantity button:focus-visible {
+  background: var(--jplanet-blue-soft);
+}
+
+.sazo-root .sazo-cart-item-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 50%;
+  background: var(--jplanet-surface);
+  color: var(--jplanet-muted);
+  cursor: pointer;
+}
+
+.sazo-root .sazo-cart-item-remove:hover,
+.sazo-root .sazo-cart-item-remove:focus-visible {
+  color: var(--jplanet-sakura);
+}
+
+.sazo-root .sazo-cart-empty {
+  margin: 0;
+  padding: 44px 20px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 18px;
+  color: var(--jplanet-muted);
+  text-align: center;
+}
+
+.sazo-root .sazo-cart-recommendations {
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid var(--jplanet-line);
+}
+
+.sazo-root .sazo-cart-recommendations .sazo-product-detail-section-heading {
+  margin-bottom: 18px;
+}
+
+.sazo-root .sazo-cart-recommendations .sazo-product-detail-recommendation-track[data-layout="grid"] {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-columns: auto;
+  grid-auto-flow: row;
+  gap: 24px 16px;
+  overflow: visible;
+  padding: 0 0 24px;
+  scroll-snap-type: none;
+}
+
+.sazo-root .sazo-cart-recommendations .sazo-product-detail-recommendation-track[data-layout="grid"] .sazo-product-card {
+  min-width: 0;
+  scroll-snap-align: none;
+}
+
+.sazo-root .sazo-cart-summary {
+  position: sticky;
+  z-index: 19;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 12px 24px calc(12px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--jplanet-line);
+  background: color-mix(in srgb, var(--jplanet-surface) 96%, transparent);
+  box-shadow: 0 -5px 18px color-mix(in srgb, var(--jplanet-shadow) 42%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.sazo-root .sazo-cart-summary > div {
+  display: grid;
+  gap: 2px;
+}
+
+.sazo-root .sazo-cart-summary span {
+  color: var(--jplanet-muted);
+  font-size: 13px;
+}
+
+.sazo-root .sazo-cart-summary strong {
+  font-size: 22px;
+}
+
+.sazo-root .sazo-cart-summary button {
+  min-height: 48px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--jplanet-sakura), color-mix(in srgb, var(--jplanet-sakura) 78%, var(--jplanet-navy)));
+  color: var(--jplanet-surface);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-cart-summary button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 767px) {
+  .sazo-root .sazo-cart-view {
+    padding-bottom: 92px;
+  }
+
+  .sazo-root .sazo-cart-header {
+    min-height: 58px;
+    padding: 8px 12px;
+  }
+
+  .sazo-root .sazo-cart-header h1 {
+    font-size: 18px;
+  }
+
+  .sazo-root .sazo-cart-body {
+    padding: 16px 12px 22px;
+  }
+
+  .sazo-root .sazo-cart-item {
+    grid-template-columns: 24px 88px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .sazo-root .sazo-cart-item-image {
+    width: 88px;
+  }
+
+  .sazo-root .sazo-cart-item-copy h2 {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 14px;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .sazo-root .sazo-cart-item-copy > strong {
+    font-size: 16px;
+  }
+
+  .sazo-root .sazo-cart-item-option {
+    font-size: 11px;
+    text-overflow: ellipsis;
+  }
+
+  .sazo-root .sazo-cart-item-remove {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .sazo-root .sazo-cart-quantity {
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .sazo-root .sazo-cart-recommendations {
+    margin-top: 28px;
+    padding-top: 22px;
+  }
+
+  .sazo-root .sazo-cart-recommendations .sazo-product-detail-section-heading h2 {
+    font-size: 22px;
+  }
+
+  .sazo-root .sazo-cart-recommendations .sazo-product-detail-recommendation-track[data-layout="grid"] {
+    gap: 20px 10px;
+  }
+
+  .sazo-root .sazo-cart-summary {
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .sazo-root .sazo-cart-summary strong {
+    font-size: 18px;
+  }
+
+  .sazo-root .sazo-cart-summary button {
+    min-height: 44px;
+    padding: 0 14px;
+    font-size: 12px;
+  }
 }
 
 .sazo-root .sazo-product-order-flow {
@@ -3220,6 +5788,156 @@
   color: var(--jplanet-muted);
   font-size: 12px;
   font-weight: 650;
+}
+
+.sazo-root .sazo-product-detail-section-action {
+  flex: 0 0 auto;
+  padding: 0 0 3px;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: var(--jplanet-muted);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.sazo-root .sazo-product-detail-review-disclosure {
+  border: 1px solid var(--jplanet-line);
+  border-radius: 18px;
+  background: var(--jplanet-surface);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--jplanet-shadow) 42%, transparent);
+}
+
+.sazo-root .sazo-product-detail-review-disclosure > summary,
+.sazo-root .sazo-product-detail-benefit-card details > summary {
+  cursor: pointer;
+  list-style: none;
+  color: var(--jplanet-navy);
+  font-weight: 850;
+}
+
+.sazo-root .sazo-product-detail-review-disclosure > summary::-webkit-details-marker,
+.sazo-root .sazo-product-detail-benefit-card details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.sazo-root .sazo-product-detail-review-disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  font-size: 15px;
+}
+
+.sazo-root .sazo-product-detail-review-disclosure > summary::after,
+.sazo-root .sazo-product-detail-benefit-card details > summary::after {
+  content: "＋";
+  color: var(--jplanet-sakura);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.sazo-root .sazo-product-detail-review-disclosure[open] > summary::after,
+.sazo-root .sazo-product-detail-benefit-card details[open] > summary::after {
+  content: "−";
+}
+
+.sazo-root .sazo-product-detail-review-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 0 18px 18px;
+}
+
+.sazo-root .sazo-product-detail-review-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 14px;
+  background: var(--jplanet-blue-soft);
+}
+
+.sazo-root .sazo-product-detail-review-card-header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.sazo-root .sazo-product-detail-review-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--jplanet-sakura-soft);
+  color: var(--jplanet-navy);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.sazo-root .sazo-product-detail-review-card-header strong {
+  display: block;
+  color: var(--jplanet-navy);
+  font-size: 13px;
+}
+
+.sazo-root .sazo-product-detail-review-stars {
+  display: block;
+  margin-top: 2px;
+  color: var(--jplanet-sakura);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}
+
+.sazo-root .sazo-product-detail-review-card > p {
+  min-height: 58px;
+  margin: 13px 0 0;
+  color: var(--jplanet-ink);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.7;
+}
+
+.sazo-root .sazo-product-detail-review-card > img {
+  display: block;
+  width: 100%;
+  height: 112px;
+  margin-top: 12px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.sazo-root .sazo-product-detail-review-card > small {
+  display: block;
+  overflow: hidden;
+  margin-top: 9px;
+  color: var(--jplanet-muted);
+  font-size: 10px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sazo-root .sazo-product-detail-benefit-card details {
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--jplanet-line) 80%, transparent);
+}
+
+.sazo-root .sazo-product-detail-benefit-card details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.sazo-root .sazo-product-detail-benefit-card details > p {
+  margin-top: 10px;
+  color: var(--jplanet-muted);
+  font-size: 12px;
 }
 
 .sazo-root .sazo-product-detail-card-grid {
@@ -4355,6 +7073,342 @@
   .sazo-root .sazo-search-callout > p {
     margin-left: 0;
     line-height: 1.6;
+  }
+}
+
+/* Product tap flow: mirror the native app's resolving, guide, and checkout sheets. */
+.sazo-root .sazo-product-resolving {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: var(--jplanet-surface);
+  color: var(--jplanet-navy);
+}
+
+.sazo-root .sazo-product-resolving-header {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 58px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--jplanet-line);
+  box-shadow: 0 5px 18px color-mix(in srgb, var(--jplanet-shadow) 48%, transparent);
+}
+
+.sazo-root .sazo-product-resolving-header button,
+.sazo-root .sazo-product-resolving-header > div {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sazo-root .sazo-product-resolving-header button {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--jplanet-navy);
+  cursor: pointer;
+}
+
+.sazo-root .sazo-product-resolving-header > div {
+  gap: 15px;
+}
+
+.sazo-root .sazo-product-resolving-header span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--jplanet-muted);
+  font-size: 12px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sazo-root .sazo-product-resolving-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: min(100% - 32px, 520px);
+  margin: 0 auto;
+  padding-top: clamp(32px, 12vh, 116px);
+}
+
+.sazo-root .sazo-product-resolving-image {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(100%, 310px);
+  aspect-ratio: 1.22;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--jplanet-blue-soft);
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--jplanet-shadow) 64%, transparent);
+}
+
+.sazo-root .sazo-product-resolving-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: blur(0.45px);
+}
+
+.sazo-root .sazo-product-resolving-image span {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 7px 12px;
+  background: color-mix(in srgb, var(--jplanet-sakura) 82%, transparent);
+  color: var(--jplanet-surface);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.sazo-root .sazo-product-resolving-body > p {
+  margin: 24px 0 4px;
+  color: var(--jplanet-muted);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.sazo-root .sazo-product-resolving-body > strong {
+  font-size: clamp(22px, 5vw, 30px);
+  line-height: 1.35;
+  letter-spacing: -0.035em;
+}
+
+.sazo-root .sazo-product-resolving-body > small {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 18px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  background: var(--jplanet-sakura-soft);
+  color: var(--jplanet-navy);
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.sazo-root .sazo-product-detail-primary-media {
+  touch-action: pan-y;
+}
+
+.sazo-root .sazo-product-order-flow-heading a,
+.sazo-root .sazo-product-order-flow-details-button {
+  border: 0;
+  background: transparent;
+  color: var(--jplanet-navy);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  text-decoration-color: var(--jplanet-sakura);
+  text-decoration-line: underline;
+  text-underline-offset: 4px;
+}
+
+.sazo-root .sazo-product-purchase-sheet-header {
+  display: none;
+}
+
+.sazo-root .sazo-product-guide-backdrop {
+  position: fixed;
+  z-index: 110;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--jplanet-deep-navy) 36%, transparent);
+}
+
+.sazo-root .sazo-product-shipping-guide {
+  width: min(100%, 560px);
+  max-height: min(86vh, 760px);
+  overflow: auto;
+  padding: 28px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 24px;
+  background: var(--jplanet-surface);
+  box-shadow: 0 24px 64px color-mix(in srgb, var(--jplanet-shadow) 80%, transparent);
+}
+
+.sazo-root .sazo-product-shipping-guide > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.sazo-root .sazo-product-shipping-guide > header span {
+  color: var(--jplanet-sakura);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.sazo-root .sazo-product-shipping-guide h2 {
+  margin: 5px 0 0;
+  color: var(--jplanet-navy);
+  font-size: 22px;
+  letter-spacing: -0.035em;
+}
+
+.sazo-root .sazo-product-shipping-guide > header button,
+.sazo-root .sazo-product-shipping-guide-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 999px;
+  background: var(--jplanet-surface);
+  color: var(--jplanet-navy);
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.sazo-root .sazo-product-shipping-guide > p {
+  margin: 22px 0 18px;
+  color: var(--jplanet-muted);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.65;
+}
+
+.sazo-root .sazo-product-shipping-guide ol {
+  display: grid;
+  gap: 0;
+  margin: 0 0 22px;
+  padding: 0;
+  list-style: none;
+}
+
+.sazo-root .sazo-product-shipping-guide li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 12px;
+  padding: 0 0 20px;
+}
+
+.sazo-root .sazo-product-shipping-guide li:not(:last-child)::after {
+  position: absolute;
+  top: 32px;
+  bottom: 0;
+  left: 15px;
+  width: 2px;
+  background: var(--jplanet-line);
+  content: "";
+}
+
+.sazo-root .sazo-product-shipping-guide li > span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--jplanet-blue-soft);
+  color: var(--jplanet-muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.sazo-root .sazo-product-shipping-guide li[data-current="true"] > span {
+  background: var(--jplanet-sakura);
+  color: var(--jplanet-surface);
+}
+
+.sazo-root .sazo-product-shipping-guide li strong {
+  display: block;
+  color: var(--jplanet-navy);
+  font-size: 14px;
+}
+
+.sazo-root .sazo-product-shipping-guide li p {
+  margin: 3px 0 0;
+  color: var(--jplanet-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+@media (max-width: 767px) {
+  .sazo-root .sazo-product-resolving-body {
+    width: calc(100% - 32px);
+    padding-top: 56px;
+  }
+
+  .sazo-root .sazo-product-resolving-image {
+    width: min(100%, 270px);
+  }
+
+  .sazo-root .sazo-product-detail-checkout-rail[data-open="true"] {
+    animation: sazo-product-order-sheet-in 220ms ease-out both;
+    position: fixed;
+    z-index: 120;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: block;
+    max-height: min(82vh, 720px);
+    padding: 0 16px calc(16px + env(safe-area-inset-bottom));
+    overflow: auto;
+    border: 0;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -16px 44px color-mix(in srgb, var(--jplanet-shadow) 80%, transparent);
+  }
+
+  .sazo-root .sazo-product-purchase-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 56px;
+    border-bottom: 1px solid var(--jplanet-line);
+  }
+
+  .sazo-root .sazo-product-purchase-sheet-header strong {
+    color: var(--jplanet-navy);
+    font-size: 16px;
+  }
+
+  .sazo-root .sazo-product-purchase-sheet-header button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--jplanet-muted);
+    cursor: pointer;
+  }
+
+  .sazo-root .sazo-product-guide-backdrop {
+    display: flex;
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .sazo-root .sazo-product-shipping-guide {
+    width: 100%;
+    max-height: 84vh;
+    padding: 24px 18px calc(18px + env(safe-area-inset-bottom));
+    border-radius: 24px 24px 0 0;
+  }
+
+  .sazo-root .sazo-product-shipping-guide h2 {
+    font-size: 20px;
   }
 }
 
@@ -6272,7 +9326,7 @@
   }
 
   .sazo-root .sazo-category-child-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .sazo-root .sazo-category-child-list button {
@@ -7321,6 +10375,465 @@
   cursor: pointer;
 }
 
+.sazo-root .sazo-account-screen-content,
+.sazo-root .sazo-support-content {
+  width: min(760px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 36px 0 96px;
+}
+
+.sazo-root .sazo-account-legal-footer {
+  width: min(760px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 22px 0 112px;
+  border-top: 1px solid var(--jplanet-line);
+  color: var(--jplanet-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.sazo-root .sazo-account-legal-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.sazo-root .sazo-account-legal-footer a {
+  color: var(--jplanet-ink);
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sazo-root .sazo-account-legal-footer p {
+  margin: 14px 0 0;
+}
+
+.sazo-root .sazo-account-legal-footer p + p {
+  margin-top: 0;
+}
+
+.sazo-root .sazo-account-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid var(--jplanet-line);
+}
+
+.sazo-root .sazo-account-tabs button {
+  min-height: 52px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--jplanet-muted);
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-account-tabs button[aria-selected="true"] {
+  border-bottom-color: var(--jplanet-ink);
+  color: var(--jplanet-ink);
+}
+
+.sazo-root .sazo-orders-filters {
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 0;
+}
+
+.sazo-root .sazo-orders-filters select,
+.sazo-root .sazo-orders-filters button,
+.sazo-root .sazo-address-form input {
+  min-height: 48px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 10px;
+  background: var(--jplanet-surface);
+}
+
+.sazo-root .sazo-orders-filters select,
+.sazo-root .sazo-address-form input {
+  padding: 0 14px;
+}
+
+.sazo-root .sazo-orders-filters button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 18px;
+  background: var(--jplanet-ink);
+  color: var(--jplanet-surface);
+  font-weight: 800;
+}
+
+.sazo-root .sazo-coupon-count {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--jplanet-line);
+}
+
+.sazo-root .sazo-coupon-register {
+  padding-bottom: 24px;
+  border-bottom: 8px solid var(--jplanet-soft);
+}
+
+.sazo-root .sazo-coupon-register > label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.sazo-root .sazo-coupon-register > div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.sazo-root .sazo-coupon-register input,
+.sazo-root .sazo-coupon-register button {
+  min-height: 46px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 10px;
+}
+
+.sazo-root .sazo-coupon-register input {
+  min-width: 0;
+  padding: 0 14px;
+}
+
+.sazo-root .sazo-coupon-register button {
+  padding: 0 18px;
+  background: var(--jplanet-ink);
+  color: white;
+  font-weight: 800;
+}
+
+.sazo-root .sazo-coupon-register + .sazo-coupon-count {
+  padding-top: 24px;
+}
+
+.sazo-root .sazo-coupon-count strong {
+  color: var(--jplanet-sakura);
+  font-size: 28px;
+}
+
+.sazo-root .sazo-coupon-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 22px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 14px;
+}
+
+.sazo-root .sazo-coupon-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--jplanet-sakura) 13%, white);
+  color: var(--jplanet-sakura);
+}
+
+.sazo-root .sazo-coupon-card strong {
+  color: var(--jplanet-sakura);
+  font-size: 13px;
+}
+
+.sazo-root .sazo-coupon-card h2 {
+  margin: 7px 0 0;
+  font-size: 18px;
+}
+
+.sazo-root .sazo-coupon-card p {
+  margin: 7px 0 0;
+  color: var(--jplanet-muted);
+  font-size: 13px;
+}
+
+.sazo-root .sazo-points-summary {
+  padding-bottom: 24px;
+  border-bottom: 8px solid var(--jplanet-soft);
+}
+
+.sazo-root .sazo-points-summary > svg {
+  color: var(--jplanet-muted);
+}
+
+.sazo-root .sazo-points-summary > span {
+  display: block;
+  margin-top: 8px;
+  color: var(--jplanet-muted);
+  font-size: 13px;
+}
+
+.sazo-root .sazo-points-summary > strong {
+  display: block;
+  font-size: 34px;
+}
+
+.sazo-root .sazo-points-summary dl {
+  display: grid;
+  gap: 12px;
+  margin: 26px 0 0;
+}
+
+.sazo-root .sazo-points-summary dl > div,
+.sazo-root .sazo-points-history {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.sazo-root .sazo-points-summary dd {
+  margin: 0;
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+.sazo-root .sazo-points-history {
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--jplanet-line);
+}
+
+.sazo-root .sazo-points-history div {
+  display: flex;
+  flex-direction: column;
+}
+
+.sazo-root .sazo-points-history > strong {
+  color: var(--jplanet-sakura);
+}
+
+.sazo-root .sazo-review-notice {
+  padding: 22px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 12px;
+}
+
+.sazo-root .sazo-review-notice h2 {
+  margin: 12px 0 8px;
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.sazo-root .sazo-review-notice ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--jplanet-muted);
+}
+
+.sazo-root .sazo-review-total {
+  margin: 0 0 18px;
+  font-weight: 800;
+}
+
+.sazo-root .sazo-account-fixed-action {
+  position: sticky;
+  z-index: 12;
+  bottom: 86px;
+  display: block;
+  width: min(720px, calc(100% - 48px));
+  min-height: 54px;
+  margin: 0 auto 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--jplanet-ink);
+  color: var(--jplanet-surface);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sazo-root .sazo-address-form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.sazo-root .sazo-address-intro {
+  margin: 0 0 12px;
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--jplanet-soft);
+  line-height: 1.55;
+}
+
+.sazo-root .sazo-address-form label,
+.sazo-root .sazo-address-form legend {
+  margin-top: 11px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.sazo-root .sazo-address-form fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 0;
+  border: 0;
+}
+
+.sazo-root .sazo-address-form legend {
+  grid-column: 1 / -1;
+  margin-bottom: 9px;
+}
+
+.sazo-root .sazo-address-form fieldset input:first-of-type {
+  border-radius: 10px 0 0 10px;
+}
+
+.sazo-root .sazo-address-form fieldset input:last-of-type {
+  border-left: 0;
+  border-radius: 0 10px 10px 0;
+}
+
+.sazo-root .sazo-address-phone {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 10px;
+}
+
+.sazo-root .sazo-address-phone span {
+  padding: 0 14px;
+  color: var(--jplanet-muted);
+}
+
+.sazo-root .sazo-address-phone input {
+  border: 0;
+  border-left: 1px solid var(--jplanet-line);
+  border-radius: 0;
+}
+
+.sazo-root .sazo-notification-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 18px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--jplanet-line);
+}
+
+.sazo-root .sazo-notification-row p {
+  margin: 6px 0 0;
+  color: var(--jplanet-muted);
+  font-size: 13px;
+}
+
+.sazo-root .sazo-notification-switch {
+  width: 46px;
+  height: 26px;
+  padding: 3px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--jplanet-line);
+  cursor: pointer;
+}
+
+.sazo-root .sazo-notification-switch span {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 160ms ease;
+}
+
+.sazo-root .sazo-notification-switch[aria-checked="true"] {
+  background: var(--jplanet-sakura);
+}
+
+.sazo-root .sazo-notification-switch[aria-checked="true"] span {
+  transform: translateX(20px);
+}
+
+.sazo-root .sazo-support-view {
+  min-height: 70vh;
+  background: var(--jplanet-surface);
+}
+
+.sazo-root .sazo-support-hero {
+  padding: 18px 0 30px;
+}
+
+.sazo-root .sazo-support-hero h2 {
+  margin: 12px 0 0;
+  font-size: 30px;
+}
+
+.sazo-root .sazo-support-hero p {
+  color: var(--jplanet-muted);
+}
+
+.sazo-root .sazo-support-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  margin-top: 20px;
+  padding: 0 16px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 999px;
+  background: var(--jplanet-soft);
+}
+
+.sazo-root .sazo-support-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+}
+
+.sazo-root .sazo-support-section {
+  padding: 26px 0;
+  border-top: 8px solid var(--jplanet-soft);
+}
+
+.sazo-root .sazo-support-section h2 {
+  margin: 0 0 14px;
+  font-size: 22px;
+}
+
+.sazo-root .sazo-support-section button {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 60px;
+  padding: 0 16px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 10px;
+  background: var(--jplanet-surface);
+  font-weight: 750;
+  text-align: left;
+}
+
+.sazo-root .sazo-support-section button + button {
+  margin-top: 9px;
+}
+
+.sazo-root .sazo-support-hours {
+  margin: 0;
+  color: var(--jplanet-sakura);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.sazo-root .sazo-support-reply {
+  margin: 16px 0;
+  color: var(--jplanet-muted);
+}
+
 .sazo-root .sazo-account-view button:focus-visible,
 .sazo-root .sazo-account-view input:focus-visible,
 .sazo-root .sazo-account-view select:focus-visible,
@@ -7626,7 +11139,30 @@
   .sazo-root[data-view="mypage"] .sazo-mobile-header,
   .sazo-root[data-view="favorites"] .sazo-mobile-header,
   .sazo-root[data-view="profile"] .sazo-mobile-header,
-  .sazo-root[data-view="cards"] .sazo-mobile-header {
+  .sazo-root[data-view="cards"] .sazo-mobile-header,
+  .sazo-root[data-view="orders"] .sazo-mobile-header,
+  .sazo-root[data-view="coupons"] .sazo-mobile-header,
+  .sazo-root[data-view="points"] .sazo-mobile-header,
+  .sazo-root[data-view="review-create"] .sazo-mobile-header,
+  .sazo-root[data-view="review-history"] .sazo-mobile-header,
+  .sazo-root[data-view="delivery"] .sazo-mobile-header,
+  .sazo-root[data-view="address"] .sazo-mobile-header,
+  .sazo-root[data-view="notifications"] .sazo-mobile-header {
+    display: none;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-footer,
+  .sazo-root[data-view="favorites"] .sazo-footer,
+  .sazo-root[data-view="profile"] .sazo-footer,
+  .sazo-root[data-view="cards"] .sazo-footer,
+  .sazo-root[data-view="orders"] .sazo-footer,
+  .sazo-root[data-view="coupons"] .sazo-footer,
+  .sazo-root[data-view="points"] .sazo-footer,
+  .sazo-root[data-view="review-create"] .sazo-footer,
+  .sazo-root[data-view="review-history"] .sazo-footer,
+  .sazo-root[data-view="delivery"] .sazo-footer,
+  .sazo-root[data-view="address"] .sazo-footer,
+  .sazo-root[data-view="notifications"] .sazo-footer {
     display: none;
   }
 
@@ -7639,34 +11175,136 @@
     z-index: 20;
     top: 0;
     width: 100%;
-    min-height: 82px;
-    padding: 0 10px;
+    grid-template-columns: 34px minmax(0, 1fr) 68px;
+    min-height: 40px;
+    padding: 0 7px;
     background: var(--jplanet-surface);
-    box-shadow: 0 5px 16px var(--jplanet-shadow);
+    box-shadow: 0 2px 7px var(--jplanet-shadow);
   }
 
   .sazo-root .sazo-account-header h1 {
-    font-size: 18px;
+    font-size: 13px;
+  }
+
+  .sazo-root .sazo-account-header > button,
+  .sazo-root .sazo-account-header-actions button {
+    width: 31px;
+    height: 31px;
+  }
+
+  .sazo-root .sazo-account-header svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .sazo-root .sazo-account-header-actions {
+    gap: 2px;
   }
 
   .sazo-root .sazo-account-content,
   .sazo-root .sazo-favorites-content,
   .sazo-root .sazo-profile-form,
-  .sazo-root .sazo-cards-content {
+  .sazo-root .sazo-cards-content,
+  .sazo-root .sazo-account-screen-content,
+  .sazo-root .sazo-support-content {
     width: 100%;
-    padding: 24px 18px 100px;
+    padding: 11px 15px 78px;
+  }
+
+  .sazo-root .sazo-account-legal-footer {
+    width: 100%;
+    padding: 14px 15px 84px;
+    font-size: 8px;
+    line-height: 1.45;
+  }
+
+  .sazo-root .sazo-account-legal-footer nav {
+    gap: 4px 7px;
+  }
+
+  .sazo-root .sazo-account-legal-footer a {
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-account-legal-footer p {
+    margin-top: 9px;
+  }
+
+  .sazo-root .sazo-member-summary,
+  .sazo-root .sazo-account-group {
+    padding: 15px 0;
+  }
+
+  .sazo-root .sazo-member-avatar {
+    width: 25px;
+    height: 25px;
+    font-size: 10px;
   }
 
   .sazo-root .sazo-member-name strong {
-    font-size: 20px;
+    font-size: 16px;
   }
 
   .sazo-root .sazo-member-balances {
-    gap: 30px;
+    gap: 26px;
+    margin-top: 12px;
+  }
+
+  .sazo-root .sazo-member-balances > div {
+    column-gap: 7px;
+  }
+
+  .sazo-root .sazo-member-balances svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .sazo-root .sazo-member-balances strong {
+    font-size: 12px;
+  }
+
+  .sazo-root .sazo-member-balances span {
+    font-size: 8px;
+  }
+
+  .sazo-root .sazo-order-summary {
+    min-height: 54px;
+    margin-top: 14px;
+    padding: 0 14px;
+    border-radius: 9px;
+    font-size: 11px;
   }
 
   .sazo-root .sazo-account-group h2 {
-    font-size: 22px;
+    margin-bottom: 5px;
+    font-size: 15px;
+  }
+
+  .sazo-root .sazo-account-link {
+    grid-template-columns: 23px 1fr auto;
+    min-height: 38px;
+    gap: 7px;
+    font-size: 11px;
+  }
+
+  .sazo-root .sazo-account-link svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .sazo-root .sazo-account-support {
+    min-height: 38px;
+    margin: 9px 0 16px;
+    border-radius: 7px;
+    font-size: 10px;
+  }
+
+  .sazo-root .sazo-account-logout,
+  .sazo-root .sazo-profile-withdraw {
+    min-height: 33px;
+    padding: 0 10px;
+    border-radius: 6px;
+    font-size: 10px;
   }
 
   .sazo-root .sazo-favorites-content {
@@ -7674,7 +11312,8 @@
   }
 
   .sazo-root .sazo-favorite-tabs button {
-    min-height: 80px;
+    min-height: 42px;
+    font-size: 10px;
   }
 
   .sazo-root .sazo-favorite-toolbar {
@@ -7686,20 +11325,287 @@
   }
 
   .sazo-root .sazo-account-empty-state {
-    min-height: 250px;
+    min-height: 185px;
+    padding: 18px;
   }
 
   .sazo-root .sazo-favorites-content .sazo-account-empty-state {
-    min-height: 420px;
-    margin-top: 38px;
+    min-height: 210px;
+    margin-top: 20px;
   }
 
   .sazo-root .sazo-cards-content {
-    padding-top: 52px;
+    padding-top: 12px;
   }
 
   .sazo-root .sazo-cards-content .sazo-account-empty-state {
-    min-height: 190px;
+    min-height: 140px;
+  }
+
+  .sazo-root .sazo-profile-form {
+    gap: 5px;
+  }
+
+  .sazo-root .sazo-profile-form > label,
+  .sazo-root .sazo-profile-form legend,
+  .sazo-root .sazo-profile-phone-heading,
+  .sazo-root .sazo-address-form label,
+  .sazo-root .sazo-address-form legend {
+    margin-top: 8px;
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-profile-form > input,
+  .sazo-root .sazo-profile-form fieldset input,
+  .sazo-root .sazo-profile-phone,
+  .sazo-root .sazo-address-form input {
+    min-height: 39px;
+    font-size: 10px;
+  }
+
+  .sazo-root .sazo-profile-notice,
+  .sazo-root .sazo-address-intro {
+    padding: 10px;
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-profile-phone-help,
+  .sazo-root .sazo-profile-image span {
+    font-size: 8px;
+  }
+
+  .sazo-root .sazo-profile-image h2 {
+    margin: 12px 0 7px;
+    font-size: 11px;
+  }
+
+  .sazo-root .sazo-profile-image > div {
+    min-height: 110px;
+    padding: 12px;
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-profile-save {
+    min-height: 38px;
+    margin-top: 8px;
+    font-size: 10px;
+  }
+
+  .sazo-root .sazo-account-tabs button {
+    min-height: 42px;
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-orders-filters {
+    grid-template-columns: 1fr auto;
+    gap: 7px;
+    padding: 8px 0 14px;
+  }
+
+  .sazo-root .sazo-orders-filters label {
+    display: none;
+  }
+
+  .sazo-root .sazo-orders-filters select,
+  .sazo-root .sazo-orders-filters button {
+    min-height: 34px;
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-recorded-empty-state h2 {
+    font-size: 11px;
+  }
+
+  .sazo-root .sazo-recorded-empty-state p {
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-coupon-count {
+    padding: 4px 0 13px;
+    font-size: 10px;
+  }
+
+  .sazo-root .sazo-coupon-register {
+    padding-bottom: 14px;
+  }
+
+  .sazo-root .sazo-coupon-register > label {
+    margin-bottom: 7px;
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-coupon-register input,
+  .sazo-root .sazo-coupon-register button {
+    min-height: 34px;
+    border-radius: 7px;
+    font-size: 8px;
+  }
+
+  .sazo-root .sazo-coupon-register + .sazo-coupon-count {
+    padding-top: 14px;
+  }
+
+  .sazo-root .sazo-coupon-count strong {
+    font-size: 20px;
+  }
+
+  .sazo-root .sazo-coupon-card {
+    gap: 9px;
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 9px;
+  }
+
+  .sazo-root .sazo-coupon-card-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .sazo-root .sazo-coupon-card strong,
+  .sazo-root .sazo-coupon-card p {
+    font-size: 8px;
+  }
+
+  .sazo-root .sazo-coupon-card h2 {
+    font-size: 11px;
+  }
+
+  .sazo-root .sazo-points-summary {
+    padding: 4px 0 14px;
+  }
+
+  .sazo-root .sazo-points-summary > span,
+  .sazo-root .sazo-points-summary dt,
+  .sazo-root .sazo-points-summary dd,
+  .sazo-root .sazo-points-history {
+    font-size: 8px;
+  }
+
+  .sazo-root .sazo-points-summary > strong {
+    font-size: 22px;
+  }
+
+  .sazo-root .sazo-points-summary dl {
+    gap: 7px;
+    margin-top: 17px;
+  }
+
+  .sazo-root .sazo-points-history {
+    gap: 8px;
+    padding: 12px 0;
+  }
+
+  .sazo-root .sazo-review-notice {
+    padding: 13px;
+    border-radius: 8px;
+  }
+
+  .sazo-root .sazo-review-notice h2 {
+    margin: 7px 0 5px;
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-review-notice ul,
+  .sazo-root .sazo-review-total {
+    font-size: 8px;
+  }
+
+  .sazo-root .sazo-account-fixed-action {
+    position: fixed;
+    right: 10px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    left: 10px;
+    width: auto;
+    min-height: 38px;
+    margin: 0;
+    border-radius: 7px;
+    font-size: 10px;
+  }
+
+  .sazo-root .sazo-address-form {
+    gap: 4px;
+  }
+
+  .sazo-root .sazo-address-phone span {
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-notification-row {
+    padding: 18px 0;
+  }
+
+  .sazo-root .sazo-notification-row strong {
+    font-size: 10px;
+  }
+
+  .sazo-root .sazo-notification-row p {
+    display: none;
+  }
+
+  .sazo-root .sazo-notification-switch {
+    width: 34px;
+    height: 20px;
+    padding: 2px;
+  }
+
+  .sazo-root .sazo-notification-switch span {
+    width: 16px;
+    height: 16px;
+  }
+
+  .sazo-root .sazo-notification-switch[aria-checked="true"] span {
+    transform: translateX(14px);
+  }
+
+  .sazo-root .sazo-support-content {
+    padding-top: 12px;
+  }
+
+  .sazo-root .sazo-support-hero {
+    padding: 8px 0 18px;
+  }
+
+  .sazo-root .sazo-support-hero > svg,
+  .sazo-root .sazo-support-hero > p {
+    display: none;
+  }
+
+  .sazo-root .sazo-support-hero h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+
+  .sazo-root .sazo-support-search {
+    min-height: 38px;
+    margin-top: 13px;
+    padding: 0 12px;
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-support-section {
+    margin: 0 -15px;
+    padding: 17px 15px;
+  }
+
+  .sazo-root .sazo-support-section h2 {
+    margin-bottom: 9px;
+    font-size: 14px;
+  }
+
+  .sazo-root .sazo-support-section button {
+    min-height: 43px;
+    padding: 0 11px;
+    border-radius: 7px;
+    font-size: 9px;
+  }
+
+  .sazo-root .sazo-support-hours {
+    font-size: 12px;
+  }
+
+  .sazo-root .sazo-support-reply {
+    margin: 9px 0;
+    font-size: 8px;
   }
 
   .sazo-root > .sazo-chat-backdrop {
@@ -7735,6 +11641,18 @@
 
   .sazo-root .sazo-auth-page-chat {
     right: 18px;
+  }
+}
+
+@keyframes sazo-product-order-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -7916,6 +11834,19 @@
     box-shadow: 0 10px 28px color-mix(in srgb, var(--jplanet-shadow) 62%, transparent);
   }
 
+  .sazo-root .sazo-product-detail-header .sazo-product-detail-back {
+    width: 44px;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .sazo-root .sazo-product-detail-header .sazo-product-detail-header-control {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
   .sazo-root .sazo-product-detail-source-row {
     gap: 10px;
   }
@@ -7988,13 +11919,36 @@
 
   .sazo-root .sazo-product-detail-timeline-scroll {
     max-width: 100%;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
+    overflow-x: hidden;
   }
 
   .sazo-root .sazo-product-detail-timeline {
-    grid-template-columns: repeat(6, 120px);
-    min-width: 720px;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    min-width: 0;
+    gap: 2px;
+  }
+
+  .sazo-root .sazo-product-detail-timeline li {
+    padding: 0 2px;
+  }
+
+  .sazo-root .sazo-product-detail-stage-icon {
+    width: 38px;
+    height: 38px;
+    border-width: 2px;
+  }
+
+  .sazo-root .sazo-product-detail-stage-number {
+    margin-top: 7px;
+    font-size: 7px;
+  }
+
+  .sazo-root .sazo-product-detail-timeline strong {
+    margin-top: 3px;
+    font-size: 10px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+    word-break: normal;
   }
 
   .sazo-root .sazo-product-detail-information {
@@ -8029,7 +11983,8 @@
     font-size: 18px;
   }
 
-  .sazo-root .sazo-product-order-flow-heading a {
+  .sazo-root .sazo-product-order-flow-heading a,
+  .sazo-root .sazo-product-order-flow-heading .sazo-product-order-flow-details-button {
     max-width: 112px;
     padding-top: 2px;
     text-align: right;
@@ -8069,6 +12024,16 @@
     padding: 26px 18px;
   }
 
+  .sazo-root .sazo-product-detail-review-list {
+    grid-template-columns: minmax(0, 1fr);
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .sazo-root .sazo-product-detail-review-card > img {
+    height: 150px;
+  }
+
   .sazo-root .sazo-product-detail-card-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
@@ -8086,7 +12051,7 @@
     bottom: 0;
     left: 0;
     display: grid;
-    grid-template-columns: minmax(68px, 0.72fr) repeat(2, minmax(86px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: center;
     gap: 6px;
     padding: 9px 10px calc(9px + env(safe-area-inset-bottom));
@@ -8225,7 +12190,7 @@
 
 @media (max-width: 800px) {
   .sazo-root .sazo-gram-detail {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 32px;
     width: calc(100% - 32px);
     padding: 32px 0 64px;
@@ -8362,7 +12327,7 @@
     position: relative;
     z-index: 7;
     width: 100%;
-    margin-top: -29px;
+    margin-top: -36px;
     padding: 0 12px;
   }
 
@@ -9659,6 +13624,131 @@
     width: 48px;
     height: 48px;
   }
+
+  .sazo-root[data-view="support"] .sazo-mobile-header {
+    display: flex;
+  }
+
+  .sazo-root[data-view="support"] .sazo-content-main {
+    padding-top: 76px;
+  }
+
+  .sazo-root[data-view="support"] .sazo-mobile-shell > .sazo-footer {
+    display: none;
+  }
+}
+
+/* My Page mobile scale, matched to the recorded SAZO account screen. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="mypage"] .sazo-account-header {
+    grid-template-columns: 42px minmax(0, 1fr) 82px;
+    min-height: 44px;
+    padding: 0 10px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-account-header h1 {
+    font-size: 17px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-account-header > button,
+  .sazo-root[data-view="mypage"] .sazo-account-header-actions button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-account-header svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-content {
+    padding: 25px 15px 78px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-member-summary {
+    padding: 30px 0;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-member-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-member-name {
+    gap: 8px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-member-name strong {
+    font-size: 19px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-member-balances {
+    gap: 40px;
+    margin-top: 18px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-member-balances > div {
+    column-gap: 9px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-member-balances svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-member-balances strong {
+    font-size: 16px;
+    line-height: 1.1;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-member-balances span {
+    font-size: 11px;
+    line-height: 1.15;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-order-summary {
+    min-height: 60px;
+    margin-top: 20px;
+    padding: 0 18px;
+    border-radius: 12px;
+    font-size: 15px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-account-group {
+    padding: 20px 0;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-account-group h2 {
+    margin-bottom: 6px;
+    font-size: 18px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-account-link {
+    grid-template-columns: 29px 1fr auto;
+    min-height: 42px;
+    gap: 10px;
+    font-size: 16px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-account-link svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-account-support {
+    min-height: 48px;
+    margin: 14px 0 20px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-account-logout {
+    min-height: 40px;
+    padding: 0 13px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
 }
 
 /* Task 4: authoritative mobile header and fullscreen J-Planet AI finish. */
@@ -9832,93 +13922,114 @@
     line-height: 1.45;
   }
 
-  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-steps {
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-form {
     display: grid;
-    gap: 5px;
-    margin: 16px 0;
-    padding-left: 22px;
-    color: var(--jplanet-navy);
-    font-size: 12px;
-    font-weight: 650;
-    line-height: 1.45;
+    gap: 8px;
+    min-width: 0;
+    margin-top: 16px;
   }
 
-  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-modes {
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-input-shell {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    min-width: 0;
+    min-height: 52px;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 6px 5px 7px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--jplanet-ink) 8%, transparent);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-plus {
+    display: inline-grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--jplanet-blue-soft);
+    color: var(--jplanet-navy);
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-plus[aria-expanded="true"] {
+    background: var(--jplanet-sakura-soft);
+    color: var(--jplanet-sakura-ink);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-input-shell textarea {
+    width: 100%;
+    min-width: 0;
+    min-height: 34px;
+    max-height: 96px;
+    resize: none;
+    padding: 7px 4px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--jplanet-navy);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-submit {
+    display: inline-flex;
+    min-height: 38px;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 13px;
+    background: var(--jplanet-sakura);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 850;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-submit:disabled {
+    background: var(--jplanet-line);
+    color: var(--jplanet-muted);
+    cursor: not-allowed;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-menu {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
     min-width: 0;
+    padding: 7px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 14px;
+    background: var(--jplanet-blue-soft);
   }
 
-  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-modes button {
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-menu button {
     display: inline-flex;
     min-width: 0;
-    min-height: 42px;
+    min-height: 40px;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    padding: 6px;
+    gap: 4px;
+    padding: 5px 4px;
     border: 1px solid var(--jplanet-line);
-    border-radius: 999px;
-    background: var(--jplanet-blue-soft);
+    border-radius: 10px;
+    background: #fff;
     color: var(--jplanet-navy);
-    font-size: clamp(10px, 2.7vw, 12px);
+    font-size: 11px;
     font-weight: 750;
     line-height: 1.2;
     cursor: pointer;
   }
 
-  .sazo-root[data-view="agent-hub"]
-    .sazo-mobile-agent-composer-modes
-    button[aria-pressed="true"] {
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-menu button:hover {
     border-color: var(--jplanet-sakura);
     background: var(--jplanet-sakura-soft);
-    color: var(--jplanet-sakura-ink);
-  }
-
-  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-form {
-    display: grid;
-    gap: 10px;
-    min-width: 0;
-    margin-top: 14px;
-  }
-
-  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-form textarea {
-    width: 100%;
-    min-width: 0;
-    min-height: 112px;
-    resize: vertical;
-    padding: 12px 14px;
-    border: 1px solid var(--jplanet-line);
-    border-radius: 14px;
-    background: #fff;
-    color: var(--jplanet-navy);
-    line-height: 1.5;
-  }
-
-  .sazo-root[data-view="agent-hub"]
-    .sazo-mobile-agent-composer-form
-    > button[type="submit"] {
-    display: inline-flex;
-    min-height: 48px;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 0 16px;
-    border: 0;
-    border-radius: 999px;
-    background: var(--jplanet-sakura);
-    color: var(--jplanet-navy);
-    font-weight: 850;
-    cursor: pointer;
-  }
-
-  .sazo-root[data-view="agent-hub"]
-    .sazo-mobile-agent-composer-form
-    > button[type="submit"]:disabled {
-    background: var(--jplanet-line);
-    color: var(--jplanet-muted);
-    cursor: not-allowed;
   }
 
   .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-image {
@@ -10024,458 +14135,278 @@
   }
 }
 
-/* Dedicated J-Planet BEAUTY mobile composition. Keep this block last so the
-   captured mobile geometry owns the generic home and shell defaults. */
-@media (max-width: 767px) {
-  .sazo-root[data-view="beauty"] {
-    --sazo-beauty-green: #63df16;
-    --sazo-beauty-mint: #effff2;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-content-main {
-    min-height: 100vh;
-    padding-top: 78px;
-    padding-bottom: calc(86px + env(safe-area-inset-bottom));
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-header {
-    position: fixed;
-    z-index: 30;
-    top: 0;
-    right: 0;
-    left: 0;
-    height: 78px;
-    border-radius: 0 0 16px 16px;
-    background: #fff;
-    box-shadow: 0 5px 12px rgb(20 31 54 / 12%);
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-header-main {
-    display: flex;
-    align-items: center;
-    height: 49px;
-    padding: 0 15px;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-    margin-right: auto;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--jplanet-navy);
-    cursor: pointer;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-logo img {
-    width: 92px;
-    height: auto;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-logo span {
-    display: inline-block;
-    max-width: 0;
-    overflow: hidden;
-    font-size: 0;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-wordmark {
-    margin-right: auto;
-    color: var(--jplanet-sakura-ink);
-    font-size: 14px;
-    font-weight: 900;
-    letter-spacing: 0.02em;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-header-actions {
-    display: flex;
-    gap: 11px;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-header-actions button {
-    display: grid;
-    width: 30px;
-    height: 36px;
-    padding: 0;
-    place-items: center;
-    border: 0;
-    background: transparent;
-    color: var(--jplanet-ink);
-    cursor: pointer;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-header-actions svg {
-    width: 23px;
-    height: 23px;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-header-nav {
-    display: flex;
-    align-items: stretch;
-    height: 29px;
-    gap: 27px;
-    overflow-x: auto;
-    padding: 0 24px;
-    scrollbar-width: none;
-    touch-action: pan-x;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-header-nav::-webkit-scrollbar {
-    display: none;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-header-nav button {
-    flex: 0 0 auto;
-    padding: 0 0 7px;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    background: transparent;
-    color: var(--jplanet-ink);
-    font-size: 13px;
-    font-weight: 750;
-    white-space: nowrap;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-header-nav button[aria-current="page"] {
-    border-bottom-color: var(--jplanet-sakura);
-    color: var(--jplanet-sakura-ink);
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-hero {
-    padding: 40px 15px 0;
-    text-align: center;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-store-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 74px;
-    height: 26px;
-    padding: 0 12px;
-    border-radius: 999px;
-    background: var(--sazo-beauty-mint);
-    color: #27884d;
-    font-size: 12px;
-    font-weight: 800;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-hero h1 {
-    margin: 13px 0 14px;
-    color: #090c12;
-    font-size: clamp(42px, 12.4vw, 48px);
-    font-weight: 950;
-    letter-spacing: -0.055em;
-    line-height: 0.98;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-hero > p {
-    margin: 0;
-    color: #111827;
-    font-size: 14px;
-    font-weight: 650;
-    line-height: 1.5;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-search {
-    display: grid;
-    grid-template-columns: 30px minmax(0, 1fr) 50px;
-    align-items: center;
-    height: 58px;
-    margin: 20px 0 0;
-    padding: 4px 4px 4px 20px;
-    border: 1px solid #d5d9df;
-    border-radius: 999px;
-    background: #fff;
-    box-shadow: 0 7px 18px rgb(27 41 66 / 14%);
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-search-icon {
-    width: 23px;
-    height: 23px;
-    color: var(--jplanet-sakura);
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-search input {
-    min-width: 0;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    color: var(--jplanet-ink);
-    font: inherit;
-    font-size: 15px;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-search input::placeholder {
-    color: var(--jplanet-muted);
-    opacity: 1;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-search > button {
-    display: grid;
-    width: 50px;
-    height: 50px;
-    place-items: center;
-    border: 0;
-    border-radius: 50%;
-    background: var(--sazo-beauty-green);
-    color: #fff;
-    cursor: pointer;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-search-guidance {
-    display: flex;
-    align-items: flex-start;
-    min-height: 84px;
-    gap: 3px;
-    padding: 4px 8px 0;
-    text-align: left;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-search-guidance svg {
-    flex: 0 0 88px;
-    width: 88px;
-    height: 58px;
-    margin-top: 2px;
-    overflow: visible;
-    fill: none;
-    stroke: var(--jplanet-navy);
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 2.4;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-search-guidance p {
-    margin: 18px 0 0;
-    color: var(--jplanet-navy);
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.4;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-discovery,
-  .sazo-root[data-view="beauty"] .sazo-beauty-trends {
-    padding: 0 15px;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-discovery h2,
-  .sazo-root[data-view="beauty"] .sazo-beauty-trends h2 {
-    margin: 0 0 18px;
-    color: #0a0d13;
-    font-size: 19px;
-    font-weight: 900;
-    line-height: 1.45;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail,
-  .sazo-root[data-view="beauty"] .sazo-beauty-product-rail {
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
-    touch-action: pan-y;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail::-webkit-scrollbar,
-  .sazo-root[data-view="beauty"] .sazo-beauty-product-rail::-webkit-scrollbar {
-    display: none;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail {
-    display: flex;
-    gap: 8px;
-    margin: 0 -15px 14px;
-    padding: 0 15px;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail button {
-    flex: 0 0 auto;
-    height: 42px;
-    padding: 0 16px;
-    border: 1px solid #d7dbe1;
-    border-radius: 999px;
-    background: #fff;
-    color: #111827;
-    font-size: 13px;
-    font-weight: 750;
-    white-space: nowrap;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-category-rail button[aria-pressed="true"] {
-    border-color: #0b1320;
-    background: #0b1320;
-    color: #fff;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-product-rail {
-    display: grid;
-    grid-auto-columns: calc((100% - 16px) / 3);
-    grid-auto-flow: column;
-    gap: 8px;
-    margin: 0 -15px;
-    padding: 0 15px;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-product-card {
-    min-width: 0;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-product-open {
-    display: flex;
-    width: 100%;
-    min-width: 0;
-    flex-direction: column;
-    align-items: stretch;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--jplanet-ink);
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-product-image,
-  .sazo-root[data-view="beauty"] .sazo-beauty-image-fallback {
-    display: grid;
-    width: 100%;
-    aspect-ratio: 1;
-    place-items: center;
-    overflow: hidden;
-    border-radius: 9px;
-    background: #f6f7f8;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-product-image img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-image-fallback {
-    color: var(--jplanet-muted);
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-product-brand {
-    display: block;
-    margin-top: 8px;
-    overflow: hidden;
-    color: var(--jplanet-muted);
-    font-size: 10px;
-    font-weight: 750;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-product-open strong {
-    display: -webkit-box;
-    margin-top: 3px;
-    overflow: hidden;
-    font-size: 13px;
-    font-weight: 750;
-    line-height: 1.3;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-product-open b {
-    margin-top: 5px;
-    font-size: 14px;
-    font-weight: 900;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-loading,
-  .sazo-root[data-view="beauty"] .sazo-beauty-empty {
-    min-height: 120px;
-    margin: 0;
-    padding: 48px 16px;
-    color: var(--jplanet-muted);
-    text-align: center;
-    font-size: 14px;
-    font-weight: 700;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-trends {
-    margin-top: 42px;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-section-heading {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-section-heading h2 {
-    margin-bottom: 0;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-section-heading > button {
-    display: inline-flex;
-    flex: 0 0 auto;
-    align-items: center;
-    gap: 2px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--jplanet-navy);
-    font-size: 12px;
-    font-weight: 800;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-section-heading svg {
-    width: 15px;
-    height: 15px;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-trend-list {
-    display: grid;
-    gap: 17px;
-    margin: 28px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-trend-list li {
-    display: grid;
-    grid-template-columns: 28px 1fr;
-    align-items: center;
-    min-width: 0;
-    font-size: 14px;
-    font-weight: 700;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-trend-list li > span {
-    color: var(--jplanet-sakura);
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-trend-list button {
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--jplanet-ink);
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-beauty-search:focus-within,
-  .sazo-root[data-view="beauty"] button:focus-visible {
-    outline: 3px solid var(--jplanet-sakura);
-    outline-offset: 2px;
-  }
-
-  .sazo-root[data-view="beauty"] .sazo-mobile-shell > .sazo-footer {
-    display: none;
-  }
-}
-
 /* Native horizontal touch scrolling for the dedicated BEAUTY rails. */
 @media (max-width: 767px) {
   .sazo-root[data-view="beauty"] .sazo-beauty-category-rail,
   .sazo-root[data-view="beauty"] .sazo-beauty-product-rail {
     touch-action: pan-x;
+  }
+}
+
+/* Mobile product detail follows SAZO's image -> purchase info -> recommendations rhythm. */
+.sazo-root .sazo-product-detail-discount {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.sazo-root .sazo-product-detail-discount span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--jplanet-sakura-soft);
+  color: var(--jplanet-sakura);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.sazo-root .sazo-product-detail-discount del {
+  color: var(--jplanet-muted);
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.sazo-root .sazo-product-detail-discount strong {
+  color: var(--jplanet-navy);
+  font-size: 30px;
+  font-weight: 950;
+}
+
+.sazo-root .sazo-product-detail-action-label {
+  display: none;
+}
+
+.sazo-root .sazo-product-detail-points-row {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.sazo-root .sazo-product-detail-points-row > svg {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--jplanet-navy);
+}
+
+@media (max-width: 767px) {
+  .sazo-root .sazo-product-detail-purchase-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px 0;
+    border: 0;
+    border-radius: 0;
+    background: var(--jplanet-surface);
+    box-shadow: none;
+  }
+
+  .sazo-root .sazo-product-detail-purchase-panel > .sazo-product-source-link {
+    order: 1;
+    min-height: 54px;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--jplanet-line);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    justify-content: space-between;
+  }
+
+  .sazo-root .sazo-product-source-link > svg {
+    display: none;
+  }
+
+  .sazo-root .sazo-product-source-link .sazo-product-source-label {
+    margin-left: auto;
+    color: var(--jplanet-navy);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .sazo-root .sazo-product-detail-purchase-panel > .sazo-product-detail-source-row {
+    display: contents;
+  }
+
+  .sazo-root .sazo-product-detail-source-row > div:first-child {
+    display: none;
+  }
+
+  .sazo-root .sazo-product-detail-quick-actions {
+    order: 8;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: calc(100% + 32px);
+    margin: 18px -16px 0;
+    padding: 12px 16px;
+    border-top: 1px solid var(--jplanet-line);
+    border-bottom: 1px solid var(--jplanet-line);
+  }
+
+  .sazo-root .sazo-product-detail-quick-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    height: 44px;
+    gap: 8px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--jplanet-muted);
+    font-size: 14px;
+    font-weight: 850;
+  }
+
+  .sazo-root .sazo-product-detail-quick-actions button + button {
+    border-left: 1px solid var(--jplanet-line);
+  }
+
+  .sazo-root .sazo-product-detail-action-label {
+    display: inline;
+  }
+
+  .sazo-root .sazo-product-detail-purchase-panel > h1 {
+    order: 3;
+    margin-top: 20px;
+    font-size: 23px;
+    line-height: 1.38;
+  }
+
+  .sazo-root .sazo-product-detail-original-name {
+    order: 4;
+    margin-top: 7px;
+    font-size: 13px;
+  }
+
+  .sazo-root .sazo-product-detail-price,
+  .sazo-root .sazo-product-detail-discount {
+    order: 5;
+  }
+
+  .sazo-root .sazo-product-detail-price {
+    margin-top: 18px;
+  }
+
+  .sazo-root .sazo-product-detail-discount {
+    margin-top: 18px;
+  }
+
+  .sazo-root .sazo-product-detail-direct-copy {
+    display: none;
+  }
+
+  .sazo-root .sazo-product-detail-metadata {
+    order: 6;
+    gap: 0;
+    margin: 30px -16px 0;
+    border-top: 1px solid var(--jplanet-line);
+  }
+
+  .sazo-root .sazo-product-detail-metadata-row {
+    min-height: 72px;
+    padding: 14px 16px;
+    border: 0;
+    border-bottom: 1px solid var(--jplanet-line);
+    border-radius: 0;
+    background: var(--jplanet-surface);
+  }
+
+  .sazo-root .sazo-product-detail-metadata-row > svg {
+    color: var(--jplanet-muted);
+  }
+
+  .sazo-root .sazo-product-detail-metadata-row span {
+    font-size: 13px;
+  }
+
+  .sazo-root .sazo-product-detail-metadata-row strong {
+    font-size: 15px;
+  }
+
+  .sazo-root .sazo-product-detail-metadata-row:nth-child(4) {
+    margin: 12px 16px;
+    border: 0;
+    border-radius: 20px;
+    background: #e9fbf1;
+  }
+
+  .sazo-root .sazo-product-detail-metadata-row:nth-child(4) > svg {
+    color: #08a660;
+  }
+
+  .sazo-root .sazo-product-detail-points-row {
+    display: flex;
+  }
+
+  .sazo-root .sazo-product-detail-purchase-panel > form {
+    position: absolute;
+    left: -10000px;
+    width: calc(100% - 32px);
+    max-width: 520px;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    opacity: 0;
+    white-space: normal;
+  }
+
+  .sazo-root .sazo-product-mobile-purchase {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 16px 22px calc(18px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--jplanet-line);
+    border-radius: 24px 24px 0 0;
+  }
+
+  .sazo-root .sazo-product-mobile-purchase > div {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .sazo-root .sazo-product-mobile-purchase .sazo-product-detail-cart-button {
+    grid-column: auto;
+    min-height: 56px;
+    border: 1px solid var(--jplanet-navy);
+    border-radius: 13px;
+    background: var(--jplanet-blue-soft);
+    color: var(--jplanet-navy);
+    font-size: 14px;
+    box-shadow: none;
+  }
+
+  .sazo-root .sazo-product-mobile-purchase .sazo-product-detail-buy-button {
+    position: static;
+    width: auto;
+    height: auto;
+    min-height: 56px;
+    overflow: visible;
+    border: 1px solid var(--jplanet-sakura);
+    border-radius: 13px;
+    background: linear-gradient(100deg, #f25a73, #d9355a);
+    color: var(--jplanet-surface);
+    font-size: 14px;
+    opacity: 1;
+    pointer-events: auto;
+    box-shadow: 0 8px 20px rgba(213, 53, 90, 0.2);
+  }
+
+  .sazo-root .sazo-product-detail-recommendations {
+    margin-top: 38px;
+    padding: 0 16px;
+  }
+
+  .sazo-root .sazo-product-detail-recommendations .sazo-product-detail-section-heading h2 {
+    font-size: 24px;
   }
 }
 
@@ -10562,5 +14493,1105 @@
 
   .sazo-root[data-view="beauty"] .sazo-beauty-trends {
     margin-top: 24px;
+  }
+}
+
+/* Mobile home layout: compact header, two-row shortcuts, and paged 4-column
+ * category grid. These overrides intentionally stay scoped to the home view so
+ * the desktop SAZO navigation and the dedicated category rails are unchanged. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="home"] .sazo-mobile-header {
+    min-height: 56px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-content-main {
+    padding-top: 56px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home {
+    overflow: visible;
+  }
+
+  .sazo-root[data-view="home"] .sazo-shortcuts[data-mobile-shortcut-grid] {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-auto-flow: row;
+    grid-template-rows: repeat(2, auto);
+    gap: 16px 8px;
+    margin-top: 20px;
+    overflow: visible;
+    padding: 0 14px 30px;
+    touch-action: manipulation;
+  }
+
+  .sazo-root[data-view="home"] .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut {
+    min-width: 0;
+    width: 100%;
+    flex: initial;
+    white-space: normal;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-category-rail[data-mobile-category-grid] {
+    display: flex;
+    gap: 0;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    padding: 0;
+    scroll-behavior: smooth;
+    scroll-snap-type: inline mandatory;
+    touch-action: pan-x;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-category-rail[data-mobile-category-grid]
+    .sazo-mobile-category-page {
+    display: grid;
+    flex: 0 0 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(2, auto);
+    align-content: start;
+    gap: 18px 9px;
+    padding: 0 17px 10px;
+    box-sizing: border-box;
+    scroll-snap-align: start;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-category-rail[data-mobile-category-grid]
+    .sazo-mobile-category-tile {
+    width: 100%;
+    scroll-snap-align: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sazo-root[data-view="home"]
+      .sazo-mobile-category-rail[data-mobile-category-grid] {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+/* ChatGPT-like mobile agent composer: compact bar with a quick camera/gallery popover. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer {
+    overflow: visible;
+    padding: 14px 12px;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-form {
+    position: relative;
+    display: block;
+    margin-top: 14px;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-input-shell {
+    display: flex;
+    min-height: 58px;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 8px 7px 10px;
+    border: 1px solid color-mix(in srgb, var(--jplanet-line) 90%, #fff);
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--jplanet-ink) 10%, transparent);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-plus {
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    color: var(--jplanet-ink);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-plus[aria-expanded="true"] {
+    color: var(--jplanet-sakura-ink);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-ai-mark {
+    flex: 0 0 auto;
+    color: var(--jplanet-sakura);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-input-shell textarea {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    min-height: 40px;
+    max-height: 92px;
+    padding: 8px 3px;
+    color: var(--jplanet-navy);
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-input-shell textarea::placeholder {
+    color: color-mix(in srgb, var(--jplanet-muted) 78%, #fff);
+    opacity: 1;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-submit {
+    flex: 0 0 42px;
+    width: 42px;
+    min-height: 42px;
+    height: 42px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--jplanet-navy);
+    color: #fff;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-submit span {
+    display: none;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-submit:disabled {
+    background: var(--jplanet-line);
+    color: var(--jplanet-muted);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-menu {
+    position: absolute;
+    z-index: 40;
+    top: calc(100% + 9px);
+    left: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    width: min(238px, calc(100vw - 36px));
+    padding: 9px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 18px 42px color-mix(in srgb, var(--jplanet-ink) 18%, transparent);
+    transform-origin: top left;
+    animation: sazo-agent-menu-pop 160ms ease-out both;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-menu button {
+    display: flex;
+    min-height: 52px;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: var(--jplanet-ink);
+    font-size: 15px;
+    font-weight: 800;
+    text-align: left;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-menu button:hover,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-menu button:focus-visible {
+    border: 0;
+    background: var(--jplanet-sakura-soft);
+    outline: none;
+  }
+}
+
+@keyframes sazo-agent-menu-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-menu {
+    animation: none;
+  }
+}
+
+/* Keep the service partner marquee above legacy card defaults. */
+.sazo-root .sazo-service-partner-grid {
+  display: grid;
+  gap: 24px;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.sazo-root .sazo-service-partners h2 {
+  display: block;
+}
+
+.sazo-root .sazo-service-partners h2 small {
+  display: block;
+}
+
+.sazo-root .sazo-service-partner-marquee-track {
+  display: flex;
+  flex: 0 0 auto;
+  gap: clamp(22px, 3vw, 58px);
+  width: max-content;
+  will-change: transform;
+  animation: sazo-service-partner-marquee-forward 28s linear infinite;
+}
+
+.sazo-root .sazo-service-partner-card {
+  display: grid;
+  flex: 0 0 clamp(190px, 21vw, 310px);
+  grid-template-rows: 76px auto;
+  align-content: center;
+  justify-items: center;
+  height: 126px;
+  padding: 14px 18px 10px;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  box-shadow: none;
+  color: color-mix(in srgb, var(--jplanet-navy) 62%, #fff);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  opacity: 0.72;
+}
+
+.sazo-root .sazo-service-partner-card img {
+  display: block;
+  width: 100%;
+  height: 76px;
+  object-fit: contain;
+  filter: grayscale(1);
+  opacity: 0.7;
+}
+
+.sazo-root .sazo-service-partner-card span {
+  white-space: nowrap;
+}
+
+.sazo-root .sazo-service-url-entry[data-demo-input] {
+  animation: sazo-service-url-demo-pulse 3.6s ease-in-out infinite;
+}
+
+@keyframes sazo-service-partner-marquee-forward {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - 29px));
+  }
+}
+
+@keyframes sazo-service-url-demo-pulse {
+  0%,
+  65%,
+  100% {
+    box-shadow: var(--jplanet-lp-form-shadow);
+  }
+
+  14%,
+  34% {
+    box-shadow: var(--jplanet-lp-form-ring), var(--jplanet-lp-form-shadow);
+  }
+}
+
+@media (max-width: 767px) {
+  .sazo-root .sazo-service-partner-grid {
+    gap: 12px;
+  }
+
+  .sazo-root .sazo-service-partner-marquee-track {
+    gap: 18px;
+    animation-duration: 23s;
+  }
+
+  .sazo-root .sazo-service-partner-card {
+    flex-basis: 220px;
+    grid-template-rows: 78px auto;
+    height: 128px;
+    padding: 10px 12px 8px;
+    font-size: 11px;
+  }
+
+  .sazo-root .sazo-service-partner-card img {
+    height: 78px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sazo-root .sazo-service-partner-marquee-track,
+  .sazo-root .sazo-service-url-entry[data-demo-input] {
+    animation-play-state: paused;
+  }
+}
+
+/* The service recording opens with the same campaign-led composition as the
+ * SAZO landing page: coupon artwork, two moving product rails, a large route
+ * message, then the URL-input tutorial. Keep it in a narrow, centered canvas
+ * so desktop captures retain the original mobile-web proportions. */
+.sazo-root .sazo-service-video-intro {
+  display: none;
+  width: min(684px, 100%);
+  margin: 0 auto;
+  overflow: hidden;
+  background: #f2f2f5;
+  color: var(--jplanet-navy);
+}
+
+.sazo-root .sazo-service-video-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  height: 76px;
+  padding: 0 18px;
+  background: var(--jplanet-surface);
+}
+
+.sazo-root .sazo-service-video-wordmark {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.sazo-root .sazo-service-video-wordmark img {
+  display: block;
+  width: 164px;
+  height: auto;
+}
+
+.sazo-root .sazo-service-video-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.sazo-root .sazo-service-video-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--jplanet-navy);
+  font-size: 17px;
+}
+
+.sazo-root .sazo-service-video-banner {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--jplanet-surface);
+}
+
+.sazo-root .sazo-service-video-banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sazo-root .sazo-service-video-rail {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 18px;
+  width: max-content;
+  min-width: 100%;
+  height: 136px;
+  align-items: center;
+  padding: 22px 18px;
+  overflow: visible;
+  background: var(--jplanet-surface);
+  will-change: transform;
+  animation: sazo-service-video-rail-forward 18s linear infinite;
+}
+
+.sazo-root .sazo-service-video-rail[data-direction="reverse"] {
+  transform: translateX(-92px);
+  animation-name: sazo-service-video-rail-reverse;
+  animation-duration: 21s;
+}
+
+.sazo-root .sazo-service-video-thumb {
+  display: block;
+  flex: 0 0 clamp(64px, 16.4vw, 112px);
+  width: clamp(64px, 16.4vw, 112px);
+  height: clamp(64px, 16.4vw, 112px);
+  overflow: hidden;
+  border-radius: 13px;
+  background: #f3f3f5;
+  box-shadow: 0 5px 12px rgb(31 46 79 / 13%);
+}
+
+.sazo-root .sazo-service-video-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sazo-root .sazo-service-video-message {
+  position: relative;
+  min-height: 310px;
+  padding: 28px 32px 32px;
+  overflow: hidden;
+  background: var(--jplanet-surface);
+}
+
+.sazo-root .sazo-service-video-message::before {
+  position: absolute;
+  inset: 0;
+  color: rgb(254 162 172 / 20%);
+  content: "FROM JAPAN TO BRAZIL";
+  font-size: clamp(54px, 10vw, 88px);
+  font-weight: 900;
+  letter-spacing: -0.08em;
+  line-height: 0.92;
+  overflow-wrap: anywhere;
+  -webkit-text-stroke: 1px rgb(244 154 165 / 35%);
+}
+
+.sazo-root .sazo-service-video-message > span,
+.sazo-root .sazo-service-video-message > h1 {
+  position: relative;
+  z-index: 1;
+}
+
+.sazo-root .sazo-service-video-message > span {
+  display: table;
+  margin: 0 auto 13px;
+  padding: 7px 18px;
+  border-radius: 999px;
+  background: var(--jplanet-sakura);
+  color: #fff;
+  font-size: clamp(14px, 2.8vw, 21px);
+  font-weight: 850;
+}
+
+.sazo-root .sazo-service-video-message h1 {
+  margin: 0;
+  color: #070b16;
+  font-size: clamp(51px, 10.6vw, 76px);
+  font-weight: 950;
+  letter-spacing: -0.085em;
+  line-height: 0.92;
+}
+
+.sazo-root .sazo-service-video-message h1 strong {
+  display: inline-block;
+  font: inherit;
+  transform: scaleX(1.08);
+  transform-origin: left center;
+}
+
+.sazo-root .sazo-service-video-message h1 small {
+  display: inline-block;
+  font-size: clamp(28px, 5.5vw, 44px);
+  letter-spacing: -0.07em;
+  transform: translateY(12px) scaleX(1.05);
+  transform-origin: left center;
+}
+
+.sazo-root .sazo-service-video-url {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 62px;
+  margin: 14px 20px 26px;
+  padding: 0 8px 0 22px;
+  border: 3px solid var(--jplanet-sakura);
+  border-radius: 999px;
+  background: var(--jplanet-surface);
+  color: #68738c;
+  font-size: clamp(15px, 2.6vw, 22px);
+  font-weight: 800;
+}
+
+.sazo-root .sazo-service-video-url > span {
+  flex: 1;
+}
+
+.sazo-root .sazo-service-video-url > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--jplanet-sakura);
+  color: #fff;
+}
+
+.sazo-root .sazo-service-video-howto {
+  display: none;
+  width: min(684px, 100%);
+  margin: 0 auto;
+  padding: 42px 18px 40px;
+  background: #f2f2f5;
+  text-align: center;
+}
+
+.sazo-root .sazo-service-video-howto > span {
+  color: var(--jplanet-sakura-ink);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.sazo-root .sazo-service-video-howto h2 {
+  margin: 6px 0 22px;
+  color: #090d18;
+  font-size: clamp(28px, 5.3vw, 44px);
+  letter-spacing: -0.06em;
+}
+
+.sazo-root .sazo-service-video-howto-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.1;
+  overflow: hidden;
+  border: 4px solid #e2e5ed;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.sazo-root .sazo-service-video-howto-card img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  animation: sazo-service-video-howto-cycle 12s steps(1, end) infinite;
+}
+
+.sazo-root .sazo-service-video-howto-card img:nth-child(2) {
+  animation-delay: 4s;
+}
+
+.sazo-root .sazo-service-video-howto-card img:nth-child(3) {
+  animation-delay: 8s;
+}
+
+.sazo-root .sazo-service-video-howto-card img:first-child {
+  opacity: 1;
+}
+
+.sazo-root .sazo-service-video-howto > p {
+  margin: 16px 0 0;
+  color: var(--jplanet-navy);
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.7;
+}
+
+.sazo-root .sazo-service-legacy-hero {
+  display: block;
+}
+
+@keyframes sazo-service-video-rail-forward {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - 9px));
+  }
+}
+
+@keyframes sazo-service-video-rail-reverse {
+  from {
+    transform: translateX(-92px);
+  }
+
+  to {
+    transform: translateX(calc(0% - 2px));
+  }
+}
+
+@keyframes sazo-service-video-howto-cycle {
+  0%,
+  30% {
+    opacity: 1;
+  }
+
+  34%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .sazo-root .sazo-service-video-intro,
+  .sazo-root .sazo-service-video-howto {
+    display: block;
+  }
+
+  .sazo-root .sazo-service-legacy-hero {
+    display: none;
+  }
+
+  .sazo-root[data-view="service"] .sazo-view-header {
+    display: none;
+  }
+
+  .sazo-root .sazo-service-video-header {
+    display: flex;
+    height: 58px;
+    padding: 0 13px;
+  }
+
+  .sazo-root .sazo-service-video-wordmark img {
+    width: 118px;
+  }
+
+  .sazo-root .sazo-service-video-actions {
+    gap: 8px;
+  }
+
+  .sazo-root .sazo-service-video-actions button {
+    width: 29px;
+    height: 38px;
+  }
+
+  .sazo-root .sazo-service-video-rail {
+    gap: 12px;
+    height: 92px;
+    padding: 14px 12px;
+  }
+
+  .sazo-root .sazo-service-video-thumb {
+    flex-basis: 68px;
+    width: 68px;
+    height: 68px;
+    border-radius: 11px;
+  }
+
+  .sazo-root .sazo-service-video-message {
+    min-height: 224px;
+    padding: 24px 20px 18px;
+  }
+
+  .sazo-root .sazo-service-video-message > span {
+    margin-bottom: 11px;
+    padding: 5px 12px;
+    font-size: 13px;
+  }
+
+  .sazo-root .sazo-service-video-message h1 {
+    font-size: 53px;
+  }
+
+  .sazo-root .sazo-service-video-message h1 small {
+    font-size: 29px;
+  }
+
+  .sazo-root .sazo-service-video-url {
+    height: 54px;
+    margin: 10px 14px 20px;
+    padding-left: 16px;
+    border-width: 2px;
+    font-size: 14px;
+  }
+
+  .sazo-root .sazo-service-video-url > button {
+    width: 42px;
+    height: 42px;
+  }
+
+  .sazo-root .sazo-service-video-howto {
+    padding: 32px 14px 30px;
+  }
+
+  .sazo-root .sazo-service-video-howto h2 {
+    margin-bottom: 16px;
+    font-size: 30px;
+  }
+
+  .sazo-root .sazo-service-video-howto-card {
+    border-width: 3px;
+    border-radius: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sazo-root .sazo-service-video-rail,
+  .sazo-root .sazo-service-video-howto-card img {
+    animation-play-state: paused;
+  }
+
+  .sazo-root .sazo-service-video-howto-card img:first-child {
+    opacity: 1;
+  }
+
+  .sazo-root .sazo-service-video-howto-card img:not(:first-child) {
+    opacity: 0;
+  }
+}
+
+/* Mobile home header/search: keep the compact SAZO-style chrome visible while
+ * the AI entry becomes the persistent search affordance after the hero. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="home"] .sazo-mobile-header,
+  .sazo-root[data-view="home"][data-header-collapsed="true"] .sazo-mobile-header {
+    position: absolute;
+    top: 0;
+    height: 56px;
+    min-height: 56px;
+    overflow: hidden;
+  }
+
+  .sazo-root[data-view="home"] .sazo-content-main {
+    padding-top: 56px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-header-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 46px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--jplanet-navy);
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-header-action svg {
+    width: 27px;
+    height: 27px;
+    stroke-width: 1.8;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-header-action.sazo-language-action {
+    position: relative;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-header-action.sazo-language-action::after {
+    position: absolute;
+    right: 10px;
+    bottom: 3px;
+    left: 10px;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--jplanet-navy);
+    content: "";
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-header-action:focus-visible {
+    outline: 3px solid var(--jplanet-sakura);
+    outline-offset: -3px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-search-overlap {
+    position: relative;
+    z-index: 18;
+    margin-top: -36px;
+    background: transparent;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-search-overlap::before {
+    display: none;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-search-overlap[data-compact="true"] {
+    position: sticky;
+    top: 0;
+    margin-top: -36px;
+    background: var(--jplanet-surface);
+  }
+}
+
+/* Home composer cascade guard: this block intentionally remains last. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry {
+    display: block;
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 10px 12px 11px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--jplanet-ink) 11%, transparent);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header img {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Keep the AI identity visible while the compact search rail is pinned. */
+  .sazo-root[data-view="home"]
+    .sazo-mobile-agent-entry[data-compact="true"]
+    .sazo-home-agent-card-header {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-agent-entry[data-compact="true"]
+    .sazo-home-agent-card-header
+    img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-agent-entry[data-compact="true"]
+    .sazo-home-agent-card-header
+    strong {
+    font-size: 11px;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-agent-entry[data-compact="true"]
+    .sazo-home-agent-card-header
+    span {
+    font-size: 9px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header strong,
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header strong {
+    color: var(--jplanet-navy);
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header span {
+    margin-top: 2px;
+    color: var(--jplanet-muted);
+    font-size: 10px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-form {
+    position: relative;
+    display: grid;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-input-shell {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) 34px;
+    min-height: 44px;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 5px 4px 6px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 999px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-plus,
+  .sazo-root[data-view="home"] .sazo-home-agent-submit {
+    display: inline-grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--jplanet-navy);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-submit {
+    background: var(--jplanet-sakura);
+    color: #fff;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-submit:disabled {
+    background: var(--jplanet-blue-soft);
+    color: var(--jplanet-muted);
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry-main {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 32px;
+    max-height: 64px;
+    padding: 6px 2px;
+    resize: none;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--jplanet-navy);
+    font: inherit;
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry-main::placeholder {
+    color: var(--jplanet-muted);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    padding: 5px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 14px;
+    background: var(--jplanet-blue-soft);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu button {
+    display: inline-flex;
+    min-width: 0;
+    min-height: 38px;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 4px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--jplanet-navy);
+    font-size: 10px;
+    font-weight: 750;
+  }
+}
+
+/* Keep the AI search context in view while browsing a category directory. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="categories"] .sazo-directory-agent,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent {
+    position: sticky;
+    z-index: 17;
+    top: 58px;
+    background: var(--jplanet-surface);
+    box-shadow: 0 8px 18px color-mix(in srgb, var(--jplanet-shadow) 45%, transparent);
+  }
+
+  .sazo-root .sazo-category-tabs {
+    top: var(--sazo-directory-agent-offset, 220px);
+  }
+
+  .sazo-root .sazo-catalog-sticky-controls {
+    top: var(--sazo-directory-agent-offset, 220px);
+  }
+}
+
+/* Restore the compact home composer affordances after the legacy mobile
+ * cascade above. The action row is always visible in the home card; the plus
+ * control opens only the camera/gallery popup. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry {
+    overflow: visible;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-directory-agent,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent {
+    position: sticky;
+    z-index: 17;
+    top: 58px;
+    background: var(--jplanet-surface);
+  }
+
+  .sazo-root .sazo-category-tabs {
+    top: var(--sazo-directory-agent-offset, 220px);
+  }
+
+  .sazo-root .sazo-catalog-sticky-controls {
+    top: var(--sazo-directory-agent-offset, 220px);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    padding: 5px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 14px;
+    background: var(--jplanet-blue-soft);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-actions button {
+    display: inline-flex;
+    min-width: 0;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px 4px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 11px;
+    background: #fff;
+    color: var(--jplanet-navy);
+    font-size: 11px;
+    font-weight: 750;
+    line-height: 1.15;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-actions button svg {
+    flex: 0 0 auto;
+    color: var(--jplanet-sakura-ink);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3px;
+    position: absolute;
+    z-index: 30;
+    top: 51px;
+    left: 4px;
+    width: min(230px, calc(100% - 8px));
+    padding: 8px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 16px;
+    background: rgb(255 255 255 / 98%);
+    box-shadow: 0 15px 30px rgb(21 43 83 / 18%);
+    transform-origin: top left;
+    animation: sazo-agent-menu-in 150ms ease-out both;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu button {
+    display: inline-flex;
+    min-width: 0;
+    min-height: 42px;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--jplanet-navy);
+    font-size: 14px;
+    font-weight: 750;
+    line-height: 1.2;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry[data-compact="true"] .sazo-home-agent-actions {
+    display: none;
   }
 }

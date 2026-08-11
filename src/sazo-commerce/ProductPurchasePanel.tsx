@@ -4,14 +4,19 @@ import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { formatYen } from "@/sazo-commerce/fixtures";
 import type { ProductDetail } from "@/sazo-commerce/fixtures";
-import type { ProductPurchaseController } from "@/sazo-commerce/useProductPurchaseController";
+import type {
+  ProductPurchaseController,
+  PurchaseIntent,
+} from "@/sazo-commerce/useProductPurchaseController";
 
 export interface ProductPurchasePanelProps {
   announceFeedback?: boolean;
   controller: ProductPurchaseController;
   detail: ProductDetail;
   idPrefix: string;
+  onPurchaseIntent?: (intent: PurchaseIntent) => void;
   reduceMotion: boolean;
+  sheetIntent?: PurchaseIntent;
   showMobileActions?: boolean;
 }
 
@@ -20,7 +25,9 @@ export function ProductPurchasePanel({
   controller,
   detail,
   idPrefix,
+  onPurchaseIntent,
   reduceMotion,
+  sheetIntent,
   showMobileActions = false,
 }: ProductPurchasePanelProps) {
   const { t } = useTranslation();
@@ -33,6 +40,14 @@ export function ProductPurchasePanel({
   const imageCheckId = `sazo-product-image-check-${idPrefix}`;
   const focusSelect = () => {
     selectRef.current?.focus();
+  };
+  const submitIntent = (intent: PurchaseIntent) => {
+    if (onPurchaseIntent !== undefined && controller.selectedOption !== "") {
+      onPurchaseIntent(intent);
+      return;
+    }
+
+    controller.purchase(intent, focusSelect);
   };
 
   return (
@@ -178,25 +193,29 @@ export function ProductPurchasePanel({
           <p className="sazo-product-detail-purchase-note">{detail.purchaseNote}</p>
         </details>
 
-        <div className="sazo-product-detail-purchase-actions">
-          <button
-            className="sazo-product-detail-cart-button"
-            onClick={() => {
-              controller.purchase("cart", focusSelect);
-            }}
-            type="button"
-          >
-            {t("sazo.views.productDetail.purchase.addToCart")}
-          </button>
-          <button
-            className="sazo-product-detail-buy-button"
-            onClick={() => {
-              controller.purchase("buy", focusSelect);
-            }}
-            type="button"
-          >
-            {t("sazo.views.productDetail.purchase.buyNow")}
-          </button>
+        <div className="sazo-product-detail-purchase-actions" data-purchase-intent={sheetIntent}>
+          {sheetIntent !== "buy" ? (
+            <button
+              className="sazo-product-detail-cart-button"
+              onClick={() => {
+                submitIntent("cart");
+              }}
+              type="button"
+            >
+              {t("sazo.views.productDetail.purchase.addToCart")}
+            </button>
+          ) : null}
+          {sheetIntent !== "cart" ? (
+            <button
+              className="sazo-product-detail-buy-button"
+              onClick={() => {
+                submitIntent("buy");
+              }}
+              type="button"
+            >
+              {t("sazo.views.productDetail.purchase.buyNow")}
+            </button>
+          ) : null}
         </div>
 
         {controller.feedback === null ? null : (
@@ -226,14 +245,10 @@ export function ProductPurchasePanel({
           className="sazo-product-mobile-purchase"
           role="group"
         >
-          <div>
-            <span>{t("sazo.views.productDetail.purchase.totalOrderAmount")}</span>
-            <strong>{controller.formattedTotal}</strong>
-          </div>
           <button
             className="sazo-product-detail-cart-button"
             onClick={() => {
-              controller.purchase("cart", focusSelect);
+              submitIntent("cart");
             }}
             type="button"
           >
@@ -242,7 +257,7 @@ export function ProductPurchasePanel({
           <button
             className="sazo-product-detail-buy-button"
             onClick={() => {
-              controller.purchase("buy", focusSelect);
+              submitIntent("buy");
             }}
             type="button"
           >

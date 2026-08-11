@@ -7,6 +7,7 @@ export interface ProductCardProps {
   mediaHidden?: boolean;
   onOpen: (productId: string) => void;
   product: Product;
+  showBadge?: boolean;
   variant?: "compact" | "interest" | "standard";
 }
 
@@ -14,6 +15,7 @@ export function ProductCard({
   mediaHidden = false,
   onOpen,
   product,
+  showBadge = true,
   variant = "standard",
 }: ProductCardProps) {
   const { t } = useTranslation();
@@ -67,7 +69,7 @@ export function ProductCard({
             </>
           )}
           <p className="sazo-product-price">
-            {product.badge === undefined ? null : (
+            {!showBadge || product.badge === undefined ? null : (
               <span className="sazo-product-badge">{product.badge}</span>
             )}
             {product.price}

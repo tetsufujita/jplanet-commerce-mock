@@ -1,15 +1,26 @@
 import { useEffect, useReducer, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import {
+  AddressView,
   CardsView,
   CouponsView,
+  DeliveryView,
   FavoritesView,
   MyPageView,
+  NotificationsView,
+  OrdersView,
+  PointsView,
   ProfileView,
+  ReviewCreateView,
+  ReviewHistoryView,
+  SupportView,
 } from "@/sazo-commerce/AccountViews";
 import { AuthFlow } from "@/sazo-commerce/AuthFlow";
 import { AgentComposerSheet } from "@/sazo-commerce/AgentComposerSheet";
+import { AgentDesignCandidatesView } from "@/sazo-commerce/AgentDesignCandidatesView";
+import { AgentFirstPrototypeView } from "@/sazo-commerce/AgentFirstPrototypeView";
 import { CatalogView } from "@/sazo-commerce/CatalogView";
+import { CartView } from "@/sazo-commerce/CartView";
 import { CampaignView } from "@/sazo-commerce/CampaignView";
 import { ChatPanel } from "@/sazo-commerce/ChatPanel";
 import { BeautyView } from "@/sazo-commerce/BeautyView";
@@ -95,10 +106,14 @@ export function SazoCommercePage() {
       ) : (
         <SazoShell dispatch={dispatch} state={state}>
           {state.view === "home" ? <HomeView dispatch={dispatch} state={state} /> : null}
-          {state.view === "beauty" ? <BeautyView dispatch={dispatch} /> : null}
+          {state.view === "beauty" ? (
+            <BeautyView categoryId={state.directoryCategory} dispatch={dispatch} />
+          ) : null}
           {state.view === "agent-hub" ? (
             <MobileAgentHubView dispatch={dispatch} entryIntent={state.agentEntryIntent} />
           ) : null}
+          {state.view === "agent-designs" ? <AgentDesignCandidatesView /> : null}
+          {state.view === "agent-first" ? <AgentFirstPrototypeView /> : null}
           {state.view === "campaign" ? (
             <CampaignView dispatch={dispatch} loaded={state.campaignLoaded} />
           ) : null}
@@ -112,6 +127,7 @@ export function SazoCommercePage() {
           {state.view === "catalog" ? (
             <CatalogView dispatch={dispatch} state={state} />
           ) : null}
+          {state.view === "cart" ? <CartView dispatch={dispatch} items={state.cartItems} /> : null}
           {state.view === "gram" ? (
             <GramCatalogView dispatch={dispatch} state={state} />
           ) : null}
@@ -135,7 +151,21 @@ export function SazoCommercePage() {
           {state.view === "favorites" ? <FavoritesView dispatch={dispatch} /> : null}
           {state.view === "profile" ? <ProfileView dispatch={dispatch} /> : null}
           {state.view === "cards" ? <CardsView dispatch={dispatch} /> : null}
+          {state.view === "orders" ? <OrdersView dispatch={dispatch} /> : null}
           {state.view === "coupons" ? <CouponsView dispatch={dispatch} /> : null}
+          {state.view === "points" ? <PointsView dispatch={dispatch} /> : null}
+          {state.view === "review-create" ? (
+            <ReviewCreateView dispatch={dispatch} />
+          ) : null}
+          {state.view === "review-history" ? (
+            <ReviewHistoryView dispatch={dispatch} />
+          ) : null}
+          {state.view === "delivery" ? <DeliveryView dispatch={dispatch} /> : null}
+          {state.view === "address" ? <AddressView dispatch={dispatch} /> : null}
+          {state.view === "notifications" ? (
+            <NotificationsView dispatch={dispatch} />
+          ) : null}
+          {state.view === "support" ? <SupportView /> : null}
         </SazoShell>
       )}
 

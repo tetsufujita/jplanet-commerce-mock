@@ -224,11 +224,68 @@
         "support": "サポート",
         "logout": "ログアウト"
       },
+      "footer": {
+        "companyLinksLabel": "会社情報", "company": "会社紹介", "recruit": "採用情報", "press": "プレスリリース",
+        "companyCopy": "© 2024-2026 J-Planet Brasil", "address": "São Paulo - SP, Brasil",
+        "policyLinksLabel": "規約とポリシー", "terms": "利用規約", "privacy": "プライバシー規約", "commercial": "特定商取引法に基づく表記"
+      },
+      "orders": {
+        "title": "注文履歴", "tabsLabel": "注文状況",
+        "tabs": { "all": "すべて", "payment": "決済完了", "shipping": "配送中" },
+        "period": "期間", "periodOption": "過去3ヶ月", "search": "検索",
+        "emptyTitle": "検索結果が見つかりませんでした。", "emptyBody": "入力内容とフィルターを再確認してください。"
+      },
       "coupons": {
         "title": "Coupons", "registerTitle": "Register a coupon", "numberLabel": "Coupon code",
         "numberPlaceholder": "Enter a coupon code", "register": "Register",
         "available": "Available coupons", "discount": "50% off shipping",
         "name": "50% off shipping coupon (up to R$ 40)", "expiry": "Expires in 29 days (September 8, 2026 at 15:54)"
+      },
+      "points": {
+        "title": "ポイント", "available": "使用可能ポイント", "pending": "付与予定ポイント", "expiring": "失効予定ポイント",
+        "tabsLabel": "ポイント履歴", "tabs": { "all": "全履歴", "earned": "獲得済み", "used": "利用済み" },
+        "granted": "管理者による付与", "grantedExpiry": "10.01満了"
+      },
+      "reviewCreate": {
+        "title": "レビュー作成", "noticeTitle": "下記の場合はレビュー作成ができないため、表示されない可能性がございます。",
+        "reviewed": "レビュー済みの場合", "notDelivered": "配送が完了していない場合", "empty": "レビューを作成できる商品がございません"
+      },
+      "reviewHistory": { "title": "作成したレビュー", "count": "作成したレビュー {{count}}", "empty": "作成したレビューがございません" },
+      "delivery": { "title": "配送先管理", "empty": "登録されたお届け先住所がありません。", "add": "配送先を追加" },
+      "address": {
+        "title": "住所の追加・変更", "intro": "日本国内のご自身名義の自宅の住所をご入力ください。",
+        "label": "配送先", "home": "自宅", "name": "氏名", "familyName": "姓", "givenName": "名",
+        "phone": "電話番号", "postal": "郵便番号", "city": "都道府県（市区町村）", "street": "番地", "next": "次へ"
+      },
+      "notifications": {
+        "title": "通知設定",
+        "noticeHeading": "Notifications",
+        "settingsHeading": "Notification settings",
+        "filterLabel": "Notification type",
+        "filters": { "all": "All", "orders": "Orders & delivery", "announcements": "J-Planet updates" },
+        "readAll": "Mark all as read",
+        "unread": "Unread notification",
+        "demo": {
+          "orderTitle": "Order received",
+          "orderBody": "We are checking your Japanese order. Review the order details from My Page.",
+          "orderMeta": "Just now · Order JP-240810",
+          "documentsTitle": "Additional documents required",
+          "documentsBody": "Please add the documents needed for delivery. Open My Page to continue.",
+          "documentsMeta": "Important · Order JP-240810",
+          "announcementTitle": "J-Planet update",
+          "announcementBody": "We will keep you updated on delivery from Japan to Brazil.",
+          "announcementMeta": "Today · J-Planet support"
+        },
+        "email": { "title": "メール通知", "body": "注文や配送に関するお知らせをメールで受け取ります。" },
+        "mobile": { "title": "携帯通知", "body": "重要なお知らせを携帯電話で受け取ります。" }
+      },
+      "support": {
+        "title": "ヘルプ", "heading": "何かお困りですか？", "intro": "よくある質問からすぐに解決策を探せます。",
+        "searchLabel": "ヘルプを検索", "searchPlaceholder": "質問を検索してください", "faq": "よくある質問",
+        "topics": { "order": "注文について", "payment": "お支払いについて", "shipping": "配送について" },
+        "customerSupport": "カスタマーサポート", "weekday": "平日：10:00〜18:00", "weekend": "土日・祝日：15:00〜18:00",
+        "reply": "チャットよりお問い合わせください。24時間以内に担当者が回答いたします。", "chatNow": "すぐに問い合わせを開始する",
+        "guide": "ご利用ガイド", "guideLink": "J-Planetの使い方を見る"
       }
     },
     "favorites": {
@@ -328,19 +385,42 @@
       "recentProducts": "Recently viewed products",
       "clearProducts": "Clear recently viewed products",
       "brand": "J-Planet AI",
-      "popularTitle": "Popular Japanese items in Brazil",
+      "purchaseStatusTitle": "Purchase requests in progress",
+      "purchaseStatusCaption": "From Japan to Brazil",
+      "statusChecked": "Product details checked",
+      "statusCompleted": "Completed",
+      "statusPreparing": "Preparing your purchase in Japan",
+      "statusInProgress": "In progress",
+      "statusShipping": "Shipping arrangement",
+      "statusNextStep": "Next step",
+      "documentsTitle": "Add supporting documents",
+      "documentsCaption": "Only when needed",
+      "documentsIntro": "Add documents needed for identity checks or delivery using your camera, photos, or a PDF.",
+      "captureDocument": "Take a photo",
+      "chooseDocumentPhoto": "Choose a photo",
+      "attachPdf": "Attach a PDF",
+      "documentAdded": "Added {{name}}",
+      "popularTitle": "Popular keywords",
       "productDetails": "View details for {{name}}",
       "rankedTopic": "{{rank}}. {{topic}}",
       "composer": {
         "title": "J-Planet AI Agent",
         "intro": "AI helps you find and buy products in Japan, then deliver them to Brazil.",
+        "menuLabel": "Input menu",
+        "inputPlaceholder": "Send a URL, image, or product name to AI",
+        "send": "Send",
+        "pasteUrl": "Paste a URL",
+        "selectPhoto": "Gallery",
+        "takePhoto": "Camera",
+        "selectPhotoAction": "Choose a photo",
+        "takePhotoAction": "Take a photo",
         "stepUrl": "Send a Japanese product URL or image",
         "stepName": "You can also consult us with only a product name or preferences",
         "modesLabel": "How to consult",
         "urlMode": "Paste a URL",
         "imageMode": "Add an image",
         "productMode": "Ask by product name",
-        "draftLabel": "Product to find",
+        "draftLabel": "Send a URL, image, or product name to AI",
         "urlPlaceholder": "Paste a Japanese product URL",
         "productPlaceholder": "Enter the product name or preferences you want",
         "selectImage": "Select an image",
@@ -434,6 +514,22 @@
       "rating": "5点中{{rating}}点",
       "favoriteProduct": "{{product}}をお気に入りに追加"
     },
+    "cart": {
+      "title": "Shopping cart",
+      "back": "Back to home",
+      "itemsLabel": "Cart items",
+      "quantity": "Quantity",
+      "remove": "Remove {{product}} from cart",
+      "option": "Variation: {{option}}",
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity",
+      "empty": "Your cart is empty",
+      "recommendationsTitle": "You may also like",
+      "recommendationsEyebrow": "Recommended",
+      "selectedCount": "{{count}} selected",
+      "continue": "Buy selected items",
+      "selectItem": "Select {{product}}"
+    },
     "gram": {
       "title": "J-Planet GRAM",
       "categoriesLabel": "J-Planet GRAM categories",
@@ -484,7 +580,7 @@
         "metadata": {
           "purchaseType": "Purchase type",
           "purchaseTypes": {
-            "direct": "Direct import by J-Planet",
+            "direct": "Standard Japanese product",
             "marketplace": "Marketplace item"
           },
           "deliveryEstimate": "Estimated delivery",
@@ -497,7 +593,7 @@
           "favoriteAdd": "Add to favorites",
           "favoriteRemove": "Remove from favorites"
         },
-        "directPurchase": "Purchase directly from Japanese retailers",
+        "directPurchase": "We deliver great products from Japan quickly.",
         "purchase": {
           "title": "Purchase details",
           "required": "Required",
@@ -534,7 +630,10 @@
         "recommendations": {
           "eyebrow": "RECOMMEND",
           "title": "You may also like",
-          "next": "Next products"
+          "next": "Next products",
+          "more": "View more",
+          "selectedEyebrow": "MORE FOR YOU",
+          "selectedTitle": "Recommended for people who chose this"
         },
         "order": {
           "eyebrow": "ORDER FLOW",
@@ -577,7 +676,8 @@
           "eyebrow": "REVIEW",
           "title": "Product reviews",
           "empty": "No reviews yet.",
-          "emptyBody": "Your feedback after purchase can help the next customer choose."
+          "emptyBody": "Your feedback after purchase can help the next customer choose.",
+          "viewAll": "View reviews"
         },
         "cautions": {
           "eyebrow": "CAUTIONS",
@@ -600,18 +700,24 @@
         "benefits": {
           "eyebrow": "J-PLANET BENEFITS",
           "title": "Why J-Planet?",
+          "viewAll": "View all",
+          "collapse": "Close",
+          "details": "View details",
           "cards": {
             "fees": {
               "title": "Clear costs",
-              "copy": "Review the product price and required service costs together before purchasing."
+              "copy": "Review the product price and required service costs together before purchasing.",
+              "details": "Review the item price, domestic shipping, and international delivery fees before confirming your order."
             },
             "search": {
               "title": "Search Japanese products in one place",
-              "copy": "Find products from Japanese retailers without moving between multiple sites."
+              "copy": "Find products from Japanese retailers without moving between multiple sites.",
+              "details": "Send a URL, image, or product name to AI and receive organized options from Japanese retailers."
             },
             "reviews": {
               "title": "Choose with customer reviews",
-              "copy": "Use reviews from verified buyers to inform your product choice."
+              "copy": "Use reviews from verified buyers to inform your product choice.",
+              "details": "Check customer ratings and photo reviews before deciding which product is right for you."
             }
           }
         }
