@@ -184,20 +184,55 @@ async function expectTouchRailMovesWithoutVerticalPageScroll(
   }));
   expect(overflow.scrollWidth).toBeGreaterThan(overflow.clientWidth);
   await rail.evaluate((element) => {
-    element.scrollTo({ behavior: "instant", left: 0 });
+    element.style.scrollBehavior = "auto";
+    element.scrollLeft = 0;
   });
   const scrollBefore = await waitForScrollSettle(page, rail);
 
   const box = await rail.boundingBox();
   if (box === null) throw new Error("Missing mobile touch rail bounds");
+  const gestureY = box.y + Math.max(2, box.height - 4);
 
-  await dispatchNativeTouchGesture(page, [
-    { x: box.x + box.width - 16, y: box.y + box.height / 2 },
-    { x: box.x + box.width / 2, y: box.y + box.height / 2 },
-    { x: box.x + 16, y: box.y + box.height / 2 },
-  ]);
-  await expect.poll(() => rail.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
-  const scrollAfter = await waitForScrollSettle(page, rail);
+  const gesture = [
+    { x: box.x + box.width - 12, y: gestureY },
+    { x: box.x + box.width * 0.78, y: gestureY },
+    { x: box.x + box.width * 0.58, y: gestureY },
+    { x: box.x + box.width * 0.38, y: gestureY },
+    { x: box.x + box.width * 0.18, y: gestureY },
+    { x: box.x + 12, y: gestureY },
+  ] as const;
+
+  // Chromium's CDP touch emulation can occasionally drop the first gesture
+  // while a rail is settling. Retry only after observing that no horizontal
+  // movement occurred; no fixed sleep is needed and every successful run
+  // still proves a native touch gesture changed the rail's scroll position.
+  let scrollAfter: ScrollPosition | null = null;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await dispatchNativeTouchGesture(page, gesture);
+    const moved = await expect
+      .poll(() => rail.evaluate((element) => element.scrollLeft), {
+        intervals: [16, 32, 50],
+        timeout: 800,
+      })
+      .toBeGreaterThan(0)
+      .then(() => true)
+      .catch(() => false);
+    if (moved) {
+      const settled = await waitForScrollSettle(page, rail);
+      if (settled.railX !== null && settled.railX > 0) {
+        scrollAfter = settled;
+        break;
+      }
+    }
+    await rail.evaluate((element) => {
+      element.style.scrollBehavior = "auto";
+      element.scrollLeft = 0;
+    });
+    await waitForScrollSettle(page, rail);
+  }
+  if (scrollAfter === null) {
+    throw new Error("Native touch gesture did not settle to a horizontal rail position");
+  }
   expect(scrollAfter.railX).toBeGreaterThan(0);
   expect(scrollAfter.pageY).toBeCloseTo(scrollBefore.pageY, 0);
 }
@@ -702,6 +737,63 @@ async function replayMobileScenario(page: Page) {
   ).toBeVisible();
   expect(applicationExternalRequests(externalRequests)).toEqual([]);
 }
+
+test("opens the J-Planet BEAUTY route with inline search and touch rails", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "BEAUTY reproduction is mobile-first");
+  // Mobile intentionally removes the desktop-only コスメ shortcut. Start
+  // from the QA deep-link so this existing BEAUTY journey remains covered
+  // without reintroducing that shortcut into the mobile rail.
+  await page.goto(`${routePath}&view=beauty`);
+
+  const beauty = page.locator("[data-beauty-view]");
+  await expect(beauty).toBeVisible();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "beauty");
+  await expect(beauty.locator(".sazo-beauty-logo img")).toBeVisible();
+  await expect(beauty.getByText("BEAUTY", { exact: true })).toBeVisible();
+
+  const search = beauty.getByRole("searchbox", { name: "BEAUTYの商品を検索" });
+  await search.fill("美容液");
+  await search.press("Enter");
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "beauty");
+  await expect(page.getByRole("dialog", { name: "J-Planet AIエージェント" })).toHaveCount(0);
+  await search.fill("");
+  await search.press("Enter");
+
+  const categoryRail = beauty.locator(".sazo-beauty-category-rail");
+  const categoryBox = await categoryRail.boundingBox();
+  if (categoryBox === null) throw new Error("Missing BEAUTY category rail geometry");
+  await dispatchNativeTouchGesture(page, [
+    { x: categoryBox.x + categoryBox.width - 18, y: categoryBox.y + categoryBox.height / 2 },
+    { x: categoryBox.x + categoryBox.width / 2, y: categoryBox.y + categoryBox.height / 2 },
+    { x: categoryBox.x + 22, y: categoryBox.y + categoryBox.height / 2 },
+  ]);
+  await expect.poll(() => categoryRail.evaluate((node) => node.scrollLeft)).toBeGreaterThan(0);
+
+  await beauty.getByRole("button", { exact: true, name: "マスクパック" }).click();
+  await expect(beauty.getByRole("status", { name: "マスクパックの商品を読み込んでいます" })).toBeVisible();
+  await expect(beauty.getByRole("button", { exact: true, name: "マスクパック" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+    { timeout: 800 },
+  );
+  await expect(beauty.locator(".sazo-beauty-product-card")).toHaveCount(6);
+
+  const productRail = beauty.locator(".sazo-beauty-product-rail");
+  const productBox = await productRail.boundingBox();
+  if (productBox === null) throw new Error("Missing BEAUTY product rail geometry");
+  await dispatchNativeTouchGesture(page, [
+    { x: productBox.x + productBox.width - 18, y: productBox.y + productBox.height / 2 },
+    { x: productBox.x + productBox.width / 2, y: productBox.y + productBox.height / 2 },
+    { x: productBox.x + 22, y: productBox.y + productBox.height / 2 },
+  ]);
+  await expect.poll(() => productRail.evaluate((node) => node.scrollLeft)).toBeGreaterThan(0);
+
+  await beauty.locator(".sazo-beauty-product-card button").first().click();
+  await expect(page.locator("[data-product-detail]")).toBeVisible();
+  await page.locator(".sazo-product-detail-header .sazo-product-detail-back").click();
+  await expect(beauty).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "モバイルメニュー" })).toBeVisible();
+});
 
 test("replays the deterministic SAZO commerce journey", async ({ page }, testInfo) => {
   expect(await page.evaluate(() => window.devicePixelRatio)).toBe(2);
