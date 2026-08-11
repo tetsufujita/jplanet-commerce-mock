@@ -5,6 +5,7 @@ import type {
   RankingMetric,
   ReviewCategoryId,
   SazoHeroFeed,
+  SazoView,
 } from "@/sazo-commerce/model";
 
 export type SazoImagePath = `/sazo-commerce/${string}`;
@@ -30,6 +31,31 @@ export interface Shortcut {
   id: ShortcutIconId;
   label: string;
   badge?: "new";
+}
+
+export type HomeShortcutIconId =
+  | "feature"
+  | "limited"
+  | "flea-market"
+  | "service"
+  | "brands"
+  | "categories"
+  | "reviews"
+  | "help"
+  | "news";
+
+export interface HomeShortcutItem {
+  id: string;
+  labelKey: string;
+  icon?: HomeShortcutIconId;
+  view?: SazoView;
+}
+
+export interface HomeCategoryItem {
+  id: DirectoryCategoryId;
+  labelKey: string;
+  image: SazoImagePath;
+  view?: SazoView;
 }
 
 export interface Product {
@@ -345,6 +371,23 @@ export const shortcuts = [
   { badge: "new", id: "cosmetics", label: "コスメ" },
   { badge: "new", id: "k-pop", label: "K-POP" },
 ] satisfies readonly Shortcut[];
+
+export const homeShortcutItems = [
+  { id: "feature", labelKey: "feature", icon: "feature" },
+  { id: "limited", labelKey: "limited", icon: "limited" },
+  { id: "flea-market", labelKey: "fleaMarket", icon: "flea-market" },
+  { id: "service", labelKey: "service", icon: "service", view: "service" },
+  { id: "brands", labelKey: "brands", icon: "brands", view: "brands" },
+  {
+    id: "categories",
+    labelKey: "categories",
+    icon: "categories",
+    view: "categories",
+  },
+  { id: "reviews", labelKey: "reviews", icon: "reviews", view: "reviews" },
+  { id: "help", labelKey: "help", icon: "help", view: "support" },
+  { id: "news", labelKey: "news", icon: "news" },
+] satisfies readonly HomeShortcutItem[];
 
 export const products = [
   {
@@ -771,6 +814,63 @@ export const categoryDirectory = [
     ],
   },
 ] satisfies readonly CategoryDirectoryEntry[];
+
+export const homeCategoryItems = [
+  {
+    id: "beauty",
+    labelKey: "beauty",
+    image: "/sazo-commerce/beauty/trend-01.webp",
+    view: "categories",
+  },
+  {
+    id: "ladies",
+    labelKey: "ladies",
+    image: "/sazo-commerce/gram/home/02.png",
+    view: "categories",
+  },
+  {
+    id: "mens",
+    labelKey: "mens",
+    image: "/sazo-commerce/interested-items/05.webp",
+    view: "categories",
+  },
+  {
+    id: "kids",
+    labelKey: "kids",
+    image: "/sazo-commerce/products/01.webp",
+    view: "categories",
+  },
+  {
+    id: "living",
+    labelKey: "living",
+    image: "/sazo-commerce/products/10.webp",
+    view: "categories",
+  },
+  {
+    id: "food",
+    labelKey: "food",
+    image: "/sazo-commerce/products/11.webp",
+    view: "categories",
+  },
+  {
+    id: "pets",
+    labelKey: "pets",
+    image: "/sazo-commerce/products/12.webp",
+    view: "categories",
+  },
+  {
+    id: "appliances",
+    labelKey: "appliances",
+    image: "/sazo-commerce/products/07.webp",
+    view: "categories",
+  },
+  {
+    id: "hobby",
+    labelKey: "hobby",
+    image: "/sazo-commerce/gram/list-02.png",
+    view: "categories",
+  },
+] satisfies readonly HomeCategoryItem[];
 
 export const catalogTabs = [
   {

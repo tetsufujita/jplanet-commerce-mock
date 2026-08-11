@@ -11,7 +11,11 @@ import { PNG } from "pngjs";
 import { createI18n } from "@/i18n/createI18n";
 import { HomeView } from "@/sazo-commerce/HomeView";
 import { SazoCommercePage } from "@/sazo-commerce/SazoCommercePage";
-import { searchDiscoveryMediaCrops } from "@/sazo-commerce/fixtures";
+import {
+  homeCategoryItems,
+  homeShortcutItems,
+  searchDiscoveryMediaCrops,
+} from "@/sazo-commerce/fixtures";
 import { createInitialSazoState, type SazoAction } from "@/sazo-commerce/model";
 import { useSazoHero } from "@/sazo-commerce/useSazoHero";
 
@@ -107,6 +111,36 @@ function HeroTicker({
 }
 
 describe("SAZO home composition", () => {
+  it("defines the mobile shortcut and photo-category fixture contracts", async () => {
+    expect(homeShortcutItems.map((item) => item.labelKey)).toEqual([
+      "feature",
+      "limited",
+      "fleaMarket",
+      "service",
+      "brands",
+      "categories",
+      "reviews",
+      "help",
+      "news",
+    ]);
+    expect(homeShortcutItems.some((item) => item.labelKey === "home")).toBe(false);
+    expect(homeShortcutItems.some((item) => item.labelKey === "cosmetics")).toBe(false);
+    expect(homeShortcutItems.some((item) => item.labelKey === "kpop")).toBe(false);
+    expect(homeCategoryItems.length).toBeGreaterThanOrEqual(6);
+
+    for (const locale of ["ja", "en", "pt-BR"] as const) {
+      const i18n = await createI18n(locale);
+      const labelKeys = [
+        ...homeShortcutItems.map(({ labelKey }) => `sazo.home.shortcuts.${labelKey}`),
+        ...homeCategoryItems.map(({ labelKey }) => `sazo.home.categories.${labelKey}`),
+      ];
+
+      for (const labelKey of labelKeys) {
+        expect(i18n.exists(labelKey), `${locale} is missing ${labelKey}`).toBe(true);
+      }
+    }
+  });
+
   it("uses a dedicated decorative SVG for the search guidance", async () => {
     const { container } = await renderHomePage();
     const callout = container.querySelector(".sazo-search-callout");

@@ -378,6 +378,28 @@
       "agentEntryGroup": "Consulta de produto com IA",
       "agentImageEntry": "Consultar a IA usando uma imagem",
       "shortcutLabel": "J-Planetショートカット",
+      "shortcuts": {
+        "feature": "Destaques da J-Planet",
+        "limited": "Limitados",
+        "fleaMarket": "Marketplace",
+        "service": "Como funciona",
+        "brands": "Marcas populares",
+        "categories": "Categorias",
+        "reviews": "Avaliações",
+        "help": "Ajuda",
+        "news": "Notícias"
+      },
+      "categories": {
+        "beauty": "Beleza",
+        "ladies": "Moda feminina",
+        "mens": "Moda masculina",
+        "kids": "Infantil",
+        "living": "Casa e decoração",
+        "food": "Alimentos",
+        "pets": "Pets",
+        "appliances": "Eletrodomésticos",
+        "hobby": "Hobbies"
+      },
       "introTitle": "ブラジル最大級\n日本直輸入ショップ",
       "introBody": "J-Planetは日本の人気ショップの商品を購入し、ブラジルへ直接お届けします",
       "firstGuide": "J-Planetを初めてご利用ですか？",

@@ -378,6 +378,28 @@
       "agentEntryGroup": "AI product assistance",
       "agentImageEntry": "Ask AI using an image",
       "shortcutLabel": "J-Planetショートカット",
+      "shortcuts": {
+        "feature": "J-Planet features",
+        "limited": "Limited",
+        "fleaMarket": "Flea market",
+        "service": "How it works",
+        "brands": "Popular brands",
+        "categories": "Categories",
+        "reviews": "Reviews",
+        "help": "Help",
+        "news": "News"
+      },
+      "categories": {
+        "beauty": "Beauty",
+        "ladies": "Women's fashion",
+        "mens": "Men's fashion",
+        "kids": "Kids",
+        "living": "Home and living",
+        "food": "Food",
+        "pets": "Pets",
+        "appliances": "Appliances",
+        "hobby": "Hobbies"
+      },
       "introTitle": "ブラジル最大級\n日本直輸入ショップ",
       "introBody": "J-Planetは日本の人気ショップの商品を購入し、ブラジルへ直接お届けします",
       "firstGuide": "J-Planetを初めてご利用ですか？",
