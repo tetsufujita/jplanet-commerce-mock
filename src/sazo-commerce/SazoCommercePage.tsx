@@ -22,6 +22,7 @@ import { ProductDetailView } from "@/sazo-commerce/ProductDetailView";
 import { SazoShell } from "@/sazo-commerce/SazoShell";
 import { ServiceView } from "@/sazo-commerce/ServiceView";
 import { createInitialSazoState, sazoReducer } from "@/sazo-commerce/model";
+import "@/sazo-commerce/coupons.css";
 import "@/sazo-commerce/sazo.css";
 
 export function SazoCommercePage() {
