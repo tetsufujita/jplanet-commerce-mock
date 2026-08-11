@@ -129,34 +129,34 @@ describe("SazoCommercePage shell", () => {
     }
   });
 
-  it("renders the two-row mobile home header", async () => {
+  it("removes the duplicated mobile secondary menu from the home shell", async () => {
     const { container } = await renderSazoCommercePage();
     const mobileShell = getShell(container, "mobile");
     const mobileHeader = within(mobileShell).getByRole("banner");
+    const mobileNav = within(mobileShell).getByRole("navigation", {
+      name: "モバイルメニュー",
+    });
 
     for (const label of ["言語", "検索", "カート"]) {
       expect(within(mobileHeader).getByRole("button", { name: label })).toBeTruthy();
     }
 
-    const secondary = within(mobileHeader).getByRole("navigation", {
-      name: "モバイルサブメニュー",
-    });
-    expect(within(secondary).getAllByRole("button")).toHaveLength(7);
-    expect(within(secondary).getByRole("button", { name: "ヘルプ" })).toBeTruthy();
-    expect(within(secondary).getByRole("button", { name: "お知らせ" })).toBeTruthy();
     expect(
-      within(secondary).getByRole("button", { name: "ホーム" }).getAttribute("aria-pressed"),
-    ).toBe("true");
+      within(mobileHeader).queryByRole("navigation", {
+        name: "モバイルサブメニュー",
+      }),
+    ).toBeNull();
+    expect(within(mobileNav).getByRole("button", { name: "ホーム" })).toBeTruthy();
   });
 
   it("keeps the complete mobile secondary menu after opening support", async () => {
     const { container } = await renderSazoCommercePage();
     const mobileShell = getShell(container, "mobile");
-    const homeSecondary = within(mobileShell).getByRole("navigation", {
-      name: "モバイルサブメニュー",
+    const desktopNav = within(getShell(container, "desktop")).getByRole("navigation", {
+      name: "メインメニュー",
     });
 
-    fireEvent.click(within(homeSecondary).getByRole("button", { name: "ヘルプ" }));
+    fireEvent.click(within(desktopNav).getByRole("button", { name: "ヘルプ" }));
 
     await waitFor(() => {
       expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(

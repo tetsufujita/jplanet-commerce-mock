@@ -271,7 +271,14 @@ describe("SAZO home composition", () => {
     const { container } = await renderHomePage();
     const home = container.querySelector("[data-home-view]");
 
-    expect(home?.querySelectorAll(".sazo-shortcuts .sazo-shortcut")).toHaveLength(5);
+    const shortcutGroup = screen.getByRole("group", {
+      name: "J-Planetショートカット",
+    });
+
+    expect(shortcutGroup.querySelectorAll("button")).toHaveLength(9);
+    expect(within(shortcutGroup).getByRole("button", { name: "サービス紹介" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "コスメ" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "K-POP" })).toBeNull();
     expect(home?.querySelector("[data-mobile-shortcut-grid]")).toBeNull();
     includesInOrder(home?.textContent ?? "", [
       "URL・画像・商品名をAIに相談",
@@ -334,13 +341,19 @@ describe("SAZO home composition", () => {
     expect(screen.queryByRole("dialog", { name: "J-Planet AIエージェント" })).toBeNull();
   });
 
-  it("routes the cosmetics shortcut to the dedicated BEAUTY view", async () => {
+  it.each([
+    ["サービス紹介", "service"],
+    ["人気ブランド", "brands"],
+    ["カテゴリー", "categories"],
+    ["レビュー", "reviews"],
+    ["ヘルプ", "support"],
+  ] as const)("routes the %s shortcut to %s", async (label, view) => {
     const dispatch = vi.fn();
     await renderHomePage("ja", dispatch);
 
-    fireEvent.click(screen.getByRole("button", { name: "コスメ" }));
+    fireEvent.click(screen.getByRole("button", { name: label }));
 
-    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "beauty" });
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view });
   });
 
   it("routes the image action with an image-picker intent", async () => {
@@ -393,11 +406,9 @@ describe("SAZO home composition", () => {
     expect(shortcutGroup.querySelectorAll("img[data-jplanet-sakura-mark]")).toHaveLength(
       1,
     );
-    expect(
-      shortcutGroup.querySelectorAll("svg[data-jplanet-shortcut-icon]"),
-    ).toHaveLength(4);
+    expect(shortcutGroup.querySelectorAll(".sazo-shortcut-icon")).toHaveLength(9);
     expect(shortcutGroup.querySelectorAll('img[src*="/shortcuts/"]')).toHaveLength(0);
-    expect(container.querySelectorAll(".sazo-shortcut-badge")).toHaveLength(2);
+    expect(container.querySelectorAll(".sazo-shortcut-badge")).toHaveLength(0);
   });
 
   it("mounts the stateful home view only once across responsive shells", async () => {

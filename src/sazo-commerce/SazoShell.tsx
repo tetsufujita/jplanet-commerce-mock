@@ -289,21 +289,23 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
                 </button>
               </div>
             </div>
-            <nav
-              aria-label={t("sazo.navigation.mobileSecondaryLabel")}
-              className="sazo-mobile-secondary-nav"
-            >
-              {mobileSecondaryNavigation.map((item) => (
-                <NavigationButton
-                  className="sazo-mobile-secondary-button"
-                  dispatch={dispatch}
-                  key={item.translationKey}
-                  label={t(item.translationKey)}
-                  state={state}
-                  view={item.view}
-                />
-              ))}
-            </nav>
+            {state.view === "home" ? null : (
+              <nav
+                aria-label={t("sazo.navigation.mobileSecondaryLabel")}
+                className="sazo-mobile-secondary-nav"
+              >
+                {mobileSecondaryNavigation.map((item) => (
+                  <NavigationButton
+                    className="sazo-mobile-secondary-button"
+                    dispatch={dispatch}
+                    key={item.translationKey}
+                    label={t(item.translationKey)}
+                    state={state}
+                    view={item.view}
+                  />
+                ))}
+              </nav>
+            )}
           </header>
         )}
 

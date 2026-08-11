@@ -8406,21 +8406,30 @@
   }
 
   .sazo-root[data-view="home"] .sazo-shortcuts {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: nowrap;
     gap: clamp(4px, 1.4vw, 10px);
     width: 100%;
     margin: 29px auto 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
     padding: 0 12px 60px;
     border-bottom: 1px solid var(--jplanet-line);
+    scrollbar-width: none;
+    touch-action: pan-x;
+  }
+
+  .sazo-root[data-view="home"] .sazo-shortcuts::-webkit-scrollbar {
+    display: none;
   }
 
   .sazo-root[data-view="home"] .sazo-shortcut {
     display: flex;
+    flex: 0 0 auto;
     flex-direction: column;
     align-items: center;
     gap: clamp(5px, 1.3vw, 8px);
-    min-width: 0;
+    min-width: clamp(62px, 17vw, 96px);
     padding: 0;
     border: 0;
     background: transparent;

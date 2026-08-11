@@ -8,19 +8,26 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Camera,
+  CircleHelp,
   ChevronLeft,
   ChevronRight,
+  Grid2X2,
   ImagePlus,
   MessageCircle,
+  Newspaper,
   Pause,
   Play,
   Search,
   Sparkles,
   Star,
+  Store,
+  Tags,
+  type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   getHeroSlidesForFeed,
+  homeShortcutItems,
   homeGramEntries,
   homeReviews,
   interestedProducts,
@@ -30,8 +37,9 @@ import {
   recordedDesktopRankingReviews,
   recordedMobileProfileReviews,
   searchDiscoveryProducts,
-  shortcuts,
+  type HomeShortcutIconId,
   type Product,
+  type ShortcutIconId,
 } from "@/sazo-commerce/fixtures";
 import type { SazoAction, SazoState } from "@/sazo-commerce/model";
 import { JplanetShortcutIcon } from "@/sazo-commerce/JplanetShortcutIcon";
@@ -374,6 +382,38 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
   );
 }
 
+type LegacyHomeShortcutIconId = Extract<HomeShortcutIconId, ShortcutIconId>;
+
+function isLegacyShortcutIcon(icon: HomeShortcutIconId): icon is LegacyHomeShortcutIconId {
+  return icon === "feature" || icon === "limited" || icon === "flea-market";
+}
+
+const navigationShortcutIcons: Record<
+  Exclude<HomeShortcutIconId, ShortcutIconId>,
+  LucideIcon
+> = {
+  brands: Tags,
+  categories: Grid2X2,
+  help: CircleHelp,
+  news: Newspaper,
+  reviews: Star,
+  service: Store,
+};
+
+function ShortcutArtwork({ icon }: { icon?: HomeShortcutIconId }) {
+  if (icon === undefined) {
+    return null;
+  }
+
+  if (isLegacyShortcutIcon(icon)) {
+    return <JplanetShortcutIcon id={icon} />;
+  }
+
+  const Icon = navigationShortcutIcons[icon];
+
+  return <Icon aria-hidden />;
+}
+
 function ShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
 
@@ -383,31 +423,30 @@ function ShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
       className="sazo-shortcuts"
       role="group"
     >
-      {shortcuts.map((shortcut) => (
-        <button
-          aria-label={shortcut.label}
-          className="sazo-shortcut"
-          key={shortcut.id}
-          onClick={
-            shortcut.id === "cosmetics"
-              ? () => {
-                  dispatch({ type: "navigate", view: "beauty" });
-                }
-              : undefined
-          }
-          type="button"
-        >
-          <span className="sazo-shortcut-icon" data-icon={shortcut.id}>
-            <JplanetShortcutIcon id={shortcut.id} />
-            {shortcut.badge ? (
-              <span aria-hidden className="sazo-shortcut-badge">
-                {shortcut.badge}
-              </span>
-            ) : null}
-          </span>
-          <span>{shortcut.label}</span>
-        </button>
-      ))}
+      {homeShortcutItems.map((shortcut) => {
+        const view = shortcut.view;
+
+        return (
+          <button
+            aria-label={t(`sazo.home.shortcuts.${shortcut.labelKey}`)}
+            className="sazo-shortcut"
+            key={shortcut.id}
+            onClick={
+              view === undefined
+                ? undefined
+                : () => {
+                    dispatch({ type: "navigate", view });
+                  }
+            }
+            type="button"
+          >
+            <span className="sazo-shortcut-icon" data-icon={shortcut.icon}>
+              <ShortcutArtwork icon={shortcut.icon} />
+            </span>
+            <span>{t(`sazo.home.shortcuts.${shortcut.labelKey}`)}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }
