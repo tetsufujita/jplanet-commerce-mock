@@ -24,6 +24,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { sazoAccountFixture } from "@/sazo-commerce/fixtures";
 import type { SazoAction, SazoView } from "@/sazo-commerce/model";
+import "@/sazo-commerce/coupons.css";
 
 interface AccountViewProps {
   dispatch: Dispatch<SazoAction>;

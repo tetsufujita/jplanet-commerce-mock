@@ -420,34 +420,51 @@ describe("SAZO home composition", () => {
     installReducedMotion(true);
     const { container } = await renderHomePage();
 
-    fireEvent.click(screen.getByRole("button", { name: "J-Planet 初回限定クーポン" }));
+    fireEvent.click(screen.getByRole("button", { name: "クーポンを受け取る" }));
 
     expect(container.querySelector('[data-view-content="coupons"]')).not.toBeNull();
     expect(screen.getByRole("heading", { level: 1, name: "クーポン" })).toBeTruthy();
   });
 
   it.each([
-    ["ja", "J-Planetショートカット", "クーポンを受け取る", "jplanet-coupon-banner.svg"],
-    ["en", "J-Planet shortcuts", "Get coupons", "jplanet-coupon-banner-en.svg"],
-    ["pt-BR", "Atalhos da J-Planet", "Ver cupons", "jplanet-coupon-banner-pt-BR.svg"],
+    [
+      "ja",
+      "J-Planetショートカット",
+      "クーポンを受け取る",
+      "J-Planet 初回限定クーポン",
+      "jplanet-coupon-banner.svg",
+    ],
+    [
+      "en",
+      "J-Planet shortcuts",
+      "Get coupons",
+      "J-Planet welcome coupons",
+      "jplanet-coupon-banner-en.svg",
+    ],
+    [
+      "pt-BR",
+      "Atalhos da J-Planet",
+      "Ver cupons",
+      "Cupons de boas-vindas J-Planet",
+      "jplanet-coupon-banner-pt-BR.svg",
+    ],
   ] as const)(
     "localizes visible and accessible coupon content for %s",
-    async (locale, shortcutLabel, cta, artwork) => {
+    async (locale, shortcutLabel, cta, artworkDescription, artwork) => {
       const dispatch = vi.fn();
       await renderHomePage(locale, dispatch);
       const shortcutGroup = screen.getByRole("group", { name: shortcutLabel });
       const coupon = screen.getByTestId("mobile-coupon-banner");
       const image = within(coupon).getByRole("img");
-      const button = within(coupon).getByRole("button", {
-        name: image.getAttribute("alt") ?? undefined,
-      });
+      const button = within(coupon).getByRole("button", { name: cta });
 
       expect(shortcutGroup).toBeTruthy();
       expect(within(button).getByText(cta)).toBeTruthy();
       expect(new URL(image.getAttribute("src") ?? "", window.location.origin).pathname).toBe(
         `/sazo-commerce/campaign/${artwork}`,
       );
-      expect(image.getAttribute("alt")).not.toBe("");
+      expect(image.getAttribute("alt")).toBe(artworkDescription);
+      expect(button.getAttribute("aria-label")).toBe(cta);
 
       cleanup();
     },

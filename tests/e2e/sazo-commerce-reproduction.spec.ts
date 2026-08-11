@@ -75,6 +75,48 @@ interface TouchPoint {
   y: number;
 }
 
+interface ScrollPosition {
+  pageY: number;
+  railX: number | null;
+}
+
+async function readScrollPosition(page: Page, rail?: Locator): Promise<ScrollPosition> {
+  if (rail === undefined) {
+    return page.evaluate(() => ({ pageY: window.scrollY, railX: null }));
+  }
+
+  return rail.evaluate((element) => ({
+    pageY: window.scrollY,
+    railX: element.scrollLeft,
+  }));
+}
+
+async function waitForScrollSettle(page: Page, rail?: Locator) {
+  let previous = await readScrollPosition(page, rail);
+  let stableSamples = 0;
+
+  await expect
+    .poll(
+      async () => {
+        const current = await readScrollPosition(page, rail);
+        const railSettled =
+          current.railX === null ||
+          previous.railX === null ||
+          Math.abs(current.railX - previous.railX) < 0.5;
+        const pageSettled = Math.abs(current.pageY - previous.pageY) < 0.5;
+
+        stableSamples = railSettled && pageSettled ? stableSamples + 1 : 0;
+        previous = current;
+
+        return stableSamples;
+      },
+      { intervals: [16, 32, 50], timeout: 2_000 },
+    )
+    .toBeGreaterThanOrEqual(2);
+
+  return previous;
+}
+
 async function dispatchNativeTouchGesture(
   page: Page,
   points: readonly [TouchPoint, ...TouchPoint[]],
@@ -135,6 +177,7 @@ async function expectTouchRailMovesWithoutVerticalPageScroll(
   rail: Locator,
 ) {
   await rail.scrollIntoViewIfNeeded();
+  await waitForScrollSettle(page, rail);
   const overflow = await rail.evaluate((element) => ({
     clientWidth: element.clientWidth,
     scrollWidth: element.scrollWidth,
@@ -143,18 +186,20 @@ async function expectTouchRailMovesWithoutVerticalPageScroll(
   await rail.evaluate((element) => {
     element.scrollTo({ behavior: "instant", left: 0 });
   });
+  const scrollBefore = await waitForScrollSettle(page, rail);
 
   const box = await rail.boundingBox();
   if (box === null) throw new Error("Missing mobile touch rail bounds");
 
-  const scrollBefore = await page.evaluate(() => window.scrollY);
   await dispatchNativeTouchGesture(page, [
     { x: box.x + box.width - 16, y: box.y + box.height / 2 },
     { x: box.x + box.width / 2, y: box.y + box.height / 2 },
     { x: box.x + 16, y: box.y + box.height / 2 },
   ]);
   await expect.poll(() => rail.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
-  expect(await page.evaluate(() => window.scrollY)).toBe(scrollBefore);
+  const scrollAfter = await waitForScrollSettle(page, rail);
+  expect(scrollAfter.railX).toBeGreaterThan(0);
+  expect(scrollAfter.pageY).toBeCloseTo(scrollBefore.pageY, 0);
 }
 
 async function expectComposerBelowAgentHeader(page: Page) {
@@ -266,6 +311,12 @@ async function replayMobileScenario(page: Page) {
   const heroCounter = page.getByTestId("sazo-hero-counter");
 
   await expect(heroCounter).toHaveText("1/5");
+  await page
+    .getByRole("button", { exact: true, name: "バナーを一時停止" })
+    .click();
+  await expect(
+    page.getByRole("button", { exact: true, name: "バナーを再生" }),
+  ).toBeVisible();
   await heroViewport.dispatchEvent("pointerdown", {
     clientX: 320,
     clientY: 210,
@@ -343,6 +394,7 @@ async function replayMobileScenario(page: Page) {
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(
     scrollBefore,
   );
+  await waitForScrollSettle(page);
   await expect(heroCounter).toHaveText("3/5");
   await expectLoadedMobilePicks(page, mobilePickFailures);
   externalRequests.length = 0;
@@ -382,18 +434,59 @@ async function replayMobileScenario(page: Page) {
         : Boolean(element.compareDocumentPosition(interested) & Node.DOCUMENT_POSITION_FOLLOWING);
     }),
   ).toBe(true);
-  await couponBanner.getByRole("button").click();
+  await page.setViewportSize({ height: 844, width: 390 });
+  await expectNoHorizontalPageOverflow(page);
+  await couponBanner
+    .getByRole("button", { exact: true, name: "クーポンを受け取る" })
+    .click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "coupons");
   const coupons = page.locator('[data-view-content="coupons"]');
   await expect(coupons).toBeVisible();
   await expect(
     coupons.getByRole("heading", { exact: true, level: 1, name: "クーポン" }),
   ).toBeVisible();
+  const couponLayout = await coupons.evaluate((element) => {
+    const styleOf = (selector: string) => {
+      const target = element.querySelector<HTMLElement>(selector);
+
+      if (target === null) {
+        throw new Error(`Missing coupon layout element: ${selector}`);
+      }
+
+      return {
+        display: getComputedStyle(target).display,
+        rectangle: target.getBoundingClientRect(),
+      };
+    };
+    const header = styleOf(".sazo-account-header");
+    const content = styleOf(".sazo-account-screen-content");
+
+    return {
+      cardDisplay: styleOf(".sazo-coupon-card").display,
+      contentWidth: content.rectangle.width,
+      countDisplay: styleOf(".sazo-coupon-count").display,
+      formDisplay: styleOf(".sazo-coupon-register > div").display,
+      headerDisplay: header.display,
+      headerHeight: header.rectangle.height,
+      viewportWidth: document.documentElement.clientWidth,
+    };
+  });
+  expect(couponLayout).toMatchObject({
+    cardDisplay: "grid",
+    countDisplay: "flex",
+    formDisplay: "grid",
+    headerDisplay: "grid",
+    viewportWidth: 390,
+  });
+  expect(couponLayout.headerHeight).toBeGreaterThanOrEqual(56);
+  expect(couponLayout.contentWidth).toBeLessThanOrEqual(couponLayout.viewportWidth);
+  await expectNoHorizontalPageOverflow(page);
   await mobileNavigation.getByRole("button", { exact: true, name: "ホーム" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
   await expect(
     mobileNavigation.getByRole("button", { exact: true, name: "ホーム" }),
   ).toHaveAttribute("aria-pressed", "true");
+  await page.setViewportSize(mobileViewport);
 
   const gramSection = page.getByTestId("mobile-gram-section");
   const categorySection = page.getByTestId("mobile-category-rail");

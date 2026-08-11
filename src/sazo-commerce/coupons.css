@@ -1,0 +1,249 @@
+.sazo-root[data-view="coupons"] .sazo-account-view {
+  min-height: calc(100vh - 178px);
+  background: var(--jplanet-surface);
+  color: var(--jplanet-ink);
+}
+
+.sazo-root[data-view="coupons"] .sazo-account-header {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  width: min(920px, calc(100% - 48px));
+  min-height: 72px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--jplanet-line);
+  background: var(--jplanet-surface);
+}
+
+.sazo-root[data-view="coupons"] .sazo-account-header > button,
+.sazo-root[data-view="coupons"] .sazo-account-header-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--jplanet-ink);
+  cursor: pointer;
+}
+
+.sazo-root[data-view="coupons"] .sazo-account-header > button:hover,
+.sazo-root[data-view="coupons"] .sazo-account-header-actions button:hover {
+  background: var(--jplanet-soft);
+}
+
+.sazo-root[data-view="coupons"] .sazo-account-header > button:focus-visible,
+.sazo-root[data-view="coupons"] .sazo-account-header-actions button:focus-visible,
+.sazo-root[data-view="coupons"] .sazo-coupon-register input:focus-visible,
+.sazo-root[data-view="coupons"] .sazo-coupon-register button:focus-visible {
+  outline: 3px solid var(--jplanet-sakura);
+  outline-offset: 2px;
+}
+
+.sazo-root[data-view="coupons"] .sazo-account-header h1 {
+  margin: 0;
+  color: var(--jplanet-ink);
+  font-size: 24px;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.sazo-root[data-view="coupons"] .sazo-account-header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.sazo-root[data-view="coupons"] .sazo-account-screen-content {
+  width: min(760px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 36px 0 96px;
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-register {
+  margin: 0;
+  padding: 0 0 24px;
+  border-bottom: 8px solid var(--jplanet-soft);
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-register > label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--jplanet-ink);
+  font-weight: 800;
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-register > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-register input,
+.sazo-root[data-view="coupons"] .sazo-coupon-register button {
+  min-height: 46px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 10px;
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-register input {
+  min-width: 0;
+  padding: 0 14px;
+  background: var(--jplanet-surface);
+  color: var(--jplanet-ink);
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-register input::placeholder {
+  color: var(--jplanet-muted);
+  opacity: 1;
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-register button {
+  padding: 0 18px;
+  background: var(--jplanet-navy);
+  color: var(--jplanet-surface);
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-count {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 24px 0 20px;
+  border-bottom: 1px solid var(--jplanet-line);
+  color: var(--jplanet-ink);
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-count strong {
+  color: var(--jplanet-sakura-ink);
+  font-size: 28px;
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+  padding: 22px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 14px;
+  background: var(--jplanet-surface);
+  box-shadow: 0 8px 24px var(--jplanet-shadow);
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--jplanet-sakura-soft);
+  color: var(--jplanet-sakura-ink);
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-card strong {
+  color: var(--jplanet-sakura-ink);
+  font-size: 13px;
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-card h2 {
+  margin: 7px 0 0;
+  color: var(--jplanet-ink);
+  font-size: 18px;
+}
+
+.sazo-root[data-view="coupons"] .sazo-coupon-card p {
+  margin: 7px 0 0;
+  color: var(--jplanet-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 767px) {
+  .sazo-root[data-view="coupons"] .sazo-account-view {
+    min-height: calc(100dvh - 48px - env(safe-area-inset-bottom));
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-account-header {
+    position: sticky;
+    z-index: 20;
+    top: 0;
+    grid-template-columns: 44px minmax(0, 1fr) 88px;
+    width: 100%;
+    min-height: 58px;
+    padding: 0 8px;
+    border-bottom: 1px solid var(--jplanet-line);
+    box-shadow: 0 4px 14px var(--jplanet-shadow);
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-account-header h1 {
+    font-size: 18px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-account-header > button,
+  .sazo-root[data-view="coupons"] .sazo-account-header-actions button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-account-header-actions {
+    gap: 4px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-account-screen-content {
+    width: 100%;
+    padding: 24px 16px calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-register {
+    padding-bottom: 20px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-register > label {
+    font-size: 14px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-register input,
+  .sazo-root[data-view="coupons"] .sazo-coupon-register button {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-register button {
+    padding: 0 14px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-count {
+    padding: 20px 0 16px;
+    font-size: 14px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-count strong {
+    font-size: 24px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-card {
+    gap: 12px;
+    margin-top: 20px;
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-card h2 {
+    font-size: 16px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-card p {
+    font-size: 12px;
+  }
+}

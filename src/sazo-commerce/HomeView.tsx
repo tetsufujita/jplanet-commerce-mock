@@ -617,7 +617,7 @@ function MobileCouponBanner({ dispatch }: Pick<HomeViewProps, "dispatch">) {
       data-testid="mobile-coupon-banner"
     >
       <button
-        aria-label={t("sazo.home.couponBannerArtwork")}
+        aria-label={t("sazo.home.couponBannerCta")}
         onClick={() => {
           dispatch({ type: "navigate", view: "coupons" });
         }}
