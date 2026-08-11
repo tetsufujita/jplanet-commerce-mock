@@ -19,8 +19,26 @@ import { SazoCommercePage } from "@/sazo-commerce/SazoCommercePage";
 
 afterEach(() => {
   cleanup();
+  Reflect.deleteProperty(window, "matchMedia");
   window.history.replaceState({}, "", "/");
 });
+
+function installMobileHome() {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    value: (query: string): MediaQueryList => ({
+      addEventListener: () => undefined,
+      addListener: () => undefined,
+      dispatchEvent: () => false,
+      matches: query === "(max-width: 767px)",
+      media: query,
+      onchange: null,
+      removeEventListener: () => undefined,
+      removeListener: () => undefined,
+    }),
+    writable: true,
+  });
+}
 
 async function renderSazoCommercePage(locale: "ja" | "en" | "pt-BR" = "ja") {
   const i18n = await createI18n(locale);
@@ -150,6 +168,7 @@ describe("SazoCommercePage shell", () => {
   });
 
   it("keeps the complete mobile secondary menu after opening support", async () => {
+    installMobileHome();
     const { container } = await renderSazoCommercePage();
     const mobileShell = getShell(container, "mobile");
     const shortcutRail = screen.getByRole("group", {
@@ -361,7 +380,7 @@ describe("App route safety", () => {
     await waitFor(() => {
       expect(container.querySelector(".sazo-root")).not.toBeNull();
     });
-    expect(await screen.findAllByRole("button", { name: "人気ブランド" })).toHaveLength(2);
+    expect(await screen.findAllByRole("button", { name: "人気ブランド" })).toHaveLength(1);
   });
 
   it("keeps the existing localized home route reachable", async () => {
