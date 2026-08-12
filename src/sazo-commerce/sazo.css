@@ -15902,7 +15902,11 @@
   .sazo-root[data-view="home"] .sazo-home-agent-card[data-apple-surface="true"] {
     /* The overlap wrapper owns the horizontal inset. Keeping a second card
      * margin here shifts the AI card off the hero's center line. */
-    margin-inline: 0;
+    /* Legacy mobile rules add a 12px card inset after the overlap wrapper has
+     * already reserved its 16px gutter. Keep this reset authoritative so the
+     * card remains centered even when the stylesheet is hot-reloaded in an
+     * embedded preview. */
+    margin-inline: 0 !important;
     border-radius: 22px;
   }
 

@@ -484,7 +484,7 @@ describe("SAZO home composition", () => {
     ].map((match) => match[0]);
     const appleHomeCardRule = appleHomeCardRules.at(-1);
     expect(appleHomeCardRule).toBeDefined();
-    expect(appleHomeCardRule).toContain("margin-inline: 0;");
+    expect(appleHomeCardRule).toMatch(/margin-inline:\s*0\s*!important;/);
   });
 
   it("replaces the mobile intro with a coupon and follows GRAM with category discovery", async () => {
