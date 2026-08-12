@@ -45,7 +45,7 @@ export function MobileAgentHubView({ dispatch, entryIntent }: MobileAgentHubView
   };
 
   return (
-    <div className="sazo-agent-hub" data-mobile-agent-hub>
+    <div className="sazo-agent-hub" data-apple-layout="agent" data-mobile-agent-hub>
       <header className="sazo-agent-hub-header">
         <button onClick={navigateHome} type="button">
           <ArrowLeft aria-hidden size={20} />
@@ -74,7 +74,7 @@ export function MobileAgentHubView({ dispatch, entryIntent }: MobileAgentHubView
         </button>
       </header>
 
-      <section data-section="composer" data-testid="agent-hub-section">
+      <section data-apple-surface="true" data-section="composer" data-testid="agent-hub-section">
         <MobileAgentComposer
           entryIntent={entryIntent}
           onEntryIntentConsumed={() => {

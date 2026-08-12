@@ -71,6 +71,13 @@ async function renderHub(
 }
 
 describe("MobileAgentHubView", () => {
+  it("exposes the shared Apple-style agent layout contract", async () => {
+    const { container } = await renderHub("ja");
+
+    expect(container.querySelector('.sazo-agent-hub[data-apple-layout="agent"]')).not.toBeNull();
+    expect(container.querySelector('[data-section="composer"][data-apple-surface="true"]')).not.toBeNull();
+  });
+
   it("renders the SAZO-inspired sections in the approved order", async () => {
     await renderHub("ja");
 

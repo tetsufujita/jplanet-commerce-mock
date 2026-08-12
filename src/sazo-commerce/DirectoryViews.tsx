@@ -208,7 +208,11 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
   return (
     <div className="sazo-directory-view" data-view-content="categories">
       <ViewHeader dispatch={dispatch} title={t("sazo.views.categories.title")} />
-      <section className="sazo-directory-agent sazo-category-agent" data-testid="category-agent-entry">
+      <section
+        className="sazo-directory-agent sazo-category-agent"
+        data-apple-surface="true"
+        data-testid="category-agent-entry"
+      >
         <MobileAgentComposer
           entryIntent={null}
           onEntryIntentConsumed={() => undefined}
@@ -243,7 +247,7 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
               {t("sazo.views.categories.categoriesTab")}
             </button>
           </div>
-          <div className="sazo-category-layout">
+          <div className="sazo-category-layout" data-apple-layout="category">
             <nav
               aria-label={t("sazo.views.categories.title")}
               className="sazo-category-parent-list"

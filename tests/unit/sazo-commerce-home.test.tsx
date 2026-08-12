@@ -113,6 +113,16 @@ function HeroTicker({
 }
 
 describe("SAZO home composition", () => {
+  it("exposes the shared Apple-style surface contract", async () => {
+    const { container } = await renderHomePage();
+
+    expect(container.querySelector('.sazo-root[data-apple-design="true"]')).not.toBeNull();
+
+    cleanup();
+    const { container: homeContainer } = await renderHomePage("ja", vi.fn());
+    expect(homeContainer.querySelector('[data-home-agent-entry][data-apple-surface="true"]')).not.toBeNull();
+  });
+
   it("defines the mobile shortcut and photo-category fixture contracts", async () => {
     expectTypeOf<readonly HomeShortcutItem[]>().toExtend<typeof homeShortcutItems>();
     expectTypeOf<readonly HomeCategoryItem[]>().toExtend<typeof homeCategoryItems>();

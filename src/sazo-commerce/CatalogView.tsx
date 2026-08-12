@@ -22,9 +22,13 @@ export function CatalogView({ dispatch, state }: StatefulViewProps) {
   );
 
   return (
-    <div className="sazo-catalog-view" data-view-content="catalog">
+    <div className="sazo-catalog-view" data-apple-layout="category" data-view-content="catalog">
       <ViewHeader dispatch={dispatch} title={t("sazo.views.catalog.title")} />
-      <section className="sazo-directory-agent sazo-category-agent" data-testid="catalog-agent-entry">
+      <section
+        className="sazo-directory-agent sazo-category-agent"
+        data-apple-surface="true"
+        data-testid="catalog-agent-entry"
+      >
         <MobileAgentComposer
           entryIntent={null}
           onEntryIntentConsumed={() => undefined}

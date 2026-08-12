@@ -93,6 +93,7 @@ export function SazoCommercePage() {
   return (
     <div
       className="sazo-root"
+      data-apple-design="true"
       data-auth-step={state.authStep}
       data-header-collapsed={headerCollapsed}
       data-hero-feed={state.heroFeed}

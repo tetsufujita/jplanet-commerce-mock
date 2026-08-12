@@ -607,6 +607,7 @@ function MobileAgentSearch({ compact }: { compact: boolean }) {
         aria-label={t("sazo.home.agentEntryGroup")}
         className="sazo-mobile-agent-entry sazo-home-agent-card"
         data-home-agent-entry
+        data-apple-surface="true"
         data-compact={compact ? "true" : undefined}
         role="group"
       >

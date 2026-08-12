@@ -112,6 +112,21 @@ describe("SAZO captured view contracts", () => {
     expect(screen.getByPlaceholderText("URL・画像・商品名をAIに渡す")).toBeTruthy();
   });
 
+  it("exposes the shared Apple-style category layout contract", async () => {
+    const { container } = await renderWithI18n(
+      <CategoriesView dispatch={noDispatch} state={createInitialSazoState()} />,
+    );
+
+    expect(container.querySelector('.sazo-category-layout[data-apple-layout="category"]')).not.toBeNull();
+
+    cleanup();
+    const { container: catalogContainer } = await renderWithI18n(
+      <CatalogView dispatch={noDispatch} state={stateWithCatalogMode("list")} />,
+    );
+
+    expect(catalogContainer.querySelector('.sazo-catalog-view[data-apple-layout="category"]')).not.toBeNull();
+  });
+
   it("keeps the category agent visible above directory controls on mobile", () => {
     const css = readFileSync(join(process.cwd(), "src/sazo-commerce/sazo.css"), "utf8");
     const mobileBlock = css.slice(css.lastIndexOf("@media (max-width: 767px)"));

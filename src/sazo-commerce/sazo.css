@@ -15855,3 +15855,136 @@
     animation: none !important;
   }
 }
+
+/* Apple / iPhone surface pass
+ * Shared visual language for the home, directory and agent surfaces. Keep this
+ * block late in the cascade so it can refine existing SAZO layout contracts
+ * without changing their content or navigation behavior. */
+.sazo-root[data-apple-design="true"] {
+  --jp-apple-bg: #f6f7fb;
+  --jp-apple-navy: #1f315d;
+  --jp-apple-pink: #ff8fa3;
+  --jp-apple-line: #e3e8f0;
+  --jp-apple-shadow: 0 12px 32px rgb(31 49 93 / 10%);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+
+.sazo-root[data-apple-design="true"] :is(button, a, input, textarea) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sazo-root[data-apple-design="true"] :is(button, a, input, textarea):focus-visible {
+  outline: 3px solid rgb(255 143 163 / 38%);
+  outline-offset: 2px;
+}
+
+.sazo-root[data-apple-design="true"] .sazo-home-agent-card[data-apple-surface="true"],
+.sazo-root[data-apple-design="true"] .sazo-directory-agent[data-apple-surface="true"],
+.sazo-root[data-apple-design="true"] .sazo-agent-hub [data-section="composer"][data-apple-surface="true"] {
+  border: 1px solid var(--jp-apple-line);
+  border-radius: 24px;
+  background: rgb(255 255 255 / 94%);
+  box-shadow: var(--jp-apple-shadow);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+@media screen and (max-width: 767px) {
+  .sazo-root[data-view="home"] .sazo-home-agent-card[data-apple-surface="true"] {
+    margin-inline: 12px;
+    border-radius: 22px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card[data-apple-surface="true"]
+    .sazo-home-agent-input-shell {
+    min-height: 52px;
+    border-radius: 18px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card[data-apple-surface="true"]
+    :is(.sazo-home-agent-plus, .sazo-home-agent-submit) {
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 14px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card[data-apple-surface="true"]
+    .sazo-mobile-agent-entry-main {
+    min-height: 44px;
+    font-size: 15px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-directory-agent[data-apple-surface="true"],
+  .sazo-root[data-view="catalog"] .sazo-directory-agent[data-apple-surface="true"] {
+    margin-inline: 12px;
+    border-radius: 22px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-layout,
+  .sazo-root[data-view="catalog"] .sazo-catalog-products {
+    background: var(--jp-apple-bg);
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-child-card {
+    min-height: 124px;
+    border-color: var(--jp-apple-line);
+    border-radius: 18px;
+    box-shadow: 0 8px 20px rgb(31 49 93 / 6%);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-header {
+    position: sticky;
+    z-index: 30;
+    top: 0;
+    background: rgb(255 255 255 / 88%);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub [data-section="composer"][data-apple-surface="true"] {
+    margin: 12px;
+    padding: 4px;
+    border-radius: 24px;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-input-shell {
+    min-height: 52px;
+    border-radius: 18px;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    :is(.sazo-mobile-agent-composer-plus, .sazo-mobile-agent-composer-submit) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub section[data-section]:not([data-section="composer"]) {
+    margin-inline: 12px;
+    border: 1px solid var(--jp-apple-line);
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 8px 20px rgb(31 49 93 / 6%);
+  }
+}
+
+@media (min-width: 768px) {
+  .sazo-root[data-view="categories"] .sazo-directory-agent[data-apple-surface="true"],
+  .sazo-root[data-view="catalog"] .sazo-directory-agent[data-apple-surface="true"] {
+    max-width: 1160px;
+    margin-inline: auto;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub {
+    max-width: 880px;
+    margin-inline: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sazo-root[data-apple-design="true"] * {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
