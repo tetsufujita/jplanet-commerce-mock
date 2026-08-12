@@ -15529,6 +15529,11 @@
     position: relative;
     z-index: 18;
     margin-top: -36px;
+    margin-inline: auto;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    padding-inline: 16px;
     background: transparent;
   }
 
@@ -15550,8 +15555,11 @@
   .sazo-root[data-view="home"] .sazo-mobile-agent-entry {
     display: block;
     width: 100%;
+    max-width: 100%;
     min-height: 0;
-    margin: 0;
+    margin-block: 0;
+    margin-inline: auto;
+    box-sizing: border-box;
     padding: 10px 12px 11px;
     border: 1px solid var(--jplanet-line);
     border-radius: 20px;

@@ -451,6 +451,33 @@ describe("SAZO home composition", () => {
     expect(compactAgentHeaderRules.at(-1)).toContain("display: grid;");
   });
 
+  it("keeps the compact home AI card centered with a symmetric mobile inset", () => {
+    const css = readFileSync(resolve("src/sazo-commerce/sazo.css"), "utf8");
+    const overlapRules = [
+      ...css.matchAll(
+        /\.sazo-root\[data-view="home"\] \.sazo-mobile-search-overlap\s*\{[^}]*\}/g,
+      ),
+    ].map((match) => match[0]);
+    const mobileEntryRules = [
+      ...css.matchAll(
+        /\.sazo-root\[data-view="home"\] \.sazo-mobile-agent-entry\s*\{[^}]*\}/g,
+      ),
+    ].map((match) => match[0]);
+
+    const overlapRule = overlapRules.at(-1);
+    const mobileEntryRule = mobileEntryRules
+      .filter((rule) => rule.includes("display: block;"))
+      .at(-1);
+
+    expect(overlapRule).toBeDefined();
+    expect(overlapRule).toContain("box-sizing: border-box;");
+    expect(overlapRule).toContain("margin-inline: auto;");
+    expect(overlapRule).toContain("padding-inline: 16px;");
+    expect(mobileEntryRule).toBeDefined();
+    expect(mobileEntryRule).toContain("box-sizing: border-box;");
+    expect(mobileEntryRule).toContain("margin-inline: auto;");
+  });
+
   it("replaces the mobile intro with a coupon and follows GRAM with category discovery", async () => {
     const dispatch = vi.fn();
 
