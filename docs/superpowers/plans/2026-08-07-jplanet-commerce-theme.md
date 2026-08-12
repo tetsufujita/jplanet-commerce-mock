@@ -21,8 +21,7 @@
 
 - Create `src/sazo-commerce/JplanetShortcutIcon.tsx`: 5種類のショートカット図像を描画する。
 - Create `public/sazo-commerce/jplanet-sakura-mark.png`: sir提供の桜マーク原典を公開用に保持する。
-- Create `tests/unit/sazo-jplanet-theme.test.ts`: ブランドトークン、旧色除去、ショートカット描画契約を検証する。
-- Create `scripts/sazo-jplanet-theme-browser.mjs`: 全ビューと認証状態をデスクトップ／モバイルで巡回する。
+- Create `scripts/sazo-jplanet-theme-browser.mjs`: 実ブラウザ上のブランドトークンを検証し、全ビューと認証状態をデスクトップ／モバイルで巡回する。
 - Modify `src/sazo-commerce/fixtures.ts`: ショートカットを画像URLからアイコン種別へ変更する。
 - Modify `src/sazo-commerce/HomeView.tsx`: 新アイコンと`new`バッジを描画する。
 - Modify `src/sazo-commerce/model.ts`: QA時だけビューと認証状態を直接指定できるようにする。
@@ -37,7 +36,7 @@
 ### Task 1: J-Planet Brand Tokens
 
 **Files:**
-- Create: `tests/unit/sazo-jplanet-theme.test.ts`
+- Create: `scripts/sazo-jplanet-theme-browser.mjs`
 - Modify: `src/sazo-commerce/sazo.css:1-15`
 - Modify: `tests/unit/sazo-commerce-account.test.tsx:168-174`
 
@@ -60,31 +59,29 @@ Expected: 17 tests PASS。
 
 - [ ] **Step 1: ブランドトークンの失敗テストを書く**
 
-```ts
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+```js
+const root = page.locator(".sazo-root");
+const palette = await root.evaluate((element) => {
+  const style = getComputedStyle(element);
+  return {
+    navy: style.getPropertyValue("--jplanet-navy").trim(),
+    deepNavy: style.getPropertyValue("--jplanet-deep-navy").trim(),
+    sakura: style.getPropertyValue("--jplanet-sakura").trim(),
+    surface: style.getPropertyValue("--jplanet-surface").trim(),
+  };
+});
 
-const css = readFileSync(
-  join(process.cwd(), "src/sazo-commerce/sazo.css"),
-  "utf8",
-).toLowerCase();
-
-describe("J-Planet commerce theme", () => {
-  it("uses the exact supplied J-Planet palette", () => {
-    expect(css).toContain("--jplanet-navy: #1f3864");
-    expect(css).toContain("--jplanet-deep-navy: #1f2e4f");
-    expect(css).toContain("--jplanet-sakura: #fea2ac");
-    expect(css).toContain("--jplanet-surface: #ffffff");
-    expect(css).toContain("--jplanet-sakura-soft: #fff4f5");
-    expect(css).toContain("--jplanet-blue-soft: #f3f6fb");
-  });
+assert.deepEqual(palette, {
+  navy: "#1f3864",
+  deepNavy: "#1f2e4f",
+  sakura: "#fea2ac",
+  surface: "#ffffff",
 });
 ```
 
 - [ ] **Step 2: REDを確認する**
 
-Run: `pnpm vitest run tests/unit/sazo-jplanet-theme.test.ts`
+Run: `node scripts/sazo-jplanet-theme-browser.mjs`
 
 Expected: `--jplanet-navy`が存在しないためFAIL。
 
@@ -110,14 +107,14 @@ Expected: `--jplanet-navy`が存在しないためFAIL。
 
 - [ ] **Step 4: GREENを確認する**
 
-Run: `pnpm vitest run tests/unit/sazo-jplanet-theme.test.ts tests/unit/sazo-commerce-shell.test.tsx`
+Run: `node scripts/sazo-jplanet-theme-browser.mjs && pnpm vitest run tests/unit/sazo-commerce-shell.test.tsx`
 
 Expected: 全テストPASS。
 
 - [ ] **Step 5: ブランドトークン変更をコミットする**
 
 ```bash
-git add src/sazo-commerce/sazo.css tests/unit/sazo-jplanet-theme.test.ts
+git add src/sazo-commerce/sazo.css scripts/sazo-jplanet-theme-browser.mjs
 git commit -m "feat: add J-Planet commerce color tokens"
 ```
 
@@ -192,7 +189,7 @@ export interface Shortcut {
 
 `tests/unit/sazo-commerce-model.test.ts`の画像一覧から`shortcuts`を外し、ショートカットIDの重複がないことを別アサーションで確認する。
 
-Run: `pnpm vitest run tests/unit/sazo-commerce-home.test.tsx tests/unit/sazo-commerce-model.test.ts tests/unit/sazo-jplanet-theme.test.ts`
+Run: `pnpm vitest run tests/unit/sazo-commerce-home.test.tsx tests/unit/sazo-commerce-model.test.ts`
 
 Expected: 全テストPASS。
 
@@ -207,39 +204,32 @@ git commit -m "feat: add pop J-Planet shortcut icons"
 
 **Files:**
 - Modify: `src/sazo-commerce/sazo.css:1-5796`
-- Modify: `tests/unit/sazo-jplanet-theme.test.ts`
+- Modify: `scripts/sazo-jplanet-theme-browser.mjs`
 
 **Interfaces:**
 - Consumes: Task 1の全J-Planetトークン。
 - Produces: 全12ビュー、認証、チャット、サービスLPで共通のブランド配色。
 
-- [ ] **Step 1: 旧ブランド色を拒否する失敗テストを書く**
+- [ ] **Step 1: 代表UIの旧ブランド色を拒否する実ブラウザ失敗テストを書く**
 
-```ts
-it("removes legacy SAZO brand colors from the commerce stylesheet", () => {
-  for (const legacyColor of [
-    "#e52969",
-    "#eb3658",
-    "#ef4666",
-    "#d83252",
-    "#fe8291",
-  ]) {
-    expect(css).not.toContain(legacyColor);
-  }
-
-  for (const legacyToken of [
-    "--sazo-pink",
-    "--sazo-lp-pink",
-    "--sazo-lp-pink-hover",
-  ]) {
-    expect(css).not.toContain(legacyToken);
-  }
-});
+```js
+assert.equal(
+  await page.locator('.sazo-secondary-button[aria-pressed="true"]').evaluate(
+    (element) => getComputedStyle(element).color,
+  ),
+  "rgb(31, 56, 100)",
+);
+assert.equal(
+  await page.locator(".sazo-chat-button").evaluate(
+    (element) => getComputedStyle(element).backgroundColor,
+  ),
+  "rgb(254, 162, 172)",
+);
 ```
 
 - [ ] **Step 2: REDを確認する**
 
-Run: `pnpm vitest run tests/unit/sazo-jplanet-theme.test.ts`
+Run: `node scripts/sazo-jplanet-theme-browser.mjs`
 
 Expected: 旧SAZO色とLPトークンが残っているためFAIL。
 
@@ -253,14 +243,14 @@ Expected: 旧SAZO色とLPトークンが残っているためFAIL。
 
 - [ ] **Step 4: GREENと関連ビュー回帰を確認する**
 
-Run: `pnpm vitest run tests/unit/sazo-jplanet-theme.test.ts tests/unit/sazo-commerce-shell.test.tsx tests/unit/sazo-commerce-home.test.tsx tests/unit/sazo-commerce-views.test.tsx tests/unit/sazo-commerce-account.test.tsx tests/unit/sazo-service-typography.test.ts`
+Run: `node scripts/sazo-jplanet-theme-browser.mjs && pnpm vitest run tests/unit/sazo-commerce-shell.test.tsx tests/unit/sazo-commerce-home.test.tsx tests/unit/sazo-commerce-views.test.tsx tests/unit/sazo-commerce-account.test.tsx tests/unit/sazo-service-typography.test.ts`
 
 Expected: 全テストPASS。
 
 - [ ] **Step 5: 全ページ配色変更をコミットする**
 
 ```bash
-git add src/sazo-commerce/sazo.css tests/unit/sazo-jplanet-theme.test.ts
+git add src/sazo-commerce/sazo.css scripts/sazo-jplanet-theme-browser.mjs
 git commit -m "feat: apply J-Planet colors across commerce views"
 ```
 
@@ -269,7 +259,7 @@ git commit -m "feat: apply J-Planet colors across commerce views"
 **Files:**
 - Modify: `src/sazo-commerce/model.ts:145-195`
 - Modify: `tests/unit/sazo-commerce-model.test.ts`
-- Create: `scripts/sazo-jplanet-theme-browser.mjs`
+- Modify: `scripts/sazo-jplanet-theme-browser.mjs`
 
 **Interfaces:**
 - Produces: QA query `?qa=1&view=<SazoView>`。
@@ -337,7 +327,7 @@ Expected: 0 matches。
 
 - [ ] **Step 2: 関連テスト一式を実行する**
 
-Run: `pnpm vitest run tests/unit/sazo-jplanet-theme.test.ts tests/unit/sazo-commerce-shell.test.tsx tests/unit/sazo-commerce-home.test.tsx tests/unit/sazo-commerce-model.test.ts tests/unit/sazo-commerce-views.test.tsx tests/unit/sazo-commerce-account.test.tsx tests/unit/sazo-service-typography.test.ts`
+Run: `pnpm vitest run tests/unit/sazo-commerce-shell.test.tsx tests/unit/sazo-commerce-home.test.tsx tests/unit/sazo-commerce-model.test.ts tests/unit/sazo-commerce-views.test.tsx tests/unit/sazo-commerce-account.test.tsx tests/unit/sazo-service-typography.test.ts`
 
 Expected: 0 failures。
 

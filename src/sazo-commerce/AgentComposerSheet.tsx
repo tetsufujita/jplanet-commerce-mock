@@ -168,8 +168,6 @@ export function AgentComposerSheet({ dispatch }: AgentComposerSheetProps) {
           </button>
         </header>
 
-        <p className="sazo-agent-intro">{t("sazo.agent.intro")}</p>
-
         <div
           aria-label={t("sazo.agent.inputMethods")}
           className="sazo-agent-chips"

@@ -147,6 +147,46 @@ describe("SazoCommercePage shell", () => {
     }
   });
 
+  it("opens notifications from the fixed mobile navigation", async () => {
+    const { container } = await renderSazoCommercePage();
+    const mobileShell = getShell(container, "mobile");
+    const mobileNav = within(mobileShell).getByRole("navigation", {
+      name: "モバイルメニュー",
+    });
+    const notificationButton = within(mobileNav).getByRole("button", { name: "通知" });
+
+    expect(notificationButton.getAttribute("aria-pressed")).toBe("false");
+
+    fireEvent.click(notificationButton);
+
+    await waitFor(() => {
+      expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
+        "notifications",
+      );
+      expect(notificationButton.getAttribute("aria-pressed")).toBe("true");
+    });
+  });
+
+  it("opens the cart from the desktop header and keeps items unselected by default", async () => {
+    const { container } = await renderSazoCommercePage();
+    const desktopShell = getShell(container, "desktop");
+    const desktopHeader = within(desktopShell).getByRole("banner");
+
+    fireEvent.click(within(desktopHeader).getByRole("button", { name: "カート" }));
+
+    await waitFor(() => {
+      expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
+        "cart",
+      );
+    });
+
+    expect(screen.getByRole("heading", { name: "ショッピングカート" })).toBeTruthy();
+    expect(screen.getAllByTestId("cart-item")).toHaveLength(2);
+    expect(screen.getAllByRole("checkbox").every((checkbox) => !(checkbox as HTMLInputElement).checked)).toBe(true);
+    expect(screen.getByText("¥0")).toBeTruthy();
+    expect(screen.getByTestId("cart-recommendations")).toBeTruthy();
+  });
+
   it("removes the duplicated mobile secondary menu from the home shell", async () => {
     const { container } = await renderSazoCommercePage();
     const mobileShell = getShell(container, "mobile");
@@ -155,9 +195,20 @@ describe("SazoCommercePage shell", () => {
       name: "モバイルメニュー",
     });
 
-    for (const label of ["言語", "検索", "カート"]) {
+    for (const label of ["言語", "カート", "検索"]) {
       expect(within(mobileHeader).getByRole("button", { name: label })).toBeTruthy();
     }
+
+    expect(
+      within(mobileHeader).getByRole("button", { name: "カート" }).querySelector(
+        ".lucide-shopping-cart",
+      ),
+    ).not.toBeNull();
+    expect(
+      within(mobileHeader).getByRole("button", { name: "検索" }).querySelector(
+        ".lucide-search",
+      ),
+    ).not.toBeNull();
 
     expect(
       within(mobileHeader).queryByRole("navigation", {
@@ -165,6 +216,23 @@ describe("SazoCommercePage shell", () => {
       }),
     ).toBeNull();
     expect(within(mobileNav).getByRole("button", { name: "ホーム" })).toBeTruthy();
+  });
+
+  it("opens the empty agent search state from the mobile header search button", async () => {
+    const { container } = await renderSazoCommercePage();
+    const mobileShell = getShell(container, "mobile");
+    const mobileHeader = within(mobileShell).getByRole("banner");
+
+    fireEvent.click(within(mobileHeader).getByRole("button", { name: "検索" }));
+
+    await waitFor(() => {
+      expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
+        "agent-hub",
+      );
+    });
+    expect(container.querySelector("[data-mobile-agent-hub]")).not.toBeNull();
+    expect(screen.queryByRole("dialog", { name: "J-Planet AIエージェント" })).toBeNull();
+    expect(screen.getByPlaceholderText("URL・画像・商品名をAIに渡す")).toBeTruthy();
   });
 
   it("keeps the complete mobile secondary menu after opening support", async () => {

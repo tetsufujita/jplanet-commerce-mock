@@ -621,7 +621,6 @@ function MobileAgentSearch({ compact }: { compact: boolean }) {
           />
           <div>
             <strong>{t("sazo.agentHub.composer.title")}</strong>
-            <span>{t("sazo.agentHub.composer.intro")}</span>
           </div>
         </header>
         <form className="sazo-home-agent-form" onSubmit={submit}>

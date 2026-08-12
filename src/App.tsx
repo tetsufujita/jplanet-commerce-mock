@@ -24,6 +24,25 @@ const SazoCommercePage = lazy(() =>
   })),
 );
 
+function SazoCommerceRoute() {
+  return (
+    <Suspense fallback={null}>
+      <SazoCommercePage />
+    </Suspense>
+  );
+}
+
+function isPublicJPlanetHost() {
+  return (
+    typeof window !== "undefined" &&
+    (window.location.hostname ===
+      "jplanet-commerce-mock-public.tetsu-fujita.chatgpt.site" ||
+      window.location.hostname.endsWith(
+        ".jplanet-commerce-mock-public.tetsu-fujita.chatgpt.site",
+      ))
+  );
+}
+
 function LocalizedHomeRoute() {
   const { locale } = useParams();
   const { i18n } = useTranslation();
@@ -41,13 +60,20 @@ function LocalizedHomeRoute() {
     return <Navigate to={`/${defaultLocale}`} replace />;
   }
 
+  // The public Sites deployment is dedicated to the J-Planet mock. Keep the
+  // corporate localized route available in the source app while ensuring that
+  // a shared public URL cannot accidentally expose the Andes landing page.
+  if (isPublicJPlanetHost()) {
+    return <SazoCommerceRoute />;
+  }
+
   return <HomePage />;
 }
 
 export function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={`/${defaultLocale}`} replace />} />
+      <Route path="/" element={<SazoCommerceRoute />} />
       <Route
         path="/shopify-jp"
         element={
@@ -72,14 +98,7 @@ export function App() {
           </Suspense>
         }
       />
-      <Route
-        path="/sazo-commerce-mock/*"
-        element={
-          <Suspense fallback={null}>
-            <SazoCommercePage />
-          </Suspense>
-        }
-      />
+      <Route path="/sazo-commerce-mock/*" element={<SazoCommerceRoute />} />
       <Route path="/:locale" element={<LocalizedHomeRoute />} />
       <Route path="*" element={<Navigate to={`/${defaultLocale}`} replace />} />
     </Routes>

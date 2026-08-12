@@ -39,24 +39,36 @@ async function renderComposer({
 }
 
 describe("MobileAgentComposer", () => {
-  it("shows all modes and enables submit only when input exists", async () => {
+  it("keeps the composer compact and exposes camera/gallery choices from the plus menu", async () => {
     await renderComposer({ entryIntent: "compose" });
 
-    expect(screen.getByRole("button", { name: "URLを貼る" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "画像を追加" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "商品名で相談" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "入力メニュー" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "URLを貼る" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "商品名で相談" })).toBeNull();
+    expect(screen.getByTestId("composer-ai-mark")).toBeTruthy();
     expect(
-      screen.getByRole<HTMLButtonElement>("button", { name: "AIに探してもらう" })
+      screen.getByRole("textbox", { name: "URL・画像・商品名をAIに渡す" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", { name: "送信" })
         .disabled,
     ).toBe(true);
 
-    fireEvent.click(screen.getByRole("button", { name: "商品名で相談" }));
-    fireEvent.change(screen.getByRole("textbox", { name: "探したい商品" }), {
+    fireEvent.click(screen.getByRole("button", { name: "入力メニュー" }));
+    expect(screen.getByRole("menuitem", { name: "ギャラリー" })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: "カメラ" })).toBeTruthy();
+    expect(screen.queryByRole("menuitem", { name: "URLを貼る" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: "商品名で相談" })).toBeNull();
+
+    fireEvent.change(
+      screen.getByRole("textbox", { name: "URL・画像・商品名をAIに渡す" }),
+      {
       target: { value: "日本限定スニーカー" },
-    });
+      },
+    );
 
     expect(
-      screen.getByRole<HTMLButtonElement>("button", { name: "AIに探してもらう" })
+      screen.getByRole<HTMLButtonElement>("button", { name: "送信" })
         .disabled,
     ).toBe(false);
   });
@@ -67,14 +79,14 @@ describe("MobileAgentComposer", () => {
     const { unmount } = await renderComposer({ entryIntent: "image-picker" });
     const file = new File(["image"], "item.png", { type: "image/png" });
 
-    fireEvent.change(screen.getByLabelText("画像を選択"), {
+    fireEvent.change(screen.getByLabelText("ギャラリー"), {
       target: { files: [file] },
     });
 
     const preview = screen.getByRole("img", { name: "選択した画像: item.png" });
     expect(preview.getAttribute("src")).toBe("blob:preview");
     expect(
-      screen.getByRole<HTMLButtonElement>("button", { name: "AIに探してもらう" })
+      screen.getByRole<HTMLButtonElement>("button", { name: "送信" })
         .disabled,
     ).toBe(false);
 
@@ -82,19 +94,29 @@ describe("MobileAgentComposer", () => {
     expect(revoke).toHaveBeenCalledWith("blob:preview");
   });
 
-  it("keeps the visible image fallback focusable and opens the hidden picker", async () => {
+  it("opens a camera-capable picker from the plus menu", async () => {
+    const click = vi.spyOn(HTMLInputElement.prototype, "click");
+    await renderComposer();
+
+    fireEvent.click(screen.getByRole("button", { name: "入力メニュー" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "カメラ" }));
+
+    expect(click).toHaveBeenCalledTimes(1);
+    expect(screen.getByLabelText("カメラ").getAttribute("capture")).toBe(
+      "environment",
+    );
+  });
+
+  it("opens the hidden picker from the plus menu", async () => {
     const click = vi.spyOn(HTMLInputElement.prototype, "click");
     await renderComposer({ entryIntent: "image-picker" });
     click.mockClear();
 
-    const fallback = screen.getByRole<HTMLButtonElement>("button", {
-      name: "画像を選択",
+    fireEvent.click(screen.getByRole("button", { name: "入力メニュー" }));
+    const fallback = screen.getByRole<HTMLButtonElement>("menuitem", {
+      name: "ギャラリー",
     });
-    fallback.focus();
 
-    expect(fallback.type).toBe("button");
-    expect(fallback.tabIndex).toBe(0);
-    expect(document.activeElement).toBe(fallback);
     fireEvent.click(fallback);
     expect(click).toHaveBeenCalledTimes(1);
   });
@@ -103,7 +125,7 @@ describe("MobileAgentComposer", () => {
     await renderComposer({ entryIntent: "image-picker" });
     const file = new File(["text"], "notes.txt", { type: "text/plain" });
 
-    fireEvent.change(screen.getByLabelText("画像を選択"), {
+    fireEvent.change(screen.getByLabelText("ギャラリー"), {
       target: { files: [file] },
     });
 
@@ -120,11 +142,11 @@ describe("MobileAgentComposer", () => {
     const firstFile = new File(["first"], "first.png", { type: "image/png" });
     const secondFile = new File(["second"], "second.png", { type: "image/png" });
 
-    fireEvent.change(screen.getByLabelText("画像を選択"), {
+    fireEvent.change(screen.getByLabelText("ギャラリー"), {
       target: { files: [firstFile] },
     });
     fireEvent.click(screen.getByRole("button", { name: "画像を差し替える" }));
-    fireEvent.change(screen.getByLabelText("画像を選択"), {
+    fireEvent.change(screen.getByLabelText("ギャラリー"), {
       target: { files: [secondFile] },
     });
     fireEvent.click(screen.getByRole("button", { name: "画像を削除" }));
@@ -186,14 +208,13 @@ describe("MobileAgentComposer", () => {
     expect(onEntryIntentConsumed).toHaveBeenCalledTimes(1);
   });
 
-  it("uses a seed product name as a product-name consultation", async () => {
+  it("uses a seed product name in the shared AI input", async () => {
     await renderComposer({ seedRequest: { revision: 1, value: "日本限定スニーカー" } });
 
     expect(
-      screen.getByRole("button", { name: "商品名で相談" }).getAttribute("aria-pressed"),
-    ).toBe("true");
-    expect(
-      screen.getByRole<HTMLTextAreaElement>("textbox", { name: "探したい商品" }).value,
+      screen.getByRole<HTMLTextAreaElement>("textbox", {
+        name: "URL・画像・商品名をAIに渡す",
+      }).value,
     ).toBe("日本限定スニーカー");
   });
 
@@ -202,10 +223,13 @@ describe("MobileAgentComposer", () => {
     vi.stubGlobal("fetch", fetchMock);
     await renderComposer();
 
-    fireEvent.change(screen.getByRole("textbox", { name: "探したい商品" }), {
+    fireEvent.change(
+      screen.getByRole("textbox", { name: "URL・画像・商品名をAIに渡す" }),
+      {
       target: { value: "日本限定スニーカー" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "AIに探してもらう" }));
+      },
+    );
+    fireEvent.click(screen.getByRole("button", { name: "送信" }));
 
     expect(screen.getByRole("status").textContent).toBe(
       "AIエージェントが商品を探し始めました",

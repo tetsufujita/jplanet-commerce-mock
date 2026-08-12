@@ -160,7 +160,6 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
           />
           <div>
             <h1>{t("sazo.agentHub.composer.title")}</h1>
-            <p>{t("sazo.agentHub.composer.intro")}</p>
           </div>
         </header>
 

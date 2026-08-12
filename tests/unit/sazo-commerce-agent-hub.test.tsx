@@ -88,7 +88,7 @@ describe("MobileAgentHubView", () => {
     expect(screen.getByText("最近の相談")).toBeTruthy();
     expect(screen.getByText("最近見た商品")).toBeTruthy();
     expect(screen.getByText("J-Planet AI")).toBeTruthy();
-    expect(screen.getByText("ブラジルで人気の日本アイテム")).toBeTruthy();
+    expect(screen.getByText("人気キーワード")).toBeTruthy();
     expect(screen.getAllByRole("listitem", { name: /位/ })).toHaveLength(20);
   });
 
@@ -152,6 +152,18 @@ describe("MobileAgentHubView", () => {
     expect(container.querySelector(".sazo-agent-hub-footer")).not.toBeNull();
   });
 
+  it("keeps purchase progress and document attachment out of the agent hub", async () => {
+    await renderHub("ja");
+
+    expect(screen.queryByText("進行中の購入依頼")).toBeNull();
+    expect(screen.queryByText("日本側で購入準備中")).toBeNull();
+    expect(screen.queryByText("配送手配")).toBeNull();
+    expect(screen.queryByText("追加書類を添付")).toBeNull();
+    expect(screen.queryByRole("button", { name: "カメラで撮影" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "写真を選択" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "PDFを添付" })).toBeNull();
+  });
+
   it("dispatches home and product actions while seeding the composer from ranked topics", async () => {
     const dispatch = vi.fn();
     await renderHub("ja", dispatch);
@@ -181,9 +193,10 @@ describe("MobileAgentHubView", () => {
     expect(dispatch).not.toHaveBeenCalledWith({ type: "open-agent" });
     expect(dispatch).toHaveBeenCalledTimes(2);
     expect(
-      screen.getByRole("button", { name: "商品名で相談" }).getAttribute("aria-pressed"),
-    ).toBe("true");
-    expect(screen.getByRole<HTMLTextAreaElement>("textbox", { name: "探したい商品" }).value).toBe(
+      screen.getByRole<HTMLTextAreaElement>("textbox", {
+        name: "URL・画像・商品名をAIに渡す",
+      }).value,
+    ).toBe(
       "アニメグッズ",
     );
   });
@@ -194,7 +207,7 @@ describe("MobileAgentHubView", () => {
 
     fireEvent.click(rankedTopic);
     const draft = screen.getByRole<HTMLTextAreaElement>("textbox", {
-      name: "探したい商品",
+      name: "URL・画像・商品名をAIに渡す",
     });
     expect(draft.value).toBe("アニメグッズ");
 
@@ -227,7 +240,7 @@ describe("MobileAgentHubView", () => {
     [
       "ja",
       "URL・画像・商品名をAIに相談",
-      ["最近の相談", "最近見た商品", "J-Planet AI", "ブラジルで人気の日本アイテム"],
+      ["最近の相談", "最近見た商品", "J-Planet AI", "人気キーワード"],
     ],
     [
       "en",
@@ -236,7 +249,7 @@ describe("MobileAgentHubView", () => {
         "Recent consultations",
         "Recently viewed products",
         "J-Planet AI",
-        "Popular Japanese items in Brazil",
+        "Popular keywords",
       ],
     ],
     [
@@ -246,7 +259,7 @@ describe("MobileAgentHubView", () => {
         "Consultas recentes",
         "Produtos vistos recentemente",
         "J-Planet AI",
-        "Itens japoneses populares no Brasil",
+        "Palavras-chave populares",
       ],
     ],
   ] as const)(

@@ -62,7 +62,6 @@ function Composer({ variant }: { variant: CandidateId }) {
           <span className="agent-design-avatar">✿</span>
           <div>
             <strong>J-Planet AIエージェント</strong>
-            <p>日本の商品探し・購入からブラジルへの配送まで、AIがサポートします。</p>
           </div>
         </div>
       ) : null}

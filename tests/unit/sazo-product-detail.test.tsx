@@ -131,17 +131,34 @@ describe("SAZO product detail navigation", () => {
     });
 
     fireEvent.click(initialCartButton);
+    const initialOrderSheet = document.querySelector<HTMLElement>(
+      ".sazo-product-detail-checkout-rail[data-open='true']",
+    );
+    if (initialOrderSheet === null) {
+      throw new Error("Missing initial order sheet");
+    }
+    fireEvent.click(
+      within(initialOrderSheet).getByRole("button", { name: "カートに入れる" }),
+    );
     expect(within(initialHeroForm).getByRole("status").textContent).toContain(
       "カートに追加しました",
+    );
+    fireEvent.click(
+      within(initialOrderSheet).getByRole("button", { name: "注文シートを閉じる" }),
     );
 
     document.documentElement.scrollTop = 1186;
     document.body.scrollTop = 1186;
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: `商品詳細を開く: ${secondProduct.name}`,
-      }),
-    );
+    const recommendationButtons = screen.getAllByRole("button", {
+      name: `商品詳細を開く: ${secondProduct.name}`,
+    });
+    const firstRecommendationButton = recommendationButtons[0];
+
+    if (firstRecommendationButton === undefined) {
+      throw new Error("Missing recommendation product control");
+    }
+
+    fireEvent.click(firstRecommendationButton);
 
     await waitFor(() => {
       expect(document.documentElement.scrollTop).toBe(0);
@@ -209,7 +226,8 @@ describe("J-Planet product detail experience", () => {
     expect(sourceLink.getAttribute("target")).toBe("_blank");
     expect(sourceLink.getAttribute("rel")).toContain("noreferrer");
     expect(screen.getByTestId("product-source-badge").textContent).toBe("11D");
-    expect(screen.getByText("J-Planet直輸入商品")).toBeTruthy();
+    expect(screen.getByText("通常日本商品")).toBeTruthy();
+    expect(screen.getByText("日本の素敵な商品をすぐにお届けします。")).toBeTruthy();
     expect(screen.getByText("ご注文日から平均9日")).toBeTruthy();
   });
 
@@ -339,6 +357,131 @@ describe("J-Planet product detail experience", () => {
     );
 
     expect(document.activeElement).toBe(heroOption);
+  });
+
+  it("keeps only cart and buy-now actions in the fixed mobile purchase bar", async () => {
+    const { container } = await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+    );
+    const mobileActions = container.querySelector<HTMLElement>(
+      ".sazo-product-mobile-purchase",
+    );
+
+    if (mobileActions === null) {
+      throw new Error("Missing mobile purchase actions");
+    }
+
+    expect(mobileActions.querySelectorAll("button")).toHaveLength(2);
+    expect(within(mobileActions).queryByText("ご注文金額合計")).toBeNull();
+    expect(
+      within(mobileActions).getByRole("button", { name: "カートに入れる" }),
+    ).toBeTruthy();
+    expect(
+      within(mobileActions).getByRole("button", { name: "今すぐ買う" }),
+    ).toBeTruthy();
+  });
+
+  it("opens a bottom order sheet with only the selected purchase intent", async () => {
+    const { container } = await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+    );
+    const heroForm = container.querySelector<HTMLFormElement>(
+      "form[data-product-purchase-form]",
+    );
+    const mobileActions = container.querySelector<HTMLElement>(
+      ".sazo-product-mobile-purchase",
+    );
+
+    if (heroForm === null || mobileActions === null) {
+      throw new Error("Missing product purchase controls");
+    }
+
+    fireEvent.change(within(heroForm).getByLabelText("商品オプション"), {
+      target: { value: "標準" },
+    });
+    fireEvent.click(
+      within(mobileActions).getByRole("button", { name: "カートに入れる" }),
+    );
+
+    const sheet = container.querySelector<HTMLElement>(
+      ".sazo-product-detail-checkout-rail[data-open='true']",
+    );
+    expect(sheet).not.toBeNull();
+    if (sheet === null) {
+      throw new Error("Missing open order sheet");
+    }
+
+    const stickyForm = sheet.querySelector<HTMLFormElement>(
+      "form[data-product-purchase-form]",
+    );
+    if (stickyForm === null) {
+      throw new Error("Missing order sheet form");
+    }
+
+    expect(
+      within(stickyForm).getByRole("button", { name: "カートに入れる" }),
+    ).toBeTruthy();
+    expect(within(stickyForm).queryByRole("button", { name: "今すぐ買う" })).toBeNull();
+
+    fireEvent.click(within(sheet).getByRole("button", { name: "注文シートを閉じる" }));
+    expect(
+      container.querySelector(".sazo-product-detail-checkout-rail[data-open='true']"),
+    ).toBeNull();
+
+    fireEvent.click(
+      within(mobileActions).getByRole("button", { name: "今すぐ買う" }),
+    );
+    const reopenedSheet = container.querySelector<HTMLElement>(
+      ".sazo-product-detail-checkout-rail[data-open='true']",
+    );
+    expect(reopenedSheet).not.toBeNull();
+    if (reopenedSheet === null) {
+      throw new Error("Missing reopened order sheet");
+    }
+    const reopenedForm = reopenedSheet.querySelector<HTMLFormElement>(
+      "form[data-product-purchase-form]",
+    );
+    if (reopenedForm === null) {
+      throw new Error("Missing reopened order sheet form");
+    }
+
+    expect(within(reopenedForm).getByRole("button", { name: "今すぐ買う" })).toBeTruthy();
+    expect(
+      within(reopenedForm).queryByRole("button", { name: "カートに入れる" }),
+    ).toBeNull();
+  });
+
+  it("confirms the cart intent inside the sheet and keeps purchase feedback visible", async () => {
+    const { container } = await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+    );
+    const heroForm = container.querySelector<HTMLFormElement>(
+      "form[data-product-purchase-form]",
+    );
+    const mobileActions = container.querySelector<HTMLElement>(
+      ".sazo-product-mobile-purchase",
+    );
+
+    if (heroForm === null || mobileActions === null) {
+      throw new Error("Missing product purchase controls");
+    }
+
+    fireEvent.change(within(heroForm).getByLabelText("商品オプション"), {
+      target: { value: "標準" },
+    });
+    fireEvent.click(
+      within(mobileActions).getByRole("button", { name: "カートに入れる" }),
+    );
+
+    const sheetForm = container.querySelectorAll<HTMLFormElement>(
+      "form[data-product-purchase-form]",
+    )[1];
+    if (sheetForm === undefined) {
+      throw new Error("Missing order sheet form");
+    }
+
+    fireEvent.click(within(sheetForm).getByRole("button", { name: "カートに入れる" }));
+    expect(screen.getByRole("status").textContent).toContain("カートに追加しました");
   });
 
   it("announces shared purchase feedback once while rendering it in both panels", async () => {
@@ -479,12 +622,12 @@ describe("J-Planet product detail experience", () => {
     );
 
     expect(screen.getByRole("heading", { name: product.name })).toBeTruthy();
-    expect(screen.getAllByText("日本の販売サイトから直接購入")).toHaveLength(2);
+    expect(screen.getAllByText("日本の素敵な商品をすぐにお届けします。")).toHaveLength(1);
     expect(screen.getByText("日本で購入")).toBeTruthy();
     expect(screen.getByText("ブラジルへお届け")).toBeTruthy();
     expect(screen.getByRole("tab", { name: "商品情報" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "なぜJ-Planetなのか？" })).toBeTruthy();
-    expect(screen.getByText("レビューがありません。")).toBeTruthy();
+    expect(screen.getByText("レビューを見る")).toBeTruthy();
     expect(screen.getByText("販売元の在庫について")).toBeTruthy();
     expect(screen.getByText("ブラジルの輸入制限")).toBeTruthy();
     expect(screen.getByText("返品・返金サポート")).toBeTruthy();
@@ -505,9 +648,9 @@ describe("J-Planet product detail experience", () => {
     const recommendation = container.querySelector<HTMLElement>(
       ".sazo-product-detail-recommendations",
     );
-    const campaign = screen.getByRole("region", {
-      name: "J-Planet 日本からブラジルへ",
-    });
+    expect(
+      screen.queryByRole("region", { name: "J-Planet 日本からブラジルへ" }),
+    ).toBeNull();
 
     expect(commerceGrid).not.toBeNull();
     expect(checkout).not.toBeNull();
@@ -522,10 +665,10 @@ describe("J-Planet product detail experience", () => {
     expect(commerceGrid?.children[1]).toBe(leftFlow);
     expect(Array.from(leftFlow?.children ?? [], (node) => node.className)).toEqual([
       expect.stringContaining("sazo-product-detail-information"),
-      expect.stringContaining("sazo-product-campaign"),
       expect.stringContaining("sazo-product-detail-review"),
       expect.stringContaining("sazo-product-detail-cautions"),
       expect.stringContaining("sazo-product-detail-benefits"),
+      expect.stringContaining("sazo-product-detail-selected-recommendations"),
     ]);
 
     const stages = Array.from(container.querySelectorAll(".sazo-product-order-flow li"));
@@ -566,9 +709,25 @@ describe("J-Planet product detail experience", () => {
       within(recommendation).getAllByRole("button", { name: /商品詳細を開く/ }),
     ).toHaveLength(6);
     expect(within(recommendation).getByRole("button", { name: "次の商品" })).toBeTruthy();
-    expect(campaign.textContent).toContain("日本の販売サイトから直接購入");
-    expect(campaign.textContent).toContain("ブラジルへお届け");
-    expect(campaign.textContent).not.toMatch(/SAZO|韓国|KOREA|TO JAPAN/i);
+    const reviewList = screen.getByTestId("product-review-list");
+    expect(reviewList.querySelectorAll("article")).toHaveLength(5);
+    expect(reviewList.querySelectorAll("img")).toHaveLength(5);
+    expect(screen.getByText("レビューを見る")).toBeTruthy();
+
+    const benefitDetails = container.querySelectorAll<HTMLDetailsElement>(
+      ".sazo-product-detail-benefit-card details",
+    );
+    expect(benefitDetails).toHaveLength(3);
+    expect(Array.from(benefitDetails).every((detail) => !detail.open)).toBe(true);
+    const viewAllBenefits = screen.getByRole("button", { name: "すべて見る" });
+    fireEvent.click(viewAllBenefits);
+    expect(Array.from(benefitDetails).every((detail) => detail.open)).toBe(true);
+    expect(screen.getByRole("button", { name: "閉じる" })).toBeTruthy();
+    expect(
+      screen.getByText(
+        "URLや画像、商品名をAIに渡すだけで、日本の販売サイトから候補を整理して提案します。",
+      ),
+    ).toBeTruthy();
   });
 
   it("scrolls the recommendation rail by most of its visible width", async () => {
@@ -594,6 +753,47 @@ describe("J-Planet product detail experience", () => {
       behavior: "smooth",
       left: 820,
     });
+  });
+
+  it("continues below the benefits with a vertical two-column selected-product grid", async () => {
+    const { container } = await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+    );
+
+    const rail = screen.getByTestId("product-selected-recommendations");
+    expect(rail.getAttribute("aria-label")).toBe("この商品を選んだ人におすすめ");
+    expect(
+      container.querySelector(".sazo-product-detail-benefits")?.nextElementSibling,
+    ).toBe(rail);
+
+    const track = rail.querySelector<HTMLDivElement>(
+      ".sazo-product-detail-recommendation-track",
+    );
+
+    if (track === null) {
+      throw new Error("Missing selected-product recommendation track");
+    }
+
+    expect(track.querySelectorAll(".sazo-product-card")).toHaveLength(6);
+    expect(track.getAttribute("data-layout")).toBe("grid");
+    expect(track.getAttribute("data-scroll-axis")).toBe("vertical");
+    expect(within(rail).queryByRole("button", { name: "次の商品" })).toBeNull();
+    expect(track.querySelectorAll(".sazo-product-badge")).toHaveLength(0);
+
+    const moreButton = within(rail).getByRole("button", { name: "もっと見る" });
+    fireEvent.click(moreButton);
+    expect(track.querySelectorAll(".sazo-product-card")).toHaveLength(10);
+    expect(within(rail).queryByRole("button", { name: "もっと見る" })).toBeNull();
+  });
+
+  it("marks the delivery timeline as a full-width six-step overview", async () => {
+    const { container } = await renderWithI18n(
+      <ProductDetailView dispatch={vi.fn()} productId="p01" />,
+    );
+
+    const timeline = container.querySelector(".sazo-product-detail-timeline");
+    expect(timeline?.getAttribute("data-fit")).toBe("full");
+    expect(timeline?.querySelectorAll("li")).toHaveLength(6);
   });
 
   it("shares gallery and validated purchase state across desktop and mobile controls", async () => {
@@ -662,6 +862,15 @@ describe("J-Planet product detail experience", () => {
       name: "カートに入れる",
     });
     fireEvent.click(heroCartButton);
+    const heroOrderSheet = container.querySelector<HTMLElement>(
+      ".sazo-product-detail-checkout-rail[data-open='true']",
+    );
+    if (heroOrderSheet === null) {
+      throw new Error("Missing hero order sheet");
+    }
+    fireEvent.click(
+      within(heroOrderSheet).getByRole("button", { name: "カートに入れる" }),
+    );
     expect(within(heroForm).getByRole("status").textContent).toContain(
       "カートに追加しました",
     );
@@ -675,6 +884,13 @@ describe("J-Planet product detail experience", () => {
     }
 
     fireEvent.click(within(mobileActions).getByRole("button", { name: "今すぐ買う" }));
+    const buyOrderSheet = container.querySelector<HTMLElement>(
+      ".sazo-product-detail-checkout-rail[data-open='true']",
+    );
+    if (buyOrderSheet === null) {
+      throw new Error("Missing buy-now order sheet");
+    }
+    fireEvent.click(within(buyOrderSheet).getByRole("button", { name: "今すぐ買う" }));
     expect(dispatch).toHaveBeenCalledWith({ type: "open-login" });
   });
 
@@ -765,9 +981,9 @@ describe("J-Planet product detail experience", () => {
   it("renders product-detail interface copy from the active locale", async () => {
     await renderWithI18n(<ProductDetailView dispatch={vi.fn()} productId="p01" />, "en");
 
-    expect(screen.getAllByText("Purchase directly from Japanese retailers")).toHaveLength(
-      2,
-    );
+    expect(
+      screen.getAllByText("We deliver great products from Japan quickly."),
+    ).toHaveLength(1);
     expect(screen.getByRole("tab", { name: "Product information" })).toBeTruthy();
     expect(screen.getAllByRole("button", { name: "Buy now" })).toHaveLength(3);
     expect(screen.getByRole("heading", { name: "Why J-Planet?" })).toBeTruthy();

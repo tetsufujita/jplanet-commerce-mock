@@ -176,24 +176,21 @@ describe("AgentComposerSheet", () => {
     [
       "ja",
       "J-Planet AIエージェント",
-      "日本の商品探し・購入からブラジルへの配送まで、AIがサポートします。",
     ],
     [
       "en",
       "J-Planet AI Agent",
-      "AI helps you find and buy products in Japan, then deliver them to Brazil.",
     ],
     [
       "pt-BR",
       "Agente de IA J-Planet",
-      "A IA ajuda a encontrar e comprar produtos no Japão e entregá-los no Brasil.",
     ],
-  ] as const)("renders localized agent copy for %s", async (locale, title, intro) => {
+  ] as const)("renders localized agent title for %s", async (locale, title) => {
     const { container } = await renderAgent(locale);
     const { dialog } = openAgent();
 
     expect(within(dialog).getByRole("heading", { name: title })).toBeTruthy();
-    expect(within(dialog).getByText(intro)).toBeTruthy();
+    expect(within(dialog).queryByText(/日本の商品探し|AI helps you find|A IA ajuda a encontrar/)).toBeNull();
     expect(
       container.querySelector<HTMLImageElement>(
         'img[src="/sazo-commerce/jplanet-sakura-mark.png"]',

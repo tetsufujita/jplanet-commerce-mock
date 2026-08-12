@@ -40,7 +40,7 @@ export default defineConfig({
   },
   webServer: {
     command: "pnpm dev --host 127.0.0.1 --port 5190 --strictPort",
-    reuseExistingServer: false,
+    reuseExistingServer: true,
     timeout: 120_000,
     url: baseURL,
   },

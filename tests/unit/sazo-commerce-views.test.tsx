@@ -95,6 +95,41 @@ describe("SAZO captured view contracts", () => {
     expect(screen.queryByRole("tablist")).toBeNull();
   });
 
+  it("keeps the AI agent entry at the top of category and catalog directories", async () => {
+    const { container } = await renderWithI18n(
+      <CategoriesView dispatch={noDispatch} state={createInitialSazoState()} />,
+    );
+
+    expect(container.querySelector('[data-testid="category-agent-entry"]')).not.toBeNull();
+    expect(screen.getByPlaceholderText("URL・画像・商品名をAIに渡す")).toBeTruthy();
+
+    cleanup();
+    const { container: catalogContainer } = await renderWithI18n(
+      <CatalogView dispatch={noDispatch} state={stateWithCatalogMode("list")} />,
+    );
+
+    expect(catalogContainer.querySelector('[data-testid="catalog-agent-entry"]')).not.toBeNull();
+    expect(screen.getByPlaceholderText("URL・画像・商品名をAIに渡す")).toBeTruthy();
+  });
+
+  it("keeps the category agent visible above directory controls on mobile", () => {
+    const css = readFileSync(join(process.cwd(), "src/sazo-commerce/sazo.css"), "utf8");
+    const mobileBlock = css.slice(css.lastIndexOf("@media (max-width: 767px)"));
+    const agentRule =
+      /\.sazo-root\[data-view="categories"\] \.sazo-directory-agent,[\s\S]*?\{([\s\S]*?)\}/.exec(
+        mobileBlock,
+      )?.[1] ?? "";
+    const controlRule =
+      /\.sazo-root \.sazo-category-tabs \{([\s\S]*?)\}/.exec(mobileBlock)?.[1] ?? "";
+    const catalogControlRule =
+      /\.sazo-root \.sazo-catalog-sticky-controls \{([\s\S]*?)\}/.exec(mobileBlock)?.[1] ?? "";
+
+    expect(agentRule).toMatch(/position:\s*sticky/);
+    expect(agentRule).toMatch(/top:\s*58px/);
+    expect(controlRule).toMatch(/top:\s*var\(--sazo-directory-agent-offset/);
+    expect(catalogControlRule).toMatch(/top:\s*var\(--sazo-directory-agent-offset/);
+  });
+
   it("keeps review screenshot crops above their recorded author/action overlays", () => {
     const expectedBoundaries = [
       ["unseen-media.png", 540, 440],
@@ -224,7 +259,7 @@ describe("SAZO captured view contracts", () => {
       Array.from(
         container.querySelectorAll(".sazo-service-partner-card"),
         (card) => card.textContent,
-      ),
+      ).slice(0, 8),
     ).toEqual([
       "公式通販",
       "百貨店",
@@ -235,10 +270,44 @@ describe("SAZO captured view contracts", () => {
       "書籍",
       "クラファン",
     ]);
-    expect(container.querySelectorAll(".sazo-service-partner-grid img")).toHaveLength(0);
+    const partnerLogos = container.querySelectorAll<HTMLImageElement>(
+      ".sazo-service-partner-grid img",
+    );
+    expect(partnerLogos.length).toBeGreaterThanOrEqual(8);
+    expect(
+      Array.from(partnerLogos, (logo) => logo.getAttribute("src")),
+    ).toContain("/sazo-commerce/service-lp/logo-gmarket.png");
+    expect(
+      container.querySelectorAll(".sazo-service-partner-marquee-track"),
+    ).toHaveLength(1);
+    expect(
+      container.querySelector(
+        ".sazo-service-partner-marquee-track[data-direction=\"forward\"]",
+      ),
+    ).not.toBeNull();
     expect(container.querySelector(".sazo-service-view")?.textContent).not.toMatch(
       /韓国|KOREA|TO JAPAN|韓国代行|日本まで発送/,
     );
+  });
+
+  it("starts the service page with the recorded campaign and URL how-to sequence", async () => {
+    const { container } = await renderWithI18n(<ServiceView dispatch={noDispatch} />);
+    const intro = container.querySelector<HTMLElement>("[data-service-video-intro]");
+
+    expect(intro).not.toBeNull();
+    expect(intro?.querySelector(".sazo-service-video-header")).not.toBeNull();
+    expect(
+      intro?.querySelector<HTMLImageElement>(".sazo-service-video-banner img")?.src,
+    ).toContain("/sazo-commerce/campaign/coupon-banner.png");
+    expect(intro?.querySelectorAll("[data-service-video-rail]")).toHaveLength(2);
+    expect(intro?.textContent).toContain("購入代行の面倒さゼロ！");
+    expect(intro?.textContent).toContain("日本の商品がたくさん！");
+    expect(intro?.textContent).toContain("日本のショップURLを入力してね");
+
+    const howTo = container.querySelector<HTMLElement>("[data-service-video-howto]");
+    expect(howTo).not.toBeNull();
+    expect(howTo?.querySelector("h2")?.textContent).toBe("URL入力のやり方");
+    expect(howTo?.querySelectorAll("img")).toHaveLength(3);
   });
 
   it("exposes one semantic review set and hides the scrolling clone", async () => {
@@ -284,6 +353,19 @@ describe("SAZO captured view contracts", () => {
     expect(question.getAttribute("aria-expanded")).toBe("true");
     fireEvent.click(question);
     expect(question.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("marks both recorded URL demos for the copy-paste motion", async () => {
+    const { container } = await renderWithI18n(<ServiceView dispatch={noDispatch} />);
+    const demos = container.querySelectorAll(".sazo-service-url-search");
+
+    expect(demos).toHaveLength(2);
+    expect(
+      Array.from(demos, (demo) => demo.getAttribute("data-url-demo")),
+    ).toEqual(["typing", "typing"]);
+    expect(container.querySelectorAll(".sazo-service-url-entry[data-demo-input]")).toHaveLength(
+      2,
+    );
   });
 
   it("keeps the recorded short placeholder in the sixth review slot", async () => {
@@ -377,27 +459,21 @@ describe("SAZO captured view contracts", () => {
     },
   );
 
-  it("renders only the active view and preserves grid mode across navigation", async () => {
-    installMobileHome();
+  it("renders only the active category landing across directory navigation", async () => {
     const { container } = await renderWithI18n(<SazoCommercePage />);
     const desktopNav = within(
       container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
     ).getByRole("navigation", { name: "メインメニュー" });
 
     openCatalogFromCategoryDirectory(desktopNav, "ベースメイク");
-    fireEvent.click(screen.getByRole("button", { name: "グリッド表示" }));
-    expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(1);
-    expect(
-      container.querySelector("[data-catalog-mode]")?.getAttribute("data-catalog-mode"),
-    ).toBe("grid");
+    expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(0);
+    expect(container.querySelector('[data-beauty-view][data-category-id="beauty"]')).not.toBeNull();
 
     fireEvent.click(within(desktopNav).getByRole("button", { name: "ホーム" }));
     openCatalogFromCategoryDirectory(desktopNav, "ベースメイク");
 
-    expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(1);
-    expect(
-      container.querySelector("[data-catalog-mode]")?.getAttribute("data-catalog-mode"),
-    ).toBe("grid");
+    expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(0);
+    expect(container.querySelector('[data-beauty-view][data-category-id="beauty"]')).not.toBeNull();
   });
 
   it("uses home shortcuts with bottom Home and keeps secondary navigation off home", async () => {
@@ -495,7 +571,7 @@ describe("SAZO captured view contracts", () => {
     expect(new Set(logos.map((logo) => logo.getAttribute("src"))).size).toBe(8);
   });
 
-  it("opens the catalog on the tab selected from the category directory", async () => {
+  it("opens the category landing instead of a raw product list", async () => {
     const { container } = await renderWithI18n(<SazoCommercePage />);
     const desktopNav = within(
       container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
@@ -504,13 +580,13 @@ describe("SAZO captured view contracts", () => {
     fireEvent.click(within(desktopNav).getByRole("button", { name: "カテゴリー" }));
     fireEvent.click(screen.getByRole("button", { name: "ベースメイク" }));
 
-    expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(1);
-    expect(
-      screen.getByRole("tab", { name: "ベースメイク" }).getAttribute("aria-selected"),
-    ).toBe("true");
+    expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(0);
+    expect(container.querySelector('[data-beauty-view][data-category-id="beauty"]')).not.toBeNull();
+    expect(screen.getByRole("heading", { name: /これからは.*J-Planetで探す/s })).toBeTruthy();
+    expect(screen.getByText("日本のビューティーショップで欲しい商品を探してみよう！")).toBeTruthy();
   });
 
-  it("maps a non-beauty child to its explicit catalog target", async () => {
+  it("uses the same landing layout for non-beauty category children", async () => {
     const { container } = await renderWithI18n(<SazoCommercePage />);
     const desktopNav = within(
       container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
@@ -520,31 +596,28 @@ describe("SAZO captured view contracts", () => {
     fireEvent.click(screen.getByRole("button", { name: "レディース" }));
     fireEvent.click(screen.getByRole("button", { name: "トップス" }));
 
-    expect(
-      screen.getByRole("tab", { name: "トップス" }).getAttribute("aria-selected"),
-    ).toBe("true");
-    expect(
-      screen.getByRole("tab", { name: "スキンケア" }).getAttribute("aria-selected"),
-    ).toBe("false");
+    expect(container.querySelector('[data-beauty-view][data-category-id="ladies"]')).not.toBeNull();
+    expect(screen.getByRole("heading", { name: /これからは.*J-Planetで探す/s })).toBeTruthy();
+    expect(screen.getByText("日本のファッションショップで欲しい商品を探してみよう！")).toBeTruthy();
   });
 
   it("filters catalog products with an active chip", async () => {
-    installMobileHome();
-    const { container } = await renderWithI18n(<SazoCommercePage />);
-    const desktopNav = within(
-      container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
-    ).getByRole("navigation", { name: "メインメニュー" });
-
-    openCatalogFromCategoryDirectory(desktopNav, "スキンケア");
+    const state = stateWithCatalogMode("list");
+    const { container } = await renderWithI18n(
+      <CatalogView dispatch={noDispatch} state={state} />,
+    );
     const initialCount = container.querySelectorAll(
       ".sazo-catalog-products .sazo-product-card",
     ).length;
     const toner = screen.getByRole("button", { name: "化粧水" });
-    fireEvent.click(toner);
+    expect(toner.getAttribute("aria-pressed")).toBe("false");
 
-    expect(toner.getAttribute("aria-pressed")).toBe("true");
+    cleanup();
+    const { container: filteredContainer } = await renderWithI18n(
+      <CatalogView dispatch={noDispatch} state={{ ...state, catalogChip: "toner" }} />,
+    );
     expect(
-      container.querySelectorAll(".sazo-catalog-products .sazo-product-card").length,
+      filteredContainer.querySelectorAll(".sazo-catalog-products .sazo-product-card").length,
     ).toBeLessThan(initialCount);
   });
 

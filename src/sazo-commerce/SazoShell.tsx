@@ -328,19 +328,14 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
                   <ShoppingCart aria-hidden size={23} strokeWidth={2.2} />
                 </button>
                 <button
-                  aria-label={t("sazo.navigation.mypage")}
+                  aria-label={t("sazo.navigation.search")}
                   className="sazo-mobile-header-action"
                   onClick={() => {
-                    if (accountAvailable) {
-                      dispatch({ type: "navigate", view: "mypage" });
-                      return;
-                    }
-
-                    dispatch({ type: "open-login" });
+                    dispatch({ type: "open-agent-hub", intent: "compose" });
                   }}
                   type="button"
                 >
-                  <UserRound aria-hidden size={23} strokeWidth={2.1} />
+                  <Search aria-hidden size={23} strokeWidth={2.1} />
                 </button>
               </div>
             </div>

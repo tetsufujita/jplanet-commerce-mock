@@ -3,7 +3,7 @@
 import React from "react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, expectTypeOf, it, vi } from "vitest";
@@ -317,9 +317,12 @@ describe("SAZO home composition", () => {
     expect(within(shortcutGroup).getByRole("button", { name: "サービス紹介" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "コスメ" })).toBeNull();
     expect(screen.queryByRole("button", { name: "K-POP" })).toBeNull();
-    expect(home?.querySelector("[data-mobile-shortcut-grid]")).toBeNull();
+    const shortcutGrid = home?.querySelector<HTMLElement>("[data-mobile-shortcut-grid]");
+    expect(shortcutGrid).not.toBeNull();
+    expect(shortcutGrid?.dataset.layout).toBe("five-column-two-row");
+    expect(shortcutGrid?.dataset.pageSize).toBe("10");
     includesInOrder(home?.textContent ?? "", [
-      "URL・画像・商品名をAIに相談",
+      "J-Planet AIエージェント",
       "J-Planet特集",
       "クーポンを受け取る",
       "気になっているアイテム",
@@ -362,22 +365,80 @@ describe("SAZO home composition", () => {
     }
   });
 
-  it("routes the mobile AI entry to the fullscreen hub", async () => {
+  it("keeps the compact AI entry inline and exposes camera and gallery inputs from the plus menu", async () => {
     const dispatch = vi.fn();
     const { container } = await renderHomePage("ja", dispatch);
 
     expect(container.querySelector(".sazo-mobile-agent-entry-main")).not.toBeNull();
-    expect(container.querySelector(".sazo-mobile-agent-image-entry")).not.toBeNull();
+    expect(container.querySelector("[data-mobile-agent-image-entry]")).not.toBeNull();
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "URL・画像・商品名をAIに相談" }),
-    );
-
-    expect(dispatch).toHaveBeenCalledWith({
+    const draft = screen.getByRole<HTMLTextAreaElement>("textbox", {
+      name: "URL・画像・商品名をAIに渡す",
+    });
+    expect(draft).toBeTruthy();
+    fireEvent.click(draft);
+    expect(dispatch).not.toHaveBeenCalledWith({
       type: "open-agent-hub",
       intent: "compose",
     });
-    expect(screen.queryByRole("dialog", { name: "J-Planet AIエージェント" })).toBeNull();
+
+    expect(screen.queryByTestId("home-agent-actions")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "入力メニュー" }));
+    const menu = screen.getByRole("menu", { name: "入力メニュー" });
+    expect(within(menu).getByRole("menuitem", { name: "カメラ" })).toBeTruthy();
+    expect(within(menu).getByRole("menuitem", { name: "ギャラリー" })).toBeTruthy();
+    expect(within(menu).queryByRole("menuitem", { name: "URLを貼る" })).toBeNull();
+  });
+
+  it("floats the mobile AI entry slightly over the hero edge", () => {
+    const css = readFileSync(resolve("src/sazo-commerce/sazo.css"), "utf8");
+    const homeHeaderStart = css.lastIndexOf(
+      '.sazo-root[data-view="home"] .sazo-mobile-header,',
+    );
+    const homeHeaderRule = css.slice(homeHeaderStart, css.indexOf("}", homeHeaderStart) + 1);
+    const searchOverlapStart = css.lastIndexOf(
+      '.sazo-root[data-view="home"] .sazo-mobile-search-overlap {',
+    );
+    const searchOverlapRule = css.slice(
+      searchOverlapStart,
+      css.indexOf("}", searchOverlapStart) + 1,
+    );
+    const compactAgentHeaderRules = [
+      ...css.matchAll(
+        /\.sazo-root\[data-view="home"\]\s+\.sazo-mobile-agent-entry\[data-compact="true"\]\s+\.sazo-home-agent-card-header\s*\{[^}]*\}/g,
+      ),
+    ].map((match) => match[0]);
+
+    expect(css).toMatch(
+      /\.sazo-root\[data-view="home"\] \.sazo-mobile-search-overlap\s*\{[\s\S]*?margin-top:\s*-36px;/,
+    );
+    expect(css).toMatch(
+      /\.sazo-root\[data-view="home"\] \.sazo-mobile-search-overlap::before\s*\{[\s\S]*?display:\s*none;/,
+    );
+    expect(homeHeaderRule).toContain("position: absolute;");
+    expect(homeHeaderRule).toContain("top: 0;");
+    expect(searchOverlapRule).toContain("position: relative;");
+    expect(searchOverlapRule).toContain("background: transparent;");
+    expect(searchOverlapRule).not.toContain("background: var(--jplanet-surface);");
+    const compactSearchOverlapStart = css.lastIndexOf(
+      '.sazo-mobile-search-overlap[data-compact="true"] {',
+    );
+    const compactSearchOverlapRule = css.slice(
+      compactSearchOverlapStart,
+      css.indexOf("}", compactSearchOverlapStart) + 1,
+    );
+    expect(compactSearchOverlapRule).toContain("position: sticky;");
+    expect(compactSearchOverlapRule).toContain("top: 0;");
+    const overlapShimStart = css.lastIndexOf(
+      '.sazo-root[data-view="home"] .sazo-mobile-search-overlap::before {',
+    );
+    const overlapShimRule = css.slice(
+      overlapShimStart,
+      css.indexOf("}", overlapShimStart) + 1,
+    );
+    expect(overlapShimRule).toContain("display: none;");
+    expect(compactAgentHeaderRules.at(-1)).toContain("display: grid;");
   });
 
   it("replaces the mobile intro with a coupon and follows GRAM with category discovery", async () => {
@@ -392,9 +453,22 @@ describe("SAZO home composition", () => {
     expect(coupon).not.toBeNull();
     expect(screen.queryByText("ブラジル最大級 日本直輸入ショップ")).toBeNull();
     expect(categoryRail).not.toBeNull();
-    expect(within(categoryRail).getAllByRole("button")).toHaveLength(
+    expect(categoryRail.querySelectorAll(".sazo-mobile-category-tile")).toHaveLength(
       homeCategoryItems.length,
     );
+    expect(categoryRail.querySelector("[data-mobile-category-grid]")).not.toBeNull();
+    expect(categoryRail.querySelector<HTMLElement>("[data-mobile-category-grid]")?.dataset.layout).toBe(
+      "four-column-page",
+    );
+    expect(categoryRail.querySelector<HTMLElement>("[data-mobile-category-grid]")?.dataset.pageSize).toBe(
+      "8",
+    );
+    expect(categoryRail.querySelectorAll("[data-mobile-category-page]")).toHaveLength(2);
+    expect(
+      [...categoryRail.querySelectorAll("[data-mobile-category-grid] img")].every(
+        (image) => image.getAttribute("decoding") === "sync",
+      ),
+    ).toBe(true);
     expect(
       gram.compareDocumentPosition(categoryRail) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
@@ -412,8 +486,21 @@ describe("SAZO home composition", () => {
     });
     expect(dispatch).toHaveBeenNthCalledWith(2, {
       type: "navigate",
-      view: "categories",
+      view: "beauty",
     });
+  });
+
+  it("opens the full category directory from the mobile category rail", async () => {
+    const dispatch = vi.fn();
+
+    await renderHomePage("ja", dispatch);
+
+    const rail = screen.getByTestId("mobile-category-rail");
+    const more = within(rail).getByRole("button", { name: "カテゴリーをもっと見る" });
+
+    fireEvent.click(more);
+
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "categories" });
   });
 
   it("opens usable coupon content from the mobile home CTA", async () => {
@@ -479,15 +566,44 @@ describe("SAZO home composition", () => {
 
       fireEvent.click(within(rail).getByRole("button", { name: label }));
 
-      expect(container.querySelector('[data-view-content="categories"]')).not.toBeNull();
-      expect(screen.getByRole("button", { name: label }).getAttribute("aria-current")).toBe(
-        "page",
-      );
-      expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
-        "categories",
-      );
+      await waitFor(() => {
+        expect(container.querySelector('[data-testid="category-agent-intro"]')).not.toBeNull();
+        expect(container.querySelector('[data-testid="category-agent-intro"]')?.getAttribute("data-category-id")).toBe(
+          label === "メンズ" ? "mens" : "food",
+        );
+        expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
+          "beauty",
+        );
+      });
     },
   );
+
+  it("opens a photo category with its own agent-led intro", async () => {
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: (query: string): MediaQueryList => ({
+        addEventListener: vi.fn(),
+        addListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+        matches: query === "(max-width: 767px)",
+        media: query,
+        onchange: null,
+        removeEventListener: vi.fn(),
+        removeListener: vi.fn(),
+      }),
+      writable: true,
+    });
+    const { container } = await renderHomePage();
+    const rail = screen.getByTestId("mobile-category-rail");
+
+    fireEvent.click(within(rail).getByRole("button", { name: "メンズ" }));
+
+    expect(container.querySelector('[data-view="beauty"]')).not.toBeNull();
+    expect(screen.getByTestId("category-agent-intro").getAttribute("data-category-id")).toBe("mens");
+    expect(screen.getByRole("heading", { name: /J-Planetで探す/ })).toBeTruthy();
+    expect(screen.getByText(/メンズアイテム/)).toBeTruthy();
+    expect(screen.getByPlaceholderText("URL・画像・商品名をAIに渡す")).toBeTruthy();
+  });
 
   it("uses a neutral J-Planet artwork when a category image fails", async () => {
     const dispatch = vi.fn();
@@ -535,13 +651,15 @@ describe("SAZO home composition", () => {
     expect(dispatch).not.toHaveBeenCalled();
   });
 
-  it("routes the image action with an image-picker intent", async () => {
+  it("opens the image input menu without leaving the home page", async () => {
     const dispatch = vi.fn();
     await renderHomePage("ja", dispatch);
 
-    fireEvent.click(screen.getByRole("button", { name: "画像からAIに相談" }));
+    fireEvent.click(screen.getByRole("button", { name: "入力メニュー" }));
 
-    expect(dispatch).toHaveBeenCalledWith({
+    expect(screen.getByRole("menuitem", { name: "ギャラリー" })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: "カメラ" })).toBeTruthy();
+    expect(dispatch).not.toHaveBeenCalledWith({
       type: "open-agent-hub",
       intent: "image-picker",
     });
@@ -555,8 +673,8 @@ describe("SAZO home composition", () => {
       await renderHomePage(locale);
 
       expect(
-        screen.getByRole("button", {
-          name: i18n.t("sazo.agentHub.launcher"),
+        screen.getByRole("group", {
+          name: i18n.t("sazo.home.agentEntryGroup"),
         }),
       ).toBeTruthy();
     },

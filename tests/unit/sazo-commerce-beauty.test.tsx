@@ -51,21 +51,21 @@ describe("J-Planet BEAUTY fixtures", () => {
     expect(beautyTrendKeywords).toHaveLength(7);
   });
 
-  it("keeps search input inside BEAUTY and never opens the agent", async () => {
+  it("keeps the AI composer inside BEAUTY and never opens another agent", async () => {
     const dispatch = vi.fn();
     await renderBeauty(dispatch);
 
-    const input = screen.getByRole("searchbox", { name: "BEAUTYの商品を検索" });
+    const input = screen.getByPlaceholderText("URL・画像・商品名をAIに渡す");
     fireEvent.change(input, { target: { value: "美容液" } });
     const form = input.closest("form");
     expect(form).not.toBeNull();
     if (form === null) return;
     fireEvent.submit(form);
 
-    expect((input as HTMLInputElement).value).toBe("美容液");
+    expect((input as HTMLTextAreaElement).value).toBe("美容液");
     expect(dispatch).not.toHaveBeenCalledWith({ type: "open-agent" });
     expect(dispatch).not.toHaveBeenCalledWith({ type: "navigate", view: "agent-hub" });
-    expect(screen.getByRole("button", { name: "検索する" })).toBeTruthy();
+    expect(screen.getByText("AIエージェントが商品を探し始めました")).toBeTruthy();
   });
 
   it("loads a category and renders six products after the latest request settles", async () => {
@@ -84,21 +84,21 @@ describe("J-Planet BEAUTY fixtures", () => {
     expect(screen.getByTestId("sazo-beauty-product-rail").querySelectorAll("article")).toHaveLength(6);
   });
 
-  it("opens product detail from a BEAUTY card and handles empty results", async () => {
+  it("opens product detail from a BEAUTY card and accepts a consultation", async () => {
     const dispatch = vi.fn();
     await renderBeauty(dispatch);
 
     fireEvent.click(screen.getByRole("button", { name: /高保湿ビタミンC美容液/ }));
     expect(dispatch).toHaveBeenCalledWith({ type: "open-product", productId: "p01" });
 
-    const input = screen.getByRole("searchbox", { name: "BEAUTYの商品を検索" });
+    const input = screen.getByPlaceholderText("URL・画像・商品名をAIに渡す");
     fireEvent.change(input, { target: { value: "__該当なし__" } });
     const form = input.closest("form");
     expect(form).not.toBeNull();
     if (form === null) return;
     fireEvent.submit(form);
-    expect(screen.getByText("該当する商品がありません")).toBeTruthy();
-    expect(screen.getByRole("searchbox", { name: "BEAUTYの商品を検索" })).toBeTruthy();
+    expect(screen.getByText("AIエージェントが商品を探し始めました")).toBeTruthy();
+    expect(screen.getByPlaceholderText("URL・画像・商品名をAIに渡す")).toBeTruthy();
   });
 
   it("renders the dedicated header, trends, focus action, and image fallback", async () => {
@@ -114,7 +114,7 @@ describe("J-Planet BEAUTY fixtures", () => {
 
     const searchAction = screen.getByRole("button", { name: "検索へ移動" });
     fireEvent.click(searchAction);
-    expect(document.activeElement).toBe(screen.getByRole("searchbox", { name: "BEAUTYの商品を検索" }));
+    expect(document.activeElement).toBe(screen.getByPlaceholderText("URL・画像・商品名をAIに渡す"));
 
     const image = screen.getByRole("img", { name: "高保湿ビタミンC美容液" });
     fireEvent.error(image);

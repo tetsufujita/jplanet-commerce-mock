@@ -172,69 +172,43 @@ async function expectNoHorizontalPageOverflow(page: Page) {
   expect(geometry.scrollWidth).toBe(geometry.clientWidth);
 }
 
-async function expectTouchRailMovesWithoutVerticalPageScroll(
-  page: Page,
-  rail: Locator,
+async function expectMobileGridLayout(
+  grid: Locator,
+  expectedColumns: number,
+  expectedPageSize: number,
+  expectedOverflow: "horizontal" | "vertical" | "none",
 ) {
-  await rail.scrollIntoViewIfNeeded();
-  await waitForScrollSettle(page, rail);
-  const overflow = await rail.evaluate((element) => ({
-    clientWidth: element.clientWidth,
-    scrollWidth: element.scrollWidth,
-  }));
-  expect(overflow.scrollWidth).toBeGreaterThan(overflow.clientWidth);
-  await rail.evaluate((element) => {
-    element.style.scrollBehavior = "auto";
-    element.scrollLeft = 0;
+  await expect(grid).toHaveAttribute("data-page-size", String(expectedPageSize));
+  await expect(grid).toHaveAttribute(
+    "data-layout",
+    expectedColumns === 5 ? "five-column-two-row" : "four-column-page",
+  );
+
+  const layout = await grid.evaluate((element) => {
+    const layoutElement = element.querySelector<HTMLElement>(
+      "[data-mobile-category-page]",
+    ) ?? element;
+    const style = getComputedStyle(layoutElement);
+    return {
+      display: style.display,
+      columns: style.gridTemplateColumns.split(" ").filter(Boolean).length,
+      clientHeight: element.clientHeight,
+      clientWidth: element.clientWidth,
+      scrollHeight: element.scrollHeight,
+      scrollWidth: element.scrollWidth,
+    };
   });
-  const scrollBefore = await waitForScrollSettle(page, rail);
 
-  const box = await rail.boundingBox();
-  if (box === null) throw new Error("Missing mobile touch rail bounds");
-  const gestureY = box.y + Math.max(2, box.height - 4);
-
-  const gesture = [
-    { x: box.x + box.width - 12, y: gestureY },
-    { x: box.x + box.width * 0.78, y: gestureY },
-    { x: box.x + box.width * 0.58, y: gestureY },
-    { x: box.x + box.width * 0.38, y: gestureY },
-    { x: box.x + box.width * 0.18, y: gestureY },
-    { x: box.x + 12, y: gestureY },
-  ] as const;
-
-  // Chromium's CDP touch emulation can occasionally drop the first gesture
-  // while a rail is settling. Retry only after observing that no horizontal
-  // movement occurred; no fixed sleep is needed and every successful run
-  // still proves a native touch gesture changed the rail's scroll position.
-  let scrollAfter: ScrollPosition | null = null;
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    await dispatchNativeTouchGesture(page, gesture);
-    const moved = await expect
-      .poll(() => rail.evaluate((element) => element.scrollLeft), {
-        intervals: [16, 32, 50],
-        timeout: 800,
-      })
-      .toBeGreaterThan(0)
-      .then(() => true)
-      .catch(() => false);
-    if (moved) {
-      const settled = await waitForScrollSettle(page, rail);
-      if (settled.railX !== null && settled.railX > 0) {
-        scrollAfter = settled;
-        break;
-      }
-    }
-    await rail.evaluate((element) => {
-      element.style.scrollBehavior = "auto";
-      element.scrollLeft = 0;
-    });
-    await waitForScrollSettle(page, rail);
+  expect(layout.display).toBe("grid");
+  expect(layout.columns).toBe(expectedColumns);
+  if (expectedOverflow === "vertical") {
+    expect(layout.scrollHeight).toBeGreaterThan(layout.clientHeight);
+  } else if (expectedOverflow === "horizontal") {
+    expect(layout.scrollWidth).toBeGreaterThan(layout.clientWidth);
+  } else {
+    expect(layout.scrollWidth).toBe(layout.clientWidth);
+    expect(layout.scrollHeight).toBe(layout.clientHeight);
   }
-  if (scrollAfter === null) {
-    throw new Error("Native touch gesture did not settle to a horizontal rail position");
-  }
-  expect(scrollAfter.railX).toBeGreaterThan(0);
-  expect(scrollAfter.pageY).toBeCloseTo(scrollBefore.pageY, 0);
 }
 
 async function expectComposerBelowAgentHeader(page: Page) {
@@ -342,6 +316,22 @@ async function replayMobileScenario(page: Page) {
   await expect(page).toHaveURL(`${localOrigin}${routePath}`);
   await expect(page.getByTestId("sazo-hero")).toBeVisible();
   await expectNoHorizontalPageOverflow(page);
+  const compactHeaderGeometry = await page.evaluate(() => {
+    const header = document.querySelector<HTMLElement>(".sazo-mobile-header");
+    const hero = document.querySelector<HTMLElement>(".sazo-hero");
+
+    if (header === null || hero === null) {
+      throw new Error("Missing mobile home header or hero");
+    }
+
+    return {
+      headerBottom: header.getBoundingClientRect().bottom,
+      headerHeight: header.getBoundingClientRect().height,
+      heroTop: hero.getBoundingClientRect().top,
+    };
+  });
+  expect(compactHeaderGeometry.headerHeight).toBeLessThanOrEqual(60);
+  expect(compactHeaderGeometry.heroTop - compactHeaderGeometry.headerBottom).toBeLessThanOrEqual(1);
   const heroViewport = page.locator(".sazo-hero-viewport");
   const heroCounter = page.getByTestId("sazo-hero-counter");
 
@@ -457,7 +447,7 @@ async function replayMobileScenario(page: Page) {
   ]);
   await expect(shortcutRail.getByRole("button", { exact: true, name: "コスメ" })).toHaveCount(0);
   await expect(shortcutRail.getByRole("button", { exact: true, name: "K-POP" })).toHaveCount(0);
-  await expectTouchRailMovesWithoutVerticalPageScroll(page, shortcutRail);
+  await expectMobileGridLayout(shortcutRail, 5, 10, "none");
 
   const couponBanner = page.getByTestId("mobile-coupon-banner");
   await expect(couponBanner).toBeVisible();
@@ -536,8 +526,29 @@ async function replayMobileScenario(page: Page) {
       (element) => element.previousElementSibling?.getAttribute("data-testid"),
     ),
   ).toBe("mobile-gram-section");
-  await expectTouchRailMovesWithoutVerticalPageScroll(page, categoryRail);
+  await expectMobileGridLayout(categoryRail, 4, 8, "horizontal");
   await expectNoHorizontalPageOverflow(page);
+
+  await categorySection.getByRole("button", { exact: true, name: "カテゴリーをもっと見る" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "categories");
+  await expect(page.getByTestId("category-agent-entry")).toBeVisible();
+  await expect(
+    page.getByTestId("category-agent-entry").getByPlaceholder("URL・画像・商品名をAIに渡す"),
+  ).toBeVisible();
+  await page.getByRole("navigation", { exact: true, name: "カテゴリー" })
+    .getByRole("button", { exact: true, name: "メンズ" })
+    .click();
+  await expect(page.getByRole("heading", { exact: true, name: "メンズ" })).toBeVisible();
+  await page.getByRole("button", { exact: true, name: "トップス" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "beauty");
+  await expect(page.locator('[data-beauty-view][data-category-id="mens"]')).toBeVisible();
+  await expect(page.getByTestId("category-agent-intro")).toBeVisible();
+  await expect(
+    page.getByTestId("category-agent-intro").getByPlaceholder("URL・画像・商品名をAIに渡す"),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: /J-Planetで探す/ })).toBeVisible();
+  await mobileNavigation.getByRole("button", { exact: true, name: "ホーム" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
 
   await page.setViewportSize({ height: 844, width: 390 });
   await expectNoHorizontalPageOverflow(page);
@@ -550,27 +561,39 @@ async function replayMobileScenario(page: Page) {
       .getByTestId("mobile-category-rail")
       .getByRole("group", { exact: true, name: "商品カテゴリーから探す" });
     await currentCategoryRail.getByRole("button", { exact: true, name: label }).click();
-    await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "categories");
-    await expect(page.locator('[data-view-content="categories"]')).toBeVisible();
-    await expect(
-      page.getByRole("button", { exact: true, name: label }),
-    ).toHaveAttribute("aria-current", "page");
+    await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "beauty");
+    const categoryId = label === "メンズ" ? "mens" : "food";
+    await expect(page.getByTestId("category-agent-intro")).toBeVisible();
+    await expect(page.getByTestId("category-agent-intro")).toHaveAttribute(
+      "data-category-id",
+      categoryId,
+    );
+    await expect(page.getByRole("heading", { name: /J-Planetで探す/ })).toBeVisible();
     await mobileNavigation.getByRole("button", { exact: true, name: "ホーム" }).click();
     await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
   }
 
-  const topLauncher = page.getByRole("button", {
-    exact: true,
-    name: "URL・画像・商品名をAIに相談",
-  });
-  await topLauncher.click();
+  const homeAgent = page.locator("[data-home-agent-entry]");
+  await expect(homeAgent).toBeVisible();
+  await expect(
+    homeAgent.getByRole("textbox", { exact: true, name: "URL・画像・商品名をAIに渡す" }),
+  ).toBeVisible();
+  await homeAgent.getByRole("button", { exact: true, name: "入力メニュー" }).click();
+  await expect(
+    homeAgent.getByRole("menuitem", { exact: true, name: "ギャラリー" }),
+  ).toBeVisible();
+  await expect(homeAgent.getByRole("menuitem", { exact: true, name: "カメラ" })).toBeVisible();
+  await homeAgent.getByRole("menuitem", { exact: true, name: "ギャラリー" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
+
+  await mobileNavigation.getByRole("button", { exact: true, name: "エージェント" }).click();
   const hub = page.locator("[data-mobile-agent-hub]");
   await expect(hub).toBeVisible();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
   await expect(
     page.getByRole("dialog", { exact: true, name: "J-Planet AIエージェント" }),
   ).toHaveCount(0);
-  await expect(hub.getByRole("button", { exact: true, name: "AIに探してもらう" }))
+  await expect(hub.getByRole("button", { exact: true, name: "送信" }))
     .toBeDisabled();
   await expectNoHorizontalPageOverflow(page);
   await page.setViewportSize({ height: 956, width: 440 });
@@ -579,11 +602,9 @@ async function replayMobileScenario(page: Page) {
 
   await hub.getByRole("button", { exact: true, name: "ホームへ戻る" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
-  await page.getByRole("button", { exact: true, name: "画像からAIに相談" }).click();
+  await mobileNavigation.getByRole("button", { exact: true, name: "エージェント" }).click();
   await expect(hub).toBeVisible();
-  await expect(hub.getByRole("button", { exact: true, name: "画像を追加" }))
-    .toHaveAttribute("aria-pressed", "true");
-  await hub.locator('input[type="file"][accept="image/*"]').setInputFiles({
+  await hub.locator("#sazo-mobile-agent-image").setInputFiles({
     name: "sample.png",
     mimeType: "image/png",
     buffer: Buffer.from(
@@ -592,7 +613,7 @@ async function replayMobileScenario(page: Page) {
     ),
   });
   await expect(hub.getByRole("img", { name: "選択した画像: sample.png" })).toBeVisible();
-  await expect(hub.getByRole("button", { exact: true, name: "AIに探してもらう" }))
+  await expect(hub.getByRole("button", { exact: true, name: "送信" }))
     .toBeEnabled();
 
   await hub.getByRole("button", { exact: true, name: "ホームへ戻る" }).click();
@@ -611,7 +632,7 @@ async function replayMobileScenario(page: Page) {
   await expect(
     hub.getByRole("heading", {
       exact: true,
-      name: "ブラジルで人気の日本アイテム",
+      name: "人気キーワード",
     }),
   ).toBeVisible();
   await expect(agentNavigation).toHaveAttribute("aria-pressed", "true");
@@ -637,19 +658,22 @@ async function replayMobileScenario(page: Page) {
   await hub.getByRole("button", { exact: true, name: "1位 アニメグッズ" }).click();
   await expectComposerBelowAgentHeader(page);
   const composer = hub.locator(".sazo-mobile-agent-composer");
-  await expect(composer.getByRole("button", { exact: true, name: "商品名で相談" }))
-    .toHaveAttribute("aria-pressed", "true");
-  await expect(composer.getByRole("textbox", { name: "探したい商品" }))
+  await expect(
+    composer.getByRole("textbox", {
+      name: "URL・画像・商品名をAIに渡す",
+    }),
+  )
     .toHaveValue("アニメグッズ");
   const submit = composer.getByRole("button", {
     exact: true,
-    name: "AIに探してもらう",
+    name: "送信",
   });
   const [submitBackground, sakuraColor] = await Promise.all([
     submit.evaluate((element) => getComputedStyle(element).backgroundColor),
     page.locator(".sazo-root").evaluate((element) => {
+      const variable = window.innerWidth <= 767 ? "--jplanet-navy" : "--jplanet-sakura";
       const swatch = document.createElement("span");
-      swatch.style.color = getComputedStyle(element).getPropertyValue("--jplanet-sakura");
+      swatch.style.color = getComputedStyle(element).getPropertyValue(variable);
       document.body.append(swatch);
       const color = getComputedStyle(swatch).color;
       swatch.remove();
@@ -672,44 +696,60 @@ async function replayMobileScenario(page: Page) {
   });
   await expect(provider).toBeVisible();
   await provider.getByRole("button", { exact: true, name: "Googleで続ける" }).click();
-  const chooser = page.getByTestId("sazo-google-chooser");
-  await expect(chooser).toHaveAttribute("data-local-google-chooser", "true");
+  await expect(provider).toBeHidden();
+  await expect(page.getByTestId("sazo-google-chooser")).toHaveCount(0);
   await expect(page).toHaveURL(`${localOrigin}${routePath}`);
-  await chooser
-    .getByRole("button", {
-      exact: true,
-      name: "Tetsu Fujita tetsu.fujita@andes.global",
-    })
-    .click();
-
-  await expect(
-    page.getByRole("heading", {
-      exact: true,
-      level: 1,
-      name: "生年月日を入力してください",
-    }),
-  ).toBeVisible();
-  await page.getByLabel("生年月日（西暦）", { exact: true }).fill("1990-01-01");
-  await page.getByRole("button", { exact: true, name: "次へ" }).click();
-
-  await expect(
-    page.getByRole("heading", {
-      exact: true,
-      level: 1,
-      name: "電話番号を入力してください",
-    }),
-  ).toBeVisible();
-  await page.getByLabel("電話番号", { exact: true }).fill("9012345678");
-  await page
-    .getByLabel("J-Planetからのお得な情報を受け取らない", { exact: true })
-    .check();
-  await page.getByRole("button", { exact: true, name: "次へ" }).click();
 
   let account = page.locator('[data-view-content="mypage"]');
   await expect(account).toBeVisible();
   await expect(
     account.getByRole("heading", { exact: true, level: 1, name: "マイページ" }),
   ).toBeVisible();
+  const myPageGeometry = await account.evaluate((element) => {
+    const rectangle = (selector: string) => {
+      const target = element.querySelector<HTMLElement>(selector);
+
+      if (target === null) {
+        throw new Error(`Missing My Page element: ${selector}`);
+      }
+
+      return target.getBoundingClientRect();
+    };
+    const fontSize = (selector: string) => {
+      const target = element.querySelector<HTMLElement>(selector);
+
+      if (target === null) {
+        throw new Error(`Missing My Page text: ${selector}`);
+      }
+
+      return Number.parseFloat(getComputedStyle(target).fontSize);
+    };
+    const header = rectangle(".sazo-account-header");
+    const memberName = rectangle(".sazo-member-name strong");
+    const avatar = rectangle(".sazo-member-avatar");
+    const orderSummary = rectangle(".sazo-order-summary");
+    const shopping = rectangle(".sazo-account-group");
+    const accountLink = rectangle(".sazo-account-link");
+
+    return {
+      accountLinkHeight: accountLink.height,
+      avatarWidth: avatar.width,
+      groupTitleFontSize: fontSize(".sazo-account-group h2"),
+      headerHeight: header.height,
+      memberNameFontSize: fontSize(".sazo-member-name strong"),
+      memberNameTopGap: memberName.top - header.bottom,
+      orderSummaryHeight: orderSummary.height,
+      shoppingHeight: shopping.height,
+    };
+  });
+  expect(myPageGeometry.headerHeight).toBeGreaterThanOrEqual(42);
+  expect(myPageGeometry.memberNameTopGap).toBeGreaterThanOrEqual(48);
+  expect(myPageGeometry.memberNameFontSize).toBeGreaterThanOrEqual(19);
+  expect(myPageGeometry.avatarWidth).toBeGreaterThanOrEqual(29);
+  expect(myPageGeometry.orderSummaryHeight).toBeGreaterThanOrEqual(58);
+  expect(myPageGeometry.groupTitleFontSize).toBeGreaterThanOrEqual(18);
+  expect(myPageGeometry.accountLinkHeight).toBeGreaterThanOrEqual(42);
+  expect(myPageGeometry.shoppingHeight).toBeGreaterThanOrEqual(235);
 
   await account.getByRole("button", { exact: true, name: "お気に入り" }).click();
   let accountView = page.locator('[data-view-content="favorites"]');
@@ -738,7 +778,7 @@ async function replayMobileScenario(page: Page) {
   expect(applicationExternalRequests(externalRequests)).toEqual([]);
 }
 
-test("opens the J-Planet BEAUTY route with inline search and touch rails", async ({ page }, testInfo) => {
+test("opens the J-Planet BEAUTY route with an inline AI composer and touch rails", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "BEAUTY reproduction is mobile-first");
   // Mobile intentionally removes the desktop-only コスメ shortcut. Start
   // from the QA deep-link so this existing BEAUTY journey remains covered
@@ -751,13 +791,13 @@ test("opens the J-Planet BEAUTY route with inline search and touch rails", async
   await expect(beauty.locator(".sazo-beauty-logo img")).toBeVisible();
   await expect(beauty.getByText("BEAUTY", { exact: true })).toBeVisible();
 
-  const search = beauty.getByRole("searchbox", { name: "BEAUTYの商品を検索" });
-  await search.fill("美容液");
-  await search.press("Enter");
+  const composer = beauty.getByPlaceholder("URL・画像・商品名をAIに渡す");
+  await composer.fill("美容液");
+  await beauty.getByRole("button", { exact: true, name: "送信" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "beauty");
   await expect(page.getByRole("dialog", { name: "J-Planet AIエージェント" })).toHaveCount(0);
-  await search.fill("");
-  await search.press("Enter");
+  await expect(beauty.getByText("AIエージェントが商品を探し始めました", { exact: true })).toBeVisible();
+  await composer.fill("");
 
   const categoryRail = beauty.locator(".sazo-beauty-category-rail");
   const categoryBox = await categoryRail.boundingBox();

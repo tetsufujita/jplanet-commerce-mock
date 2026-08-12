@@ -14,9 +14,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createI18n } from "@/i18n/createI18n";
 import {
   CardsView,
+  CouponsView,
+  DeliveryView,
   FavoritesView,
   MyPageView,
+  NotificationsView,
+  PointsView,
   ProfileView,
+  SupportView,
 } from "@/sazo-commerce/AccountViews";
 import { AuthFlow } from "@/sazo-commerce/AuthFlow";
 import { ChatPanel } from "@/sazo-commerce/ChatPanel";
@@ -73,7 +78,26 @@ async function renderPage() {
 }
 
 describe("SAZO local authentication", () => {
-  it("moves through provider, birthday, and phone without leaving the local page", async () => {
+  it("logs in and opens My Page immediately when Google is selected", async () => {
+    const { container } = await renderPage();
+    const desktopShell = container.querySelector<HTMLElement>('[data-shell="desktop"]');
+
+    if (desktopShell === null) {
+      throw new Error("Desktop SAZO shell not found");
+    }
+
+    fireEvent.click(within(desktopShell).getByRole("button", { name: "ログイン" }));
+    fireEvent.click(screen.getByRole("button", { name: "Googleで続ける" }));
+
+    expect(screen.queryByRole("dialog", { name: "ログイン または会員登録" })).toBeNull();
+    expect(screen.queryByTestId("sazo-google-chooser")).toBeNull();
+    expect(screen.getByRole("heading", { name: "マイページ" })).toBeTruthy();
+    expect(container.querySelector<HTMLElement>(".sazo-root")?.dataset.view).toBe(
+      "mypage",
+    );
+  });
+
+  it("keeps the Apple registration flow on the local birthday and phone pages", async () => {
     const { container } = await renderPage();
     const desktopShell = container.querySelector<HTMLElement>('[data-shell="desktop"]');
 
@@ -92,20 +116,7 @@ describe("SAZO local authentication", () => {
       expect(within(provider).getByRole("button", { name: label })).toBeTruthy();
     }
 
-    fireEvent.click(within(provider).getByRole("button", { name: "Googleで続ける" }));
-    const chooser = screen.getByTestId("sazo-google-chooser");
-    expect(
-      within(chooser).getByRole("heading", { name: "アカウントを選択してください" }),
-    ).toBeTruthy();
-    expect(
-      within(chooser).getByText("accounts.google.com/v3/signin/accountchooser"),
-    ).toBeTruthy();
-    expect(container.querySelector("a[href^='http']")).toBeNull();
-    fireEvent.click(
-      within(chooser).getByRole("button", {
-        name: "Tetsu Fujita tetsu.fujita@andes.global",
-      }),
-    );
+    fireEvent.click(within(provider).getByRole("button", { name: "Appleで続ける" }));
     expect(
       screen.getByRole("heading", { name: "生年月日を入力してください" }),
     ).toBeTruthy();
@@ -150,12 +161,7 @@ describe("SAZO local authentication", () => {
     }
 
     fireEvent.click(within(desktopShell).getByRole("button", { name: "ログイン" }));
-    fireEvent.click(screen.getByRole("button", { name: "Googleで続ける" }));
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Tetsu Fujita tetsu.fujita@andes.global",
-      }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Appleで続ける" }));
 
     expect(screen.queryByRole("dialog")).toBeNull();
     const birthdayPage = screen.getByTestId("sazo-auth-page");
@@ -291,6 +297,51 @@ describe("SAZO local authentication", () => {
 });
 
 describe("SAZO recorded account views", () => {
+  it("dispatches every recorded My Page destination", async () => {
+    const dispatch = vi.fn();
+
+    await renderWithI18n(<MyPageView dispatch={dispatch} />);
+
+    const destinations = [
+      ["ご注文全体を確認", "orders"],
+      ["注文履歴", "orders"],
+      ["お気に入り", "favorites"],
+      ["クーポン", "coupons"],
+      ["ポイント", "points"],
+      ["レビューを作成", "review-create"],
+      ["作成したレビュー", "review-history"],
+      ["会員情報の修正", "profile"],
+      ["登録カード管理", "cards"],
+      ["配送先管理", "delivery"],
+      ["通知設定", "notifications"],
+      ["サポート", "support"],
+    ] as const;
+
+    for (const [label, view] of destinations) {
+      fireEvent.click(screen.getByRole("button", { name: label }));
+      expect(dispatch).toHaveBeenLastCalledWith({ type: "navigate", view });
+    }
+  });
+
+  it.each([
+    ["orders", "注文履歴", "検索結果が見つかりませんでした。"],
+    ["coupons", "クーポン", "送料50%割引クーポン"],
+    ["points", "ポイント", "500P"],
+    ["review-create", "レビュー作成", "レビュー済みの場合"],
+    ["review-history", "作成したレビュー", "作成したレビューがございません"],
+    ["delivery", "配送先管理", "登録されたお届け先住所がありません。"],
+    ["address", "住所の追加・変更", "日本国内のご自身名義の自宅の住所"],
+    ["notifications", "通知設定", "メール通知"],
+    ["support", "ヘルプ", "何かお困りですか？"],
+  ] as const)("renders the recorded %s account screen", async (view, heading, copy) => {
+    window.history.replaceState({}, "", `/sazo-commerce-mock/?qa=1&view=${view}`);
+
+    await renderPage();
+
+    expect(screen.getByRole("heading", { name: heading })).toBeTruthy();
+    expect(screen.getByText(copy, { exact: false })).toBeTruthy();
+  });
+
   it("renders the recorded member summary and shopping/review destinations", async () => {
     await renderWithI18n(<MyPageView dispatch={noDispatch} />);
 
@@ -310,6 +361,14 @@ describe("SAZO recorded account views", () => {
     ]) {
       expect(screen.getByRole("button", { name: label })).toBeTruthy();
     }
+  });
+
+  it("uses J-Planet Brasil company information in the recorded account footer", async () => {
+    await renderWithI18n(<MyPageView dispatch={noDispatch} />);
+
+    expect(screen.getByText("© 2024-2026 J-Planet Brasil")).toBeTruthy();
+    expect(screen.getByText("São Paulo - SP, Brasil")).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/SAJWO|Republic of Korea|韓国/i);
   });
 
   it("renders the product favorite empty state and local favorite tabs", async () => {
@@ -379,6 +438,57 @@ describe("SAZO recorded account views", () => {
 
     expect(screen.getByRole("heading", { name: "登録カード管理" })).toBeTruthy();
     expect(screen.getByText("登録されているカードがありません。")).toBeTruthy();
+  });
+
+  it("reproduces coupon registration and recorded customer-support details", async () => {
+    const { unmount } = await renderWithI18n(<CouponsView dispatch={noDispatch} />);
+    expect(screen.getByRole("textbox", { name: "クーポン番号" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "登録" })).toBeTruthy();
+
+    unmount();
+    await renderWithI18n(<SupportView />);
+    expect(screen.getByText("平日：10:00〜18:00")).toBeTruthy();
+    expect(screen.getByText("土日・祝日：15:00〜18:00")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /すぐに問い合わせを開始する/ })).toBeTruthy();
+  });
+
+  it("opens the recorded address form from delivery management", async () => {
+    const dispatch = vi.fn();
+    await renderWithI18n(<DeliveryView dispatch={dispatch} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "配送先を追加" }));
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "address" });
+  });
+
+  it("switches the recorded point history tabs locally", async () => {
+    await renderWithI18n(<PointsView dispatch={noDispatch} />);
+
+    const used = screen.getByRole("tab", { name: "利用済み" });
+    expect(used.getAttribute("aria-selected")).toBe("false");
+    fireEvent.click(used);
+    expect(used.getAttribute("aria-selected")).toBe("true");
+  });
+
+  it("toggles each notification setting locally", async () => {
+    await renderWithI18n(<NotificationsView dispatch={noDispatch} />);
+
+    const email = screen.getByRole("switch", { name: "メール通知" });
+    expect(email.getAttribute("aria-checked")).toBe("true");
+    fireEvent.click(email);
+    expect(email.getAttribute("aria-checked")).toBe("false");
+  });
+
+  it("shows demo order notices and routes a notice to the order summary", async () => {
+    const dispatch = vi.fn();
+    await renderWithI18n(<NotificationsView dispatch={dispatch} />);
+
+    expect(screen.getByRole("button", { name: "全体" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "注文・配送" })).toBeTruthy();
+    expect(screen.getByText("注文を受け付けました")).toBeTruthy();
+    expect(screen.getByText("追加書類が必要です")).toBeTruthy();
+
+    fireEvent.click(screen.getByTestId("sazo-notification-documents"));
+    expect(dispatch).toHaveBeenLastCalledWith({ type: "navigate", view: "mypage" });
   });
 });
 

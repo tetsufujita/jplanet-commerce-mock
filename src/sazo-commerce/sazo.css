@@ -2489,6 +2489,220 @@
   }
 }
 
+/*
+ * J-Planet command bar polish
+ *
+ * Apple Design principles applied here: clear hierarchy, immediate pointer
+ * feedback, an interruptible-looking state transition, and a focus ring that
+ * remains visible on a light surface. Taste's direction is intentionally
+ * quiet: one material layer, navy type, and sakura only for the active action.
+ */
+.sazo-root {
+  --jplanet-command-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --jplanet-command-card-radius: 22px;
+  --jplanet-command-control-radius: 14px;
+  --jplanet-command-shadow: 0 12px 30px color-mix(in srgb, var(--jplanet-ink) 11%, transparent);
+  --jplanet-command-focus: 0 0 0 4px color-mix(in srgb, var(--jplanet-sakura) 28%, transparent);
+}
+
+.sazo-root :is(button, textarea) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 767px) {
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer,
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer {
+    border-color: color-mix(in srgb, var(--jplanet-line) 82%, var(--jplanet-sakura) 18%);
+    border-radius: var(--jplanet-command-card-radius);
+    box-shadow: var(--jplanet-command-shadow);
+    transition: box-shadow 220ms var(--jplanet-command-ease),
+      border-color 180ms ease;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-entry[data-compact="true"] {
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--jplanet-ink) 13%, transparent);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-header {
+    color: var(--jplanet-navy);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header strong,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-header h1 {
+    letter-spacing: -0.018em;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-card-header span,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-header p {
+    color: color-mix(in srgb, var(--jplanet-muted) 90%, var(--jplanet-navy) 10%);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-input-shell,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-input-shell,
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-input-shell,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-input-shell,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-input-shell {
+    border-color: color-mix(in srgb, var(--jplanet-line) 86%, var(--jplanet-navy) 14%);
+    background: var(--jplanet-surface);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--jplanet-surface) 96%, var(--jplanet-navy) 4%);
+    transition: border-color 180ms ease, box-shadow 220ms var(--jplanet-command-ease);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-input-shell:focus-within,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-input-shell:focus-within,
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-input-shell:focus-within,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-input-shell:focus-within,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-input-shell:focus-within {
+    border-color: var(--jplanet-sakura);
+    box-shadow: var(--jplanet-command-focus), inset 0 1px 0 var(--jplanet-surface);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-plus,
+  .sazo-root[data-view="home"] .sazo-home-agent-submit,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-plus,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-submit,
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-plus,
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-submit,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-plus,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-submit,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-plus,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-submit {
+    transition: transform 180ms var(--jplanet-command-ease),
+      background-color 180ms ease, color 180ms ease;
+    touch-action: manipulation;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-plus:active,
+  .sazo-root[data-view="home"] .sazo-home-agent-submit:active:not(:disabled),
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-plus:active,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-submit:active:not(:disabled),
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-plus:active,
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-submit:active:not(:disabled),
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-plus:active,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-submit:active:not(:disabled),
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-plus:active,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-submit:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-plus[aria-expanded="true"],
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-plus[aria-expanded="true"],
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-plus[aria-expanded="true"],
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-plus[aria-expanded="true"],
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-plus[aria-expanded="true"] {
+    transform: rotate(45deg);
+    color: var(--jplanet-sakura-ink);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-plus:focus-visible,
+  .sazo-root[data-view="home"] .sazo-home-agent-submit:focus-visible,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-plus:focus-visible,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-submit:focus-visible,
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-plus:focus-visible,
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-submit:focus-visible,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-plus:focus-visible,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-submit:focus-visible,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-plus:focus-visible,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-submit:focus-visible {
+    outline: 3px solid var(--jplanet-sakura);
+    outline-offset: 2px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-menu,
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-menu,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-menu,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu {
+    border-color: color-mix(in srgb, var(--jplanet-line) 82%, var(--jplanet-sakura) 18%);
+    background: var(--jplanet-surface);
+    box-shadow: 0 18px 42px color-mix(in srgb, var(--jplanet-ink) 18%, transparent);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu button,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-menu button,
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu button {
+    transition: background-color 160ms ease, color 160ms ease, transform 180ms var(--jplanet-command-ease);
+    touch-action: manipulation;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu button:hover,
+  .sazo-root[data-view="home"] .sazo-home-agent-menu button:focus-visible,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-menu button:hover,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-menu button:focus-visible,
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button:hover,
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button:focus-visible,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button:hover,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button:focus-visible,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu button:hover,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu button:focus-visible {
+    background: var(--jplanet-sakura-soft);
+    color: var(--jplanet-sakura-ink);
+    outline: none;
+    transform: translateX(2px);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-menu button:active,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer-menu button:active,
+  .sazo-root[data-view="categories"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button:active,
+  .sazo-root[data-view="catalog"] .sazo-directory-agent .sazo-mobile-agent-composer-menu button:active,
+  .sazo-root[data-view="beauty"] .sazo-category-agent .sazo-mobile-agent-composer-menu button:active {
+    transform: scale(0.98);
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-agent-status,
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer > form > p[role="status"] {
+    margin: 2px 4px 0;
+    color: var(--jplanet-sakura-ink);
+    font-size: 11px;
+    line-height: 1.4;
+  }
+}
+
+@media (min-width: 768px) {
+  .sazo-root[data-view="agent-hub"] .sazo-mobile-agent-composer {
+    width: min(720px, 100%);
+    margin-inline: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sazo-root :is(
+      .sazo-mobile-agent-entry,
+      .sazo-mobile-agent-composer,
+      .sazo-home-agent-input-shell,
+      .sazo-mobile-agent-composer-input-shell,
+      .sazo-home-agent-plus,
+      .sazo-home-agent-submit,
+      .sazo-mobile-agent-composer-plus,
+      .sazo-mobile-agent-composer-submit,
+      .sazo-home-agent-menu,
+      .sazo-mobile-agent-composer-menu,
+      .sazo-home-agent-menu button,
+      .sazo-mobile-agent-composer-menu button
+    ) {
+    animation: none;
+    transition-duration: 0.01ms;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .sazo-root :is(
+      .sazo-mobile-agent-entry,
+      .sazo-mobile-agent-composer,
+      .sazo-home-agent-input-shell,
+      .sazo-mobile-agent-composer-input-shell
+    ) {
+    border-color: var(--jplanet-navy);
+    box-shadow: none;
+  }
+}
+
 /* Compact in-place AI entry on the home feed. The home search stays on the
  * current page; the full agent hub is reserved for richer follow-up work. */
 @media (max-width: 767px) {
@@ -2505,7 +2719,7 @@
     padding: 10px 12px 11px;
     border: 1px solid var(--jplanet-line);
     border-radius: 20px;
-    background: #fff;
+    background: var(--jplanet-surface);
     box-shadow: 0 10px 24px color-mix(in srgb, var(--jplanet-ink) 11%, transparent);
   }
 
@@ -2636,7 +2850,7 @@
     padding: 4px;
     border: 1px solid var(--jplanet-line);
     border-radius: 10px;
-    background: #fff;
+    background: var(--jplanet-surface);
     color: var(--jplanet-navy);
     font-size: 10px;
     font-weight: 750;
@@ -2655,6 +2869,23 @@
     color: var(--jplanet-muted);
     font-size: 10px;
     line-height: 1.35;
+  }
+}
+
+/* A solid fallback keeps the command surfaces legible when the platform
+ * asks for reduced transparency. This mirrors Apple's accessibility guidance
+ * without changing the default material treatment. */
+@media (prefers-reduced-transparency: reduce) {
+  .sazo-root :is(
+      .sazo-mobile-agent-entry,
+      .sazo-mobile-agent-composer,
+      .sazo-home-agent-card,
+      .sazo-home-agent-menu,
+      .sazo-mobile-agent-composer-menu
+    ) {
+    background: var(--jplanet-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }
 
@@ -2754,7 +2985,7 @@
     padding: 5px 4px;
     border: 1px solid var(--jplanet-line);
     border-radius: 11px;
-    background: #fff;
+    background: var(--jplanet-surface);
     color: var(--jplanet-navy);
     font-size: 11px;
     font-weight: 750;
@@ -2844,7 +3075,7 @@
     padding: 8px 12px;
     border: 0;
     border-radius: 10px;
-    background: #fff;
+    background: var(--jplanet-surface);
     color: var(--jplanet-navy);
     font-size: 14px;
     font-weight: 750;
@@ -15471,7 +15702,7 @@
     padding: 4px;
     border: 1px solid var(--jplanet-line);
     border-radius: 10px;
-    background: #fff;
+    background: var(--jplanet-surface);
     color: var(--jplanet-navy);
     font-size: 10px;
     font-weight: 750;
@@ -15593,5 +15824,34 @@
 
   .sazo-root[data-view="home"] .sazo-mobile-agent-entry[data-compact="true"] .sazo-home-agent-actions {
     display: none;
+  }
+
+  /* Final mobile typography pass: keep the shortcut grid calm and scannable
+   * at narrow widths without changing its five-by-two information architecture. */
+  .sazo-root[data-view="home"] .sazo-shortcuts[data-mobile-shortcut-grid] .sazo-shortcut {
+    align-content: start;
+    min-height: 88px;
+    gap: 6px;
+    font-size: clamp(9px, 2.4vw, 10px);
+    line-height: 1.2;
+    letter-spacing: -0.04em;
+    text-align: center;
+  }
+
+  .sazo-root[data-view="home"] .sazo-shortcuts[data-mobile-shortcut-grid] .sazo-shortcut > span:last-child {
+    display: block;
+    min-width: 0;
+    min-height: 1.2em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Keep the final motion override after the mobile cascade so reduced-motion
+ * settings also silence the popup's entrance animation. */
+@media (prefers-reduced-motion: reduce) {
+  .sazo-root :is(.sazo-home-agent-menu, .sazo-mobile-agent-composer-menu) {
+    animation: none !important;
   }
 }
