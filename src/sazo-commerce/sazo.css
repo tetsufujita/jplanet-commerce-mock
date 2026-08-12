@@ -15900,7 +15900,9 @@
 
 @media screen and (max-width: 767px) {
   .sazo-root[data-view="home"] .sazo-home-agent-card[data-apple-surface="true"] {
-    margin-inline: 12px;
+    /* The overlap wrapper owns the horizontal inset. Keeping a second card
+     * margin here shifts the AI card off the hero's center line. */
+    margin-inline: 0;
     border-radius: 22px;
   }
 

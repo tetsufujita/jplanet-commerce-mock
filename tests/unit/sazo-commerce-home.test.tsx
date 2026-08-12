@@ -476,6 +476,15 @@ describe("SAZO home composition", () => {
     expect(mobileEntryRule).toBeDefined();
     expect(mobileEntryRule).toContain("box-sizing: border-box;");
     expect(mobileEntryRule).toContain("margin-inline: auto;");
+
+    const appleHomeCardRules = [
+      ...css.matchAll(
+        /\.sazo-root\[data-view="home"\] \.sazo-home-agent-card\[data-apple-surface="true"\]\s*\{[^}]*\}/g,
+      ),
+    ].map((match) => match[0]);
+    const appleHomeCardRule = appleHomeCardRules.at(-1);
+    expect(appleHomeCardRule).toBeDefined();
+    expect(appleHomeCardRule).toContain("margin-inline: 0;");
   });
 
   it("replaces the mobile intro with a coupon and follows GRAM with category discovery", async () => {
