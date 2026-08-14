@@ -557,6 +557,7 @@
       "mobileSearchPlaceholder": "何を注文しますか？",
       "agentEntryGroup": "AI product assistance",
       "agentImageEntry": "Ask AI using an image",
+      "agentAssurance": "Check seller, purchase eligibility, duties, and delivery, then show the BRL total",
       "shortcutLabel": "J-Planet shortcuts",
       "shortcuts": {
         "feature": "J-Planet features",
@@ -614,6 +615,73 @@
       "searchedTitle": "今、検索されているもの",
       "rating": "5点中{{rating}}点",
       "favoriteProduct": "{{product}}をお気に入りに追加"
+    },
+    "desktopHome": {
+      "searchFormLabel": "Purchase agent search",
+      "searchInputLabel": "Send a URL, image, or product name",
+      "searchPlaceholder": "Send a URL, image, or product name",
+      "searchSubmit": "Check product",
+      "actions": {
+        "chat": "Chat"
+      },
+      "navigation": {
+        "popular": "Popular products",
+        "delivery": "Delivery and customs"
+      },
+      "heroLabel": "Purchase agent banner",
+      "heroEyebrow": "Purchase agent",
+      "heroTitle": "Japanese products, to Brazil.",
+      "heroBody": "Send a product and get purchase guidance.",
+      "carouselStatus": "Current banner position",
+      "sideBanner": "Japanese popular brands too,",
+      "sideBannerEmphasis": "with J-Planet",
+      "sideBannerGuide": "New to J-Planet?",
+      "sideBannerGuideEmphasis": "How it works",
+      "couponBannerCta": "View coupons",
+      "agentCta": "Consult the J-Planet AI agent",
+      "agentCtaBody": "Use a URL, image, or product name to check your purchase decision.",
+      "evidence": {
+        "sourceTitle": "Check retailer, regulations, and duties",
+        "sourceBody": "Review seller, regulation, and duty considerations first.",
+        "totalTitle": "Check BRL total and delivery estimate",
+        "totalBody": "Review the estimated total and arrival date in advance."
+      },
+      "shortcutLabel": "Product discovery shortcuts",
+      "shortcuts": {
+        "feature": "J-Planet features",
+        "limited": "Limited",
+        "brands": "Popular brands",
+        "game": "Games",
+        "figure": "Figures",
+        "camera": "Cameras",
+        "skincare": "Skincare",
+        "categories": "Categories"
+      },
+      "productsTitle": "Popular products checked by the agent",
+      "categoriesLabel": "Product categories",
+      "categoriesTitle": "Categories",
+      "categories": {
+        "ladies": "Women's fashion",
+        "mens": "Men's fashion",
+        "shoes": "Shoes",
+        "bags": "Bags and accessories",
+        "beauty": "Beauty",
+        "skincare": "Skincare",
+        "mobile": "Mobile and gadgets",
+        "appliances": "Home appliances",
+        "gaming": "Gaming",
+        "figures": "Figures",
+        "cameras": "Cameras",
+        "audio": "Audio",
+        "hobby": "Hobbies",
+        "kids": "Kids",
+        "sports": "Sports",
+        "watches": "Watches",
+        "living": "Home and living",
+        "pets": "Pets",
+        "stationery": "Stationery",
+        "all": "All categories"
+      }
     },
     "cart": {
       "title": "Shopping cart",
@@ -854,7 +922,34 @@
         "week": "週間"
       },
       "reviews": {
-        "title": "利用レビュー",
+        "title": "Purchase experience reviews",
+        "subtitle": "How shoppers found an item and how it arrived",
+        "featuredLabel": "Featured purchase experiences",
+        "communityHeading": "Purchase experiences from the community",
+        "imageAlt": "{{author}}'s delivered item",
+        "filters": {
+          "all": "All",
+          "condition": "Item condition",
+          "brlTotal": "BRL total",
+          "shippingCustoms": "Shipping & customs",
+          "support": "Support"
+        },
+        "chips": {
+          "url": "Found by URL",
+          "condition": "Item condition",
+          "image": "Found by image",
+          "shipping": "Shipping & customs",
+          "brl": "BRL total",
+          "support": "Support"
+        },
+        "entries": {
+          "mika": "Even the box was pristine. It felt like new.",
+          "kou": "Just like the photo. It arrived carefully protected.",
+          "yuri": "The packaging was so careful and there was not a single scratch.",
+          "ken": "Seeing it by image first made the delivered item feel reassuring.",
+          "marcela": "I could check the BRL total first and follow delivery without hesitation.",
+          "joao": "The support guidance was prompt, so I could buy with confidence."
+        },
         "likes": "{{count}}件のいいね",
         "comments": "{{count}}件のコメント"
       },

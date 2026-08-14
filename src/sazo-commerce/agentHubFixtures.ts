@@ -1,107 +1,119 @@
-import { referenceProducts, type Product } from "@/sazo-commerce/fixtures";
+import type { SazoImagePath } from "@/sazo-commerce/fixtures";
 
-export interface AgentHubHistoryItem {
+export interface AgentRecentSearch {
   id: string;
-  inputKind: "image" | "url";
-  inputLabel: string;
-  product: {
-    image: string;
-    name: string;
-    priceAndDelivery: string;
-  };
-  timestamp: string;
+  label: string;
 }
 
-export interface AgentHubCustomsAction {
-  itemLabel: string;
-  productImage: string;
-  productName: string;
-  reason: string;
-  requiredFields: string;
-  source: string;
-  title: string;
+export interface AgentRecentViewedProduct {
+  id: string;
+  image: SazoImagePath;
+  name: string;
+  price: string;
+}
+
+export interface AgentCommonSearchKeyword {
+  id: string;
+  label: string;
+  productId: string;
 }
 
 /**
- * The agent is a return point for customer submissions, not a purchase queue.
- * Only the two newest submissions occupy the default viewport.
+ * Mock search intents are intentionally separate from products: this rail only
+ * describes what a customer searched for, never a queued purchase request.
  */
-export const agentHubLatestHistory: readonly AgentHubHistoryItem[] = [
+export const agentRecentSearches: readonly AgentRecentSearch[] = [
+  { id: "rakuten-sneakers", label: "楽天のスニーカー" },
+  { id: "nintendo-switch", label: "Nintendo Switch" },
+  { id: "japan-skincare", label: "日本のスキンケア" },
+] as const;
+
+/**
+ * These fixture rows stand in for product pages already opened in this mock.
+ * They are deliberately not derived from search submissions or order state.
+ */
+export const agentRecentViewedProducts: readonly AgentRecentViewedProduct[] = [
   {
-    id: "rakuten-new-balance",
-    inputKind: "url",
-    inputLabel: "rakuten.co.jp/products/… を送信",
-    product: {
-      image: "/sazo-commerce/reference/new-balance-9060.png",
-      name: "New Balance 9060",
-      priceAndDelivery: "R$ 748 ・ 7〜10日",
-    },
-    timestamp: "今日 14:24",
+    id: "jplanet-new-balance-9060",
+    image: "/sazo-commerce/reference/new-balance-9060.png",
+    name: "New Balance 9060",
+    price: "R$ 748",
   },
   {
-    id: "image-sony-a7c",
-    inputKind: "image",
-    inputLabel: "画像から商品を確認",
-    product: {
-      image: "/sazo-commerce/reference/mirrorless-camera.png",
-      name: "Sony α7C II",
-      priceAndDelivery: "R$ 9.899 ・ 10〜14日",
-    },
-    timestamp: "昨日 19:12",
+    id: "jplanet-sony-a7c-ii",
+    image: "/sazo-commerce/reference/mirrorless-camera.png",
+    name: "Sony α7C II",
+    price: "R$ 9,899",
+  },
+  {
+    id: "jplanet-nintendo-switch-oled",
+    image: "/sazo-commerce/reference/nintendo-switch-oled.png",
+    name: "Nintendo Switch OLED",
+    price: "R$ 2,184",
+  },
+  {
+    id: "jplanet-nintendo-pro-controller",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
+    name: "Nintendo Switch Proコントローラー",
+    price: "R$ 429",
+  },
+  {
+    id: "jplanet-nintendo-joycon",
+    image: "/sazo-commerce/reference/nintendo-joycon-v1.png",
+    name: "Nintendo Joy-Con (L)/(R)",
+    price: "R$ 512",
+  },
+  {
+    id: "jplanet-air-jordan-1",
+    image: "/sazo-commerce/reference/air-jordan-1-retro-high-og.png",
+    name: "Air Jordan 1 Retro High OG",
+    price: "R$ 789",
+  },
+  {
+    id: "jplanet-character-figure",
+    image: "/sazo-commerce/reference/figure.png",
+    name: "日本限定 キャラクターフィギュア",
+    price: "R$ 318",
+  },
+  {
+    id: "jplanet-switch-carrying-case",
+    image: "/sazo-commerce/reference/nintendo-switch-case-v1.png",
+    name: "Nintendo Switch キャリングケース",
+    price: "R$ 188",
   },
 ] as const;
 
-/** Compact samples shown only after the user opens the older-history disclosure. */
-export const agentHubArchivedHistory: readonly AgentHubHistoryItem[] = [
+/**
+ * These are aggregate search terms for the mock, rather than a personalized
+ * recommendation claim. Selecting one simply enters the existing product
+ * resolution flow.
+ */
+export const agentCommonSearchKeywords: readonly AgentCommonSearchKeyword[] = [
   {
-    id: "url-switch-oled",
-    inputKind: "url",
-    inputLabel: "rakuten.co.jp/item/… を送信",
-    product: {
-      image: "/sazo-commerce/reference/nintendo-switch-oled.png",
-      name: "Nintendo Switch OLED",
-      priceAndDelivery: "R$ 2.184 ・ 8〜12日",
-    },
-    timestamp: "8月10日 10:11",
+    id: "japan-sneakers",
+    label: "日本のスニーカー",
+    productId: "jplanet-new-balance-9060",
   },
   {
-    id: "image-pro-controller",
-    inputKind: "image",
-    inputLabel: "画像から商品を確認",
-    product: {
-      image: "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
-      name: "Nintendo Switch Proコントローラー",
-      priceAndDelivery: "R$ 429 ・ 8〜12日",
-    },
-    timestamp: "8月8日 18:43",
+    id: "nintendo-switch",
+    label: "Nintendo Switch",
+    productId: "jplanet-nintendo-switch-oled",
+  },
+  {
+    id: "japan-skincare",
+    label: "日本のスキンケア",
+    productId: "jplanet-character-figure",
+  },
+  {
+    id: "figures",
+    label: "フィギュア",
+    productId: "jplanet-character-figure",
+  },
+  {
+    id: "cameras",
+    label: "カメラ",
+    productId: "jplanet-sony-a7c-ii",
   },
 ] as const;
 
-/** The explicit exception fixture is intentionally opt-in. */
-export const agentHubCustomsAction: AgentHubCustomsAction = {
-  itemLabel: "受取人情報を入力してください",
-  productImage: "/sazo-commerce/reference/air-jordan-1-retro-high-og.png",
-  productName: "Air Jordan 1 Retro High OG",
-  reason: "通関に提出する情報として必要です",
-  requiredFields: "CPF・お届け先の確認",
-  source: "SNKRS Japan の商品ページを送信",
-  title: "通関手続きに必要な情報があります",
-};
-
-function referenceProductAt(index: number): Product {
-  const product = referenceProducts[index];
-
-  if (product === undefined) {
-    throw new Error(`Missing J-Planet reference product at index ${index}`);
-  }
-
-  return product;
-}
-
-/** Product rail intentionally stays distinct from submission history. */
-export const agentHubRecentProducts: readonly Product[] = [
-  referenceProductAt(2),
-  referenceProductAt(3),
-  referenceProductAt(0),
-  referenceProductAt(1),
-];
+export const agentHowItWorksSteps = ["URLを貼る", "画像を送る", "商品名で探す"] as const;

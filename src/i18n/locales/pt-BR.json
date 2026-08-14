@@ -557,6 +557,7 @@
       "mobileSearchPlaceholder": "何を注文しますか？",
       "agentEntryGroup": "Consulta de produto com IA",
       "agentImageEntry": "Consultar a IA usando uma imagem",
+      "agentAssurance": "Verificamos vendedor, possibilidade de compra, impostos e entrega e mostramos o total em BRL",
       "shortcutLabel": "Atalhos da J-Planet",
       "shortcuts": {
         "feature": "Destaques da J-Planet",
@@ -614,6 +615,73 @@
       "searchedTitle": "今、検索されているもの",
       "rating": "5点中{{rating}}点",
       "favoriteProduct": "{{product}}をお気に入りに追加"
+    },
+    "desktopHome": {
+      "searchFormLabel": "Busca do agente de compra",
+      "searchInputLabel": "Envie uma URL, imagem ou nome do produto",
+      "searchPlaceholder": "Envie uma URL, imagem ou nome do produto",
+      "searchSubmit": "Conferir produto",
+      "actions": {
+        "chat": "Chat"
+      },
+      "navigation": {
+        "popular": "Produtos populares",
+        "delivery": "Entrega e alfândega"
+      },
+      "heroLabel": "Banner do agente de compra",
+      "heroEyebrow": "Agente de compra",
+      "heroTitle": "Produtos do Japão, para o Brasil.",
+      "heroBody": "Envie um produto e receba orientação de compra.",
+      "carouselStatus": "Posição atual do banner",
+      "sideBanner": "Marcas japonesas populares também,",
+      "sideBannerEmphasis": "na J-Planet",
+      "sideBannerGuide": "É novo por aqui?",
+      "sideBannerGuideEmphasis": "Como funciona",
+      "couponBannerCta": "Ver cupons",
+      "agentCta": "Falar com o agente de IA da J-Planet",
+      "agentCtaBody": "Use uma URL, imagem ou nome do produto para conferir sua decisão de compra.",
+      "evidence": {
+        "sourceTitle": "Confira loja, regras e impostos",
+        "sourceBody": "Revise vendedor, regras e impostos antes da compra.",
+        "totalTitle": "Confira o total em BRL e a previsão",
+        "totalBody": "Revise o total estimado e a data de chegada antes de comprar."
+      },
+      "shortcutLabel": "Atalhos para descobrir produtos",
+      "shortcuts": {
+        "feature": "Destaques J-Planet",
+        "limited": "Limitados",
+        "brands": "Marcas populares",
+        "game": "Games",
+        "figure": "Figuras",
+        "camera": "Câmeras",
+        "skincare": "Cuidados com a pele",
+        "categories": "Categorias"
+      },
+      "productsTitle": "Produtos populares conferidos pelo agente",
+      "categoriesLabel": "Categorias de produtos",
+      "categoriesTitle": "Categorias",
+      "categories": {
+        "ladies": "Moda feminina",
+        "mens": "Moda masculina",
+        "shoes": "Calçados",
+        "bags": "Bolsas e acessórios",
+        "beauty": "Beleza",
+        "skincare": "Cuidados com a pele",
+        "mobile": "Celulares e gadgets",
+        "appliances": "Eletrodomésticos",
+        "gaming": "Games",
+        "figures": "Figuras",
+        "cameras": "Câmeras",
+        "audio": "Áudio",
+        "hobby": "Hobbies",
+        "kids": "Infantil",
+        "sports": "Esportes",
+        "watches": "Relógios",
+        "living": "Casa e decoração",
+        "pets": "Pets",
+        "stationery": "Papelaria",
+        "all": "Todas as categorias"
+      }
     },
     "cart": {
       "title": "Carrinho de compras",
@@ -854,7 +922,34 @@
         "week": "週間"
       },
       "reviews": {
-        "title": "利用レビュー",
+        "title": "Avaliações da experiência de compra",
+        "subtitle": "Como o produto foi encontrado e como chegou",
+        "featuredLabel": "Experiências de compra em destaque",
+        "communityHeading": "Experiências de compra da comunidade",
+        "imageAlt": "Item recebido por {{author}}",
+        "filters": {
+          "all": "Todos",
+          "condition": "Estado do produto",
+          "brlTotal": "Total em BRL",
+          "shippingCustoms": "Entrega e alfândega",
+          "support": "Suporte"
+        },
+        "chips": {
+          "url": "Encontrado por URL",
+          "condition": "Estado do produto",
+          "image": "Encontrado por imagem",
+          "shipping": "Entrega e alfândega",
+          "brl": "Total em BRL",
+          "support": "Suporte"
+        },
+        "entries": {
+          "mika": "Até a caixa estava impecável. Parecia novo.",
+          "kou": "Exatamente como na foto. Chegou muito bem protegido.",
+          "yuri": "A embalagem foi muito cuidadosa e não havia nenhum arranhão.",
+          "ken": "Ver pela imagem antes ajudou a receber o produto com segurança.",
+          "marcela": "Pude conferir o total em BRL e acompanhar a entrega sem dúvidas.",
+          "joao": "O suporte orientou rapidamente e pude comprar com tranquilidade."
+        },
         "likes": "{{count}}件のいいね",
         "comments": "{{count}}件のコメント"
       },

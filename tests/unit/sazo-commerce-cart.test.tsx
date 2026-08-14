@@ -52,6 +52,27 @@ describe("J-Planet cart", () => {
     });
   });
 
+  it("shows the home-style recommendation grid below the cart and keeps its product flow active", () => {
+    const dispatch = vi.fn();
+
+    render(<CartView dispatch={dispatch} items={cartItems} />);
+
+    const recommendations = screen.getByTestId("jplanet-cart-recommendations");
+    expect(screen.getByRole("heading", { name: "あなたへのおすすめ" })).toBeTruthy();
+    expect(recommendations.querySelectorAll(".sazo-home-dense-product")).toHaveLength(16);
+    expect(recommendations.querySelectorAll(".sazo-home-dense-product-add")).toHaveLength(16);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Nintendo Switch Proコントローラーの購入オプションを選ぶ",
+      }),
+    );
+    expect(dispatch).toHaveBeenCalledWith({
+      productId: "jplanet-nintendo-pro-controller",
+      type: "open-product",
+    });
+  });
+
   it("applies a source coupon and reopens the existing variant-selection flow", () => {
     const dispatch = vi.fn();
 

@@ -1,6 +1,7 @@
 export type JplanetCouponCategory = "product" | "shipping" | "brand";
 
 export interface JplanetCoupon {
+  actionMode?: "use" | "later";
   id: string;
   category: JplanetCouponCategory;
   displayCategory?: JplanetCouponCategory;
@@ -34,6 +35,7 @@ export const jplanetCoupons = [
     combinable: false,
   },
   {
+    actionMode: "later",
     id: "first-purchase-r50",
     category: "shipping",
     displayCategory: "product",

@@ -4,6 +4,7 @@ import type {
   DirectoryCategoryId,
   RankingMetric,
   ReviewCategoryId,
+  ReviewDecisionAxisId,
   SazoHeroFeed,
   SazoView,
 } from "@/sazo-commerce/model";
@@ -102,6 +103,27 @@ export interface HomeShortcutItem {
   labelKey: string;
   icon?: HomeShortcutIconId;
   view?: SazoView;
+}
+
+export interface DesktopHomeShortcutItem {
+  id:
+    | "feature"
+    | "limited"
+    | "brands"
+    | "game"
+    | "figure"
+    | "camera"
+    | "skincare"
+    | "categories";
+  labelKey: string;
+  view: SazoView;
+}
+
+export interface DesktopHomeCategoryItem {
+  id: string;
+  image: SazoImagePath;
+  labelKey: string;
+  view: SazoView;
 }
 
 export interface HomeCategoryItem {
@@ -240,6 +262,22 @@ export interface EditorialReview {
   image: SazoImagePath | null;
 }
 
+export interface PurchaseExperienceReview {
+  id: string;
+  author: string;
+  city: string;
+  bodyKey: string;
+  chipKeys: readonly string[];
+  decisionAxes: readonly Exclude<ReviewDecisionAxisId, "all">[];
+  image: SazoImagePath;
+  imageAltKey: string;
+}
+
+export interface PurchaseReviewFilter {
+  id: ReviewDecisionAxisId;
+  labelKey: string;
+}
+
 export interface ServiceStep {
   id: "01" | "02" | "03";
   image: SazoImagePath;
@@ -336,38 +374,48 @@ export const sazoCountryOptions = [
 
 export const heroSlides = [
   {
-    id: "jplanet-ai-emerald",
-    title: "J-Planet AI",
-    subtitle: "AIと一緒に、日本の商品をもっと自由に。",
-    image: "/sazo-commerce/hero/jplanet-ai-emerald-v1.png",
+    id: "jplanet-home-japan-brazil",
+    title: "日本の買い物を、もっと確かに。",
+    subtitle: "日本からブラジルへのショッピング",
+    image: "/sazo-commerce/hero/jplanet-home-japan-brazil-v2.png",
+    mobileHeight: 852,
+    mobileImage: "/sazo-commerce/hero/jplanet-home-japan-brazil-mobile-v2.png",
+    mobileWidth: 887,
+  },
+  {
+    id: "jplanet-home-chatgpt",
+    title: "ChatGPTから、J-Planetで買い物しよう！",
+    subtitle: "会話から商品を探す",
+    image: "/sazo-commerce/hero/jplanet-home-chatgpt-v2.png",
     mobileHeight: 1024,
-    mobileImage: "/sazo-commerce/hero/jplanet-ai-emerald-v1.png",
+    mobileImage: "/sazo-commerce/hero/jplanet-home-chatgpt-v2.png",
     mobileWidth: 1536,
   },
   {
-    id: "jplanet-ai-violet",
-    title: "J-Planet AI",
-    subtitle: "URL・画像・商品名から、欲しい商品を探せます。",
-    image: "/sazo-commerce/hero/jplanet-ai-violet-v1.png",
+    id: "jplanet-home-popular",
+    title: "いま、人気の商品を見つけよう。",
+    subtitle: "おすすめ商品",
+    image: "/sazo-commerce/hero/jplanet-home-popular-v2.png",
     mobileHeight: 1024,
-    mobileImage: "/sazo-commerce/hero/jplanet-ai-violet-v1.png",
+    mobileImage: "/sazo-commerce/hero/jplanet-home-popular-v2.png",
     mobileWidth: 1536,
   },
   {
-    id: "jplanet-ai-coral",
-    title: "J-Planet AI",
-    subtitle: "日本からブラジルへのショッピングを、もっと身近に。",
-    image: "/sazo-commerce/hero/jplanet-ai-coral-v1.png",
+    id: "jplanet-home-service",
+    title: "探す、確かめる、届けるまで。",
+    subtitle: "サービス紹介",
+    image: "/sazo-commerce/hero/jplanet-home-service-v2.png",
     mobileHeight: 1024,
-    mobileImage: "/sazo-commerce/hero/jplanet-ai-coral-v1.png",
+    mobileImage: "/sazo-commerce/hero/jplanet-home-service-v2.png",
     mobileWidth: 1536,
   },
 ] satisfies readonly HeroSlide[];
 
 const jplanetHeroSlideIds = [
-  "jplanet-ai-emerald",
-  "jplanet-ai-violet",
-  "jplanet-ai-coral",
+  "jplanet-home-japan-brazil",
+  "jplanet-home-chatgpt",
+  "jplanet-home-popular",
+  "jplanet-home-service",
 ] as const;
 
 const heroSlideIdsByFeed = {
@@ -413,6 +461,140 @@ export const homeShortcutItems: readonly HomeShortcutItem[] = [
   { id: "help", labelKey: "help", icon: "help", view: "support" },
   { id: "news", labelKey: "news", icon: "news" },
 ] satisfies readonly HomeShortcutItem[];
+
+export const desktopHomeShortcutItems = [
+  { id: "feature", labelKey: "feature", view: "home" },
+  { id: "limited", labelKey: "limited", view: "ranking" },
+  { id: "brands", labelKey: "brands", view: "brands" },
+  { id: "game", labelKey: "game", view: "categories" },
+  { id: "figure", labelKey: "figure", view: "categories" },
+  { id: "camera", labelKey: "camera", view: "categories" },
+  { id: "skincare", labelKey: "skincare", view: "categories" },
+  { id: "categories", labelKey: "categories", view: "categories" },
+] satisfies readonly DesktopHomeShortcutItem[];
+
+export const desktopHomeCategoryItems = [
+  {
+    id: "ladies",
+    image: "/sazo-commerce/mobile-picks/20.png",
+    labelKey: "ladies",
+    view: "categories",
+  },
+  {
+    id: "mens",
+    image: "/sazo-commerce/products/07.webp",
+    labelKey: "mens",
+    view: "categories",
+  },
+  {
+    id: "shoes",
+    image: "/sazo-commerce/reference/new-balance-9060.png",
+    labelKey: "shoes",
+    view: "categories",
+  },
+  {
+    id: "bags",
+    image: "/sazo-commerce/reference/handbag.png",
+    labelKey: "bags",
+    view: "categories",
+  },
+  {
+    id: "beauty",
+    image: "/sazo-commerce/reference/lipstick.png",
+    labelKey: "beauty",
+    view: "categories",
+  },
+  {
+    id: "skincare",
+    image: "/sazo-commerce/products/11.webp",
+    labelKey: "skincare",
+    view: "categories",
+  },
+  {
+    id: "mobile",
+    image: "/sazo-commerce/mobile-picks/14.png",
+    labelKey: "mobile",
+    view: "categories",
+  },
+  {
+    id: "appliances",
+    image: "/sazo-commerce/reference/nintendo-switch-case-v1.png",
+    labelKey: "appliances",
+    view: "categories",
+  },
+  {
+    id: "gaming",
+    image: "/sazo-commerce/reference/game-controller.png",
+    labelKey: "gaming",
+    view: "categories",
+  },
+  {
+    id: "figures",
+    image: "/sazo-commerce/reference/figure.png",
+    labelKey: "figures",
+    view: "categories",
+  },
+  {
+    id: "cameras",
+    image: "/sazo-commerce/reference/mirrorless-camera.png",
+    labelKey: "cameras",
+    view: "categories",
+  },
+  {
+    id: "audio",
+    image: "/sazo-commerce/mobile-picks/12.png",
+    labelKey: "audio",
+    view: "categories",
+  },
+  {
+    id: "hobby",
+    image: "/sazo-commerce/mobile-picks/01.png",
+    labelKey: "hobby",
+    view: "categories",
+  },
+  {
+    id: "kids",
+    image: "/sazo-commerce/products/02.webp",
+    labelKey: "kids",
+    view: "categories",
+  },
+  {
+    id: "sports",
+    image: "/sazo-commerce/reference/air-jordan-1-retro-high-og.png",
+    labelKey: "sports",
+    view: "categories",
+  },
+  {
+    id: "watches",
+    image: "/sazo-commerce/mobile-picks/17.png",
+    labelKey: "watches",
+    view: "categories",
+  },
+  {
+    id: "living",
+    image: "/sazo-commerce/mobile-picks/16.png",
+    labelKey: "living",
+    view: "categories",
+  },
+  {
+    id: "pets",
+    image: "/sazo-commerce/products/01.webp",
+    labelKey: "pets",
+    view: "categories",
+  },
+  {
+    id: "stationery",
+    image: "/sazo-commerce/products/10.webp",
+    labelKey: "stationery",
+    view: "categories",
+  },
+  {
+    id: "all",
+    image: "/sazo-commerce/mobile-picks/29.png",
+    labelKey: "all",
+    view: "categories",
+  },
+] satisfies readonly DesktopHomeCategoryItem[];
 
 export const products = [
   {
@@ -803,12 +985,7 @@ export type JplanetBrandDirectoryCategory =
   | "electronics"
   | "hobby";
 
-export type BrandProductCategory =
-  | "general"
-  | "limited"
-  | "flea"
-  | "cosmetics"
-  | "kpop";
+export type BrandProductCategory = "general" | "limited" | "flea" | "cosmetics" | "kpop";
 
 export interface BrandProduct {
   id: string;
@@ -1548,6 +1725,96 @@ export const reviewCategories = [
   { id: "kids-pets", label: "キッズ・ペット" },
 ] satisfies readonly ReviewCategory[];
 
+/**
+ * Review discovery uses decision axes rather than product taxonomy. The older
+ * category fixture above remains available to legacy captured-content views.
+ */
+export const purchaseReviewFilters: readonly PurchaseReviewFilter[] = [
+  { id: "all", labelKey: "sazo.views.reviews.filters.all" },
+  { id: "condition", labelKey: "sazo.views.reviews.filters.condition" },
+  { id: "brl-total", labelKey: "sazo.views.reviews.filters.brlTotal" },
+  { id: "shipping-customs", labelKey: "sazo.views.reviews.filters.shippingCustoms" },
+  { id: "support", labelKey: "sazo.views.reviews.filters.support" },
+] satisfies readonly PurchaseReviewFilter[];
+
+export const purchaseExperienceReviews: readonly PurchaseExperienceReview[] = [
+  {
+    id: "purchase-review-mika",
+    author: "Mika",
+    city: "São Paulo",
+    bodyKey: "sazo.views.reviews.entries.mika",
+    chipKeys: ["sazo.views.reviews.chips.url", "sazo.views.reviews.chips.condition"],
+    decisionAxes: ["condition", "brl-total"],
+    image: "/sazo-commerce/reference/new-balance-9060.png",
+    imageAltKey: "sazo.views.reviews.imageAlt",
+  },
+  {
+    id: "purchase-review-kou",
+    author: "Kou",
+    city: "Curitiba",
+    bodyKey: "sazo.views.reviews.entries.kou",
+    chipKeys: ["sazo.views.reviews.chips.image", "sazo.views.reviews.chips.shipping"],
+    decisionAxes: ["condition", "shipping-customs"],
+    image: "/sazo-commerce/reference/nintendo-pro-review-1-v1.png",
+    imageAltKey: "sazo.views.reviews.imageAlt",
+  },
+  {
+    id: "purchase-review-yuri",
+    author: "Yuri",
+    city: "Belo Horizonte",
+    bodyKey: "sazo.views.reviews.entries.yuri",
+    chipKeys: ["sazo.views.reviews.chips.shipping"],
+    decisionAxes: ["condition", "shipping-customs"],
+    image: "/sazo-commerce/review-media/r06.jpg",
+    imageAltKey: "sazo.views.reviews.imageAlt",
+  },
+  {
+    id: "purchase-review-ken",
+    author: "Ken",
+    city: "Rio de Janeiro",
+    bodyKey: "sazo.views.reviews.entries.ken",
+    chipKeys: ["sazo.views.reviews.chips.image"],
+    decisionAxes: ["condition", "support"],
+    image: "/sazo-commerce/reference/figure.png",
+    imageAltKey: "sazo.views.reviews.imageAlt",
+  },
+  {
+    id: "purchase-review-marcela",
+    author: "Marcela",
+    city: "Recife",
+    bodyKey: "sazo.views.reviews.entries.marcela",
+    chipKeys: ["sazo.views.reviews.chips.brl"],
+    decisionAxes: ["brl-total", "shipping-customs"],
+    image: "/sazo-commerce/review-media/r04.jpg",
+    imageAltKey: "sazo.views.reviews.imageAlt",
+  },
+  {
+    id: "purchase-review-joao",
+    author: "João",
+    city: "Porto Alegre",
+    bodyKey: "sazo.views.reviews.entries.joao",
+    chipKeys: ["sazo.views.reviews.chips.support"],
+    decisionAxes: ["support", "brl-total"],
+    image: "/sazo-commerce/review-media/r05.jpg",
+    imageAltKey: "sazo.views.reviews.imageAlt",
+  },
+] satisfies readonly PurchaseExperienceReview[];
+
+/**
+ * The lead carousel keeps the two strongest full-photo examples first, while
+ * the community feed starts with the compact Yuri/Ken pair shown in the mobile
+ * review reference. Keeping the order in fixtures avoids presentation order
+ * being scattered through the view component.
+ */
+export const purchaseExperienceReviewFeed: readonly PurchaseExperienceReview[] = [
+  purchaseExperienceReviews[2]!,
+  purchaseExperienceReviews[3]!,
+  purchaseExperienceReviews[0]!,
+  purchaseExperienceReviews[1]!,
+  purchaseExperienceReviews[4]!,
+  purchaseExperienceReviews[5]!,
+];
+
 export const serviceSteps = [
   { id: "01", image: "/sazo-commerce/service-lp/jplanet-how-to-use-1.svg" },
   { id: "02", image: "/sazo-commerce/service-lp/jplanet-how-to-use-2.svg" },
@@ -2080,7 +2347,11 @@ const productDetailOverrides = new Map<string, Omit<ProductDetail, "product">>([
       purchaseNote: "関税込み・国際送料を含む見込みです。",
       information:
         "販売元・輸入条件・配送予定を確認してから手配します。表示金額と到着予定は、選択したカラーと配送先により変わる場合があります。",
-      recommendationIds: ["jplanet-nintendo-switch-oled", "jplanet-new-balance-9060", "p02"],
+      recommendationIds: [
+        "jplanet-nintendo-switch-oled",
+        "jplanet-new-balance-9060",
+        "p02",
+      ],
     },
   ],
 ]);

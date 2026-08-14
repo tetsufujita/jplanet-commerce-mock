@@ -456,7 +456,6 @@
 
   .sazo-root[data-view="home"] .sazo-home-dense-product {
     min-width: 0;
-    border: 1px solid var(--jplanet-line);
   }
 
   .sazo-root[data-view="home"] .sazo-home-dense-product-copy {
@@ -1411,5 +1410,650 @@
 
   .sazo-root[data-view="product"] .sazo-product-detail-primary-media {
     min-height: 390px;
+  }
+}
+
+/* Agent search reference — a product-resolution entry point, not a request inbox. */
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search {
+  width: 100%;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 0 0 calc(var(--sazo-mobile-nav-height) + 14px);
+  background: #fff;
+  color: var(--jplanet-navy);
+  font-family: Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-agent-hub-header {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(112px, 1fr) auto 31px 31px;
+  align-items: center;
+  gap: 9px;
+  min-height: 58px;
+  padding: 7px 15px 7px 7px;
+  border-bottom: 1px solid var(--jplanet-line);
+  background: #fff;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-agent-hub-header > button {
+  display: inline-flex;
+  width: 31px;
+  height: 31px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--jplanet-navy);
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-agent-hub-home {
+  justify-self: start;
+  width: 112px !important;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-agent-hub-home img {
+  width: 106px;
+  max-height: 31px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-agent-hub-header h1 {
+  position: absolute;
+  left: 50%;
+  margin: 0;
+  color: var(--jplanet-navy);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-agent-hub-cart {
+  position: relative;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-agent-hub-cart span {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  display: grid;
+  width: 15px;
+  height: 15px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--jplanet-sakura);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section {
+  margin: 0 14px !important;
+  padding: 25px 0;
+  border-bottom: 1px solid var(--jplanet-line);
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section[data-section="agent-search"] {
+  padding-top: 24px;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section[data-section="recent-products"] {
+  border-bottom: 0;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 17px;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search h2 {
+  margin: 0;
+  color: var(--jplanet-navy);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.25;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-intro > h2 {
+  font-size: 24px;
+  letter-spacing: -0.055em;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-intro > p {
+  margin: 5px 0 0;
+  color: var(--jplanet-muted);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.45;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-mobile-agent-composer {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-mobile-agent-composer-form {
+  margin-top: 35px !important;
+}
+
+.sazo-root[data-view="agent-hub"]
+  .sazo-agent-hub--search
+  .sazo-mobile-agent-composer[data-presentation="agent-hub"]
+  .sazo-mobile-agent-composer-input-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px 47px;
+  align-items: center;
+  min-height: 60px !important;
+  padding: 0 4px 0 14px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 13px !important;
+  background: #fff;
+  box-shadow: 0 2px 7px rgb(31 56 100 / 5%);
+}
+
+.sazo-root[data-view="agent-hub"]
+  .sazo-agent-hub--search
+  .sazo-mobile-agent-composer[data-presentation="agent-hub"]
+  textarea {
+  min-width: 0;
+  min-height: 58px !important;
+  padding: 13px 0 11px;
+  border: 0;
+  background: transparent;
+  color: var(--jplanet-navy);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.25;
+  resize: none;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-mobile-agent-composer textarea::placeholder {
+  color: #8691a5;
+  opacity: 1;
+}
+
+.sazo-root[data-view="agent-hub"]
+  .sazo-agent-hub--search
+  .sazo-mobile-agent-composer[data-presentation="agent-hub"]
+  :is(.sazo-mobile-agent-composer-camera, .sazo-mobile-agent-composer-submit) {
+  display: inline-flex;
+  width: 42px !important;
+  height: 42px !important;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--jplanet-navy);
+}
+
+.sazo-root[data-view="agent-hub"]
+  .sazo-agent-hub--search
+  .sazo-mobile-agent-composer[data-presentation="agent-hub"]
+  .sazo-mobile-agent-composer-submit {
+  width: 42px;
+  border-radius: 50%;
+  background: var(--jplanet-sakura);
+  color: #fff;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-mobile-agent-composer-submit:disabled {
+  opacity: 0.64;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-mobile-agent-composer-submit span,
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-mobile-agent-composer-menu {
+  display: none;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-note {
+  margin: 12px 0 0;
+  color: #8691a5;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section[data-section="recent-searches"] {
+  padding-top: 24px;
+  padding-bottom: 25px;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section[data-section="recent-searches"] > header {
+  margin-bottom: 16px;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section[data-section="recent-searches"] > header > button {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #8994a7;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section[data-section="recent-searches"] > header > button:disabled {
+  opacity: 0.4;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-chips {
+  display: flex;
+  gap: 8px;
+  margin: 0 -14px -2px;
+  padding: 0 14px 2px;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: none;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-chips li {
+  display: inline-flex;
+  min-height: 33px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px 0 10px;
+  border-radius: 9px;
+  background: #f4f6f9;
+  color: var(--jplanet-navy);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-chips li > button {
+  display: inline-flex;
+  width: 18px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #7d899c;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section[data-section="recent-products"] {
+  padding-top: 24px;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section[data-section="recent-products"] > header {
+  margin-bottom: 16px;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-recent-product-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-recent-product-list > li {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  min-height: 132px;
+  border-bottom: 1px solid var(--jplanet-line);
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-recent-product-list > li:last-child {
+  border-bottom: 0;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-recent-product-list > li > img {
+  width: 104px;
+  height: 104px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 6px;
+  background: #fff;
+  object-fit: contain;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-recent-product-list > li > div {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-recent-product-list strong {
+  overflow: hidden;
+  color: var(--jplanet-navy);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-recent-product-list span {
+  color: #77839a;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-recent-product-list button {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 0 8px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--jplanet-navy);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-mobile-nav .sazo-agent-nav-button[aria-pressed="true"] {
+  min-height: 65px;
+  border-radius: 11px;
+  background: var(--jplanet-navy);
+  box-shadow: none;
+  color: var(--jplanet-sakura);
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-mobile-nav .sazo-agent-nav-button[aria-pressed="true"] svg {
+  color: var(--jplanet-sakura);
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search :is(button, textarea):focus-visible {
+  outline: 3px solid var(--jplanet-sakura);
+  outline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+  .sazo-root[data-view="agent-hub"] .sazo-main.sazo-content-main {
+    width: min(100%, 720px);
+    min-height: calc(100vh - 76px);
+    margin: 0 auto;
+    padding: 0;
+    border-inline: 1px solid var(--jplanet-line);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub--search {
+    width: 100%;
+    padding-bottom: 40px;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub--search .sazo-agent-hub-header {
+    display: none !important;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section {
+    margin-inline: 34px;
+    padding-block: 30px;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-recent-product-list > li {
+    grid-template-columns: 104px minmax(0, 1fr) auto;
+  }
+}
+
+/* Match the compact purchase-agent introduction used on the mobile home screen. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub--search
+    section[data-section="agent-search"] {
+    margin: 18px 14px 0 !important;
+    padding: 15px 16px 14px;
+    border: 1px solid rgb(31 56 100 / 10%);
+    border-radius: 19px;
+    background: #fff;
+    box-shadow: 0 8px 20px rgb(18 32 65 / 11%);
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-intro {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-intro > img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-intro > div {
+    min-width: 0;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-intro > h2,
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-intro > div > h2 {
+    font-size: clamp(17px, 4.8vw, 21px);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-intro > p,
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-intro > div > p {
+    margin-top: 2px;
+    color: var(--jplanet-muted);
+    font-size: clamp(10px, 2.7vw, 12px);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub--search
+    .sazo-mobile-agent-composer-form {
+    margin-top: 12px !important;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub--search
+    .sazo-mobile-agent-composer[data-presentation="agent-hub"]
+    .sazo-mobile-agent-composer-input-shell {
+    grid-template-columns: minmax(0, 1fr) 24px 34px;
+    min-height: 52px !important;
+    height: 52px;
+    gap: 8px;
+    padding: 5px 7px 5px 15px;
+    border-color: #e5eaf2;
+    border-radius: 13px !important;
+    box-shadow: 0 2px 8px rgb(17 42 90 / 10%);
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub--search
+    .sazo-mobile-agent-composer[data-presentation="agent-hub"]
+    textarea {
+    min-height: 40px !important;
+    padding: 0;
+    color: #68758b;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.035em;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub--search
+    .sazo-mobile-agent-composer[data-presentation="agent-hub"]
+    :is(.sazo-mobile-agent-composer-camera, .sazo-mobile-agent-composer-submit) {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub--search
+    .sazo-mobile-agent-composer[data-presentation="agent-hub"]
+    .sazo-mobile-agent-composer-camera {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub--search
+    .sazo-mobile-agent-composer[data-presentation="agent-hub"]
+    .sazo-mobile-agent-composer-submit {
+    background: #ff96a7;
+  }
+
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-search-note {
+    margin-top: 9px;
+    font-size: 11px;
+  }
+
+  .sazo-root[data-view="agent-hub"]
+    .sazo-agent-hub--search
+    section[data-section="recent-searches"] {
+    padding-top: 24px;
+  }
+}
+
+/* Search-resolution follow-up sections stay light, sequential, and fixture-led. */
+.sazo-root[data-view="agent-hub"]
+  .sazo-agent-hub--search
+  section[data-section="recent-products"]
+  > header
+  > .sazo-agent-hub-recent-products-toggle {
+  display: inline-flex;
+  width: auto;
+  height: auto;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 7px 0 7px 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--jplanet-sakura-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-recent-products-empty {
+  margin: 0;
+  color: var(--jplanet-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section[data-section="common-searches"] {
+  padding-top: 22px;
+  padding-bottom: 23px;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section[data-section="common-searches"] > header {
+  margin-bottom: 14px;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-common-search-chips {
+  display: flex;
+  gap: 8px;
+  margin: 0 -14px -2px;
+  padding: 0 14px 2px;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: none;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-common-search-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-common-search-chips li {
+  flex: 0 0 auto;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-common-search-chips button {
+  min-height: 33px;
+  padding: 0 11px;
+  border: 1px solid var(--jplanet-line);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--jplanet-navy);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub--search section[data-section="how-it-works"] {
+  padding-top: 0;
+  padding-bottom: 22px;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-how-it-works-toggle {
+  display: flex;
+  width: 100%;
+  min-height: 49px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--jplanet-navy);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: left;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-how-it-works-toggle > svg {
+  flex: 0 0 auto;
+  color: var(--jplanet-muted);
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-how-it-works-list {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0 0 2px 18px;
+  color: var(--jplanet-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-popular-products {
+  margin: 0;
+  padding: 22px 10px 18px;
+  border-top: 1px solid var(--jplanet-line);
+  background: #f6f7f9;
+}
+
+.sazo-root[data-view="agent-hub"] .sazo-agent-hub-popular-products .sazo-home-dense-picks-heading {
+  margin-right: 4px;
+  margin-left: 4px;
+}
+
+@media (max-width: 341px) {
+  .sazo-root[data-view="agent-hub"] .sazo-agent-hub-popular-products {
+    padding-right: 8px;
+    padding-left: 8px;
   }
 }

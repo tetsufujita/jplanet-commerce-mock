@@ -29,6 +29,7 @@ export interface MobileAgentComposerProps {
   onSubmitted?: (submission: AgentComposerSubmission) => void;
   presentation?: "default" | "agent-hub";
   seedRequest: AgentComposerSeedRequest | null;
+  showHeader?: boolean;
 }
 
 interface ComposerImage {
@@ -44,6 +45,7 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
       onSubmitted,
       presentation = "default",
       seedRequest,
+      showHeader = true,
     },
     forwardedRef,
   ) {
@@ -173,24 +175,26 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
         data-presentation={presentation}
         ref={forwardedRef}
       >
-        <header className="sazo-mobile-agent-composer-header">
-          <img
-            alt=""
-            aria-hidden="true"
-            data-jplanet-sakura-mark
-            height={42}
-            src="/sazo-commerce/jplanet-sakura-mark.png"
-            width={42}
-          />
-          <div>
-            <h1>
-              {presentation === "agent-hub"
-                ? t("sazo.agentHub.composer.purchaseTitle")
-                : t("sazo.agentHub.composer.title")}
-            </h1>
-            {presentation === "agent-hub" ? null : <p>{t("sazo.agentHub.composer.purchaseIntro")}</p>}
-          </div>
-        </header>
+        {showHeader ? (
+          <header className="sazo-mobile-agent-composer-header">
+            <img
+              alt=""
+              aria-hidden="true"
+              data-jplanet-sakura-mark
+              height={42}
+              src="/sazo-commerce/jplanet-sakura-mark.png"
+              width={42}
+            />
+            <div>
+              <h1>
+                {presentation === "agent-hub"
+                  ? t("sazo.agentHub.composer.purchaseTitle")
+                  : t("sazo.agentHub.composer.title")}
+              </h1>
+              <p>{t("sazo.agentHub.composer.purchaseIntro")}</p>
+            </div>
+          </header>
+        ) : null}
 
         <form className="sazo-mobile-agent-composer-form" onSubmit={submit}>
           <input

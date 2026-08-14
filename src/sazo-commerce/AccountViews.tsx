@@ -27,7 +27,9 @@ import {
   Search,
   Settings,
   ShieldCheck,
+  ShoppingBag,
   ShoppingCart,
+  Store,
   Ticket,
   Truck,
   UserRoundPen,
@@ -881,32 +883,33 @@ function CouponTicket({
   onUse: () => void;
   selected: boolean;
 }) {
-  const buttonCopy = coupon.id === "first-purchase-r50" ? "あとで使う" : selected ? "選択中" : "使う";
+  const category = coupon.displayCategory ?? coupon.category;
+  const CategoryIcon = category === "shipping" ? Truck : category === "brand" ? Store : ShoppingBag;
+  const buttonCopy = coupon.actionMode === "later" ? "あとで使う" : selected ? "選択中" : "使う";
 
   return (
-    <article className="sazo-coupon-ticket" data-testid="jplanet-coupon-ticket">
-      <div className="sazo-coupon-ticket-main">
-        <span className="sazo-coupon-kind"><Ticket aria-hidden size={15} /> {couponCategoryCopy[coupon.displayCategory ?? coupon.category]}</span>
-        <h2>{coupon.name}</h2>
-        <strong>{coupon.discount}</strong>
-        <p>{coupon.minimumSpend}</p>
-        {coupon.maximumDiscount === undefined ? null : <p>{coupon.maximumDiscount}</p>}
-      </div>
-      <div className="sazo-coupon-ticket-actions">
-        <div>
-          <span className={coupon.expiresSoon ? "is-urgent" : undefined}>
-            {coupon.expiresSoon ? <CircleAlert aria-hidden size={14} /> : null}
-            {coupon.expiresAt}
-          </span>
-          {coupon.quantity === undefined ? null : <b>{coupon.quantity}枚</b>}
+    <article className="sazo-coupon-ticket" data-category={category} data-testid="jplanet-coupon-ticket">
+      <div className="sazo-coupon-ticket-body">
+        <span className="sazo-coupon-ticket-icon"><CategoryIcon aria-hidden size={24} strokeWidth={1.8} /></span>
+        <div className="sazo-coupon-ticket-main">
+          <span className="sazo-coupon-kind">{couponCategoryCopy[category]}</span>
+          <h2>{coupon.name}</h2>
+          <strong>{coupon.discount}</strong>
+          <p>{coupon.minimumSpend}</p>
+          {coupon.maximumDiscount === undefined ? null : <p>{coupon.maximumDiscount}</p>}
         </div>
-        <div>
-          <button onClick={onConditions} type="button">利用条件</button>
-          <button aria-pressed={selected} className={selected ? "is-selected" : undefined} onClick={onUse} type="button">
-            {buttonCopy}
-          </button>
-        </div>
+        {coupon.quantity === undefined ? null : <span className="sazo-coupon-ticket-quantity">残り{coupon.quantity}枚</span>}
       </div>
+      <footer className="sazo-coupon-ticket-footer">
+        <span className={coupon.expiresSoon ? "is-urgent" : undefined}>
+          {coupon.expiresSoon ? <CircleAlert aria-hidden size={15} /> : null}
+          {coupon.expiresAt}
+        </span>
+        <button className="sazo-coupon-conditions-link" onClick={onConditions} type="button">利用条件</button>
+        <button aria-pressed={selected} className={selected ? "is-selected" : undefined} onClick={onUse} type="button">
+          {buttonCopy}
+        </button>
+      </footer>
     </article>
   );
 }
@@ -955,11 +958,11 @@ export function CouponsView({ dispatch, state }: CouponStateProps) {
   };
 
   const useCoupon = (coupon: JplanetCoupon) => {
-    dispatch({ type: "select-coupon", couponId: coupon.id });
-    if (coupon.id === "first-purchase-r50") {
-      setNotice("初回購入 R$50 OFF を選択しました。カートで利用できます。");
+    if (coupon.actionMode === "later") {
+      setNotice("初回購入の条件を確認後に利用できます。");
       return;
     }
+    dispatch({ type: "select-coupon", couponId: coupon.id });
     if (coupon.category === "brand") {
       dispatch({ type: "navigate", view: "brands" });
       return;

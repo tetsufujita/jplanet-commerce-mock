@@ -43,55 +43,108 @@ async function renderHub({
 }
 
 describe("MobileAgentHubView", () => {
-  it("renders the compact agent form, newest two submissions, disclosure, and a separate recent-products rail", async () => {
+  it("renders the search entry, removable intents, two recent products, and the lower discovery sections", async () => {
     const { container } = await renderHub();
 
     expect(container.querySelector('[data-mobile-agent-hub][data-scenario="normal"]')).not.toBeNull();
     expect(screen.getByRole("heading", { name: "購入エージェント" })).toBeTruthy();
+    expect(screen.getByText("商品を送るだけで、購入判断まで。")).toBeTruthy();
     expect(screen.getByPlaceholderText("URL・画像・商品名を送る")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "カメラ" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "送信履歴" })).toBeTruthy();
-    expect(screen.getAllByRole("button", { name: /の結果を見る$/ })).toHaveLength(2);
-    expect(
-      screen.getByRole("button", { name: /過去の送信履歴 18件/ }).getAttribute(
-        "aria-expanded",
-      ),
-    ).toBe("false");
-    expect(screen.getByRole("heading", { name: "最近見た商品" })).toBeTruthy();
-    expect(container.querySelectorAll(".sazo-agent-hub-product-card")).toHaveLength(4);
+    expect(screen.getByText("URLは商品ページを直接開きます")).toBeTruthy();
+    const composer = container.querySelector<HTMLElement>('[data-section="agent-search"]');
+    if (composer === null) throw new Error("Agent composer section is missing");
+    expect(within(composer).getByRole("button", { name: "カメラ" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "最近の検索" })).toBeTruthy();
+    expect(screen.getByRole("list", { name: "最近の検索" }).children).toHaveLength(3);
+    expect(screen.getByRole("button", { name: "検索履歴を全消去" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "最近確認した商品" })).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: /の商品を見る$/ })).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "すべて見る（8件）" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "よく検索されるキーワード" })).toBeTruthy();
+    expect(screen.getByRole("list", { name: "よく検索されるキーワード" }).children).toHaveLength(5);
+    expect(screen.getByRole("button", { name: "このエージェントの使い方" }).getAttribute("aria-expanded")).toBe("false");
+    expect(screen.getByTestId("agent-popular-products").querySelectorAll("[data-testid='home-dense-product-card']")).toHaveLength(4);
+
+    expect(screen.queryByText("送信履歴")).toBeNull();
+    expect(screen.queryByText("過去の送信履歴 18件")).toBeNull();
+    expect(screen.queryByText("購入判断が完了しました")).toBeNull();
+    expect(container.querySelector("[data-jplanet-sakura-mark]")).not.toBeNull();
   });
 
-  it("keeps older submission history collapsed until its disclosure is activated", async () => {
+  it("removes individual search intents and clears the remaining search history", async () => {
     await renderHub();
-    const disclosure = screen.getByRole("button", { name: /過去の送信履歴 18件/ });
+    const history = screen.getByRole("list", { name: "最近の検索" });
 
-    expect(screen.queryByText("8月10日 10:11")).toBeNull();
-    fireEvent.click(disclosure);
+    fireEvent.click(screen.getByRole("button", { name: "Nintendo Switchを削除" }));
+    expect(history.children).toHaveLength(2);
+    expect(within(history).queryByText("Nintendo Switch")).toBeNull();
 
-    expect(disclosure.getAttribute("aria-expanded")).toBe("true");
-    expect(screen.getByText("8月10日 10:11")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /履歴を閉じる/ })).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: /履歴を閉じる/ }));
-    expect(screen.queryByText("8月10日 10:11")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "検索履歴を全消去" }));
+    expect(history.children).toHaveLength(0);
+    expect(
+      (screen.getByRole("button", { name: "検索履歴を全消去" }) as HTMLButtonElement).disabled,
+    ).toBe(true);
   });
 
-  it("opens the shared J-Planet detail flow from a submission result or a recently viewed product", async () => {
+  it("expands the viewed-product list to all eight rows, then closes it back to two", async () => {
+    await renderHub();
+
+    expect(screen.getAllByRole("button", { name: /の商品を見る$/ })).toHaveLength(2);
+    fireEvent.click(screen.getByRole("button", { name: "すべて見る（8件）" }));
+    expect(screen.getAllByRole("button", { name: /の商品を見る$/ })).toHaveLength(8);
+    expect(screen.getByRole("button", { name: "閉じる" }).getAttribute("aria-expanded")).toBe("true");
+
+    fireEvent.click(screen.getByRole("button", { name: "閉じる" }));
+    expect(screen.getAllByRole("button", { name: /の商品を見る$/ })).toHaveLength(2);
+  });
+
+  it("opens the usage steps on demand and resolves a common keyword through the shared product flow", async () => {
+    const dispatch = createDispatch();
+    await renderHub({ dispatch });
+    const howItWorks = screen.getByRole("button", { name: "このエージェントの使い方" });
+
+    fireEvent.click(howItWorks);
+    expect(howItWorks.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByText("URLを貼る")).toBeTruthy();
+    expect(screen.getByText("画像を送る")).toBeTruthy();
+    expect(screen.getByText("商品名で探す")).toBeTruthy();
+
+    fireEvent.click(screen.getAllByRole("button", { name: "カメラ" })[0]!);
+    expect(dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: "open-product" }));
+    fireEvent.click(screen.getByRole("button", { name: "フィギュア" }));
+    expect(dispatch).toHaveBeenLastCalledWith({
+      type: "open-product",
+      productId: "jplanet-character-figure",
+    });
+  });
+
+  it("opens the usage steps by default for the empty first-visit mock state", async () => {
+    await renderHub({ scenario: "empty" });
+
+    expect(screen.getByRole("list", { name: "最近の検索" }).children).toHaveLength(0);
+    expect(screen.getByText("まだ確認した商品はありません")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "すべて見る（8件）" })).toBeNull();
+    expect(screen.getByRole("button", { name: "このエージェントの使い方" }).getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByText("URLを貼る")).toBeTruthy();
+  });
+
+  it("opens the shared product-detail flow from a viewed-product CTA and directly from a search", async () => {
     const dispatch = createDispatch();
     await renderHub({ dispatch });
 
-    fireEvent.click(screen.getByRole("button", { name: "New Balance 9060の結果を見る" }));
-    fireEvent.click(
-      screen.getByRole("button", { name: "Nintendo Switch OLEDの商品詳細を見る" }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Sony α7C IIの商品を見る" }));
+    fireEvent.change(screen.getByPlaceholderText("URL・画像・商品名を送る"), {
+      target: { value: "日本限定スニーカー" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "送信" }));
 
     expect(dispatch).toHaveBeenNthCalledWith(1, {
       type: "open-product",
-      productId: "rakuten-new-balance",
+      productId: "jplanet-sony-a7c-ii",
     });
     expect(dispatch).toHaveBeenNthCalledWith(2, {
       type: "open-product",
-      productId: "jplanet-nintendo-switch-oled",
+      productId: "jplanet-new-balance-9060",
     });
   });
 
@@ -114,58 +167,13 @@ describe("MobileAgentHubView", () => {
     expect(dispatch).toHaveBeenNthCalledWith(3, { type: "open-chat" });
   });
 
-  it("starts the existing product lookup from the compact composer", async () => {
-    const dispatch = createDispatch();
-    await renderHub({ dispatch });
+  it("does not mix the opt-in legacy exception scenario into the normal agent search surface", async () => {
+    await renderHub({ scenario: "customs-action" });
 
-    fireEvent.change(screen.getByPlaceholderText("URL・画像・商品名を送る"), {
-      target: { value: "日本限定スニーカー" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "送信" }));
-
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "start-agent-search",
-      request: { imageName: null, summary: "日本限定スニーカー" },
-    });
-  });
-
-  it("does not render ambiguous purchase status or generic result sections in the normal state", async () => {
-    await renderHub();
-
-    expect(screen.queryByText("購入可能")).toBeNull();
-    expect(screen.queryByText("確認待ち")).toBeNull();
+    expect(screen.queryByText("通関手続きに必要な情報があります")).toBeNull();
+    expect(screen.queryByText("CPF・お届け先の確認")).toBeNull();
     expect(screen.queryByText("進行中")).toBeNull();
-    expect(screen.queryByText("確認結果")).toBeNull();
-    expect(screen.queryByText("カラーを選ぶと確定")).toBeNull();
-    expect(screen.queryByRole("button", { name: "カートに入れる" })).toBeNull();
-    expect(screen.queryByTestId("agent-customs-action-card")).toBeNull();
-  });
-
-  it("only displays the concrete customs action in the fixture-driven exception state", async () => {
-    const dispatch = createDispatch();
-    await renderHub({ dispatch, scenario: "customs-action" });
-
-    const action = screen.getByTestId("agent-customs-action-card");
-    expect(action.textContent).toContain("通関手続きに必要な情報があります");
-    expect(action.textContent).toContain("Air Jordan 1 Retro High OG");
-    expect(action.textContent).toContain("SNKRS Japan の商品ページを送信");
-    expect(action.textContent).toContain("受取人情報を入力してください");
-    expect(action.textContent).toContain("通関に提出する情報として必要です");
-    expect(action.textContent).toContain("CPF・お届け先の確認");
-
-    fireEvent.click(screen.getByRole("button", { name: "情報を入力する" }));
-    const dialog = screen.getByRole("dialog", { name: "CPF・お届け先を確認" });
-    fireEvent.change(within(dialog).getByRole("textbox", { name: "CPF" }), {
-      target: { value: "123.456.789-00" },
-    });
-    fireEvent.change(within(dialog).getByRole("textbox", { name: "お届け先" }), {
-      target: { value: "São Paulo, Brazil" },
-    });
-    fireEvent.click(within(dialog).getByRole("button", { name: "入力内容を保存する" }));
-
-    expect(screen.queryByTestId("agent-customs-action-card")).toBeNull();
-    expect(screen.getByRole("status").textContent).toContain("受取人情報を保存しました");
-    expect(dispatch).toHaveBeenCalledWith({ type: "complete-agent-customs-action" });
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   it("consumes a camera-entry intent through the shared composer", async () => {

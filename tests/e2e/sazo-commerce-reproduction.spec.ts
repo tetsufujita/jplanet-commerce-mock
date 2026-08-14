@@ -31,8 +31,8 @@ async function expectLoadedDenseHomeProducts(page: Page) {
   const cards = page.getByTestId("home-dense-product-card");
   const images = page.locator("[data-home-dense-product-grid] img");
 
-  await expect(cards).toHaveCount(16);
-  await expect(images).toHaveCount(16);
+  await expect(cards).toHaveCount(48);
+  await expect(images).toHaveCount(48);
   await expect
     .poll(() =>
       images.evaluateAll((elements) =>
@@ -150,48 +150,6 @@ async function expectNoHorizontalPageOverflow(page: Page) {
   expect(geometry.scrollWidth).toBe(geometry.clientWidth);
 }
 
-async function expectMobileGridLayout(
-  grid: Locator,
-  expectedColumns: number,
-  expectedPageSize: number,
-  expectedOverflow: "horizontal" | "vertical" | "none",
-) {
-  await expect(grid).toHaveAttribute("data-page-size", String(expectedPageSize));
-  await expect(grid).toHaveAttribute(
-    "data-layout",
-    expectedColumns === 5
-      ? "five-column-two-row"
-      : expectedColumns === 7
-        ? "seven-column-quick-row"
-        : "four-column-page",
-  );
-
-  const layout = await grid.evaluate((element) => {
-    const layoutElement =
-      element.querySelector<HTMLElement>("[data-mobile-category-page]") ?? element;
-    const style = getComputedStyle(layoutElement);
-    return {
-      display: style.display,
-      columns: style.gridTemplateColumns.split(" ").filter(Boolean).length,
-      clientHeight: element.clientHeight,
-      clientWidth: element.clientWidth,
-      scrollHeight: element.scrollHeight,
-      scrollWidth: element.scrollWidth,
-    };
-  });
-
-  expect(layout.display).toBe("grid");
-  expect(layout.columns).toBe(expectedColumns);
-  if (expectedOverflow === "vertical") {
-    expect(layout.scrollHeight).toBeGreaterThan(layout.clientHeight);
-  } else if (expectedOverflow === "horizontal") {
-    expect(layout.scrollWidth).toBeGreaterThan(layout.clientWidth);
-  } else {
-    expect(layout.scrollWidth).toBe(layout.clientWidth);
-    expect(layout.scrollHeight).toBe(layout.clientHeight);
-  }
-}
-
 async function expectComposerBelowAgentHeader(page: Page) {
   await page.evaluate(() => {
     window.scrollTo({ behavior: "instant", top: 0 });
@@ -250,12 +208,17 @@ async function replayDesktopScenario(page: Page) {
           slides.map((slide) => slide.getAttribute("data-hero-slide")),
         ),
     )
-    .toEqual(["jplanet-ai-emerald", "jplanet-ai-violet", "jplanet-ai-coral"]);
+    .toEqual([
+      "jplanet-home-japan-brazil",
+      "jplanet-home-chatgpt",
+      "jplanet-home-popular",
+      "jplanet-home-service",
+    ]);
   await page.getByRole("button", { exact: true, name: "次のバナー" }).click();
-  await expect(heroCounter).toHaveText("2/3");
+  await expect(heroCounter).toHaveText("2/4");
 
   await page.getByRole("button", { exact: true, name: "前のバナー" }).click();
-  await expect(heroCounter).toHaveText("1/3");
+  await expect(heroCounter).toHaveText("1/4");
   await expect(heroRoot).toHaveAttribute("data-view", "home");
 
   await page.goto(routePath);
@@ -264,7 +227,7 @@ async function replayDesktopScenario(page: Page) {
 
   await page.getByTestId("nav-reviews").click();
   await expect(
-    page.getByRole("heading", { exact: true, level: 2, name: "利用レビュー" }),
+    page.getByRole("heading", { exact: true, level: 2, name: "みんなの購入体験" }),
   ).toBeVisible();
 
   await page.getByTestId("chat-launcher").click();
@@ -377,7 +340,7 @@ async function replayMobileScenario(page: Page) {
     )
     .toEqual({ objectFit: "cover", objectPosition: "50% 50%" });
 
-  await expect(heroCounter).toHaveText("1/3");
+  await expect(heroCounter).toHaveText("1/4");
   const heroPause = page.getByRole("button", { exact: true, name: "バナーを一時停止" });
   if (await heroPause.isVisible()) {
     await heroPause.click();
@@ -399,7 +362,7 @@ async function replayMobileScenario(page: Page) {
     pointerId: 41,
     pointerType: "touch",
   });
-  await expect(heroCounter).toHaveText("2/3");
+  await expect(heroCounter).toHaveText("2/4");
 
   await heroViewport.dispatchEvent("pointerdown", {
     clientX: 250,
@@ -415,7 +378,7 @@ async function replayMobileScenario(page: Page) {
     pointerId: 42,
     pointerType: "touch",
   });
-  await expect(heroCounter).toHaveText("2/3");
+  await expect(heroCounter).toHaveText("2/4");
 
   await heroViewport.dispatchEvent("pointerdown", {
     clientX: 245,
@@ -431,19 +394,19 @@ async function replayMobileScenario(page: Page) {
     pointerId: 43,
     pointerType: "touch",
   });
-  await expect(heroCounter).toHaveText("1/3");
+  await expect(heroCounter).toHaveText("1/4");
 
   const nativeStart = await pointInsideHero(page, 0.8, 0.5);
   const nativeMiddle = await pointInsideHero(page, 0.6, 0.51);
   const nativeEnd = await pointInsideHero(page, 0.35, 0.52);
   await dispatchNativeTouchGesture(page, [nativeStart, nativeMiddle, nativeEnd]);
-  await expect(heroCounter).toHaveText("2/3");
+  await expect(heroCounter).toHaveText("2/4");
 
   const campaignStart = await pointInsideHero(page, 0.75, 0.5);
   const campaignMiddle = await pointInsideHero(page, 0.55, 0.51);
   const campaignEnd = await pointInsideHero(page, 0.3, 0.52);
   await dispatchNativeTouchGesture(page, [campaignStart, campaignMiddle, campaignEnd]);
-  await expect(heroCounter).toHaveText("3/3");
+  await expect(heroCounter).toHaveText("3/4");
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
 
   const shortcutMenu = page.locator("[data-mobile-shortcut-grid]");
@@ -468,10 +431,21 @@ async function replayMobileScenario(page: Page) {
     .poll(() => page.evaluate(() => window.scrollY))
     .toBeGreaterThan(scrollBefore);
   await waitForScrollSettle(page);
-  await expect(heroCounter).toHaveText("3/3");
+  await expect(heroCounter).toHaveText("3/4");
   const persistentAssurances = page.locator(".sazo-home-agent-assurances");
   await expect(persistentAssurances).toBeVisible();
   await expect(persistentAssurances).toHaveCSS("display", "grid");
+  await expect(persistentAssurances).toHaveCSS("border-top-width", "0px");
+  const agentEntryAlignment = await page.locator("[data-home-agent-entry]").evaluate((entry) => {
+    const launcher = entry.querySelector<HTMLElement>(".sazo-home-agent-launcher");
+    const assurances = entry.querySelector<HTMLElement>(".sazo-home-agent-assurances");
+
+    return Math.abs(
+      (launcher?.getBoundingClientRect().left ?? Number.NaN) -
+        (assurances?.getBoundingClientRect().left ?? Number.NaN),
+    );
+  });
+  expect(agentEntryAlignment).toBeLessThanOrEqual(1);
   await expectLoadedDenseHomeProducts(page);
   externalRequests.length = 0;
 
@@ -583,9 +557,13 @@ async function replayMobileScenario(page: Page) {
   const couponCodeForm = page.getByRole("form", { name: "クーポンコードを入力" });
   await expect(couponCodeForm).toBeVisible();
   await expect(couponCodeForm.getByRole("button", { name: "適用" })).toBeDisabled();
-  await couponCodeForm.getByRole("textbox", { name: "クーポンコードを入力" }).fill("JPLANET20");
+  await couponCodeForm
+    .getByRole("textbox", { name: "クーポンコードを入力" })
+    .fill("JPLANET20");
   await couponCodeForm.getByRole("button", { name: "適用" }).click();
-  await expect(couponCodeForm.getByRole("status")).toContainText("クーポンを追加しました");
+  await expect(couponCodeForm.getByRole("status")).toContainText(
+    "クーポンを追加しました",
+  );
   await couponCodeForm.getByRole("button", { name: "閉じる" }).click();
   await expect(coupons.getByRole("tab", { name: "すべて (5)" })).toBeVisible();
   await coupons.getByRole("button", { name: "クーポンを探す" }).click();
@@ -605,20 +583,15 @@ async function replayMobileScenario(page: Page) {
   await page.setViewportSize(mobileViewport);
 
   const gramSection = page.getByTestId("mobile-gram-section");
-  const categorySection = page.getByTestId("mobile-category-rail");
-  const categoryRail = categorySection.getByRole("group", {
-    exact: true,
-    name: "商品カテゴリーから探す",
-  });
+  const recommendations = page.locator("[data-mobile-picks-grid]");
   await expect(gramSection).toBeVisible();
-  await expect(categorySection).toBeVisible();
+  await expect(page.getByTestId("mobile-category-rail")).toHaveCount(0);
+  await expect(recommendations).toBeVisible();
   expect(
     await gramSection.evaluate((element) =>
-      element.nextElementSibling?.hasAttribute("data-mobile-category-rail"),
+      element.nextElementSibling?.hasAttribute("data-mobile-picks-grid"),
     ),
   ).toBe(true);
-  await expect(categorySection).not.toHaveClass(/sazo-mobile-category-section--compact/);
-  await expectMobileGridLayout(categoryRail, 4, 8, "horizontal");
   await expectNoHorizontalPageOverflow(page);
 
   await page.setViewportSize({ height: 844, width: 390 });
@@ -626,23 +599,6 @@ async function replayMobileScenario(page: Page) {
   await page.setViewportSize({ height: 956, width: 440 });
   await expectNoHorizontalPageOverflow(page);
   await page.setViewportSize(mobileViewport);
-
-  for (const label of ["メンズ", "食品"] as const) {
-    const currentCategoryRail = page
-      .getByTestId("mobile-category-rail")
-      .getByRole("group", { exact: true, name: "商品カテゴリーから探す" });
-    await currentCategoryRail.getByRole("button", { exact: true, name: label }).click();
-    await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "beauty");
-    const categoryId = label === "メンズ" ? "mens" : "food";
-    await expect(page.getByTestId("category-agent-intro")).toBeVisible();
-    await expect(page.getByTestId("category-agent-intro")).toHaveAttribute(
-      "data-category-id",
-      categoryId,
-    );
-    await expect(page.getByRole("heading", { name: /J-Planetで探す/ })).toBeVisible();
-    await mobileNavigation.getByRole("button", { exact: true, name: "ホーム" }).click();
-    await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
-  }
 
   const homeAgent = page.locator("[data-home-agent-entry]");
   await expect(homeAgent).toBeVisible();
@@ -738,31 +694,23 @@ async function replayMobileScenario(page: Page) {
   });
   await expect(hub).toBeVisible();
   await expect(
-    hub.getByRole("heading", { exact: true, name: "送信履歴" }),
+    hub.getByRole("heading", { exact: true, name: "最近の検索" }),
   ).toBeVisible();
   await expect(
-    hub.getByRole("heading", { exact: true, name: "最近見た商品" }),
+    hub.getByRole("heading", { exact: true, name: "最近確認した商品" }),
   ).toBeVisible();
   await expect(
-    hub.getByRole("button", { name: /過去の送信履歴 18件/ }),
-  ).toHaveAttribute("aria-expanded", "false");
+    hub.getByRole("list", { name: "最近の検索" }).getByRole("listitem"),
+  ).toHaveCount(3);
+  await expect(hub.getByText("送信履歴", { exact: true })).toHaveCount(0);
+  await expect(hub.getByText("過去の送信履歴 18件", { exact: true })).toHaveCount(0);
 
-  await hub.getByRole("button", { name: /過去の送信履歴 18件/ }).click();
-  await expect(
-    hub.getByText("8月10日 10:11", { exact: true }),
-  ).toBeVisible();
-  await hub.getByRole("button", { name: /履歴を閉じる/ }).click();
-  await expect(hub.getByText("8月10日 10:11", { exact: true })).toHaveCount(0);
-
-  await hub
-    .getByRole("button", { name: "New Balance 9060の結果を見る" })
-    .click();
+  await hub.getByRole("button", { name: "New Balance 9060の商品を見る" }).click();
   const product = page.getByTestId("jplanet-controller-result");
   await expect(product).toBeVisible();
   await product.getByRole("button", { exact: true, name: "戻る" }).click();
   await expect(hub).toBeVisible();
 
-  await expectComposerBelowAgentHeader(page);
   const composer = hub.locator(".sazo-mobile-agent-composer");
   await composer
     .getByRole("textbox", { name: "URL・画像・商品名をAIに渡す" })
@@ -773,17 +721,8 @@ async function replayMobileScenario(page: Page) {
   });
   await expect(submit).toBeEnabled();
   await submit.click();
-  await expect(page.locator(".sazo-root")).toHaveAttribute(
-    "data-view",
-    "agent-searching",
-  );
-  await expect(page.locator("[data-agent-pet-stage]")).toBeVisible();
-  await expect(page.getByText("商品情報を確認しています", { exact: true })).toHaveCount(
-    0,
-  );
-  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "product", {
-    timeout: 12_000,
-  });
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "product");
+  await expect(page.locator("[data-agent-pet-stage]")).toHaveCount(0);
   await expect(page.getByTestId("jplanet-controller-result")).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Nintendo Switch Proコントローラー" }),
@@ -1011,12 +950,17 @@ test("renders Jupi at half of its former scale beside Kurone", async ({
   await expect(kurone).toBeVisible();
   await expect(jupi).toBeVisible();
 
-  const [kuroneBox, jupiBox] = await Promise.all([kurone.boundingBox(), jupi.boundingBox()]);
+  const [kuroneBox, jupiBox] = await Promise.all([
+    kurone.boundingBox(),
+    jupi.boundingBox(),
+  ]);
   if (kuroneBox === null || jupiBox === null) throw new Error("Missing pet geometry");
   expect(jupiBox.width / kuroneBox.width).toBeLessThanOrEqual(0.3);
 });
 
-test("interpolates Jupi's dodge smoothly between pixel-art frames", async ({ page }, testInfo) => {
+test("interpolates Jupi's dodge smoothly between pixel-art frames", async ({
+  page,
+}, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "the pet animation is mobile-first");
   await page.goto(`${routePath}&view=agent-searching`);
 
@@ -1046,7 +990,7 @@ test("interpolates Jupi's dodge smoothly between pixel-art frames", async ({ pag
   expect(Math.abs(atOneSecond - atZeroPointNineSeconds)).toBeGreaterThan(0.1);
 });
 
-test("shows a dense BRL-only home grid and returns each card to the shared controller detail", async ({
+test("shows a waterfall home grid with direct-Japan prices and returns each card to the shared controller detail", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "the dense home grid is mobile-first");
@@ -1057,30 +1001,123 @@ test("shows a dense BRL-only home grid and returns each card to the shared contr
   await grid.evaluate((element) => {
     element.scrollIntoView({ block: "start" });
   });
-  await expect(cards).toHaveCount(16);
+  await expect(cards).toHaveCount(48);
+  await expect(grid).toHaveAttribute("data-column-count", "2");
+  await expect(grid.locator(".sazo-home-dense-product-column")).toHaveCount(2);
   expect(
     await cards.evaluateAll((elements) =>
       elements.map((element) => element.getAttribute("data-product-target")),
     ),
-  ).toEqual(Array.from({ length: 16 }, () => "jplanet-nintendo-pro-controller"));
+  ).toEqual(Array.from({ length: 48 }, () => "jplanet-nintendo-pro-controller"));
+  expect(
+    await cards.evaluateAll((elements) =>
+      elements.map((card) => {
+        const image = card.querySelector<HTMLImageElement>(
+          ".sazo-home-dense-product-media img",
+        );
+
+        if (image === null) throw new Error("Missing dense product image");
+
+        return {
+          cardBorderTopWidth: getComputedStyle(card).borderTopWidth,
+          imageObjectFit: getComputedStyle(image).objectFit,
+          imagePaddingTop: getComputedStyle(image).paddingTop,
+        };
+      }),
+    ),
+  ).toEqual(
+    Array.from({ length: 48 }, () => ({
+      cardBorderTopWidth: "0px",
+      imageObjectFit: "cover",
+      imagePaddingTop: "0px",
+    })),
+  );
   await expect(grid).not.toContainText("¥");
   await expect(grid).toContainText("R$ 429");
-  const scrollTopBeforeOpen = await page.evaluate(() => window.scrollY);
-
-  await cards.first().getByRole("button").click();
+  await expect(grid).toContainText("14% OFF");
+  await expect(grid).toContainText("R$ 498");
+  await expect(grid).toContainText("9,450件販売");
+  await expect(grid).toContainText("日本から直送");
+  await expect(grid).not.toContainText("購入済み");
+  await expect(grid.locator(".sazo-home-dense-product-rating")).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath("home-sales-count-341.png") });
+  await expect(grid.locator(".sazo-home-dense-product-add")).toHaveCount(48);
+  await expect(grid.locator(".sazo-home-dense-product-copy").first()).toHaveCSS(
+    "display",
+    "grid",
+  );
+  expect(
+    await cards
+      .locator(".sazo-home-dense-product-media")
+      .evaluateAll((elements) =>
+        elements.map((element) => Math.round(element.getBoundingClientRect().height)),
+      ),
+  ).not.toEqual(Array.from({ length: 48 }, () => 0));
+  expect(
+    new Set(
+      await cards
+        .locator(".sazo-home-dense-product-media")
+        .evaluateAll((elements) =>
+          elements.map((element) => Math.round(element.getBoundingClientRect().height)),
+        ),
+    ).size,
+  ).toBeGreaterThan(1);
+  await cards
+    .first()
+    .getByRole("button", {
+      name: "Nintendo Switch Proコントローラーの購入オプションを選ぶ",
+    })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Nintendo Switch Proコントローラー" }),
   ).toBeVisible();
-  await page.getByTestId("jplanet-product-media-header").getByRole("button", { name: "戻る" }).click();
+  await page
+    .getByTestId("jplanet-product-media-header")
+    .getByRole("button", { name: "戻る" })
+    .click();
+  await expect(grid).toBeVisible();
+  const scrollTopBeforeOpen = await page.evaluate(() => window.scrollY);
+
+  await cards.first().locator(".sazo-home-dense-product-copy").click();
+  await expect(
+    page.getByRole("heading", { name: "Nintendo Switch Proコントローラー" }),
+  ).toBeVisible();
+  await page
+    .getByTestId("jplanet-product-media-header")
+    .getByRole("button", { name: "戻る" })
+    .click();
   await expect(grid).toBeVisible();
   await expect
     .poll(() => page.evaluate(() => window.scrollY))
     .toBeGreaterThanOrEqual(Math.max(0, scrollTopBeforeOpen - 2));
 
-  await cards.last().getByRole("button").click();
+  await cards.last().locator(".sazo-home-dense-product-copy").click();
   await expect(
     page.getByRole("heading", { name: "Nintendo Switch Proコントローラー" }),
   ).toBeVisible();
+});
+
+test("keeps the waterfall grid legible on tablet and desktop", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "desktop",
+    "desktop project supplies the tablet-sized viewport",
+  );
+
+  await page.goto(routePath);
+  const grid = page.locator("[data-home-dense-product-grid]");
+
+  for (const { width, columns } of [
+    { width: 768, columns: 3 },
+    { width: 1_024, columns: 4 },
+    { width: 1_511, columns: 5 },
+  ]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect(grid).toHaveAttribute("data-column-count", String(columns));
+    await expect(grid.locator(".sazo-home-dense-product-column")).toHaveCount(columns);
+    await expect(page.locator("html")).toHaveJSProperty("scrollWidth", width);
+  }
 });
 
 test("completes the J-Planet Nintendo variant sheet into the source-grouped cart", async ({
@@ -1103,10 +1140,9 @@ test("completes the J-Planet Nintendo variant sheet into the source-grouped cart
     "aria-pressed",
     "true",
   );
-  await expect(sheet.getByRole("button", { name: /スプラトゥーン 売り切れ/ })).toHaveAttribute(
-    "disabled",
-    "",
-  );
+  await expect(
+    sheet.getByRole("button", { name: /スプラトゥーン 売り切れ/ }),
+  ).toHaveAttribute("disabled", "");
   await sheet.getByRole("button", { name: /ホワイト 在庫あり/ }).click();
   await expect(sheet.getByRole("button", { name: /ホワイト 在庫あり/ })).toHaveAttribute(
     "aria-pressed",
@@ -1119,7 +1155,9 @@ test("completes the J-Planet Nintendo variant sheet into the source-grouped cart
   await expect(page.getByText("Nintendo 公式", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "購入手続きへ (4)" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Rakuten Japan 公式ストアのクーポンを選択" }).click();
+  await page
+    .getByRole("button", { name: "Rakuten Japan 公式ストアのクーポンを選択" })
+    .click();
   await expect(page.getByRole("dialog", { name: "クーポンを選択" })).toBeVisible();
   await page.getByRole("button", { name: "適用する" }).click();
   await expect(page.getByText("R$ 20 OFF", { exact: true })).toBeVisible();
@@ -1135,6 +1173,33 @@ test("completes the J-Planet Nintendo variant sheet into the source-grouped cart
   await checkout.getByRole("button", { name: "税金の説明を表示" }).click();
   await expect(page.getByRole("dialog", { name: "税金の説明" })).toBeVisible();
   await page.getByRole("button", { name: "確認しました" }).click();
+});
+
+test("places the home-style recommendation grid below the cart", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "mobile",
+    "the cart recommendation surface is mobile-first",
+  );
+
+  await page.goto(`${routePath}&view=cart`);
+  const recommendations = page.getByTestId("jplanet-cart-recommendations");
+  await recommendations.evaluate((element) => element.scrollIntoView({ block: "start" }));
+
+  await expect(
+    recommendations.getByRole("heading", { name: "あなたへのおすすめ" }),
+  ).toBeVisible();
+  await expect(recommendations.locator(".sazo-home-dense-product")).toHaveCount(16);
+  await expect(recommendations.locator(".sazo-home-dense-product-add")).toHaveCount(16);
+  await recommendations
+    .getByRole("button", {
+      name: "Nintendo Switch Proコントローラーの購入オプションを選ぶ",
+    })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Nintendo Switch Proコントローラー" }),
+  ).toBeVisible();
 });
 
 test("continues a retrieved Nintendo product with reviews and recommendations in one scroll", async ({
@@ -1159,7 +1224,9 @@ test("continues a retrieved Nintendo product with reviews and recommendations in
   await expect(page.getByText("購入条件を確認中", { exact: true })).toHaveCount(0);
   await expect(page.getByText("限定ハイプラ", { exact: true })).toHaveCount(0);
   await expect(page.getByText("J-Planetの到着実績", { exact: true })).toHaveCount(0);
-  await expect(page.getByText("この商品をブラジルへ届けた記録", { exact: true })).toHaveCount(0);
+  await expect(
+    page.getByText("この商品をブラジルへ届けた記録", { exact: true }),
+  ).toHaveCount(0);
   await expect(page.getByText("確認済みの購入のみ", { exact: true })).toHaveCount(0);
   await expect(page.getByText("配送・通関の詳細を見る", { exact: true })).toHaveCount(0);
   await expect(page.getByText("通常日本商品", { exact: true })).toBeVisible();
@@ -1189,7 +1256,10 @@ test("continues a retrieved Nintendo product with reviews and recommendations in
   await expect(page.getByTestId("jplanet-controller-result")).toBeVisible();
   await inlineFollowup.scrollIntoViewIfNeeded();
   await expect(inlineFollowup).toBeVisible();
-  await reviewPreview.getByRole("button", { name: "すべてのレビューを見る" }).first().click();
+  await reviewPreview
+    .getByRole("button", { name: "すべてのレビューを見る" })
+    .first()
+    .click();
   await expect(page.getByTestId("jplanet-product-reviews")).toBeVisible();
   await expect(page.getByRole("heading", { name: "商品レビュー" })).toBeVisible();
   await page.getByRole("button", { exact: true, name: "写真付き 36" }).click();
@@ -1204,14 +1274,21 @@ test("continues a retrieved Nintendo product with reviews and recommendations in
   await inlineFollowup.scrollIntoViewIfNeeded();
   await expect(reviewPreview).toBeVisible();
   await relatedProducts
-    .getByRole("button", { exact: true, name: "Nintendo Switch Proコントローラーの商品詳細を見る" })
+    .getByRole("button", {
+      exact: true,
+      name: "Nintendo Switch Proコントローラーの商品詳細を見る",
+    })
     .click();
   await page.evaluate(() => window.scrollTo({ behavior: "instant", top: 0 }));
   await expect(page.getByTestId("jplanet-controller-result")).toBeVisible();
   await expect(page.getByRole("button", { name: /バリアントを選択/ })).toHaveCount(0);
-  const controllerGallery = page.locator(".sazo-reference-nintendo-controller-thumbnails");
+  const controllerGallery = page.locator(
+    ".sazo-reference-nintendo-controller-thumbnails",
+  );
   await expect(controllerGallery.getByRole("button")).toHaveCount(3);
-  await controllerGallery.getByRole("button", { exact: true, name: "ホワイトを表示" }).click();
+  await controllerGallery
+    .getByRole("button", { exact: true, name: "ホワイトを表示" })
+    .click();
   await expect(
     page
       .locator(".sazo-reference-nintendo-controller-media")
@@ -1254,7 +1331,9 @@ test("renders structured product specifications and collapsible product descript
       "Bluetooth / USB Type-C",
     );
     await expectNoHorizontalPageOverflow(page);
-    await page.screenshot({ path: testInfo.outputPath(`product-information-collapsed-${viewport.width}.png`) });
+    await page.screenshot({
+      path: testInfo.outputPath(`product-information-collapsed-${viewport.width}.png`),
+    });
   }
 
   await page.setViewportSize({ height: 844, width: 390 });
@@ -1263,7 +1342,9 @@ test("renders structured product specifications and collapsible product descript
   const specificationSheet = page.getByRole("dialog", { name: "商品仕様" });
   await expect(specificationSheet).toBeVisible();
   await expect(specificationSheet).toContainText("HAC-A-FSSKA");
-  await page.screenshot({ path: testInfo.outputPath("product-specification-sheet-390.png") });
+  await page.screenshot({
+    path: testInfo.outputPath("product-specification-sheet-390.png"),
+  });
   await page.getByRole("button", { name: "商品仕様を閉じる" }).click();
 
   const description = page.locator(".sazo-reference-nintendo-product-description");
@@ -1273,9 +1354,13 @@ test("renders structured product specifications and collapsible product descript
     page.locator(".sazo-reference-nintendo-product-description-content"),
   ).toHaveAttribute("data-expanded", "true");
   await expect(description.getByText("主な仕様", { exact: true })).toBeVisible();
-  await page.screenshot({ path: testInfo.outputPath("product-information-expanded-390.png") });
+  await page.screenshot({
+    path: testInfo.outputPath("product-information-expanded-390.png"),
+  });
   await description
-    .getByRole("button", { name: "Nintendo Switch Proコントローラー ブラックの正面を拡大" })
+    .getByRole("button", {
+      name: "Nintendo Switch Proコントローラー ブラックの正面を拡大",
+    })
     .click();
   await expect(
     page.getByRole("dialog", {
@@ -1287,7 +1372,9 @@ test("renders structured product specifications and collapsible product descript
   await expectNoHorizontalPageOverflow(page);
 });
 
-test("keeps the product media header over the gallery until product information reaches it", async ({ page }, testInfo) => {
+test("keeps the product media header over the gallery until product information reaches it", async ({
+  page,
+}, testInfo) => {
   test.skip(
     testInfo.project.name !== "mobile",
     "the product-media header is a mobile-first interaction",
@@ -1301,15 +1388,16 @@ test("keeps the product media header over the gallery until product information 
   const controllerMedia = page.locator(".sazo-reference-nintendo-controller-media");
   const controllerVariantRail = page.getByTestId("jplanet-controller-variant-rail");
   await expect(controllerMedia).toBeVisible();
-  await expect(controllerMedia.locator(".sazo-reference-nintendo-controller-thumbnails")).toHaveCount(0);
+  await expect(
+    controllerMedia.locator(".sazo-reference-nintendo-controller-thumbnails"),
+  ).toHaveCount(0);
   await expect(controllerVariantRail).toBeVisible();
   await expect(controllerVariantRail).toContainText("3色のバリエーション");
   expect(
-    await page.evaluate(
-      () =>
-        document.querySelector(".sazo-reference-nintendo-controller-media")?.nextElementSibling?.getAttribute(
-          "data-testid",
-        ),
+    await page.evaluate(() =>
+      document
+        .querySelector(".sazo-reference-nintendo-controller-media")
+        ?.nextElementSibling?.getAttribute("data-testid"),
     ),
   ).toBe("jplanet-controller-variant-rail");
   await expect(header.getByRole("button", { name: "戻る" })).toBeVisible();
@@ -1328,7 +1416,9 @@ test("keeps the product media header over the gallery until product information 
 
   const productInformation = page.getByTestId("jplanet-product-information");
   const bounds = await productInformation.evaluate((element) => {
-    const header = document.querySelector<HTMLElement>("[data-testid='jplanet-product-media-header']");
+    const header = document.querySelector<HTMLElement>(
+      "[data-testid='jplanet-product-media-header']",
+    );
     return {
       headerHeight: header?.getBoundingClientRect().height ?? 56,
       productInformationTop: element.getBoundingClientRect().top + window.scrollY,
@@ -1357,47 +1447,97 @@ test("keeps the product media header over the gallery until product information 
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
 });
 
-test("keeps agent submissions compact and exposes customs input only for the exception scenario", async ({
+test("renders the agent as a direct product-search entry at mobile widths", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "the agent hub is a mobile-first flow");
 
   await page.goto(`${routePath}&view=agent-hub&agentScenario=customs-action`);
+  await page.setViewportSize({ height: 844, width: 390 });
   const hub = page.locator("[data-mobile-agent-hub]");
   const navigation = page.getByRole("navigation", { name: "モバイルメニュー" });
 
   await expect(hub).toHaveAttribute("data-scenario", "customs-action");
-  await expect(hub.getByRole("heading", { name: "送信履歴", exact: true })).toBeVisible();
-  await expect(hub.getByRole("button", { name: /過去の送信履歴 18件/ })).toHaveAttribute(
-    "aria-expanded",
-    "false",
+  await expect(
+    hub.getByRole("heading", { name: "購入エージェント", exact: true }),
+  ).toBeVisible();
+  await expect(
+    hub.getByText("商品を送るだけで、購入判断まで。", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    hub.getByText("URLは商品ページを直接開きます", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    hub.getByRole("heading", { name: "最近の検索", exact: true }),
+  ).toBeVisible();
+  await expect(
+    hub.getByRole("heading", { name: "最近確認した商品", exact: true }),
+  ).toBeVisible();
+  await expect(
+    hub.getByRole("heading", { name: "よく検索されるキーワード", exact: true }),
+  ).toBeVisible();
+  await expect(hub.getByRole("button", { name: "すべて見る（8件）" })).toBeVisible();
+  await expect(
+    hub.getByRole("button", { name: "このエージェントの使い方" }),
+  ).toHaveAttribute("aria-expanded", "false");
+  await expect(hub.getByRole("button", { name: /の商品を見る$/ })).toHaveCount(2);
+  await expect(hub.getByText("結果を見る", { exact: true })).toHaveCount(0);
+  await expect(hub.getByText("送信履歴", { exact: true })).toHaveCount(0);
+  await expect(
+    hub.getByText("通関手続きに必要な情報があります", { exact: true }),
+  ).toHaveCount(0);
+  const composer = hub.locator('[data-section="agent-search"]');
+  await expect(composer.locator(".sazo-mobile-agent-composer-input-shell")).toHaveCSS(
+    "min-height",
+    "52px",
   );
-  await expect(hub.getByRole("button", { name: /の結果を見る$/ })).toHaveCount(2);
-  await expect(hub.locator(".sazo-agent-hub-product-card")).toHaveCount(4);
-  const recentProductRail = hub.locator(".sazo-agent-hub-product-rail");
+  await expect(hub.locator(".sazo-agent-hub-product-card")).toHaveCount(0);
+  const recentSearches = hub.getByRole("list", { name: "最近の検索" });
+  await expect(recentSearches.getByRole("listitem")).toHaveCount(3);
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+  });
+  await page.screenshot({ path: testInfo.outputPath("agent-search-default-390.png") });
   await expect
     .poll(() =>
-      recentProductRail.evaluate(
-        (element) => element.scrollWidth > element.clientWidth,
-      ),
+      recentSearches.evaluate((element) => element.scrollWidth > element.clientWidth),
     )
     .toBe(true);
-  await recentProductRail.evaluate((element) => {
+  await recentSearches.evaluate((element) => {
     element.scrollTo({ left: element.scrollWidth, behavior: "instant" });
   });
-  await expect.poll(() => recentProductRail.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+  await expect
+    .poll(() => recentSearches.evaluate((element) => element.scrollLeft))
+    .toBeGreaterThan(0);
   await expect(hub.getByText("購入可能", { exact: true })).toHaveCount(0);
 
-  const action = hub.getByTestId("agent-customs-action-card");
-  await expect(action).toContainText("受取人情報を入力してください");
-  await expect(action).toContainText("CPF・お届け先の確認");
-  await action.getByRole("button", { name: "情報を入力する" }).click();
-  const dialog = page.getByRole("dialog", { name: "CPF・お届け先を確認" });
-  await dialog.getByRole("textbox", { name: "CPF" }).fill("123.456.789-00");
-  await dialog.getByRole("textbox", { name: "お届け先" }).fill("São Paulo, Brazil");
-  await dialog.getByRole("button", { name: "入力内容を保存する" }).click();
-  await expect(action).toHaveCount(0);
-  await expect(hub.getByRole("status")).toContainText("受取人情報を保存しました");
+  await hub.getByRole("button", { name: "すべて見る（8件）" }).click();
+  await expect(hub.getByRole("button", { name: /の商品を見る$/ })).toHaveCount(8);
+  await expect(hub.getByRole("button", { name: "閉じる" })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
+  await page.screenshot({ path: testInfo.outputPath("agent-search-expanded-390.png") });
+  await hub.getByRole("button", { name: "閉じる" }).click();
+  await expect(hub.getByRole("button", { name: /の商品を見る$/ })).toHaveCount(2);
+
+  await hub.getByRole("button", { name: "このエージェントの使い方" }).click();
+  await expect(hub.getByText("URLを貼る", { exact: true })).toBeVisible();
+  await expect(hub.getByText("画像を送る", { exact: true })).toBeVisible();
+  await expect(hub.getByText("商品名で探す", { exact: true })).toBeVisible();
+  await hub.getByRole("button", { name: "このエージェントの使い方" }).click();
+  await expect(hub.getByText("URLを貼る", { exact: true })).toHaveCount(0);
+
+  const popularProducts = hub.getByTestId("agent-popular-products");
+  await popularProducts.scrollIntoViewIfNeeded();
+  await expect(popularProducts.getByTestId("home-dense-product-card")).toHaveCount(4);
+  await page.screenshot({ path: testInfo.outputPath("agent-popular-products-390.png") });
+
+  await hub.getByRole("button", { name: "Nintendo Switchを削除" }).click();
+  await expect(recentSearches.getByRole("listitem")).toHaveCount(2);
+  await hub.getByRole("button", { name: "検索履歴を全消去" }).click();
+  await expect(recentSearches.getByRole("listitem")).toHaveCount(0);
+  await expect(hub.getByRole("button", { name: "検索履歴を全消去" })).toBeDisabled();
 
   for (const viewport of [
     { height: 735, width: 341 },
@@ -1405,10 +1545,75 @@ test("keeps agent submissions compact and exposes customs input only for the exc
     { height: 956, width: 440 },
   ]) {
     await page.setViewportSize(viewport);
-    await expect(navigation.getByRole("button", { name: "エージェント", exact: true })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    await expect(
+      navigation.getByRole("button", { name: "エージェント", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+    await expectNoHorizontalPageOverflow(page);
+  }
+
+  await hub.getByRole("button", { name: "フィギュア" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "product");
+});
+
+test("opens agent usage guidance for the empty first-visit mock state at mobile widths", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "the agent hub is a mobile-first flow");
+
+  await page.goto(`${routePath}&view=agent-hub&agentScenario=empty`);
+  await page.setViewportSize({ height: 844, width: 390 });
+  const hub = page.locator("[data-mobile-agent-hub]");
+
+  await expect(hub).toHaveAttribute("data-scenario", "empty");
+  await expect(
+    hub.getByRole("list", { name: "最近の検索" }).getByRole("listitem"),
+  ).toHaveCount(0);
+  await expect(
+    hub.getByText("まだ確認した商品はありません", { exact: true }),
+  ).toBeVisible();
+  await expect(hub.getByRole("button", { name: /の商品を見る$/ })).toHaveCount(0);
+  await expect(
+    hub.getByRole("button", { name: "このエージェントの使い方" }),
+  ).toHaveAttribute("aria-expanded", "true");
+  await expect(hub.getByText("URLを貼る", { exact: true })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("agent-search-empty-390.png") });
+
+  await hub.getByRole("button", { name: "このエージェントの使い方" }).click();
+  await expect(hub.getByText("URLを貼る", { exact: true })).toHaveCount(0);
+  await expectNoHorizontalPageOverflow(page);
+});
+
+test("keeps the agent search legible on tablet and desktop", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "desktop",
+    "desktop project covers tablet and desktop widths",
+  );
+
+  await page.goto(`${routePath}&view=agent-hub`);
+  const hub = page.locator("[data-mobile-agent-hub]");
+  const desktopNavigation = page.getByRole("navigation", { name: "メインメニュー" });
+
+  for (const viewport of [
+    { height: 900, width: 768 },
+    { height: 900, width: 1024 },
+    { height: 900, width: 1511 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await expect(desktopNavigation).toBeVisible();
+    await expect(
+      hub.getByRole("heading", { name: "購入エージェント", exact: true }),
+    ).toBeVisible();
+    await expect(
+      hub.getByRole("list", { name: "最近の検索" }).getByRole("listitem"),
+    ).toHaveCount(3);
+    await expect(hub.getByRole("button", { name: /の商品を見る$/ })).toHaveCount(2);
+    await expect(hub.getByRole("button", { name: "すべて見る（8件）" })).toBeVisible();
+    await expect(
+      hub.getByRole("heading", { name: "よく検索されるキーワード", exact: true }),
+    ).toBeVisible();
+    await expect(hub.locator(".sazo-agent-hub-header")).toHaveCSS("display", "none");
     await expectNoHorizontalPageOverflow(page);
   }
 });
@@ -1446,12 +1651,21 @@ test("completes the My Page post-purchase delivery flow", async ({ page }, testI
 
   const myPage = page.locator('[data-view-content="mypage"]');
   await expect(myPage).toBeVisible();
+  const myPageNavigation = page.getByRole("navigation", { name: "モバイルメニュー" });
+  await expect(myPageNavigation).toBeVisible();
+  await expect(
+    myPageNavigation.getByRole("button", { name: "マイページ" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(myPageNavigation.getByRole("button")).toHaveCount(5);
+  await page.screenshot({ path: testInfo.outputPath("mypage-shortcuts-390.png") });
   await expect(myPage.getByText("500", { exact: true })).toBeVisible();
   await myPage.getByRole("button", { name: /注文・配送/ }).click();
 
   const orders = page.locator('[data-view-content="orders"]');
   await expect(orders).toBeVisible();
-  await expect(orders.getByText("CPF情報の確認が必要です", { exact: true })).toBeVisible();
+  await expect(
+    orders.getByText("CPF情報の確認が必要です", { exact: true }),
+  ).toBeVisible();
   await orders.getByRole("button", { name: "Nintendo Switch OLEDを追跡する" }).click();
   await expect(orders.getByRole("status")).toContainText("国際配送の準備状況");
   await orders.getByRole("button", { name: "CPF情報を提出する" }).click();
@@ -1465,8 +1679,32 @@ test("completes the My Page post-purchase delivery flow", async ({ page }, testI
   await expectNoHorizontalPageOverflow(page);
 });
 
-test("captures the coupon wallet states without mobile navigation", async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== "mobile", "the coupon wallet is a mobile-first flow");
+test("captures the coupon wallet states without mobile navigation", async ({
+  page,
+}, testInfo) => {
+  if (testInfo.project.name === "desktop") {
+    for (const viewport of [
+      { height: 900, width: 768 },
+      { height: 900, width: 1_024 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto(`${routePath}&view=coupons`);
+      await expect(page.getByTestId("jplanet-coupons")).toBeVisible();
+      await expect(page.locator(".sazo-desktop-header-band")).toBeVisible();
+      await expect(page.getByTestId("jplanet-coupon-ticket")).toHaveCount(4);
+      expect(
+        await page
+          .locator(".sazo-coupon-ticket-list")
+          .evaluate(
+            (element) =>
+              getComputedStyle(element).gridTemplateColumns.split(" ").filter(Boolean)
+                .length,
+          ),
+      ).toBe(2);
+      await expectNoHorizontalPageOverflow(page);
+    }
+    return;
+  }
 
   for (const viewport of [
     { height: 735, width: 341 },
@@ -1477,11 +1715,34 @@ test("captures the coupon wallet states without mobile navigation", async ({ pag
     await page.goto(`${routePath}&view=coupons`);
     await expect(page.getByTestId("jplanet-coupons")).toBeVisible();
     await expectNoHorizontalPageOverflow(page);
-    await page.screenshot({ path: testInfo.outputPath(`coupon-wallet-${viewport.width}.png`) });
+    await page.screenshot({
+      path: testInfo.outputPath(`coupon-wallet-${viewport.width}.png`),
+    });
   }
 
   await page.setViewportSize({ height: 844, width: 390 });
   await page.goto(`${routePath}&view=coupons`);
+  const ticketList = page.locator(".sazo-coupon-ticket-list");
+  const tickets = page.getByTestId("jplanet-coupon-ticket");
+  await expect(tickets).toHaveCount(4);
+  await expect(tickets.nth(0).getByRole("button", { name: "使う" })).toBeVisible();
+  await expect(tickets.nth(1).getByRole("button", { name: "あとで使う" })).toBeVisible();
+  await expect(ticketList.getByText("残り3枚")).toBeVisible();
+  await expect(ticketList.getByText("残り1時間")).toBeVisible();
+  await tickets.nth(0).getByRole("button", { name: "利用条件" }).click();
+  await expect(
+    page.getByRole("dialog", { name: "国際送料 R$30 OFFの利用条件" }),
+  ).toBeVisible();
+  await page.getByRole("button", { exact: true, name: "閉じる" }).click();
+  await page.getByRole("tab", { name: "商品 (1)" }).click();
+  await expect(tickets).toHaveCount(1);
+  await page.getByRole("tab", { name: "すべて (4)" }).click();
+  await expect(tickets).toHaveCount(4);
+  await tickets.nth(1).getByRole("button", { name: "あとで使う" }).click();
+  await expect(page.getByRole("status")).toContainText(
+    "初回購入の条件を確認後に利用できます",
+  );
+  await expectNoHorizontalPageOverflow(page);
   await page.getByRole("button", { name: "コードを入力" }).click();
   await page.screenshot({ path: testInfo.outputPath("coupon-code-input-390.png") });
   await page.getByRole("button", { exact: true, name: "閉じる" }).click();
@@ -1490,6 +1751,13 @@ test("captures the coupon wallet states without mobile navigation", async ({ pag
   await page.getByRole("button", { name: "戻る" }).click();
   await page.getByRole("button", { name: "利用履歴" }).click();
   await page.screenshot({ path: testInfo.outputPath("coupon-history-390.png") });
+  await page.goto(`${routePath}&view=coupons`);
+  await page
+    .getByTestId("jplanet-coupon-ticket")
+    .nth(0)
+    .getByRole("button", { name: "使う" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "cart");
   await page.goto(`${routePath}&view=coupons&couponWallet=empty`);
   await expect(page.getByTestId("jplanet-coupon-empty")).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("coupon-empty-390.png") });
@@ -1498,7 +1766,10 @@ test("captures the coupon wallet states without mobile navigation", async ({ pag
 test("opens one J-Planet brand directory from both entries and keeps NIKE browsing scoped", async ({
   page,
 }, testInfo) => {
-  test.skip(testInfo.project.name !== "mobile", "the brand directory is a mobile-first flow");
+  test.skip(
+    testInfo.project.name !== "mobile",
+    "the brand directory is a mobile-first flow",
+  );
 
   for (const width of [341, 390, 440]) {
     await page.setViewportSize({ height: 844, width });
@@ -1515,10 +1786,11 @@ test("opens one J-Planet brand directory from both entries and keeps NIKE browsi
     .getByRole("button", { name: "人気ブランド" })
     .click();
   await expect(page.locator('[data-view-content="brands"]')).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "モバイルメニュー" }).getByRole("button", { name: "ブランド" })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
+  await expect(
+    page
+      .getByRole("navigation", { name: "モバイルメニュー" })
+      .getByRole("button", { name: "ブランド" }),
+  ).toHaveAttribute("aria-pressed", "true");
   await page.screenshot({ path: testInfo.outputPath("brand-directory-390.png") });
 
   await page.getByRole("button", { name: "家電" }).click();
@@ -1532,11 +1804,15 @@ test("opens one J-Planet brand directory from both entries and keeps NIKE browsi
 
   await page.getByRole("button", { name: "NIKEを開く" }).click();
   await expect(page.locator('[data-view-content="brand-detail"]')).toBeVisible();
-  await expect(page.getByRole("status", { name: "ブランド商品を読み込んでいます" })).toBeVisible();
+  await expect(
+    page.getByRole("status", { name: "ブランド商品を読み込んでいます" }),
+  ).toBeVisible();
   await expect(page.getByRole("tab", { name: "最安値" })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("brand-nike-all-390.png") });
   await page.getByRole("tab", { name: "最安値" }).click();
-  await expect(page.locator(".jplanet-brand-product-grid .jplanet-brand-product-card")).toHaveCount(12);
+  await expect(
+    page.locator(".jplanet-brand-product-grid .jplanet-brand-product-card"),
+  ).toHaveCount(12);
   await page.screenshot({ path: testInfo.outputPath("brand-nike-lowest-390.png") });
   await page.getByRole("tab", { name: "コスメ" }).click();
   await expect(page.getByText("現在表示できる商品はありません")).toBeVisible();
@@ -1545,8 +1821,83 @@ test("opens one J-Planet brand directory from both entries and keeps NIKE browsi
   await page.getByRole("tab", { name: "最安値" }).click();
   await expectNoHorizontalPageOverflow(page);
 
-  await page.getByRole("button", { name: "Air Jordan 1 Retro High OGの商品詳細を開く" }).click();
+  await page
+    .getByRole("button", { name: "Air Jordan 1 Retro High OGの商品詳細を開く" })
+    .click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "product");
+});
+
+test("renders mobile purchase experience reviews with working decision filters", async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto(`${routePath}&view=reviews`);
+
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "reviews");
+  await expect(
+    page.locator('[data-view-content="reviews"] .sazo-review-intro h1'),
+  ).toHaveText("購入体験レビュー");
+
+  const carousel = page.locator('[data-review-feature-carousel="true"]');
+  const featureCards = carousel.locator(".sazo-review-feature-card");
+  await expect(featureCards).toHaveCount(3);
+  await expect
+    .poll(() =>
+      carousel.evaluate((element) => ({
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+      })),
+    )
+    .toMatchObject({ clientWidth: expect.any(Number) });
+  expect(
+    await carousel.evaluate((element) => element.scrollWidth > element.clientWidth),
+  ).toBe(true);
+  expect(
+    await featureCards.first().evaluate((element) => element.clientWidth),
+  ).toBeGreaterThanOrEqual(300);
+  expect(
+    await carousel.evaluate((element) => {
+      const [firstCard, secondCard] = element.querySelectorAll<HTMLElement>(
+        ".sazo-review-feature-card",
+      );
+      if (firstCard === undefined || secondCard === undefined) {
+        return false;
+      }
+      return (
+        secondCard.getBoundingClientRect().left < element.getBoundingClientRect().right
+      );
+    }),
+  ).toBe(true);
+  await expect(page.locator(".sazo-review-feature-copy").first()).toHaveCSS(
+    "background-color",
+    "rgba(0, 0, 0, 0)",
+  );
+  await expect(page.locator(".sazo-review-tile").first()).toHaveAttribute(
+    "data-review-id",
+    "purchase-review-yuri",
+  );
+
+  const mobileNavigation = page.getByRole("navigation", { name: "モバイルメニュー" });
+  await expect(mobileNavigation).toBeVisible();
+  await expect(mobileNavigation.getByRole("button")).toHaveCount(5);
+  await expect(mobileNavigation.getByRole("button", { name: "ホーム" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.screenshot({ path: testInfo.outputPath("reviews-390.png") });
+
+  await page.getByRole("button", { name: "商品の状態" }).click();
+  await expect(page.locator(".sazo-review-tile")).toHaveCount(4);
+  await expect(page.getByRole("button", { name: "商品の状態" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
+  for (const width of [341, 440]) {
+    await page.setViewportSize({ height: 844, width });
+    await expectNoHorizontalPageOverflow(page);
+    await expect(mobileNavigation).toBeVisible();
+  }
 });
 
 test("replays the deterministic SAZO commerce journey", async ({ page }, testInfo) => {
@@ -1556,31 +1907,52 @@ test("replays the deterministic SAZO commerce journey", async ({ page }, testInf
   if (testInfo.project.name === "desktop") {
     expect(page.viewportSize()).toEqual(desktopViewport);
     await page.goto(routePath);
-    await expect(page.getByTestId("sazo-hero")).toBeVisible();
+    await expect(page.locator("[data-desktop-home-view]")).toBeVisible();
+    await expect(page.getByTestId("desktop-home-product-rail")).toBeVisible();
+    await expect(
+      page
+        .getByTestId("desktop-home-product-rail")
+        .getByTestId("home-dense-product-card"),
+    ).toHaveCount(6);
     await expect(page.locator(".sazo-mobile-nav")).toBeHidden();
 
     const desktopNavigation = page.getByRole("navigation", {
       exact: true,
       name: "メインメニュー",
     });
-    await expect(desktopNavigation.getByRole("button")).toHaveCount(5);
+    await expect(desktopNavigation.getByRole("button")).toHaveCount(6);
     expect(
-      await desktopNavigation.getByRole("button").evaluateAll((buttons) =>
-        buttons.map((button) => button.textContent?.trim()),
-      ),
-    ).toEqual(["ホーム", "ブランド", "エージェント", "通知", "マイページ"]);
+      await desktopNavigation
+        .getByRole("button")
+        .evaluateAll((buttons) => buttons.map((button) => button.textContent?.trim())),
+    ).toEqual([
+      "ホーム",
+      "ブランド",
+      "エージェント",
+      "カテゴリー",
+      "人気商品",
+      "配送・通関",
+    ]);
 
-    await desktopNavigation.getByRole("button", { exact: true, name: "ブランド" }).click();
+    await desktopNavigation
+      .getByRole("button", { exact: true, name: "ブランド" })
+      .click();
     await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "brands");
     await expect(page.locator('[data-view-content="brands"]')).toBeVisible();
 
-    await desktopNavigation.getByRole("button", { exact: true, name: "エージェント" }).click();
+    await desktopNavigation
+      .getByRole("button", { exact: true, name: "エージェント" })
+      .click();
     await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
     await expect(page.locator("[data-mobile-agent-hub]")).toBeVisible();
 
     await desktopNavigation.getByRole("button", { exact: true, name: "ホーム" }).click();
     await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
-    await expectLoadedDenseHomeProducts(page);
+    await expect(
+      page
+        .getByTestId("desktop-home-product-rail")
+        .getByTestId("home-dense-product-card"),
+    ).toHaveCount(6);
     await expectNoHorizontalPageOverflow(page);
 
     const desktopRoutes: readonly [string, string][] = [
@@ -1618,9 +1990,9 @@ test("replays the deterministic SAZO commerce journey", async ({ page }, testInf
   });
   await expect(mobileNavigation.getByRole("button")).toHaveCount(5);
   expect(
-    await mobileNavigation.getByRole("button").evaluateAll((buttons) =>
-      buttons.map((button) => button.textContent?.trim()),
-    ),
+    await mobileNavigation
+      .getByRole("button")
+      .evaluateAll((buttons) => buttons.map((button) => button.textContent?.trim())),
   ).toEqual(["ホーム", "ブランド", "エージェント", "通知", "マイページ"]);
   await expectLoadedDenseHomeProducts(page);
 
@@ -1632,8 +2004,158 @@ test("replays the deterministic SAZO commerce journey", async ({ page }, testInf
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "notifications");
   await expect(page.locator('[data-view-content="notifications"]')).toBeVisible();
 
-  await mobileNavigation.getByRole("button", { exact: true, name: "エージェント" }).click();
+  await mobileNavigation
+    .getByRole("button", { exact: true, name: "エージェント" })
+    .click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
   await expect(page.locator("[data-mobile-agent-hub]")).toBeVisible();
   await expectNoHorizontalPageOverflow(page);
+});
+
+test("keeps the selected agentic-commerce home responsive and interactive on desktop", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "desktop",
+    "desktop project covers the tablet and desktop home composition",
+  );
+
+  for (const viewport of [
+    { height: 900, width: 768 },
+    { height: 900, width: 1024 },
+    { height: 900, width: 1440 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto(routePath);
+
+    const desktopHome = page.locator("[data-desktop-home-view]");
+    const heroImage = desktopHome.locator(".sazo-desktop-home-hero > img");
+    await expect(desktopHome).toBeVisible();
+    await expect(page.locator(".sazo-mobile-nav")).toBeHidden();
+    await expect(page.getByRole("search", { name: "購入エージェント検索" })).toHaveCount(
+      1,
+    );
+    await expect(heroImage).toHaveAttribute(
+      "src",
+      "/sazo-commerce/reference/japan-brazil-hero.png",
+    );
+    await expect(
+      page
+        .getByTestId("desktop-home-product-rail")
+        .getByTestId("home-dense-product-card"),
+    ).toHaveCount(6);
+    await expect(
+      page.getByTestId("desktop-home-category-grid").getByRole("button"),
+    ).toHaveCount(20);
+    await expect(page.getByTestId("desktop-home-reviews")).toBeVisible();
+    await expect(page.getByTestId("desktop-home-gram")).toBeVisible();
+    await expect(
+      page.getByTestId("desktop-home-reviews").locator(".sazo-desktop-home-review-card"),
+    ).toHaveCount(2);
+    await expect(
+      page.getByTestId("desktop-home-gram").locator(".sazo-desktop-home-gram-card"),
+    ).toHaveCount(2);
+    expect(
+      await desktopHome.evaluate((home) => {
+        const products = home.querySelector("[data-testid=\"desktop-home-product-rail\"]");
+        const community = home.querySelector("[data-testid=\"desktop-home-community\"]");
+        const categories = home.querySelector("[data-testid=\"desktop-home-category-grid\"]");
+
+        return (
+          products !== null &&
+          community !== null &&
+          categories !== null &&
+          Boolean(products.compareDocumentPosition(community) & Node.DOCUMENT_POSITION_FOLLOWING) &&
+          Boolean(community.compareDocumentPosition(categories) & Node.DOCUMENT_POSITION_FOLLOWING)
+        );
+      }),
+    ).toBe(true);
+    expect(
+      await heroImage.evaluate(
+        (image) => image instanceof HTMLImageElement && image.naturalWidth > 0,
+      ),
+    ).toBe(true);
+    await expectNoHorizontalPageOverflow(page);
+  }
+
+  await page.setViewportSize({ height: 900, width: 1024 });
+  await page.goto(routePath);
+  const desktopCouponBanner = page.getByTestId("desktop-home-coupon-banner");
+  await expect(desktopCouponBanner).toBeVisible();
+  await expect(desktopCouponBanner.locator("img")).toHaveAttribute(
+    "src",
+    "/sazo-commerce/campaign/jplanet-coupon-banner.svg",
+  );
+  await desktopCouponBanner.click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "coupons");
+
+  await page.goto(routePath);
+  await page.getByTestId("desktop-home-agent-cta").click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
+
+  await page.goto(routePath);
+  await page
+    .getByTestId("desktop-home-reviews")
+    .getByRole("button", { exact: true, name: "もっと見る" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "reviews");
+
+  await page.goto(routePath);
+  await page
+    .getByTestId("desktop-home-gram")
+    .getByRole("button", { exact: true, name: "もっと見る" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "gram");
+
+  await page.goto(routePath);
+  const hero = page.locator(".sazo-desktop-home-hero");
+  const initialHero = await hero.getAttribute("data-active-hero");
+  await hero.getByRole("button", { name: "次のバナー" }).click();
+  await expect(hero).not.toHaveAttribute("data-active-hero", initialHero ?? "");
+
+  await page.goto(routePath);
+  const header = page.locator(".sazo-desktop-header");
+  const headerSearch = header.getByRole("search", { name: "購入エージェント検索" });
+  await headerSearch
+    .getByRole("textbox", { name: "URL・画像・商品名を送る" })
+    .fill("New Balance 9060");
+  await headerSearch.getByRole("button", { name: "商品を確認する" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute(
+    "data-view",
+    "agent-searching",
+  );
+
+  await page.goto(routePath);
+  await header.getByRole("button", { name: "カメラ" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
+
+  await page.goto(routePath);
+  await header.getByRole("button", { name: "カート" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "cart");
+
+  await page.goto(routePath);
+  await header.getByRole("button", { name: "チャット" }).click();
+  await expect(page.getByRole("dialog", { name: "J-Planetチャット" })).toBeVisible();
+
+  await page.goto(routePath);
+  await page
+    .getByTestId("desktop-home-category-grid")
+    .getByRole("button", { name: "すべてのカテゴリー" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "categories");
+
+  await page.goto(routePath);
+  await page
+    .getByRole("navigation", { name: "メインメニュー" })
+    .getByRole("button", { name: "カテゴリー", exact: true })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "categories");
+
+  await page.goto(routePath);
+  await page
+    .getByTestId("desktop-home-product-rail")
+    .locator(".sazo-home-dense-product-copy")
+    .first()
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "product");
 });

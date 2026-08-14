@@ -45,7 +45,7 @@ export type SazoNonProductView = Exclude<SazoView, "product">;
 export type SazoOverlay = "none" | "login" | "chat" | "agent";
 export type SazoFavoriteTab = "product" | "brand" | "review";
 export type AgentEntryIntent = "camera" | "compose" | "image-picker";
-export type AgentHubScenario = "normal" | "customs-action";
+export type AgentHubScenario = "normal" | "customs-action" | "empty";
 export interface AgentSearchRequest {
   imageName: string | null;
   summary: string;
@@ -124,6 +124,13 @@ export type ReviewCategoryId =
   | "books"
   | "automotive"
   | "kids-pets";
+export type ReviewDecisionAxisId =
+  | "all"
+  | "condition"
+  | "brl-total"
+  | "shipping-customs"
+  | "support";
+export type ReviewFilterId = ReviewCategoryId | ReviewDecisionAxisId;
 export type RankingMetric = "purchases" | "views";
 
 export interface SazoState {
@@ -139,7 +146,7 @@ export interface SazoState {
   catalogChip: string | null;
   directoryCategory: DirectoryCategoryId;
   brandFilter: BrandFilterId;
-  reviewCategory: ReviewCategoryId;
+  reviewCategory: ReviewFilterId;
   rankingMetric: RankingMetric;
   heroFeed: SazoHeroFeed;
   heroIndex: number;
@@ -207,7 +214,7 @@ export type SazoAction =
   | { type: "toggle-saved-brand"; brandId: string }
   | { type: "select-catalog-tab"; tab: CatalogTabId }
   | { type: "select-catalog-chip"; chip: string | null }
-  | { type: "select-review-category"; category: ReviewCategoryId }
+  | { type: "select-review-category"; category: ReviewFilterId }
   | { type: "select-ranking-metric"; metric: RankingMetric }
   | { type: "open-product"; productId: string }
   | { type: "close-product" }
@@ -253,7 +260,11 @@ const qaReviewFeeds = new Set<SazoReviewFeed>([
   "mobile-profile",
 ]);
 const qaFavoriteTabs = new Set<SazoFavoriteTab>(["product", "brand", "review"]);
-const qaAgentHubScenarios = new Set<AgentHubScenario>(["normal", "customs-action"]);
+const qaAgentHubScenarios = new Set<AgentHubScenario>([
+  "normal",
+  "customs-action",
+  "empty",
+]);
 const qaViews = new Set<SazoView>([
   "home",
   "service",
@@ -324,14 +335,30 @@ export function createInitialSazoState(search = ""): SazoState {
     gramLoadToken: 0,
     selectedGramPostId: null,
     cartItems: [
-      { productId: "jplanet-nintendo-switch-oled", option: "カラー: ホワイト", quantity: 1 },
+      {
+        productId: "jplanet-nintendo-switch-oled",
+        option: "カラー: ホワイト",
+        quantity: 1,
+      },
       { productId: "jplanet-new-balance-9060", option: "サイズ: 27cm", quantity: 1 },
-      { productId: "jplanet-sony-a7c-ii", option: "バリエーション: 本体のみ", quantity: 1 },
+      {
+        productId: "jplanet-sony-a7c-ii",
+        option: "バリエーション: 本体のみ",
+        quantity: 1,
+      },
     ],
     checkoutItems: [
-      { productId: "jplanet-nintendo-switch-oled", option: "カラー: ホワイト", quantity: 1 },
+      {
+        productId: "jplanet-nintendo-switch-oled",
+        option: "カラー: ホワイト",
+        quantity: 1,
+      },
       { productId: "jplanet-new-balance-9060", option: "サイズ: 27cm", quantity: 1 },
-      { productId: "jplanet-sony-a7c-ii", option: "バリエーション: 本体のみ", quantity: 1 },
+      {
+        productId: "jplanet-sony-a7c-ii",
+        option: "バリエーション: 本体のみ",
+        quantity: 1,
+      },
     ],
     couponOwnedIds: [...initialJplanetCouponIds],
     couponSelectedId: null,

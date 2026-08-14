@@ -1,76 +1,33 @@
-import { useState, type Dispatch, type FormEvent } from "react";
+import { useState, type Dispatch } from "react";
 import {
-  CircleAlert,
   ChevronDown,
   ChevronRight,
   ChevronUp,
-  Globe2,
-  History,
-  Image as ImageIcon,
   MessageCircle,
   ShoppingCart,
-  UserRound,
+  Trash2,
   X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
-  agentHubArchivedHistory,
-  agentHubCustomsAction,
-  agentHubLatestHistory,
-  agentHubRecentProducts,
-  type AgentHubHistoryItem,
+  agentCommonSearchKeywords,
+  agentHowItWorksSteps,
+  agentRecentSearches,
+  agentRecentViewedProducts,
 } from "@/sazo-commerce/agentHubFixtures";
+import { JplanetRecommendationGrid } from "@/sazo-commerce/HomeView";
+import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
 import { MobileAgentComposer } from "@/sazo-commerce/MobileAgentComposer";
 import type {
   AgentEntryIntent,
   AgentHubScenario,
   SazoAction,
 } from "@/sazo-commerce/model";
-import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
 
 export interface MobileAgentHubViewProps {
   dispatch: Dispatch<SazoAction>;
   entryIntent: AgentEntryIntent | null;
   scenario?: AgentHubScenario;
-}
-
-function HistoryItem({
-  dispatch,
-  item,
-}: {
-  dispatch: Dispatch<SazoAction>;
-  item: AgentHubHistoryItem;
-}) {
-  const InputIcon = item.inputKind === "url" ? Globe2 : ImageIcon;
-
-  return (
-    <li className="sazo-agent-hub-history-item">
-      <button
-        aria-label={`${item.product.name}の結果を見る`}
-        onClick={() => {
-          dispatch({ type: "open-product", productId: item.id });
-        }}
-        type="button"
-      >
-        <span className="sazo-agent-hub-history-input">
-          <InputIcon aria-hidden size={21} strokeWidth={1.9} />
-          <span>{item.inputLabel}</span>
-          <time>{item.timestamp}</time>
-        </span>
-        <span className="sazo-agent-hub-history-result">
-          <img alt="" src={item.product.image} />
-          <span>
-            <strong>{item.product.name}</strong>
-            <small>{item.product.priceAndDelivery}</small>
-          </span>
-          <span className="sazo-agent-hub-history-open">
-            結果を見る
-            <ChevronRight aria-hidden size={18} strokeWidth={2.1} />
-          </span>
-        </span>
-      </button>
-    </li>
-  );
 }
 
 export function MobileAgentHubView({
@@ -79,27 +36,23 @@ export function MobileAgentHubView({
   scenario = "normal",
 }: MobileAgentHubViewProps) {
   const { t } = useTranslation();
-  const [historyOpen, setHistoryOpen] = useState(false);
-  const [recipientSheetOpen, setRecipientSheetOpen] = useState(false);
-  const [customsActionComplete, setCustomsActionComplete] = useState(false);
-  const [cpf, setCpf] = useState("");
-  const [deliveryAddress, setDeliveryAddress] = useState("");
-  const showCustomsAction = scenario === "customs-action" && !customsActionComplete;
-
-  const completeRecipientInformation = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (cpf.trim().length === 0 || deliveryAddress.trim().length === 0) {
-      return;
-    }
-
-    setRecipientSheetOpen(false);
-    setCustomsActionComplete(true);
-    dispatch({ type: "complete-agent-customs-action" });
+  const noSavedAgentActivity = scenario === "empty";
+  const [recentSearches, setRecentSearches] = useState(() =>
+    noSavedAgentActivity ? [] : agentRecentSearches,
+  );
+  const [recentProductsExpanded, setRecentProductsExpanded] = useState(false);
+  const [howItWorksOpen, setHowItWorksOpen] = useState(noSavedAgentActivity);
+  const recentProducts = noSavedAgentActivity ? [] : agentRecentViewedProducts;
+  const visibleRecentProducts = recentProductsExpanded
+    ? recentProducts
+    : recentProducts.slice(0, 2);
+  const resolveProduct = (productId: string) => {
+    dispatch({ type: "open-product", productId });
   };
 
   return (
     <div
-      className="sazo-agent-hub sazo-agent-hub--submission-history"
+      className="sazo-agent-hub sazo-agent-hub--search"
       data-apple-layout="agent"
       data-mobile-agent-hub
       data-scenario={scenario}
@@ -125,7 +78,6 @@ export function MobileAgentHubView({
           type="button"
         >
           <ShoppingCart aria-hidden size={22} strokeWidth={1.9} />
-          <span aria-hidden="true">2</span>
         </button>
         <button
           aria-label={t("sazo.agentHub.chat")}
@@ -139,181 +91,171 @@ export function MobileAgentHubView({
         </button>
       </header>
 
-      <section
-        data-apple-surface="true"
-        data-section="composer"
-        data-testid="agent-hub-section"
-      >
+      <section data-section="agent-search" data-testid="agent-hub-section">
+        <div className="sazo-agent-hub-search-intro">
+          <img
+            alt=""
+            aria-hidden="true"
+            data-jplanet-sakura-mark
+            height={42}
+            src="/sazo-commerce/jplanet-sakura-mark.png"
+            width={42}
+          />
+          <div>
+            <h2>購入エージェント</h2>
+            <p>商品を送るだけで、購入判断まで。</p>
+          </div>
+        </div>
         <MobileAgentComposer
           entryIntent={entryIntent}
           onEntryIntentConsumed={() => {
             dispatch({ type: "consume-agent-entry-intent" });
           }}
-          onSubmitted={(request) => {
-            dispatch({ type: "start-agent-search", request });
+          onSubmitted={() => {
+            const product = agentRecentViewedProducts.at(0);
+
+            if (product !== undefined) {
+              resolveProduct(product.id);
+            }
           }}
           presentation="agent-hub"
           seedRequest={null}
+          showHeader={false}
         />
+        <p className="sazo-agent-hub-search-note">URLは商品ページを直接開きます</p>
       </section>
 
-      {showCustomsAction ? (
-        <section
-          aria-labelledby="agent-customs-action-title"
-          className="sazo-agent-hub-customs-action"
-          data-customs-action-card
-          data-testid="agent-customs-action-card"
-        >
-          <header>
-            <CircleAlert aria-hidden size={27} strokeWidth={1.8} />
-            <h2 id="agent-customs-action-title">{agentHubCustomsAction.title}</h2>
-          </header>
-          <div className="sazo-agent-hub-customs-product">
-            <img alt="" src={agentHubCustomsAction.productImage} />
-            <span>
-              <strong>{agentHubCustomsAction.productName}</strong>
-              <small>{agentHubCustomsAction.source}</small>
-            </span>
-          </div>
-          <div className="sazo-agent-hub-customs-next-step">
-            <UserRound aria-hidden size={24} strokeWidth={1.9} />
-            <span>
-              <strong>{agentHubCustomsAction.itemLabel}</strong>
-              <small>{agentHubCustomsAction.reason}</small>
-              <em>必要項目: {agentHubCustomsAction.requiredFields}</em>
-            </span>
+      <section data-section="recent-searches" data-testid="agent-hub-section">
+        <header>
+          <h2>最近の検索</h2>
+          <button
+            aria-label="検索履歴を全消去"
+            disabled={recentSearches.length === 0}
+            onClick={() => {
+              setRecentSearches([]);
+            }}
+            type="button"
+          >
+            <Trash2 aria-hidden size={18} strokeWidth={1.9} />
+          </button>
+        </header>
+        <ul aria-label="最近の検索" className="sazo-agent-hub-search-chips">
+          {recentSearches.map((search) => (
+            <li key={search.id}>
+              <span>{search.label}</span>
+              <button
+                aria-label={`${search.label}を削除`}
+                onClick={() => {
+                  setRecentSearches((searches) =>
+                    searches.filter((item) => item.id !== search.id),
+                  );
+                }}
+                type="button"
+              >
+                <X aria-hidden size={13} strokeWidth={2.1} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section data-section="recent-products" data-testid="agent-hub-section">
+        <header>
+          <h2>最近確認した商品</h2>
+          {recentProducts.length > 2 ? (
             <button
+              aria-expanded={recentProductsExpanded}
+              className="sazo-agent-hub-recent-products-toggle"
               onClick={() => {
-                setRecipientSheetOpen(true);
+                setRecentProductsExpanded((expanded) => !expanded);
               }}
               type="button"
             >
-              情報を入力する
-              <ChevronRight aria-hidden size={17} strokeWidth={2.2} />
+              {recentProductsExpanded ? "閉じる" : `すべて見る（${recentProducts.length}件）`}
             </button>
-          </div>
-        </section>
-      ) : null}
-
-      {customsActionComplete ? (
-        <p className="sazo-agent-hub-action-status" role="status">
-          受取人情報を保存しました
-        </p>
-      ) : null}
-
-      <section data-section="send-history" data-testid="agent-hub-section">
-        <header>
-          <h2>送信履歴</h2>
+          ) : null}
         </header>
-        <ol className="sazo-agent-hub-history-list">
-          {agentHubLatestHistory.map((item) => (
-            <HistoryItem dispatch={dispatch} item={item} key={item.id} />
+        {visibleRecentProducts.length === 0 ? (
+          <p className="sazo-agent-hub-recent-products-empty">
+            まだ確認した商品はありません
+          </p>
+        ) : (
+          <ol className="sazo-agent-hub-recent-product-list">
+            {visibleRecentProducts.map((product) => (
+              <li key={product.id}>
+                <img alt="" src={product.image} />
+                <div>
+                  <strong>{product.name}</strong>
+                  <span>{product.price}</span>
+                </div>
+                <button
+                  aria-label={`${product.name}の商品を見る`}
+                  onClick={() => {
+                    resolveProduct(product.id);
+                  }}
+                  type="button"
+                >
+                  商品を見る
+                  <ChevronRight aria-hidden size={17} strokeWidth={2.1} />
+                </button>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+
+      <section data-section="common-searches" data-testid="agent-hub-section">
+        <header>
+          <h2>よく検索されるキーワード</h2>
+        </header>
+        <ul aria-label="よく検索されるキーワード" className="sazo-agent-hub-common-search-chips">
+          {agentCommonSearchKeywords.map((keyword) => (
+            <li key={keyword.id}>
+              <button
+                onClick={() => {
+                  resolveProduct(keyword.productId);
+                }}
+                type="button"
+              >
+                {keyword.label}
+              </button>
+            </li>
           ))}
-        </ol>
+        </ul>
+      </section>
+
+      <section data-section="how-it-works" data-testid="agent-hub-section">
         <button
-          aria-expanded={historyOpen}
-          className="sazo-agent-hub-history-disclosure"
+          aria-expanded={howItWorksOpen}
+          className="sazo-agent-hub-how-it-works-toggle"
           onClick={() => {
-            setHistoryOpen((open) => !open);
+            setHowItWorksOpen((open) => !open);
           }}
           type="button"
         >
-          <History aria-hidden size={25} strokeWidth={1.8} />
-          <span>
-            <strong>{historyOpen ? "履歴を閉じる" : "過去の送信履歴 18件"}</strong>
-            <small>URL・画像・商品名</small>
-          </span>
-          {historyOpen ? (
-            <ChevronUp aria-hidden size={20} strokeWidth={2} />
+          <span>このエージェントの使い方</span>
+          {howItWorksOpen ? (
+            <ChevronUp aria-hidden size={18} strokeWidth={2.2} />
           ) : (
-            <ChevronDown aria-hidden size={20} strokeWidth={2} />
+            <ChevronDown aria-hidden size={18} strokeWidth={2.2} />
           )}
         </button>
-        {historyOpen ? (
-          <ol className="sazo-agent-hub-history-list sazo-agent-hub-history-list--archive">
-            {agentHubArchivedHistory.map((item) => (
-              <HistoryItem dispatch={dispatch} item={item} key={item.id} />
+        {howItWorksOpen ? (
+          <ol className="sazo-agent-hub-how-it-works-list">
+            {agentHowItWorksSteps.map((step) => (
+              <li key={step}>{step}</li>
             ))}
           </ol>
         ) : null}
       </section>
 
-      <section data-section="recent-products" data-testid="agent-hub-section">
-        <header>
-          <h2>最近見た商品</h2>
-        </header>
-        <ol className="sazo-agent-hub-product-rail">
-          {agentHubRecentProducts.map((product) => (
-            <li className="sazo-agent-hub-product-card" key={product.id}>
-              <button
-                aria-label={`${product.name}の商品詳細を見る`}
-                onClick={() => {
-                  dispatch({ type: "open-product", productId: product.id });
-                }}
-                type="button"
-              >
-                <img alt="" src={product.image} />
-                <span>{product.name}</span>
-              </button>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      {recipientSheetOpen ? (
-        <div
-          aria-labelledby="recipient-information-title"
-          aria-modal="true"
-          className="sazo-agent-hub-recipient-backdrop"
-          role="dialog"
-        >
-          <form className="sazo-agent-hub-recipient-sheet" onSubmit={completeRecipientInformation}>
-            <header>
-              <div>
-                <span>受取人情報</span>
-                <h2 id="recipient-information-title">CPF・お届け先を確認</h2>
-              </div>
-              <button
-                aria-label="閉じる"
-                onClick={() => {
-                  setRecipientSheetOpen(false);
-                }}
-                type="button"
-              >
-                <X aria-hidden size={22} />
-              </button>
-            </header>
-            <p>通関に提出する情報として必要です。登録内容を確認して保存できます。</p>
-            <label>
-              CPF
-              <input
-                autoComplete="off"
-                onChange={(event) => {
-                  setCpf(event.target.value);
-                }}
-                placeholder="000.000.000-00"
-                required
-                type="text"
-                value={cpf}
-              />
-            </label>
-            <label>
-              お届け先
-              <input
-                autoComplete="street-address"
-                onChange={(event) => {
-                  setDeliveryAddress(event.target.value);
-                }}
-                placeholder="São Paulo, Brazil"
-                required
-                type="text"
-                value={deliveryAddress}
-              />
-            </label>
-            <button type="submit">入力内容を保存する</button>
-          </form>
-        </div>
-      ) : null}
+      <JplanetRecommendationGrid
+        dispatch={dispatch}
+        heading="いま人気の商品"
+        productLimit={4}
+        sectionClassName="sazo-agent-hub-popular-products"
+        testId="agent-popular-products"
+      />
     </div>
   );
 }

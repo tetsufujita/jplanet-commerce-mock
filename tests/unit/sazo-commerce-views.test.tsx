@@ -199,7 +199,7 @@ describe("SAZO captured view contracts", () => {
     ],
     [
       "reviews",
-      "利用レビュー",
+      "購入体験レビュー",
       <ReviewsView dispatch={noDispatch} state={createInitialSazoState()} />,
     ],
     ["service", "URL入力で購入代行ができます。", <ServiceView dispatch={noDispatch} />],
@@ -417,36 +417,28 @@ describe("SAZO captured view contracts", () => {
     ).toHaveLength(2);
   });
 
-  it("keeps the recorded short placeholder in the sixth review slot", async () => {
+  it("uses a full-image carousel and omits the old editorial placeholder", async () => {
     const { container } = await renderWithI18n(
       <ReviewsView dispatch={noDispatch} state={createInitialSazoState()} />,
     );
-    const placeholder = container.querySelector<HTMLElement>(
-      '.sazo-review-tile[data-review-id="editorial-review-06"] .sazo-review-tile-placeholder',
-    );
 
-    expect(placeholder).not.toBeNull();
-    expect(placeholder?.dataset.recordedHeight).toBe("190");
+    expect(
+      container.querySelector('[data-review-feature-carousel="true"]'),
+    ).not.toBeNull();
+    expect(container.querySelectorAll(".sazo-review-feature-card")).toHaveLength(3);
+    expect(container.querySelector(".sazo-review-tile-placeholder")).toBeNull();
   });
 
-  it("replaces the review keyword search with the compact AI agent entry", async () => {
+  it("keeps purchase-experience controls distinct from the agent search", async () => {
     const dispatch = vi.fn();
     const { container } = await renderWithI18n(
       <ReviewsView dispatch={dispatch} state={createInitialSazoState()} />,
     );
 
-    expect(container.querySelector('[data-review-hero="true"]')).not.toBeNull();
-    expect(
-      screen.getByRole("heading", { name: /おトクに、.*そして安全に。/s }),
-    ).toBeTruthy();
-    expect(container.querySelector('[data-review-agent-entry="true"]')).not.toBeNull();
-    expect(screen.getByText("J-Planet AIエージェント")).toBeTruthy();
-    const composer = screen.getByRole("textbox", { name: "URL・画像・商品名をAIに渡す" });
-
-    expect(composer.getAttribute("placeholder")).toBe("URL・画像・商品名をAIに渡す");
-    fireEvent.focus(composer);
-    expect(dispatch).toHaveBeenCalledWith({ type: "open-agent-hub", intent: "compose" });
-    expect(screen.queryByPlaceholderText("キーワードまたはURLを入力")).toBeNull();
+    expect(screen.getAllByRole("heading", { name: "購入体験レビュー" })).toHaveLength(2);
+    expect(screen.getByText("商品をどう探し、届いてどうだったか")).toBeTruthy();
+    expect(container.querySelector('[data-review-agent-entry="true"]')).toBeNull();
+    expect(container.querySelector("input")).toBeNull();
     expect(
       container.querySelector('[data-review-category-filter="true"]'),
     ).not.toBeNull();
@@ -455,36 +447,22 @@ describe("SAZO captured view contracts", () => {
     ).not.toBeNull();
   });
 
-  it("opens a recommendation from reviews without replacing editorial reviews", async () => {
+  it("renders photo-first purchase review tiles without social metrics", async () => {
     const dispatch = vi.fn();
     const { container } = await renderWithI18n(
       <ReviewsView dispatch={dispatch} state={createInitialSazoState()} />,
     );
-    const recommendations = screen.getByRole("region", {
-      name: "レビュー高評価のおすすめ",
-    });
+    const purchaseTiles = container.querySelectorAll(".sazo-review-tile");
 
-    const editorialTiles = container.querySelectorAll(".sazo-review-tile");
+    expect(purchaseTiles).toHaveLength(6);
+    expect(container.textContent).toContain("Yuri · Belo Horizonte");
+    expect(container.textContent).toContain("Ken · Rio de Janeiro");
+    expect(container.querySelector(".sazo-review-tile-actions")).toBeNull();
 
-    expect(editorialTiles).toHaveLength(12);
-    expect(
-      container.querySelector('[data-review-id="editorial-review-09"]')?.textContent,
-    ).toContain("丁寧な梱包で届きました。ありがとうございました。");
-    expect(
-      container.querySelector('[data-review-id="editorial-review-12"]')?.textContent,
-    ).toContain("とても綺麗な状態で届きました。");
-    const recommendationButton = within(recommendations)
-      .getAllByRole("button", { name: /商品詳細を開く/ })
-      .at(0);
-
-    if (recommendationButton === undefined) {
-      throw new Error("Reviews recommendation button was not rendered");
-    }
-
-    fireEvent.click(recommendationButton);
+    fireEvent.click(screen.getByRole("button", { name: "BRL 総額" }));
     expect(dispatch).toHaveBeenCalledWith({
-      productId: "recommendation-heart",
-      type: "open-product",
+      category: "brl-total",
+      type: "select-review-category",
     });
   });
 
@@ -598,16 +576,23 @@ describe("SAZO captured view contracts", () => {
 
     const brandTab = within(primary).getByRole("button", { name: "ブランド" });
     fireEvent.click(brandTab);
-    expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe("brands");
+    expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
+      "brands",
+    );
     expect(brandTab.getAttribute("aria-pressed")).toBe("true");
 
     fireEvent.click(within(primary).getByRole("button", { name: "ホーム" }));
     fireEvent.click(
-      within(screen.getByRole("group", { name: "J-Planetショートカット" })).getByRole("button", {
-        name: "人気ブランド",
-      }),
+      within(screen.getByRole("group", { name: "J-Planetショートカット" })).getByRole(
+        "button",
+        {
+          name: "人気ブランド",
+        },
+      ),
     );
-    expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe("brands");
+    expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
+      "brands",
+    );
 
     fireEvent.click(within(primary).getByRole("button", { name: "ホーム" }));
     fireEvent.click(within(shortcuts).getByRole("button", { name: "サービス紹介" }));
@@ -738,7 +723,7 @@ describe("SAZO captured view contracts", () => {
     fireEvent.click(screen.getByRole("button", { name: "購入者の声" }));
 
     expect(
-      screen.getByRole("button", { name: "全体" }).getAttribute("aria-pressed"),
+      screen.getByRole("button", { name: "すべて" }).getAttribute("aria-pressed"),
     ).toBe("true");
   });
 
@@ -759,52 +744,24 @@ describe("SAZO captured view contracts", () => {
     expect(screen.getByRole("button", { name: "閲覧数" })).toBeTruthy();
   });
 
-  it("uses captured review order and filters it by category", async () => {
+  it("uses purchase decision axes to filter review cards", async () => {
+    window.history.replaceState({}, "", "/sazo-commerce-mock/?qa=1&view=reviews");
     const { container } = await renderWithI18n(<SazoCommercePage />);
-    const desktopNav = within(
-      container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
-    ).getByRole("navigation", { name: "メインメニュー" });
-
-    fireEvent.click(screen.getByRole("button", { name: "購入者の声" }));
     const firstReview = container.querySelector(".sazo-review-tile");
 
-    expect(firstReview?.textContent).toContain("MKT");
-    expect(firstReview?.textContent).toContain("めちゃめちゃ良かったです");
+    expect(firstReview?.textContent).toContain("Yuri · Belo Horizonte");
+    expect(firstReview?.textContent).toContain(
+      "梱包がとても丁寧で、傷ひとつありませんでした。",
+    );
     expect(firstReview?.querySelector("img")?.getAttribute("src")).toBe(
-      "/sazo-commerce/jplanet-sakura-mark.png",
+      "/sazo-commerce/review-media/r06.jpg",
     );
-    const capturedReviewTiles = Array.from(
-      container.querySelectorAll<HTMLElement>(".sazo-review-tile"),
-    ).slice(4);
+    expect(container.querySelectorAll<HTMLElement>(".sazo-review-tile")).toHaveLength(6);
 
-    expect(
-      capturedReviewTiles.map((tile) => tile.querySelector("img")?.getAttribute("src")),
-    ).toEqual([
-      "/sazo-commerce/review-media/r07.jpg",
-      undefined,
-      "/sazo-commerce/review-media/r08.jpg",
-      "/sazo-commerce/reviews/unseen-media.png",
-      "/sazo-commerce/reviews/tail-01.png",
-      "/sazo-commerce/reviews/tail-03-media.png",
-      "/sazo-commerce/reviews/tail-04.png",
-      "/sazo-commerce/reviews/tail-02-media.png",
-    ]);
-    expect(
-      Array.from(container.querySelectorAll<HTMLElement>(".sazo-review-tile")).every(
-        (tile) =>
-          (tile.querySelector(".sazo-review-tile-media > span")?.textContent.trim()
-            .length ?? 0) > 0 &&
-          (tile.querySelector(":scope > p")?.textContent.trim().length ?? 0) > 0 &&
-          tile.querySelectorAll(":scope > .sazo-review-tile-actions").length === 1,
-      ),
-    ).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "配送・通関" }));
 
-    fireEvent.click(screen.getByRole("button", { name: "アイドル" }));
-
-    expect(container.querySelector(".sazo-review-tile")?.textContent).toContain(
-      "加藤奈実",
-    );
-    expect(container.textContent).not.toContain("めちゃめちゃ良かったです");
+    expect(container.querySelectorAll<HTMLElement>(".sazo-review-tile")).toHaveLength(3);
+    expect(container.textContent).not.toContain("João · Porto Alegre");
   });
 
   it("hides a closed FAQ panel and closes the focused item with Escape", async () => {

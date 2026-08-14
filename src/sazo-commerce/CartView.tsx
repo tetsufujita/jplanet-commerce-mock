@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { getProductDetail, parseYenPrice } from "@/sazo-commerce/fixtures";
 import { getJplanetCoupon } from "@/sazo-commerce/couponFixtures";
+import { JplanetRecommendationGrid } from "@/sazo-commerce/HomeView";
 import type { CartItem, SazoAction } from "@/sazo-commerce/model";
 
 interface CartViewProps {
@@ -374,6 +375,13 @@ export function CartView({ dispatch, items, selectedCouponId = null }: CartViewP
             })}
           </div>
         )}
+
+        <JplanetRecommendationGrid
+          dispatch={dispatch}
+          heading="あなたへのおすすめ"
+          sectionClassName="sazo-jplanet-cart-recommendations"
+          testId="jplanet-cart-recommendations"
+        />
       </main>
 
       {groups.length > 0 ? (

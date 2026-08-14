@@ -47,6 +47,259 @@ final result: passed
 
 ---
 
+## 2026-08-14 — ホーム購入エージェントの確認範囲を一文化
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-14 17.08.45.png`（`518 × 72` px）。盾アイコンと「販売元・購入可否・関税・配送を確認し、BRL総額を表示」の1行だけを正典として確認しました。
+- Browser-rendered implementation: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/jplanet-home-agent-assurance-390-final.png`（390px幅）。比較用の横並び画像は `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/jplanet-home-agent-assurance-comparison.png` です。
+- State: ホームの購入エージェント入力欄直下、390 × 844。
+
+**Comparison history and findings**
+
+- P0/P1/P2: なし。3分割の「購入できるか／ブラジル到着総額／配送・通関」を廃止し、同じ領域を薄い上罫線付きの盾アイコン＋一文に置き換えました。
+
+**Full-view and focused comparison**
+
+- 既存のネイビー、白背景、細い罫線を維持し、アイコン左・本文右の1行レイアウトへ揃えました。入力欄、桜色の送信矢印、下のショートカット列・バナー・下部ナビの配置は維持されています。
+
+**Interaction and responsive checks**
+
+- 390pxで本文の折返し・横はみ出しはありません。ブラウザコンソールのerrorは0件でした。`pnpm typecheck`、ホームUnit 52件、`git diff --check`を確認しました。
+
+final result: passed
+
+---
+
+## 2026-08-14 — PCホーム：SAZO型ヘッダーとShopee型発見エリア
+
+**Comparison input**
+
+- Source visual truth (header): `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_pnsZI1/スクリーンショット 2026-08-14 16.40.01.png`（`1777 × 157` px）。ロゴ・横長検索・アクション群と下段ナビを持つ白い2段ヘッダーだけを参照しました。
+- Source visual truth (discovery area): `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260814-oqre.jpeg`（`3024 × 1964` px）の赤枠内。主バナー、右側の縦2段パネル、下部の等幅ショートカットという情報構造だけを参照し、Shopeeの色・ロゴ・コピーは採用していません。
+- Browser-rendered implementation: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/jplanet-pc-home-1440x960-final.png`（`1425 × 950` px、CSS viewport `1440 × 960`、初期ホーム状態）。
+- Full-view comparison evidence: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/jplanet-pc-home-reference-implementation-comparison.png`。左に上記2参照を正規化して縦結合、右に同じ高さへ切り出した実装を並べました。
+- Focused header evidence: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/jplanet-pc-header-reference-implementation-comparison.png`。両方を `1425 × 118` pxへ正規化しています。発見エリアは参照画像の `2400 × 720` px切り出しを `1425 × 550` pxへ、実装は同じ `1425 × 550` pxの上部領域へ正規化しました。
+
+**Comparison history and findings**
+
+- [P1 → fixed] `768px` で既存の汎用コンパクト・ヘッダー規則が検索フォームを `36px` 幅へ縮め、カメラと送信だけが残っていました。ホーム専用の幅と内側余白を明示して、`768 × 900` でも入力欄、カメラ、送信が一列で読めるようにしました。
+- P0/P1/P2: なし。PCホームは、実J-Planetロゴ・横長の検索入口・操作アイコンと、下段ナビを一枚の白い角丸ヘッダーカードに収めました。その下を左の主バナー、右の2段の判断訴求、8等分のショートカットに再構成しています。
+
+**Full-view and focused comparison**
+
+- Typography / spacing: 既存の `Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic"` とネイビーのウェイトを維持しました。ヘッダーは最大1152px、発見エリアは最大1280pxとして、SAZO見本の中央寄せヘッダーと、Shopee見本の密度あるバナー領域を分離しています。バナーと右パネルは14px間隔、ショートカットは均等8列で、1440px／1024px／768pxで見切れません。
+- Colors / tokens: J-Planetのネイビー、桜ピンク、白、`#e5eaf1`だけを使用しました。右2段パネルは既存の桜淡色と青淡色で意味を分け、Shopeeのオレンジ・赤、ロゴ、固有コピーは使っていません。
+- Image quality / icons: 主バナーは既存の `japan-brazil-hero.png`、ロゴは実ワードマーク、全アイコンは既存Lucideです。画像生成、CSS図形、代替ロゴ、手作りSVGは追加していません。
+- Copy / affordances: 既存の購入エージェント文言、URL・画像・商品名の入力、販売元・規制・関税とBRL総額・到着予定の判断導線を維持しています。主バナーの前後操作、ドット、カメラ、送信、ショートカット、商品レールの操作も保持しています。
+
+**Interaction and responsive checks**
+
+- In-app browserで `1440 × 960`、`1024 × 900`、`768 × 900`、`390 × 844` を確認。PC／タブレットでは横オーバーフローや主要操作の欠落がなく、390pxではモバイル固有のヘッダー、バナー、入力、下部ナビが変更前の構成のまま表示されました。
+- ヘッダー検索に商品名を入力して送信すると、既存の検索ロードを経て商品詳細へ遷移することを確認しました。ホーム復帰後も既存のバナー・ショートカット・商品レールが表示されます。ブラウザコンソールエラーは0件です。
+- `pnpm typecheck`、対象Unit `52 passed`、対象desktop E2E `1 passed`、`pnpm build`、`git diff --check` は通過しました。リポジトリ全体の `pnpm lint` と全Unitは、この変更と無関係な既存の未コミット実装に多数のエラー／14件の失敗があり、全体では未通過です。
+
+final result: passed
+
+---
+
+## 2026-08-14 — 購入体験レビューの完成見本への忠実化
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-14 15.43.13.png`。端末外側の黒いフレームを除き、アプリ領域を比較対象にしました。
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-381ae-th-working-decision-filters-mobile/reviews-390.png`（CSS viewport `390 × 844`、2× density、`780 × 1688` px）。横並び比較は同ディレクトリの `reviews-390-comparison.png` に保存しています。参照側だけ黒い端末外周を `400 × 866` に切り出し、実装と同じ表示サイズへ正規化しました。
+- State: `?qa=1&view=reviews`、`すべて`フィルター選択、カルーセル先頭位置、ページ先頭、共有固定ナビ表示。
+
+**Reference comparison**
+
+- P0/P1/P2: なし。固定ヘッダー、20pxの本文余白、コンパクトな見出し・説明、先頭308pxの全画面写真カード、右側に見える2枚目、直後の横スクロールフィルター、`みんなの購入体験`、2列一覧、5等分の固定下部ナビを見本の順序と密度へ揃えました。
+- [P1 → fixed] 大きなカードの濃紺情報帯をDOM・CSSとも削除しました。カードは写真を上端から下端まで表示し、ユーザー名・本文・チップだけを写真の上に直接置きます。本文と名前は白文字に指定どおりの弱い黒系シャドウのみ、チップは透明背景・白1px枠・白文字です。
+- legacy CSS: 旧レビュー用ヒーロー、エージェント入力、情報帯、二重のカード規則を除去し、最後の `.sazo-root[data-view="reviews"]` に限定した有効規則だけを残しました。ホーム、ブランド、エージェント、通知、マイページのスタイルには触れていません。
+
+**Interaction and responsive checks**
+
+- 横カルーセルは `display:flex`、`overflow-x:auto`、`scroll-snap-type:x mandatory`、手動スワイプを維持しています。先頭カードは390pxで308px、次カードはレール右端に見えており、横スクロール可能です。
+- 既存の戻る、ホーム、カート、共有下部ナビ、レビュー判断軸の絞り込みを維持しています。`商品の状態`は2列一覧を6件から4件へ実際に絞り込みます。レビュー画面への遷移時のページ先頭復帰も既存の画面遷移管理のままです。
+- 341px / 390px / 440pxで横オーバーフローなし、2列維持、フィルターの横スクロール、5等分の固定ナビ、本文の下部ナビ非隠蔽を確認しました。
+
+**Asset constraint**
+
+- 見本の到着後スニーカー写真と一覧の写真はこのリポジトリに存在しないため、指定どおり見本画像の切り抜きや新規生成は使わず、既存のNew Balance商品画像と既存レビューfixture画像を使用しています。レイアウト、写真全面表示、文字位置、操作は見本へ一致させています。
+
+final result: passed
+
+---
+
+## 2026-08-14 — PCホームの購入エージェント構成
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a0012a-b6d5-7db1-8202-c00214a4c764/exec-1e02671c-3a4c-4aea-a450-1c6b1df91338.png`。
+- Browser-rendered implementation: in-app browser の `http://127.0.0.1:5190/sazo-commerce-mock/?qa=1`。同一の16:9比較入力は `/tmp/jplanet-desktop-home-final-comparison.png`（左: 正典を同一アスペクトへ正規化、右: 実装）です。
+- State: ホーム初期表示、先頭の `japan-brazil-hero.png`、バナー操作前、商品レールの先頭6件。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 右側の淡い青い隣接バナーがなく、正典のカルーセルらしい両端の見え方に届いていませんでした。1200px以上で、桜色の左隣接バナー・中央ヒーロー・2枚の根拠カード・淡い青の右隣接バナーを並べる専用グリッドにしました。
+- [P1 → fixed] 4列構成で中央のコピーが2行へ折り返していました。中央ヒーローにだけ幅と文字サイズを調整し、`日本の商品を、ブラジルへ。` を1行で保ちました。
+- P0/P1/P2: なし。76pxヘッダー、実ロゴ、横長検索、カメラ・桜色送信、6項目ナビ、左右のバナー、根拠カード、8個のショートカット、6件の商品レールを正典の情報密度に揃えました。
+
+**Responsive and interaction checks**
+
+- 768px / 1024px / 1440px で専用E2Eにより、ヒーロー実画像のロード、初期6カード、横オーバーフローなしを確認しました。
+- ヘッダー検索・カメラ、カート、チャット、カテゴリー、商品カードの遷移と、バナー送りを既存のMock導線として確認対象に含めています。
+- 390px以下は既存のモバイル `HomeView` のフラグメントを維持し、モバイルの決定的E2Eを通過させました。
+
+final result: passed
+
+---
+
+## 2026-08-14 — ホームの生成バナー4枚化
+
+**Comparison input**
+
+- Source visual truth: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_23otpD/スクリーンショット 2026-08-14 14.53.42.png`。現在表示中の桜・荷物・リオの写真と `日本の買い物を、もっと確かに。` を、固定の画像バナーにする指定です。
+- Browser-rendered implementation: `/tmp/jplanet-home-banner-first-final-390.png`。In-app Browserの CSS viewport `390 × 844` でのホーム先頭状態です。Browserのコンテンツ撮影は `375 × 812` pxで、端末外周を除いた同一モバイル状態として確認しました。
+- State: ホーム、先頭バナー、検索ヘッダーと購入エージェントの既存オーバーラップを維持。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 最初の横長画像では、画像に焼き込んだ先頭コピーが中央モバイルcropの右端で切れました。専用の `887 × 852` モバイル画像を追加し、コピーを検索ヘッダーの下へ移動したため、`日本の買い物を、もっと確かに。` の2行が欠けずに読めます。
+- P0/P1/P2: なし。先頭は元の桜・荷物・リオの構図を保持した固定画像へ置換し、残りは ChatGPT からの買い物、人気商品、サービス紹介の3枚を同じ `1536 × 1024` スロットに追加しました。旧AIバナー3枚は削除済みです。
+
+**Required fidelity surfaces**
+
+- Fonts / copy: 見出しコピーはすべてバナー画像内で完結し、HTMLの疑似要素コピーは残していません。アプリ側の検索・購入エージェント・ショートカットの既存フォント階層は不変です。
+- Spacing / layout rhythm: 既存の360pxモバイルヒーロー、検索ヘッダー、エージェントカードの重なりを保ち、画像の変更で下のセクションを押し下げません。
+- Colors / imagery: 先頭は深いエメラルド／白／桜、ChatGPT案内はネイビーと桜、人気商品とサービス紹介は白／ネイビー／桜の既存方針で統一しています。ロゴ、端末フレーム、グラデーション、ウォーターマークは生成画像に含めていません。
+- Interaction: カルーセルは既存のスワイプ、前後操作、再生／停止を維持し、4枚のカウンターに更新しました。
+
+**Verification**
+
+- `pnpm typecheck`、ホーム／モデルUnit 112件、モバイルE2Eの決定的導線、`pnpm build` が通過しました。
+- 390pxで先頭固定画像と3つの生成画像をスワイプ確認し、横オーバーフローと既存の購入エージェント導線への影響はありません。
+
+final result: passed
+
+---
+
+## 2026-08-14 — マイページの固定ショートカット
+
+**Comparison target**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-14 11.21.15.png`（マイページ本体）および `スクリーンショット 2026-08-14 11.21.21.png`（5項目の下部ショートカット）。前者は `704 × 1466` px、後者は `672 × 116` pxです。
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-1aa05-post-purchase-delivery-flow-mobile/mypage-shortcuts-390.png`。モバイルE2Eの341 × 735 CSS px / 2×キャプチャで、マイページを開いた直後の状態です。
+
+**Full-view and focused comparison**
+
+- 参照と実装を同じ比較入力で確認しました。既存のJ-Planetロゴ、ネイビーのリスト、桜色のアクセントを保ち、マイページの最下部に既存共通の5項目ショートカットを固定表示しています。
+- 現在地の `マイページ` は桜色で選択状態になり、ホーム／ブランド／エージェント／通知の既存遷移も同じ共通コンポーネントを再利用します。マイページにだけ浮遊チャットが追加されないよう、従来の表示方針を保ちました。
+- コンテンツ側は下部ナビ高さ分の余白を持つため、末尾の行を固定ナビが覆いません。参照との画面高・既存リスト密度の違いによりサポート行はスクロール下ですが、操作可能領域は欠けません。
+
+**Interaction and responsive checks**
+
+- マイページ直開きで下部ナビが可視、5項目すべてが存在、`マイページ` の `aria-pressed="true"` をE2Eで確認しました。注文・配送から既存の配送／CPFフローへ進み、横オーバーフローもありません。
+- `pnpm typecheck` と対象モバイルE2Eが通過しています。P0/P1/P2の残存差異はありません。
+
+final result: passed
+
+---
+
+## 2026-08-14 — クーポンのチケット型一覧
+
+**Comparison target**
+
+- Source visual truth: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_bajdKD/スクリーンショット 2026-08-14 11.19.59.png`（既存のJ-Planetクーポン構造）、`/Users/fujitatetsu/Downloads/IMG_0998.PNG`、`IMG_0997.PNG`、`IMG_0996.PNG`、`IMG_0995.PNG`（チケットの情報階層、ミシン目、切り欠き、フッター操作）。
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-ba3e4-s-without-mobile-navigation-mobile/coupon-wallet-390.png`、`coupon-code-input-390.png`、`coupon-history-390.png`。390px幅の参照と実装を同じ比較入力で確認しました。
+- Viewport and density: 341 / 390 / 440px幅のモバイルE2E、390px幅・844px高を主たる目視確認幅としました。タブレット／PCは既存の2列クーポン構成を維持します。
+
+**Full-view and focused comparison**
+
+- ヘッダー、横スクロールタブ、コード入力／検索の2分割バーを残しつつ、旧来の縦点線による左右分割カードを廃止しました。白い1枚チケットに、下部ミシン目と左右の半円切り欠き、16px間隔、控えめな影を適用しています。
+- 各カードはLucideの配送・商品・ブランドアイコン、対象ラベル、割引、条件、fixture由来の残数／期限を左から読みます。通常期限は控えめに、緊急期限だけ桜色、残数だけ淡い桜バッジに分岐しています。
+- `利用条件` と `使う`／特別状態の `あとで使う` は別ボタンです。カード全体には遷移を付けず、表示値は実API・決済未接続のfixtureとして保っています。Shopee固有の名称、オレンジ、ロゴ、バナーは追加していません。
+
+**Interaction and responsive checks**
+
+- 390pxでは最初の2枚のチケットで期限・利用条件・CTAがすべて見切れません。横方向オーバーフローなしを341 / 390 / 440pxで確認しました。
+- タブ絞り込み、コード入力、クーポン検索、利用条件シート、特別状態の案内、利用履歴をユニットとモバイルE2Eで確認しました。`pnpm typecheck`、対象Vitest、対象Playwrightが通過しています。
+- P0/P1/P2の残存差異はありません。
+
+final result: passed
+
+---
+
+## 2026-08-14 — ホームの滝型商品カード／購入エージェント導入部
+
+**Comparison target**
+
+- 商品カードの参照画像: `/Users/fujitatetsu/Downloads/IMG_0994.PNG`、`/Users/fujitatetsu/Downloads/IMG_0993.PNG`。カードごとの画像高、非整列の2列フロー、割引前後の価格順、画像右下の購入アクションだけを参照し、Mercado Livre の黄色や固有UIは持ち込みません。
+- 購入エージェントの参照画像: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-14 10.48.12.png`。追加で、履歴CTAの文言は `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_DcFhMQ/スクリーンショット 2026-08-14 10.53.13.png` を参照しました。
+- 実装キャプチャ: `test-results/visual-qa/home-waterfall-after.jpg` と `test-results/visual-qa/agent-composer-after.jpg`。各参照画像と同一比較入力で、商品画像／購入ボタン、桜の導入部／入力欄／CTAを確認しました。実装は `375 × 667` CSS px のモバイル状態です。
+
+**Full-view and focused comparison**
+
+- ホームは独立した2列の滝型カードに変更しました。画像は余白や内枠を足さず `object-fit: cover` でカード幅に合わせ、縦・横・正方の異なる比率をそのまま使うため、行の下端は揃いません。
+- 星評価・レビュー数・購入件数を削除し、商品名の直下に `14% OFF` と取り消し線付き旧価格、その下に大きい現在のBRL価格、最後に `日本から直送` を置きました。画像右下のカート＋マークは白い円形ボタンにし、J-Planetのネイビーと桜色の既存トーンを維持しています。
+- エージェント導入部は画面幅いっぱいの淡い桜面にし、上辺のみ4pxの桜アクセントと大きい上角丸を適用しました。大きい桜マーク、`購入エージェント`、`商品を送るだけで、購入判断まで。`、高さ64px・20px角丸の入力欄、カメラ、56px丸型送信ボタンを確認しました。
+- 通常履歴と展開後履歴のCTAをすべて `商品を見る` へ統一し、矢印と商品詳細への既存遷移は維持しています。
+
+**Interaction and responsive checks**
+
+- 商品画像・テキスト・画像右下のカート＋マークはいずれも既存の商品詳細／バリエーション選択フローを開きます。入力、カメラ、送信、履歴の展開、PC／タブレットの他構成には変更を加えていません。
+- モバイルE2Eで341pxの2列、エージェントの341px／390px／440pxの横オーバーフローなしを確認しました。デスクトップE2Eで商品カードは768pxで3列、1024pxで4列、1511pxで5列へ切り替わることを確認しました。
+- P0/P1/P2の残存差異はありません。
+
+final result: passed
+
+---
+
+## 2026-08-14 — ホーム商品カードのフルブリード画像
+
+**Comparison target**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/IMG_0991.PNG`、`/Users/fujitatetsu/Downloads/IMG_0992.PNG`、`/Users/fujitatetsu/Downloads/IMG_0990.PNG`。参照範囲は、2列商品カードの画像がカード上端・左右端まで届き、CSSによる内側余白や画像用の外枠を持たない表示だけです。Shopeeのロゴ、オレンジ、コピー、下部ナビは対象外です。
+- Implementation screenshot: `test-results/visual-qa/home-grid-after.png`。In-app Browser のホームを`375 × 667` CSS px / `devicePixelRatio 1`で開き、商品グリッドへスクロールした状態を取得しました。出力キャプチャはブラウザーの可視コンテンツ`360 × 640` pxです。
+- Density normalization: 参照画像は`750 × 1334` pxで、同じ`375 × 667`論理サイズへの2×キャプチャとして扱いました。比較入力では、参照と実装を同じ縦横比の可視コンテンツへ等倍率で正規化し、引き伸ばし・切り取りは行っていません。
+- State: ホームの「おすすめ商品」先頭4カードが見える位置。J-Planetの既存ヘッダー、下部ナビ、BRL価格、販売数、商品詳細遷移は維持します。
+
+**Full-view and focused comparison**
+
+- 同一比較入力で、参照`IMG_0991.PNG`とブラウザー取得済み実装キャプチャを並べて確認しました。両方とも2列グリッドの画像がカードの上端と左右端に届き、画像領域の外側にCSS由来の白い余白や細い枠線はありません。
+- 焦点領域は先頭4カードです。実装側のNintendoコントローラー、Switch OLED、Sony α7C II、New Balance 9060はすべて`border-top-width: 0px`、`object-fit: cover`、`padding-top: 0px`です。
+- J-Planetのネイビー／桜ピンク、実商品素材、日本語コピーは既存方針として意図的に残しています。素材画像そのものに含まれる白背景は新規画像を作らない制約の範囲であり、CSSによる余白とは分けて評価しました。
+
+**Findings and resolution**
+
+- [P1 → resolved] 旧実装では全カードに1pxの外周線があり、11商品は`contain`と6px余白で画像が縮小していました。ホームグリッドだけを`cover`表示へ統一し、カードの外周線・画像用`data-fit`・内側余白を削除しました。
+- P0/P1/P2の残存差異はありません。商品名、価格、評価、販売数、割引、共通商品詳細への操作は変更していません。
+
+**Required fidelity surfaces**
+
+- Fonts / typography: 既存の`Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif`、情報のサイズ・折り返し・階層を維持。参照のShopee文言やフォントは導入していません。
+- Spacing / layout rhythm: 2列、カード間8px、画像の正方形比率、商品情報の既存パディングを維持し、画像領域だけをフルブリード化しました。
+- Colors / tokens: 白、Navy、Sakura、Muted、Lineの既存トークンを維持。外周線を外したことで、参照と同じく薄いページ背景の間隔だけがカードを分けます。
+- Image quality / asset fidelity: 既存の実商品画像16件のみを使い、全画像を歪めず`cover`でカード領域いっぱいへ表示。新規画像・生成素材は使っていません。
+- Copy / content: BRL表示、販売数、ラベル、商品詳細への`aria-label`を維持。ホームの配送目安は前回の指定どおり非表示です。
+
+**Interactions tested**
+
+- 16カードの外周線なし、`cover`、余白0pxをモバイルE2Eで確認。
+- 先頭・末尾のカードから共通Nintendo商品詳細へ移動し、戻る時に商品グリッドのスクロール位置を復元する既存導線を確認。
+- In-app Browserの実画面で先頭4カードの計算済みスタイルとconsole error 0件を確認。
+
+**Implementation checklist**
+
+- [x] 画像専用の`contain`／6px余白を削除。
+- [x] モバイルとタブレット以上の外周線を削除。
+- [x] 既存画像・商品情報・導線を維持。
+- [x] 同一比較入力による視覚確認、対象E2E、型チェック、ユニットテスト、ビルドを実行。
+
+final result: passed
+
+---
+
 ## 2026-08-14 — PC／タブレット・レスポンシブ化
 
 **Comparison target**
@@ -1822,5 +2075,215 @@ final result: passed
 - P2: なし。クーポン画像は比率を維持して全体を表示し、次のGramセクションとの間隔を16pxに整理しました。
 
 確認幅は341px（ホーム）、390px（商品詳細）、440px（カート）、768px（タブレットホーム）、1024px（全主要ルート）、1280px（ホーム・商品詳細・エージェント・カート）です。PC／タブレットではモバイルナビが視覚的に表示されず、モバイルではPCヘッダーが表示されないことも確認しました。
+
+final result: passed
+
+---
+
+## 2026-08-14 — カート下部の「あなたへのおすすめ」
+
+**Comparison target**
+
+- Cart source visual truth: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_s6kZsz/スクリーンショット 2026-08-14 11.10.10.png`（`704 × 1466` px）。購入元別のカート明細、淡い背景、固定の購入フッターを維持する対象です。
+- 商品カードの source visual truth: `/Users/fujitatetsu/Downloads/IMG_0994.PNG`（`750 × 1334` px）。ユーザー指定どおり、カートへ置くカードはホームと同じ2列・画像右下の購入ボタン・旧価格／現価格の階層を参照しました。
+- Browser-rendered implementation: `test-results/visual-qa/cart-recommendations-after.jpg`（`360 × 640` px）。CSS viewport は `375 × 667` / 1×で、固定ヘッダーとフッターを含む実画面です。参照画像は密度・画面高が異なるため、比較はカート明細の直後に現れる見出しと2列の商品カード領域へ正規化しました。
+
+**Full-view and focused comparison**
+
+- カート明細の直下、固定購入フッターの手前に `あなたへのおすすめ` と16件の滝型カードを追加しました。カードはホームと同じコンポーネント・画像・価格・カート＋マークを再利用しており、独自の別カードUIは作っていません。
+- 既存のカートは白い購入元グループと淡いグレー背景、ネイビー／桜色、固定BRL合計を保っています。おすすめ領域は8pxの薄い区切りだけで開始し、カートの購入判断を妨げません。
+- フォントは既存の `Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic"`、商品画像は既存の実画像を`cover`で使用、コピーはホーム同一の割引・旧価格・BRL価格・`日本から直送`です。アイコンは既存Lucideのカート＋を再利用し、追加の生成画像やブランド変更はありません。
+
+**Interaction and responsive checks**
+
+- すべての推薦カードと画像右下のカート＋は、既存の商品詳細／購入オプション導線を開きます。カートの数量、バリアント、クーポン、編集、固定の購入手続きは維持しています。
+- ユニットテストとモバイルE2Eで16カード、見出し、購入オプション導線を確認しました。ホーム共有グリッドの341px 2列、768px 3列、1024px 4列、1511px 5列も回帰確認済みです。
+- P0/P1/P2の残存差異はありません。カードの見出しは通常スクロールでカート明細の直後に読め、固定ヘッダー下へスクロールし切った時だけ隠れる通常のsticky挙動は意図どおりです。
+
+final result: passed
+
+---
+
+## 2026-08-14 — エージェントを商品検索入口へ再構成
+
+**Comparison input**
+
+- Source visual truth: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_rGDqCk/スクリーンショット 2026-08-14 11.54.41.png`（`386 × 864` px）。ユーザー選定済みの唯一の視覚的正典です。
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-04717-arch-entry-at-mobile-widths-mobile/agent-search-390.png`（CSS viewport `390 × 844`、2× device scale）。同じ比較入力で、実ロゴ、ヘッダー、検索入口、検索チップ、最近確認した2商品、固定ナビを確認しました。
+
+**Reference comparison**
+
+- P0: なし。送信履歴・過去履歴・通関/CPF例外・待機状態をエージェント通常画面から除去し、`購入エージェント`、説明、URL/画像/商品名入力、補足、最近の検索、最近確認した商品という正典の順序だけにしました。
+- P1: なし。390pxでは左右14pxの余白、ホームと揃えた46pxの入力欄、カメラ、桜ピンクの丸い送信ボタン、横スクロール可能な淡色チップ、囲いのない2行の商品リストと右端`商品を見る`が見切れず読めます。選択中の下部`エージェント`は参照どおりネイビー面と桜色アイコンで表現しています。
+- P2: なし。既存の実J-Planetワードマーク、商品画像、Lucideアイコン、ネイビー、桜ピンク、白、薄い罫線だけを使い、生成画像、グラデーション、ガラス表現、暗いパネル、余分なシャドウは追加していません。
+
+**Interaction and responsive checks**
+
+- 検索チップは個別削除・全消去できます。商品行と送信は、依頼を積み上げず既存の商品詳細へ直接遷移します。カメラ、カート、チャット、下部ナビの既存操作も維持しています。
+- `390 × 844`のモバイルE2Eで入力欄、チップ、CTA、下部ナビ、横オーバーフローなしを確認し、`768 × 900`、`1024 × 900`、`1511 × 900`のE2Eでデスクトップのグローバルヘッダー、2行リスト、横オーバーフローなしを確認しました。
+
+final result: passed
+
+---
+
+## 2026-08-14 — エージェント導入部をホームと統一（追記）
+
+- Source visual truth: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_6L2Aax/スクリーンショット 2026-08-14 12.17.57.png` の赤枠内。ホームの実桜マーク、見出し、説明、入力欄が今回の比較正典です。
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-04717-arch-entry-at-mobile-widths-mobile/agent-search-390.png`。同じ比較入力で、エージェント側の導入部を確認しました。
+- P0/P1: なし。エージェント側にもホームと同じ42px実桜マーク、見出し・説明の文字階層、46px入力欄、カメラ、桜色の丸い送信ボタン、白い枠と控えめな影を適用しました。検索チップ以降の検索入口・商品リストは維持しています。
+- P2: なし。入力、カメラ、送信、カート、チャット、下部ナビ、商品詳細遷移の既存動作を変更していません。
+
+final result: passed
+
+---
+
+## 2026-08-14 — エージェント検索入口の段階的拡張
+
+**Comparison target and evidence**
+
+- Source visual truth: 今回のユーザー選定済み画面構成（購入エージェント入力 → 最近の検索 → 最近確認した商品 → よく検索されるキーワード → 使い方 → いま人気の商品）と、導入部の基準 `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_6L2Aax/スクリーンショット 2026-08-14 12.17.57.png` の赤枠内です。
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-04717-arch-entry-at-mobile-widths-mobile/agent-search-default-390.png`、`agent-search-expanded-390.png`、`agent-popular-products-390.png`、および `test-results/sazo-commerce-reproduction-ccb72-mock-state-at-mobile-widths-mobile/agent-search-empty-390.png`。いずれも CSS viewport `390 × 844`、2× density（`780 × 1688` px）です。
+- 同一比較入力で、上記の導入部参照と通常・展開・初回空状態の実画面を確認しました。参照は注釈を含むホーム画面、実装は独立したエージェント画面のため、比較対象を共通する導入部と、今回指定された順序・状態へ正規化しています。
+
+**Comparison history and findings**
+
+- [P1 → fixed] `すべて見る（8件）` が既存のヘッダー用丸ボタン規則を継承し、390pxで文言が見切れていました。専用のインラインテキスト操作へ上書きし、通常状態キャプチャで見切れずに右端へ収まることを確認しました。
+- P0/P1/P2: なし。通常は最近確認商品を2件だけ表示し、`すべて見る（8件）` で同じ区切り線リストを8件へ展開、`閉じる` で2件へ戻ります。検索意図チップは個別削除・全消去でき、人気キーワードと入力は既存の商品詳細遷移へつながります。
+- 初回空状態では検索・最近確認商品を0件にしたfixtureを使い、使い方だけを最初から開いています。通常状態では同じ使い方を1行に折りたたみ、いずれも検索・履歴より後、人気商品より前に置いています。
+
+**Fidelity surfaces and interaction checks**
+
+- Typography / spacing: 既存の Arial / 和文フォールバック、ネイビーの見出し、14px左右余白、細い区切り線、ホームと同じ46pxの入力欄を維持しました。展開リンク・使い方の折りたたみ・横スクロールチップは、行カード化せず軽量な操作として表示します。
+- Colors / imagery: 実J-Planetワードマークと桜マーク、既存のネイビー／桜ピンク／白／`#e5eaf1`だけを使いました。人気商品はホームの既存高密度2列カードを4件に限定して再利用し、新規画像・グラデーション・濃色パネルは追加していません。
+- Copy: `送信履歴`、購入判断完了・購入可能・進行中タイムラインは通常画面にありません。`あなたへのおすすめ`も使わず、最下部の見出しを`いま人気の商品`にしています。
+- E2Eで展開／閉じる、検索チップの個別削除／全消去、使い方の開閉、人気キーワードと商品行からの既存商品詳細遷移、390pxの横オーバーフローなしを確認しました。対象Unit（9件）、型チェック、タブレット／デスクトップの既存エージェント確認、差分チェックも通過しています。
+
+final result: passed
+
+---
+
+## 2026-08-14 — エージェント入力部の拡大（追記）
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-14 12.51.05.png` の赤枠。購入エージェントの導入部だけを一段大きくする指定です。
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-04717-arch-entry-at-mobile-widths-mobile/agent-search-default-390.png`（CSS viewport `390 × 844`、2× density）。同じ比較入力で、通常状態の入力部と直後の検索履歴を確認しました。
+
+**Result**
+
+- P0/P1/P2: なし。桜マークを42pxから48px、入力欄を46pxから52pxへ拡大し、見出し・説明・カメラ・送信ボタン・内側余白も同じ比率で調整しました。
+- 赤枠外の最近の検索、最近確認した商品、キーワード、使い方、人気商品、下部ナビのスタイルと操作は変更していません。導入部の高さ増加に伴う下方への開始位置の移動のみです。
+- 390pxで入力欄、カメラ、送信ボタン、URL補足文は見切れず、横オーバーフローはありません。タブレット／デスクトップはこのモバイル専用上書きの対象外です。
+
+final result: passed
+
+---
+
+## 2026-08-14 — ホームのカテゴリー探索を一時削除（追記）
+
+- Source visual truth: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_UUMdGa/スクリーンショット 2026-08-14 14.33.48.png` の赤枠。`カテゴリーから探す` と8つの丸いカテゴリー項目をホームから外す指定です。
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-981be-he-shared-controller-detail-mobile/home-sales-count-341.png`。スクロール後に、削除位置の直後からおすすめ商品の2列グリッドが始まることを確認しました。
+- P0/P1/P2: なし。ホームからカテゴリー探索レールを除去し、J-Planet GRAM の次におすすめ商品を接続しました。カテゴリー一覧画面とショートカットの既存導線は維持しています。
+- モバイルのUnit（51件）、ホーム対象E2E、型チェック、横オーバーフロー、差分チェックを確認しました。
+
+final result: passed
+
+---
+
+## 2026-08-14 — ホームの商品カードを3倍へ一時拡張（追記）
+
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-981be-he-shared-controller-detail-mobile/home-sales-count-341.png`。既存の2列カードの見た目・価格・購入導線を変えずに確認しました。
+- P0/P1/P2: なし。ホームだけで既存16商品を3バッチ、合計48件に拡張しています。再利用したカードには安定した一意IDを付け、同じ商品が重複してもカード操作を保てるようにしました。
+- カートの「あなたへのおすすめ」は既存の16件、エージェントの「いま人気の商品」は4件のままです。型チェック、ホーム／カート対象Unit（55件）、ホーム対象E2E、横オーバーフロー、差分チェックを確認しました。
+
+final result: passed
+
+---
+
+## 2026-08-14 — 購入体験レビューの写真中心レイアウト
+
+**Comparison input**
+
+- Source visual truth: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_lvMPzY/スクリーンショット 2026-08-14 14.52.38.png`（`451 × 889` px）。端末外周を除き、モバイルのヘッダー、横スワイプ、フィルター、2列一覧、固定ナビを比較対象にしました。
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-381ae-th-working-decision-filters-mobile/reviews-390.png`（CSS viewport `390 × 844`、2× density、`780 × 1688` px）。実装画像を2×→CSS寸法へ正規化し、390pxのアプリ内容だけを同一比較入力で確認しました。
+- State: `?qa=1&view=reviews`、`すべて`フィルター選択、先頭カルーセル位置、固定ナビ表示。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 最初の比較では共有ナビが76pxで、参照より高く、レビュー画面にだけ不要なフローティングチャットが残っていました。レビューに限定してナビを68px、上辺だけ28pxの角丸・薄い罫線・影なしへ調整し、チャットランチャーはこの画面だけ非表示にしました。
+- P0/P1/P2: なし。戻る／中央タイトル／ホーム／カートの既存ヘッダー、見出しとサブコピー、左22pxから始まる先頭318pxの手動スワイプ、ネイビーの情報帯、5つの判断軸、写真中心の2列一覧、5等分の固定ナビが揃っています。
+
+**Full-view and focused comparison**
+
+- Typography / spacing: Arialと和文フォールバック、ネイビー`#1f3864`、22pxのモバイル余白、コンパクトな13pxのサブコピー、先頭カードと次カードの見切れ、カード間10pxのリズムを確認しました。フィルターは選択時だけネイビー地＋白文字です。
+- Colors / imagery: 白、ネイビー、桜ピンク`#fea2ac`、薄い罫線`#e5eaf1`だけを使用しています。情報帯は単色ネイビーで、グラデーション、ガラス、重い影、SNS反応数はありません。既存アセット限定のため、先頭のNew Balanceは到着写真ではなく既存の商品カットアウトを使用し、2枚目以降は既存の実写レビュー画像を使用しています。
+- Header / navigation focused region: 下部は独自実装を作らず共有`SazoShell`を利用しています。レビュー画面だけホームのアイコンとラベルを桜色、残り4項目をmuted navyにし、検索アイコン・選択ピル・下線・ドットはありません。
+
+**Interaction and responsive checks**
+
+- 横カルーセルは`scroll-snap`と手動スワイプのみで、390pxでは先頭カードが310px以上、`scrollWidth > clientWidth`を実測しました。
+- `すべて`／`商品の状態`／`BRL 総額`／`配送・通関`／`サポート`はfixtureの判断軸で実際に絞り込みます。`商品の状態`は6件から4件へ変化することをE2Eで確認しました。
+- 341px、390px、440pxで横オーバーフローなし、固定ナビ5項目、ホーム選択状態を確認しました。tablet/desktopは本文を680px以内へ制約し、不要に横へ広がりません。
+
+final result: passed
+
+---
+
+## 2026-08-14 — PCホームのクーポン導線とAIエージェントCTA
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260814-pfkv.jpeg`（下側の赤枠）と `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260814-pgim.jpeg`（上側の赤枠）。前者はAIエージェントへの相談ボタン、後者はクーポン画像への置換指定です。
+- Browser-rendered implementation: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/jplanet-desktop-coupon-agent-final.png`（`1265 × 712` px、PCホーム）。比較用の2×2合成画像は `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/jplanet-desktop-coupon-agent-comparison.png` です。各参照カードと実装カードを同じ比較入力にまとめて確認しました。
+- State: PCホーム。クーポン上段、AIエージェント下段の2段構成。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 初回のクーポン画像は、後続のPC用ボタン余白により横36pxまで縮小しました。クーポンボタンを相対配置、画像を絶対配置・全面表示にして修正後の比較で再確認しました。
+- P0/P1/P2: なし。上段は既存J-Planetクーポン画像、下段は桜淡色の`J-Planet AIエージェントに相談`ボタンです。
+
+**Full-view and focused comparison**
+
+- Fonts and typography: 既存Arial系フォント、太字のネイビー見出し、11px程度の説明文を維持しました。CTAは一行で収まっています。
+- Spacing and layout rhythm: 既存の右側2段、12px間隔、12px角丸、高さを維持しています。ヒーロー、ショートカット、商品レールは変更していません。
+- Colors and visual tokens: クーポン画像は既存のネイビー／桜ピンク、AI CTAは既存の淡い桜色とネイビーです。新しいグラデーション、影、色は追加していません。
+- Image quality and asset fidelity: 新規生成はせず、既存 `jplanet-coupon-banner.svg` を画像として全面に表示しています。
+- Copy and content: 表示文言は全localeのi18nキーに追加し、指定意図どおり購入判断の入口としてエージェントへ遷移します。
+
+**Interaction and responsive checks**
+
+- クーポン画像はクーポン画面、AI CTAはエージェント画面へ遷移することをブラウザとPC E2Eで確認しました。ブラウザconsole errorは0件です。
+- `pnpm typecheck`、ホームUnit 52件、PC E2E、モバイルE2E、`git diff --check`を通過しました。変更は`DesktopHomeView`と既存の`@media (min-width: 768px)`内スタイルに閉じ、モバイルのDOM・UIは変更していません。
+
+final result: passed
+
+---
+
+## 2026-08-14 — PCホームのカテゴリーグリッド
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260814-pgvp.jpeg`（`3024 × 1964` px）。赤枠内の白い2段カテゴリーグリッド、薄い内側罫線、丸い商品／カテゴリ画像、密度を比較対象にしました。
+- Browser-rendered implementation: `/tmp/jplanet-desktop-categories-final.png`（CSS viewport `1440 × 900`、ブラウザキャプチャ `1425 × 891` px）。同じカテゴリー領域の正規化済み比較入力は `/tmp/jplanet-desktop-category-comparison.png`（上段: 参照を `1200 × 380` pxへ正規化、下段: 実装を同幅・白余白で正規化）です。
+- State: PCホームで`エージェントが確認した人気商品`の直後へスクロールした状態。20カテゴリー、`ホーム`選択状態。
+
+**Comparison history and findings**
+
+- P0/P1/P2: なし。参照の情報構造を、J-Planetの既存ネイビー、白、`#e5eaf1`罫線、既存実画像へ置き換えました。1024pxは10列×2段、768pxは読みやすさを保つ6列グリッドへ切り替わり、横オーバーフローはありません。
+
+**Full-view and focused comparison**
+
+- Fonts and typography: 既存Arial系フォントとネイビー`#1f3864`を使い、`カテゴリー`の見出しと各ラベルの太さ・行高をコンパクトに揃えました。1024pxで長い日本語ラベルは2行へ自然に折り返ります。
+- Spacing and layout rhythm: 人気商品枠の直後に24pxの間隔を置き、白い外枠、薄い内側罫線、10列×2段、画像とラベルの9px間隔を確認しました。外枠はJ-Planet既存の12px角丸に合わせています。
+- Colors and visual tokens: 参照の情報密度は保ちつつ、Shopeeのオレンジやロゴは使わず、J-Planetの白・ネイビー・薄い罫線だけへ変換しました。グラデーション、濃いパネル、過度な影はありません。
+- Image quality and asset fidelity: 各丸画像は既存のJ-Planetカタログ／参照アセットのみで、すべて読み込み完了を確認しました。新規生成画像、CSS／SVGによる代替画像、プレースホルダーはありません。
+- Copy and interactions: 表示文言は全localeのi18nキーへまとめています。20タイルはいずれも既存のカテゴリー画面へ遷移し、`すべてのカテゴリー`の遷移もブラウザとE2Eで確認しました。
+
+**Responsive and implementation checks**
+
+- 1440px: 10列×2段、20タイル、画像20件のロード完了、document幅がviewport幅以内を実測しました。
+- 1024px: 10列×2段、長いラベルの自然な折り返し、横オーバーフローなしを確認しました。
+- 768px: 6列の読みやすい密度へ切り替え、横オーバーフローなしを確認しました。
+- `pnpm typecheck`、ホームUnit 52件、PCホームE2E、モバイル既存導線E2E、`git diff --check`を通過しました。ブラウザconsole errorは0件です。カテゴリー部は`DesktopHomeView`だけでレンダーし、スタイルも`@media (min-width: 768px)`に閉じているため、モバイルのDOM・UIは変更していません。
 
 final result: passed

@@ -3,7 +3,15 @@
 import React from "react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, expectTypeOf, it, vi } from "vitest";
@@ -60,19 +68,24 @@ function includesInOrder(markup: string, values: readonly string[]) {
   }
 }
 
-function installReducedMotion(matches: boolean) {
+function installReducedMotion(matches: boolean, mobileHome = true) {
   Object.defineProperty(window, "matchMedia", {
     configurable: true,
-    value: (query: string): MediaQueryList => ({
-      addEventListener: vi.fn(),
-      addListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-      matches,
-      media: query,
-      onchange: null,
-      removeEventListener: vi.fn(),
-      removeListener: vi.fn(),
-    }),
+    value: (query: string): MediaQueryList => {
+      const isMobileHomeQuery = query === "(max-width: 767px)";
+      const isReducedMotionQuery = query === "(prefers-reduced-motion: reduce)";
+
+      return {
+        addEventListener: vi.fn(),
+        addListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+        matches: isMobileHomeQuery ? mobileHome : isReducedMotionQuery ? matches : false,
+        media: query,
+        onchange: null,
+        removeEventListener: vi.fn(),
+        removeListener: vi.fn(),
+      };
+    },
     writable: true,
   });
 }
@@ -116,11 +129,15 @@ describe("SAZO home composition", () => {
   it("exposes the shared Apple-style surface contract", async () => {
     const { container } = await renderHomePage();
 
-    expect(container.querySelector('.sazo-root[data-apple-design="true"]')).not.toBeNull();
+    expect(
+      container.querySelector('.sazo-root[data-apple-design="true"]'),
+    ).not.toBeNull();
 
     cleanup();
     const { container: homeContainer } = await renderHomePage("ja", vi.fn());
-    expect(homeContainer.querySelector('[data-home-agent-entry][data-apple-surface="true"]')).not.toBeNull();
+    expect(
+      homeContainer.querySelector('[data-home-agent-entry][data-apple-surface="true"]'),
+    ).not.toBeNull();
   });
 
   it("defines the mobile shortcut and photo-category fixture contracts", async () => {
@@ -180,13 +197,37 @@ describe("SAZO home composition", () => {
     expect(screen.getByText("URL・画像・商品名を送る")).toBeTruthy();
   });
 
-  it("promotes concrete Japan-to-Brazil buying checks in the agent entry", async () => {
+  it("summarizes concrete Japan-to-Brazil buying checks in the agent entry", async () => {
     const { container } = await renderHomePage();
     const assurances = container.querySelector(".sazo-home-agent-assurances");
 
-    expect(assurances?.textContent).toContain("購入できるか");
-    expect(assurances?.textContent).toContain("ブラジル到着総額");
-    expect(assurances?.textContent).toContain("配送・通関");
+    expect(assurances?.textContent).toBe(
+      "販売元・購入可否・関税・配送を確認し、BRL総額を表示",
+    );
+  });
+
+  it("keeps the home assurance aligned to the input without a divider", () => {
+    const css = readFileSync(resolve("src/sazo-commerce/sazo.css"), "utf8");
+    const assuranceRule = [
+      ...css.matchAll(
+        /\.sazo-root\[data-view="home"\] \.sazo-home-agent-assurances\s*\{[^}]*\}/g,
+      ),
+    ]
+      .map((match) => match[0])
+      .at(-1);
+    const assuranceContentRule = [
+      ...css.matchAll(
+        /\.sazo-root\[data-view="home"\] \.sazo-home-agent-assurances > span\s*\{[^}]*\}/g,
+      ),
+    ]
+      .map((match) => match[0])
+      .at(-1);
+
+    expect(assuranceRule).toContain("width: 100%;");
+    expect(assuranceRule).toContain("padding-top: 0 !important;");
+    expect(assuranceRule).toContain("border-top: 0;");
+    expect(assuranceContentRule).toContain("justify-content: start;");
+    expect(assuranceContentRule).toContain("padding-inline: 0;");
   });
 
   it("keeps the dense product grid independent from retired keyword loading states", async () => {
@@ -202,7 +243,9 @@ describe("SAZO home composition", () => {
     );
     const denseGrid = container.querySelector("[data-home-dense-product-grid]");
 
-    expect(denseGrid?.querySelectorAll("[data-testid='home-dense-product-card']")).toHaveLength(16);
+    expect(
+      denseGrid?.querySelectorAll("[data-testid='home-dense-product-card']"),
+    ).toHaveLength(48);
     expect(container.querySelector(".sazo-keyword-section")).toBeNull();
   });
 
@@ -219,13 +262,54 @@ describe("SAZO home composition", () => {
     );
     const cards = container.querySelectorAll("[data-testid='home-dense-product-card']");
 
-    expect(cards).toHaveLength(16);
-    expect(Array.from(cards).every((card) => card.querySelector("img") !== null)).toBe(true);
+    expect(cards).toHaveLength(48);
+    expect(Array.from(cards).every((card) => card.querySelector("img") !== null)).toBe(
+      true,
+    );
+    expect(container.querySelectorAll(".sazo-home-dense-product-column")).toHaveLength(2);
+    expect(
+      Array.from(cards).every(
+        (card) => card.querySelector(".sazo-home-dense-product-add") !== null,
+      ),
+    ).toBe(true);
+    expect(container.querySelector(".sazo-home-dense-product-rating")).toBeNull();
+    expect(container.textContent).toContain("14% OFF");
+    expect(container.textContent).toContain("R$ 498");
+    expect(container.textContent).toContain("9,450件販売");
+    expect(container.textContent).toContain("日本から直送");
+    expect(container.textContent).not.toContain("購入済み");
+    expect(
+      container.querySelector("[data-home-dense-product-grid]")?.textContent,
+    ).not.toContain("関税込み");
     expect(container.querySelector(".sazo-search-discovery")).toBeNull();
     expect(container.textContent).not.toContain("¥");
   });
 
+  it("opens the existing purchase option flow from a dense-card cart control", async () => {
+    const dispatch = vi.fn<(action: SazoAction) => void>();
+    const { container } = await renderHomePage("ja", dispatch);
+    const firstCard = container.querySelector<HTMLElement>(
+      "[data-testid='home-dense-product-card']",
+    );
+
+    if (firstCard === null) {
+      throw new Error("Missing dense product card");
+    }
+
+    fireEvent.click(
+      within(firstCard).getByRole("button", {
+        name: "Nintendo Switch Proコントローラーの購入オプションを選ぶ",
+      }),
+    );
+
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "open-product",
+      productId: "jplanet-nintendo-pro-controller",
+    });
+  });
+
   it("renders the captured home sections and fixture content in order", async () => {
+    installReducedMotion(false);
     const i18n = await createI18n("ja");
     const markup = renderToStaticMarkup(
       <I18nextProvider i18n={i18n}>
@@ -234,20 +318,19 @@ describe("SAZO home composition", () => {
     );
 
     includesInOrder(markup, [
-      "J-Planet AI",
+      "日本の買い物を、もっと確かに。",
       "購入エージェント",
-      "商品カテゴリー",
-      "J-Planet PIX DAYセール",
+      "利用者レビュー",
       "J-Planet GRAM",
       "おすすめ商品",
     ]);
     expect(markup).toContain('aria-label="次のバナー"');
-    expect(markup).toContain("1/3");
+    expect(markup).toContain("1/4");
     expect(markup).toContain("R$ 429");
     expect(markup).not.toContain("¥");
   });
 
-  it("keeps the five-action home shortcut contract and brand destination", async () => {
+  it("keeps the current mobile shortcut contract and brand destination", async () => {
     installReducedMotion(false);
     const dispatch = vi.fn();
     const i18n = await createI18n("ja");
@@ -257,18 +340,80 @@ describe("SAZO home composition", () => {
       </I18nextProvider>,
     );
     const shortcutGroup = screen.getByRole("group", {
-      name: "J-Planetのショートカット",
+      name: "J-Planetショートカット",
     });
 
     expect(
       within(shortcutGroup)
         .getAllByRole("button")
         .map((button) => button.textContent.replace("new", "")),
-    ).toEqual(["商品カテゴリー", "人気ブランド", "購入者の声", "J-Planetの使い方", "ヘルプ"]);
+    ).toEqual([
+      "J-Planet特集",
+      "限定",
+      "フリマ",
+      "サービス紹介",
+      "人気ブランド",
+      "カテゴリー",
+      "レビュー",
+      "ヘルプ",
+      "お知らせ",
+    ]);
 
     fireEvent.click(within(shortcutGroup).getByRole("button", { name: "人気ブランド" }));
 
     expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "brands" });
+  });
+
+  it("renders the selected desktop agentic-commerce home and its six-product rail", async () => {
+    installReducedMotion(false, false);
+    const dispatch = vi.fn<(action: SazoAction) => void>();
+    const i18n = await createI18n("ja");
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <HomeView dispatch={dispatch} state={createInitialSazoState()} />
+      </I18nextProvider>,
+    );
+
+    expect(container.querySelector("[data-desktop-home-view]")).not.toBeNull();
+    expect(
+      screen.getByRole("heading", { name: "日本の商品を、ブラジルへ。" }),
+    ).not.toBeNull();
+    expect(
+      within(screen.getByTestId("desktop-home-product-rail")).getAllByTestId(
+        "home-dense-product-card",
+      ),
+    ).toHaveLength(6);
+    const desktopReviews = screen.getByTestId("desktop-home-reviews");
+    const desktopGram = screen.getByTestId("desktop-home-gram");
+    const desktopCategories = screen.getByTestId("desktop-home-category-grid");
+    expect(desktopReviews.querySelectorAll(".sazo-desktop-home-review-card")).toHaveLength(2);
+    expect(desktopGram.querySelectorAll(".sazo-desktop-home-gram-card")).toHaveLength(2);
+    expect(
+      screen
+        .getByTestId("desktop-home-product-rail")
+        .compareDocumentPosition(desktopReviews) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      desktopGram.compareDocumentPosition(desktopCategories) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(container.querySelector(".sazo-desktop-home-hero-search")).toBeNull();
+    expect(screen.queryByRole("search", { name: "購入エージェント検索" })).toBeNull();
+
+    fireEvent.click(within(desktopReviews).getByRole("button", { name: "もっと見る" }));
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "reviews" });
+
+    fireEvent.click(within(desktopGram).getByRole("button", { name: "もっと見る" }));
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "gram" });
+
+    fireEvent.click(
+      screen.getAllByRole("button", {
+        name: "Nintendo Switch Proコントローラーの商品詳細を見る",
+      })[0]!,
+    );
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "open-product",
+      productId: "jplanet-nintendo-pro-controller",
+    });
   });
 
   it("renders the SAZO mobile home hierarchy with J-Planet content", async () => {
@@ -295,7 +440,9 @@ describe("SAZO home composition", () => {
       "ヘルプ",
       "お知らせ",
     ]);
-    expect(within(shortcutGroup).getByRole("button", { name: "サービス紹介" })).toBeTruthy();
+    expect(
+      within(shortcutGroup).getByRole("button", { name: "サービス紹介" }),
+    ).toBeTruthy();
     expect(screen.queryByRole("button", { name: "コスメ" })).toBeNull();
     expect(screen.queryByRole("button", { name: "K-POP" })).toBeNull();
     const shortcutGrid = home?.querySelector<HTMLElement>("[data-mobile-shortcut-grid]");
@@ -308,9 +455,9 @@ describe("SAZO home composition", () => {
       "クーポンを受け取る",
       "利用者レビュー",
       "J-Planet GRAM",
-      "化粧品",
       "おすすめ商品",
     ]);
+    expect(screen.queryByTestId("mobile-category-rail")).toBeNull();
 
     const selectors = [
       "[data-testid='sazo-hero']",
@@ -333,7 +480,9 @@ describe("SAZO home composition", () => {
       const currentElement = elements.at(index);
 
       if (previousElement === undefined || currentElement === undefined) {
-        throw new Error(`Missing mobile home hierarchy element at index ${String(index)}`);
+        throw new Error(
+          `Missing mobile home hierarchy element at index ${String(index)}`,
+        );
       }
 
       expect(
@@ -352,7 +501,7 @@ describe("SAZO home composition", () => {
     expect(denseProductGrid).not.toBeNull();
     expect(
       denseProductGrid?.querySelectorAll("[data-testid='home-dense-product-card']"),
-    ).toHaveLength(16);
+    ).toHaveLength(48);
     expect(denseProductGrid?.textContent).toContain("R$ 429");
     expect(denseProductGrid?.textContent).not.toContain("¥");
     expect(home?.querySelector(".sazo-interested-items")).toBeNull();
@@ -418,7 +567,7 @@ describe("SAZO home composition", () => {
     expect(searchOverlapRule).toContain("background: transparent;");
     expect(searchOverlapRule).not.toContain("background: var(--jplanet-surface);");
     expect(homeSource).not.toContain("mobileAgentCompactThreshold");
-    expect(homeSource).not.toContain('data-compact={');
+    expect(homeSource).not.toContain("data-compact={");
     const compactSearchOverlapStart = css.lastIndexOf(
       '.sazo-root[data-view="home"] .sazo-mobile-search-overlap[data-compact="true"] {',
     );
@@ -449,7 +598,9 @@ describe("SAZO home composition", () => {
     );
 
     expect(collapsedHeaderRule).toContain("background: #fff !important;");
-    expect(collapsedHeaderRule).toContain("box-shadow: 0 5px 18px rgb(18 32 65 / 12%) !important;");
+    expect(collapsedHeaderRule).toContain(
+      "box-shadow: 0 5px 18px rgb(18 32 65 / 12%) !important;",
+    );
     expect(css).toMatch(
       /\.sazo-root\[data-view="home"\]\s+\.sazo-mobile-secondary-nav\[data-sazo-topbar-nav\]\s*\{[\s\S]*?display:\s*none\s*!important;/,
     );
@@ -491,53 +642,22 @@ describe("SAZO home composition", () => {
     expect(appleHomeCardRule).toMatch(/margin-inline:\s*0\s*!important;/);
   });
 
-  it("replaces the mobile intro with a coupon, compact menu items, and category discovery after GRAM", async () => {
+  it("keeps the coupon and compact menu while omitting category discovery from home", async () => {
     const dispatch = vi.fn();
 
     await renderHomePage("ja", dispatch);
 
     const coupon = screen.getByTestId("mobile-coupon-banner");
     const gram = screen.getByTestId("mobile-gram-section");
-    const categoryRail = screen.getByTestId("mobile-category-rail");
 
     expect(coupon).not.toBeNull();
     expect(screen.queryByText("ブラジル最大級 日本直輸入ショップ")).toBeNull();
-    expect(categoryRail).not.toBeNull();
-    expect(categoryRail.querySelectorAll(".sazo-mobile-category-tile")).toHaveLength(
-      homeCategoryItems.length,
-    );
-    expect(categoryRail.querySelector("[data-mobile-category-grid]")).not.toBeNull();
-    expect(categoryRail.querySelector<HTMLElement>("[data-mobile-category-grid]")?.dataset.layout).toBe(
-      "four-column-page",
-    );
-    expect(categoryRail.querySelector<HTMLElement>("[data-mobile-category-grid]")?.dataset.pageSize).toBe(
-      "8",
-    );
-    expect(categoryRail.querySelectorAll("[data-mobile-category-page]")).toHaveLength(2);
-    expect(
-      [...categoryRail.querySelectorAll("[data-mobile-category-grid] img")].every(
-        (image) => image.getAttribute("decoding") === "sync",
-      ),
-    ).toBe(true);
-    expect(
-      gram.compareDocumentPosition(categoryRail) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    expect(screen.queryByTestId("mobile-category-rail")).toBeNull();
+    expect(gram.nextElementSibling?.hasAttribute("data-mobile-picks-grid")).toBe(true);
 
     fireEvent.click(screen.getByRole("button", { name: /クーポン/ }));
 
     expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "coupons" });
-
-    dispatch.mockClear();
-    fireEvent.click(within(categoryRail).getByRole("button", { name: "メンズ" }));
-
-    expect(dispatch).toHaveBeenNthCalledWith(1, {
-      type: "select-directory-category",
-      category: "mens",
-    });
-    expect(dispatch).toHaveBeenNthCalledWith(2, {
-      type: "navigate",
-      view: "beauty",
-    });
   });
 
   it("opens the full category directory from the existing mobile shortcut", async () => {
@@ -563,24 +683,9 @@ describe("SAZO home composition", () => {
   });
 
   it.each([
-    [
-      "ja",
-      "J-Planetショートカット",
-      "クーポンを受け取る",
-      "J-Planet PIX DAYセール",
-    ],
-    [
-      "en",
-      "J-Planet shortcuts",
-      "Get coupons",
-      "J-Planet PIX DAY sale",
-    ],
-    [
-      "pt-BR",
-      "Atalhos da J-Planet",
-      "Ver cupons",
-      "Oferta PIX DAY da J-Planet",
-    ],
+    ["ja", "J-Planetショートカット", "クーポンを受け取る", "J-Planet PIX DAYセール"],
+    ["en", "J-Planet shortcuts", "Get coupons", "J-Planet PIX DAY sale"],
+    ["pt-BR", "Atalhos da J-Planet", "Ver cupons", "Oferta PIX DAY da J-Planet"],
   ] as const)(
     "localizes visible and accessible coupon content for %s",
     async (locale, shortcutLabel, cta, artworkDescription) => {
@@ -593,80 +698,15 @@ describe("SAZO home composition", () => {
 
       expect(shortcutGroup).toBeTruthy();
       expect(within(button).getByText(cta)).toBeTruthy();
-      expect(new URL(image.getAttribute("src") ?? "", window.location.origin).pathname).toBe(
-        "/sazo-commerce/campaign/jplanet-pix-day-sale.png",
-      );
+      expect(
+        new URL(image.getAttribute("src") ?? "", window.location.origin).pathname,
+      ).toBe("/sazo-commerce/campaign/jplanet-pix-day-sale.png");
       expect(image.getAttribute("alt")).toBe(artworkDescription);
       expect(button.getAttribute("aria-label")).toBe(cta);
 
       cleanup();
     },
   );
-
-  it.each(["メンズ", "食品"] as const)(
-    "opens the selected %s category instead of the default",
-    async (label) => {
-      installReducedMotion(true);
-      const { container } = await renderHomePage();
-      const rail = screen.getByTestId("mobile-category-rail");
-
-      fireEvent.click(within(rail).getByRole("button", { name: label }));
-
-      await waitFor(() => {
-        expect(container.querySelector('[data-testid="category-agent-intro"]')).not.toBeNull();
-        expect(container.querySelector('[data-testid="category-agent-intro"]')?.getAttribute("data-category-id")).toBe(
-          label === "メンズ" ? "mens" : "food",
-        );
-        expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
-          "beauty",
-        );
-      });
-    },
-  );
-
-  it("opens a photo category with its own agent-led intro", async () => {
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      value: (query: string): MediaQueryList => ({
-        addEventListener: vi.fn(),
-        addListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-        matches: query === "(max-width: 767px)",
-        media: query,
-        onchange: null,
-        removeEventListener: vi.fn(),
-        removeListener: vi.fn(),
-      }),
-      writable: true,
-    });
-    const { container } = await renderHomePage();
-    const rail = screen.getByTestId("mobile-category-rail");
-
-    fireEvent.click(within(rail).getByRole("button", { name: "メンズ" }));
-
-    expect(container.querySelector('[data-view="beauty"]')).not.toBeNull();
-    expect(screen.getByTestId("category-agent-intro").getAttribute("data-category-id")).toBe("mens");
-    expect(screen.getByRole("heading", { name: /J-Planetで探す/ })).toBeTruthy();
-    expect(screen.getByText(/メンズアイテム/)).toBeTruthy();
-    expect(screen.getByPlaceholderText("URL・画像・商品名をAIに渡す")).toBeTruthy();
-  });
-
-  it("uses a neutral J-Planet artwork when a category image fails", async () => {
-    const dispatch = vi.fn();
-    await renderHomePage("ja", dispatch);
-    const mens = screen.getByRole("button", { name: "メンズ" });
-    const image = mens.querySelector("img");
-
-    expect(image).not.toBeNull();
-
-    if (image !== null) {
-      fireEvent.error(image);
-    }
-
-    const fallback = mens.querySelector("[data-category-image-fallback]");
-    expect(fallback).not.toBeNull();
-    expect(fallback?.getAttribute("src")).toBe("/sazo-commerce/jplanet-sakura-mark.png");
-  });
 
   it.each([
     ["サービス紹介", "service"],
@@ -726,12 +766,12 @@ describe("SAZO home composition", () => {
     for (const locale of ["ja", "en", "pt-BR"] as const) {
       const i18n = await createI18n(locale);
 
-      expect(i18n.getResource(locale, "translation", "sazo.home.agentEntryGroup")).toEqual(
-        expect.any(String),
-      );
-      expect(i18n.getResource(locale, "translation", "sazo.home.agentImageEntry")).toEqual(
-        expect.any(String),
-      );
+      expect(
+        i18n.getResource(locale, "translation", "sazo.home.agentEntryGroup"),
+      ).toEqual(expect.any(String));
+      expect(
+        i18n.getResource(locale, "translation", "sazo.home.agentImageEntry"),
+      ).toEqual(expect.any(String));
     }
   });
 
@@ -780,7 +820,9 @@ describe("SAZO home composition", () => {
       .closest("section");
     expect(gramSection?.querySelectorAll(".sazo-mobile-gram-card")).toHaveLength(2);
     const denseGrid = container.querySelector("[data-home-dense-product-grid]");
-    expect(denseGrid?.querySelectorAll("[data-testid='home-dense-product-card']")).toHaveLength(16);
+    expect(
+      denseGrid?.querySelectorAll("[data-testid='home-dense-product-card']"),
+    ).toHaveLength(48);
     expect(denseGrid?.textContent).toContain("R$ 429");
     expect(denseGrid?.textContent).not.toContain("¥");
     expect(container.querySelector(".sazo-recommendation")).toBeNull();
@@ -846,7 +888,7 @@ describe("SAZO hero controls", () => {
       isPrimary: true,
       pointerId: 1,
     });
-    expect(counter.textContent).toBe("2/3");
+    expect(counter.textContent).toBe("2/4");
 
     fireEvent.pointerDown(viewport, {
       clientX: 140,
@@ -860,7 +902,7 @@ describe("SAZO hero controls", () => {
       isPrimary: true,
       pointerId: 2,
     });
-    expect(counter.textContent).toBe("1/3");
+    expect(counter.textContent).toBe("1/4");
   });
 
   it("ignores short, vertical, canceled, and mismatched pointer gestures", async () => {
@@ -908,7 +950,7 @@ describe("SAZO hero controls", () => {
       pointerId: 7,
     });
 
-    expect(counter.textContent).toBe("1/3");
+    expect(counter.textContent).toBe("1/4");
   });
 
   it("keeps the carousel on the new slide when a swipe emits a compatibility click", async () => {
@@ -935,9 +977,9 @@ describe("SAZO hero controls", () => {
     });
     fireEvent.click(viewport, { detail: 1 });
 
-    expect(counter.textContent).toBe("2/3");
+    expect(counter.textContent).toBe("2/4");
     fireEvent.click(screen.getByRole("button", { name: "次のバナー" }));
-    expect(counter.textContent).toBe("3/3");
+    expect(counter.textContent).toBe("3/4");
   });
 
   it("advances, reverses, wraps, and pauses through the live controls", async () => {
@@ -949,22 +991,22 @@ describe("SAZO hero controls", () => {
     const next = screen.getByRole("button", { name: "次のバナー" });
     const previous = screen.getByRole("button", { name: "前のバナー" });
 
-    expect(counter.textContent).toBe("1/3");
+    expect(counter.textContent).toBe("1/4");
     fireEvent.click(previous);
-    expect(counter.textContent).toBe("3/3");
+    expect(counter.textContent).toBe("4/4");
     fireEvent.click(next);
-    expect(counter.textContent).toBe("1/3");
+    expect(counter.textContent).toBe("1/4");
 
     act(() => {
       vi.advanceTimersByTime(5_000);
     });
-    expect(counter.textContent).toBe("2/3");
+    expect(counter.textContent).toBe("2/4");
 
     fireEvent.click(screen.getByRole("button", { name: "バナーを一時停止" }));
     act(() => {
       vi.advanceTimersByTime(10_000);
     });
-    expect(counter.textContent).toBe("2/3");
+    expect(counter.textContent).toBe("2/4");
     expect(screen.getByRole("button", { name: "バナーを再生" })).toBeTruthy();
   });
 
@@ -996,70 +1038,72 @@ describe("SAZO hero controls", () => {
         .querySelector(`[data-hero-slide="${slide}"]`)
         ?.getAttribute("data-hero-offset");
 
-    expect(offsetFor("jplanet-ai-emerald")).toBe("0");
-    expect(offsetFor("jplanet-ai-coral")).toBe("-1");
-    expect(offsetFor("jplanet-ai-violet")).toBe("1");
+    expect(offsetFor("jplanet-home-japan-brazil")).toBe("0");
+    expect(offsetFor("jplanet-home-service")).toBe("-1");
+    expect(offsetFor("jplanet-home-chatgpt")).toBe("1");
 
     fireEvent.click(screen.getByRole("button", { name: "次のバナー" }));
-    expect(screen.getByTestId("sazo-hero-counter").textContent).toBe("2/3");
-    expect(screen.getAllByText("2/3")).toHaveLength(1);
+    expect(screen.getByTestId("sazo-hero-counter").textContent).toBe("2/4");
+    expect(screen.getAllByText("2/4")).toHaveLength(1);
     expect(
-      container.querySelector('[data-hero-slide="jplanet-ai-violet"] img')?.getAttribute("src"),
-    ).toBe("/sazo-commerce/hero/jplanet-ai-violet-v1.png");
+      container
+        .querySelector('[data-hero-slide="jplanet-home-chatgpt"] img')
+        ?.getAttribute("src"),
+    ).toBe("/sazo-commerce/hero/jplanet-home-chatgpt-v2.png");
     expect(
       container.querySelectorAll(
-        '[data-hero-slide="jplanet-ai-violet"] .sazo-hero-arrow, [data-hero-slide="jplanet-ai-violet"] .sazo-hero-status',
+        '[data-hero-slide="jplanet-home-chatgpt"] .sazo-hero-arrow, [data-hero-slide="jplanet-home-chatgpt"] .sazo-hero-status',
       ),
     ).toHaveLength(0);
-    expect(offsetFor("jplanet-ai-violet")).toBe("0");
-    expect(offsetFor("jplanet-ai-emerald")).toBe("-1");
-    expect(offsetFor("jplanet-ai-coral")).toBe("1");
+    expect(offsetFor("jplanet-home-chatgpt")).toBe("0");
+    expect(offsetFor("jplanet-home-japan-brazil")).toBe("-1");
+    expect(offsetFor("jplanet-home-popular")).toBe("1");
 
     fireEvent.click(screen.getByRole("button", { name: "次のバナー" }));
-    expect(screen.getByTestId("sazo-hero-counter").textContent).toBe("3/3");
-    expect(offsetFor("jplanet-ai-coral")).toBe("0");
-    expect(offsetFor("jplanet-ai-violet")).toBe("-1");
-    expect(offsetFor("jplanet-ai-emerald")).toBe("1");
+    expect(screen.getByTestId("sazo-hero-counter").textContent).toBe("3/4");
+    expect(offsetFor("jplanet-home-popular")).toBe("0");
+    expect(offsetFor("jplanet-home-chatgpt")).toBe("-1");
+    expect(offsetFor("jplanet-home-service")).toBe("1");
 
     fireEvent.click(screen.getByRole("button", { name: "次のバナー" }));
-    expect(screen.getByTestId("sazo-hero-counter").textContent).toBe("1/3");
-    expect(offsetFor("jplanet-ai-emerald")).toBe("0");
-    expect(offsetFor("jplanet-ai-coral")).toBe("-1");
-    expect(offsetFor("jplanet-ai-violet")).toBe("1");
+    expect(screen.getByTestId("sazo-hero-counter").textContent).toBe("4/4");
+    expect(offsetFor("jplanet-home-service")).toBe("0");
+    expect(offsetFor("jplanet-home-popular")).toBe("-1");
+    expect(offsetFor("jplanet-home-japan-brazil")).toBe("1");
   });
 
   it.each([
     {
-      active: "jplanet-ai-emerald",
-      counter: "1/3",
+      active: "jplanet-home-japan-brazil",
+      counter: "1/4",
       feed: "natural",
       index: 0,
-      next: "jplanet-ai-violet",
-      previous: "jplanet-ai-coral",
+      next: "jplanet-home-chatgpt",
+      previous: "jplanet-home-service",
     },
     {
-      active: "jplanet-ai-violet",
-      counter: "2/3",
+      active: "jplanet-home-chatgpt",
+      counter: "2/4",
       feed: "cold-first",
       index: 1,
-      next: "jplanet-ai-coral",
-      previous: "jplanet-ai-emerald",
+      next: "jplanet-home-popular",
+      previous: "jplanet-home-japan-brazil",
     },
     {
-      active: "jplanet-ai-coral",
-      counter: "3/3",
+      active: "jplanet-home-popular",
+      counter: "3/4",
       feed: "delivery-last",
       index: 2,
-      next: "jplanet-ai-emerald",
-      previous: "jplanet-ai-violet",
+      next: "jplanet-home-service",
+      previous: "jplanet-home-chatgpt",
     },
     {
-      active: "jplanet-ai-emerald",
-      counter: "1/3",
+      active: "jplanet-home-service",
+      counter: "4/4",
       feed: "large-first",
-      index: 0,
-      next: "jplanet-ai-violet",
-      previous: "jplanet-ai-coral",
+      index: 3,
+      next: "jplanet-home-japan-brazil",
+      previous: "jplanet-home-popular",
     },
   ] as const)(
     "renders the $feed QA snapshot as $counter with evidenced neighbors",
@@ -1087,7 +1131,7 @@ describe("SAZO hero controls", () => {
     },
   );
 
-  it("provides the three supplied mobile hero sources at their native ratio", async () => {
+  it("provides the four generated mobile hero sources at their native ratio", async () => {
     const { container } = await renderHomePage();
     const sources = Array.from(
       container.querySelectorAll<HTMLSourceElement>(
@@ -1095,7 +1139,7 @@ describe("SAZO hero controls", () => {
       ),
     );
 
-    expect(sources).toHaveLength(3);
+    expect(sources).toHaveLength(4);
     expect(
       sources.map((source) => ({
         height: source.getAttribute("height"),
@@ -1104,27 +1148,32 @@ describe("SAZO hero controls", () => {
       })),
     ).toEqual([
       {
+        height: "852",
+        srcSet: "/sazo-commerce/hero/jplanet-home-japan-brazil-mobile-v2.png",
+        width: "887",
+      },
+      {
         height: "1024",
-        srcSet: "/sazo-commerce/hero/jplanet-ai-emerald-v1.png",
+        srcSet: "/sazo-commerce/hero/jplanet-home-chatgpt-v2.png",
         width: "1536",
       },
       {
         height: "1024",
-        srcSet: "/sazo-commerce/hero/jplanet-ai-violet-v1.png",
+        srcSet: "/sazo-commerce/hero/jplanet-home-popular-v2.png",
         width: "1536",
       },
       {
         height: "1024",
-        srcSet: "/sazo-commerce/hero/jplanet-ai-coral-v1.png",
+        srcSet: "/sazo-commerce/hero/jplanet-home-service-v2.png",
         width: "1536",
       },
     ]);
   });
 
-  it("marks all three supplied hero artworks for reference-scale rendering", async () => {
+  it("marks all four hero artworks for reference-scale rendering", async () => {
     const { container } = await renderHomePage();
 
-    expect(container.querySelectorAll(".sazo-hero-artwork")).toHaveLength(3);
+    expect(container.querySelectorAll(".sazo-hero-artwork")).toHaveLength(4);
   });
 });
 

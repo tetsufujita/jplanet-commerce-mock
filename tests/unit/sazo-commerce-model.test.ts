@@ -444,11 +444,16 @@ describe("sazoReducer", () => {
     });
   });
 
-  it("maps every hero feed to the three J-Planet campaign banners", () => {
+  it("maps every hero feed to the four J-Planet campaign banners", () => {
     const ids = (feed: Parameters<typeof getHeroSlidesForFeed>[0]) =>
       getHeroSlidesForFeed(feed).map(({ id }) => id);
 
-    const expected = ["jplanet-ai-emerald", "jplanet-ai-violet", "jplanet-ai-coral"];
+    const expected = [
+      "jplanet-home-japan-brazil",
+      "jplanet-home-chatgpt",
+      "jplanet-home-popular",
+      "jplanet-home-service",
+    ];
 
     expect(ids("natural")).toEqual(expected);
     expect(ids("cold-first")).toEqual(expected);
@@ -479,10 +484,10 @@ describe("sazoReducer", () => {
     },
   );
 
-  it("wraps the three-slide hero and toggles pause", () => {
+  it("wraps the four-slide hero and toggles pause", () => {
     let state = createInitialSazoState();
 
-    for (let index = 0; index < 3; index += 1) {
+    for (let index = 0; index < 4; index += 1) {
       state = sazoReducer(state, { type: "hero-next" });
     }
 
@@ -660,7 +665,7 @@ describe("SAZO fixture asset contract", () => {
       reviews: reviews.length,
       gramEntries: gramEntries.length,
     }).toEqual({
-      heroSlides: 3,
+      heroSlides: 4,
       shortcuts: 5,
       products: 12,
       rankingKeywords: 10,
@@ -671,18 +676,19 @@ describe("SAZO fixture asset contract", () => {
     });
   });
 
-  it("places the emerald J-Planet AI banner first in the standard home feed", () => {
+  it("places the baked Japan-to-Brazil banner first in the standard home feed", () => {
     expect(getHeroSlidesForFeed("natural")[0]).toMatchObject({
-      id: "jplanet-ai-emerald",
-      image: "/sazo-commerce/hero/jplanet-ai-emerald-v1.png",
+      id: "jplanet-home-japan-brazil",
+      image: "/sazo-commerce/hero/jplanet-home-japan-brazil-v2.png",
     });
   });
 
   it("uses only Task 4 and Task 5 delivery paths for fixture imagery", () => {
     expect(heroSlides.map(({ image }) => image)).toEqual([
-      "/sazo-commerce/hero/jplanet-ai-emerald-v1.png",
-      "/sazo-commerce/hero/jplanet-ai-violet-v1.png",
-      "/sazo-commerce/hero/jplanet-ai-coral-v1.png",
+      "/sazo-commerce/hero/jplanet-home-japan-brazil-v2.png",
+      "/sazo-commerce/hero/jplanet-home-chatgpt-v2.png",
+      "/sazo-commerce/hero/jplanet-home-popular-v2.png",
+      "/sazo-commerce/hero/jplanet-home-service-v2.png",
     ]);
     expect(products.map(({ image }) => image)).toEqual([
       "/sazo-commerce/products/01.webp",
@@ -748,12 +754,12 @@ describe("SAZO fixture asset contract", () => {
       ...gramEntries,
     ].map(({ image }) => image);
 
-    expect(imagePaths).toHaveLength(51);
+    expect(imagePaths).toHaveLength(52);
     expect(imagePaths.every((image) => image.startsWith("/sazo-commerce/"))).toBe(true);
     expect(imagePaths.every((image) => /\.(?:jpe?g|png|webp)$/.test(image))).toBe(true);
     expect(
       imagePaths.every((image) =>
-        /^\/sazo-commerce\/(?:hero\/jplanet-ai-(?:emerald|violet|coral)-v1\.png|products\/(?:0[1-9]|1[0-2])\.webp|brands\/0[1-8]\.webp|community\/(?:0[1-9]|1[0-4])\.webp|review-media\/r0[1-8]\.jpg)$/.test(
+        /^\/sazo-commerce\/(?:hero\/jplanet-home-(?:japan-brazil|chatgpt|popular|service)-v2\.png|products\/(?:0[1-9]|1[0-2])\.webp|brands\/0[1-8]\.webp|community\/(?:0[1-9]|1[0-4])\.webp|review-media\/r0[1-8]\.jpg)$/.test(
           image,
         ),
       ),
