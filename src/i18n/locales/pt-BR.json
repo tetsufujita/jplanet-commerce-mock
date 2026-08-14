@@ -225,44 +225,89 @@
         "logout": "ログアウト"
       },
       "footer": {
-        "companyLinksLabel": "会社情報", "company": "会社紹介", "recruit": "採用情報", "press": "プレスリリース",
-        "companyCopy": "© 2024-2026 J-Planet Brasil", "address": "São Paulo - SP, Brasil",
-        "policyLinksLabel": "規約とポリシー", "terms": "利用規約", "privacy": "プライバシー規約", "commercial": "特定商取引法に基づく表記"
+        "companyLinksLabel": "会社情報",
+        "company": "会社紹介",
+        "recruit": "採用情報",
+        "press": "プレスリリース",
+        "companyCopy": "© 2024-2026 J-Planet Brasil",
+        "address": "São Paulo - SP, Brasil",
+        "policyLinksLabel": "規約とポリシー",
+        "terms": "利用規約",
+        "privacy": "プライバシー規約",
+        "commercial": "特定商取引法に基づく表記"
       },
       "orders": {
-        "title": "注文履歴", "tabsLabel": "注文状況",
+        "title": "注文履歴",
+        "tabsLabel": "注文状況",
         "tabs": { "all": "すべて", "payment": "決済完了", "shipping": "配送中" },
-        "period": "期間", "periodOption": "過去3ヶ月", "search": "検索",
-        "emptyTitle": "検索結果が見つかりませんでした。", "emptyBody": "入力内容とフィルターを再確認してください。"
+        "period": "期間",
+        "periodOption": "過去3ヶ月",
+        "search": "検索",
+        "emptyTitle": "検索結果が見つかりませんでした。",
+        "emptyBody": "入力内容とフィルターを再確認してください。"
       },
       "coupons": {
-        "title": "Cupons", "registerTitle": "Cadastrar cupom", "numberLabel": "Código do cupom",
-        "numberPlaceholder": "Digite o código do cupom", "register": "Cadastrar",
-        "available": "Cupons disponíveis", "discount": "50% de desconto no frete",
-        "name": "Cupom de 50% no frete (até R$ 40)", "expiry": "Expira em 29 dias (8 de setembro de 2026 às 15:54)"
+        "title": "Cupons",
+        "registerTitle": "Cadastrar cupom",
+        "numberLabel": "Código do cupom",
+        "numberPlaceholder": "Digite o código do cupom",
+        "register": "Cadastrar",
+        "available": "Cupons disponíveis",
+        "discount": "50% de desconto no frete",
+        "name": "Cupom de 50% no frete (até R$ 40)",
+        "expiry": "Expira em 29 dias (8 de setembro de 2026 às 15:54)"
       },
       "points": {
-        "title": "ポイント", "available": "使用可能ポイント", "pending": "付与予定ポイント", "expiring": "失効予定ポイント",
-        "tabsLabel": "ポイント履歴", "tabs": { "all": "全履歴", "earned": "獲得済み", "used": "利用済み" },
-        "granted": "管理者による付与", "grantedExpiry": "10.01満了"
+        "title": "ポイント",
+        "available": "使用可能ポイント",
+        "pending": "付与予定ポイント",
+        "expiring": "失効予定ポイント",
+        "tabsLabel": "ポイント履歴",
+        "tabs": { "all": "全履歴", "earned": "獲得済み", "used": "利用済み" },
+        "granted": "管理者による付与",
+        "grantedExpiry": "10.01満了"
       },
       "reviewCreate": {
-        "title": "レビュー作成", "noticeTitle": "下記の場合はレビュー作成ができないため、表示されない可能性がございます。",
-        "reviewed": "レビュー済みの場合", "notDelivered": "配送が完了していない場合", "empty": "レビューを作成できる商品がございません"
+        "title": "レビュー作成",
+        "noticeTitle": "下記の場合はレビュー作成ができないため、表示されない可能性がございます。",
+        "reviewed": "レビュー済みの場合",
+        "notDelivered": "配送が完了していない場合",
+        "empty": "レビューを作成できる商品がございません"
       },
-      "reviewHistory": { "title": "作成したレビュー", "count": "作成したレビュー {{count}}", "empty": "作成したレビューがございません" },
-      "delivery": { "title": "配送先管理", "empty": "登録されたお届け先住所がありません。", "add": "配送先を追加" },
+      "reviewHistory": {
+        "title": "作成したレビュー",
+        "count": "作成したレビュー {{count}}",
+        "empty": "作成したレビューがございません"
+      },
+      "delivery": {
+        "title": "配送先管理",
+        "empty": "登録されたお届け先住所がありません。",
+        "add": "配送先を追加"
+      },
       "address": {
-        "title": "住所の追加・変更", "intro": "日本国内のご自身名義の自宅の住所をご入力ください。",
-        "label": "配送先", "home": "自宅", "name": "氏名", "familyName": "姓", "givenName": "名",
-        "phone": "電話番号", "postal": "郵便番号", "city": "都道府県（市区町村）", "street": "番地", "next": "次へ"
+        "title": "住所の追加・変更",
+        "intro": "日本国内のご自身名義の自宅の住所をご入力ください。",
+        "label": "配送先",
+        "home": "自宅",
+        "name": "氏名",
+        "familyName": "姓",
+        "givenName": "名",
+        "phone": "電話番号",
+        "postal": "郵便番号",
+        "city": "都道府県（市区町村）",
+        "street": "番地",
+        "next": "次へ"
       },
       "notifications": {
         "title": "通知設定",
         "noticeHeading": "Notificações",
         "settingsHeading": "Configurações de notificações",
         "filterLabel": "Tipo de notificação",
-        "filters": { "all": "Todas", "orders": "Pedidos e entrega", "announcements": "Avisos da J-Planet" },
+        "filters": {
+          "all": "Todas",
+          "orders": "Pedidos e entrega",
+          "announcements": "Avisos da J-Planet"
+        },
         "readAll": "Marcar todas como lidas",
         "unread": "Notificação não lida",
         "demo": {
@@ -276,16 +321,34 @@
           "announcementBody": "Avisaremos você sobre a entrega do Japão para o Brasil.",
           "announcementMeta": "Hoje · Suporte J-Planet"
         },
-        "email": { "title": "メール通知", "body": "注文や配送に関するお知らせをメールで受け取ります。" },
-        "mobile": { "title": "携帯通知", "body": "重要なお知らせを携帯電話で受け取ります。" }
+        "email": {
+          "title": "メール通知",
+          "body": "注文や配送に関するお知らせをメールで受け取ります。"
+        },
+        "mobile": {
+          "title": "携帯通知",
+          "body": "重要なお知らせを携帯電話で受け取ります。"
+        }
       },
       "support": {
-        "title": "ヘルプ", "heading": "何かお困りですか？", "intro": "よくある質問からすぐに解決策を探せます。",
-        "searchLabel": "ヘルプを検索", "searchPlaceholder": "質問を検索してください", "faq": "よくある質問",
-        "topics": { "order": "注文について", "payment": "お支払いについて", "shipping": "配送について" },
-        "customerSupport": "カスタマーサポート", "weekday": "平日：10:00〜18:00", "weekend": "土日・祝日：15:00〜18:00",
-        "reply": "チャットよりお問い合わせください。24時間以内に担当者が回答いたします。", "chatNow": "すぐに問い合わせを開始する",
-        "guide": "ご利用ガイド", "guideLink": "J-Planetの使い方を見る"
+        "title": "ヘルプ",
+        "heading": "何かお困りですか？",
+        "intro": "よくある質問からすぐに解決策を探せます。",
+        "searchLabel": "ヘルプを検索",
+        "searchPlaceholder": "質問を検索してください",
+        "faq": "よくある質問",
+        "topics": {
+          "order": "注文について",
+          "payment": "お支払いについて",
+          "shipping": "配送について"
+        },
+        "customerSupport": "カスタマーサポート",
+        "weekday": "平日：10:00〜18:00",
+        "weekend": "土日・祝日：15:00〜18:00",
+        "reply": "チャットよりお問い合わせください。24時間以内に担当者が回答いたします。",
+        "chatNow": "すぐに問い合わせを開始する",
+        "guide": "ご利用ガイド",
+        "guideLink": "J-Planetの使い方を見る"
       }
     },
     "favorites": {
@@ -321,6 +384,25 @@
           "title": "リアクションしたレビューがありません",
           "body": "他のレビューにリアクションしてみましょう",
           "cta": "レビューを見に行く"
+        }
+      },
+      "reference": {
+        "approvedTitle": "Produtos com condições de compra verificadas",
+        "pendingTitle": "Ver depois",
+        "pendingSeller": "Ver vendedor",
+        "pendingPrice": "Ver preço",
+        "startCheck": "Começar a verificar",
+        "pendingNote": "As informações salvas podem ser usadas na sua próxima decisão de compra.",
+        "noApprovedProducts": "Não há produtos com condições de compra verificadas.",
+        "savedBrandsTitle": "Marcas salvas",
+        "savedReviewsTitle": "Avaliações salvas",
+        "savedReviewItem": "Uma avaliação útil para decidir a compra",
+        "openProduct": "Abrir detalhes de {{name}}",
+        "removeProduct": "Remover {{name}} dos favoritos",
+        "sort": {
+          "label": "Ordenar favoritos",
+          "latest": "Mais recentes",
+          "price": "Menor total de chegada"
         }
       }
     },
@@ -377,12 +459,21 @@
       "submit": "Pedir para a IA encontrar"
     },
     "agentHub": {
+      "title": "Agente",
+      "chat": "Chat",
       "launcher": "Consulte a IA com URL, imagem ou nome do produto",
       "launcherLabel": "Consultar o agente de IA",
       "backHome": "Voltar ao início",
       "recentConsultations": "Consultas recentes",
+      "resumeConsultations": "Retomar consulta",
+      "showAllConsultations": "Todas",
+      "showAllConsultationsLabel": "Mostrar todas as consultas",
       "clearConsultations": "Limpar consultas recentes",
       "recentProducts": "Produtos vistos recentemente",
+      "reviewResults": "Resultados da análise",
+      "reviewProduct": "Analisar {{name}}",
+      "available": "Disponível",
+      "reviewResultsNote": "Abra um resultado para verificar vendedor, regras e impostos.",
       "clearProducts": "Limpar produtos vistos recentemente",
       "brand": "J-Planet AI",
       "purchaseStatusTitle": "Pedidos em andamento",
@@ -405,6 +496,9 @@
       "rankedTopic": "{{rank}}º {{topic}}",
       "composer": {
         "title": "Agente de IA J-Planet",
+        "purchaseTitle": "Agente de compras",
+        "purchaseIntro": "Envie um produto e receba uma análise de compra.",
+        "agentHubPlaceholder": "Envie URL, imagem ou nome do produto",
         "intro": "A IA ajuda a encontrar e comprar produtos no Japão e entregá-los no Brasil.",
         "menuLabel": "Menu de entrada",
         "inputPlaceholder": "Envie URL, imagem ou nome do produto para a IA",
@@ -484,13 +578,20 @@
         "food": "Alimentos",
         "pets": "Pets",
         "appliances": "Eletrodomésticos",
-        "hobby": "Hobbies"
+        "hobby": "Hobbies",
+        "shoes": "Tênis",
+        "game": "Jogos",
+        "figure": "Figures",
+        "camera": "Câmeras",
+        "brands": "Marcas",
+        "cosmetics": "Beleza",
+        "sale": "Ofertas"
       },
       "introTitle": "ブラジル最大級\n日本直輸入ショップ",
       "introBody": "J-Planetは日本の人気ショップの商品を購入し、ブラジルへ直接お届けします",
       "firstGuide": "J-Planetを初めてご利用ですか？",
       "couponBannerLabel": "Cupons J-Planet",
-      "couponBannerArtwork": "Cupons de boas-vindas J-Planet",
+      "couponBannerArtwork": "Oferta PIX DAY da J-Planet",
       "couponBannerCta": "Ver cupons",
       "categoryRailLabel": "Explorar categorias de produtos",
       "categoryRailTitle": "Compre por categoria",

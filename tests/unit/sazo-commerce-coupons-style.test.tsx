@@ -37,29 +37,27 @@ describe("CouponsView presentation", () => {
       </I18nextProvider>,
     );
 
-    const header = container.querySelector<HTMLElement>(".sazo-account-header");
-    const content = container.querySelector<HTMLElement>(".sazo-account-screen-content");
-    const registerFields = container.querySelector<HTMLElement>(
-      ".sazo-coupon-register > div",
-    );
-    const count = container.querySelector<HTMLElement>(".sazo-coupon-count");
-    const card = container.querySelector<HTMLElement>(".sazo-coupon-card");
+    const header = container.querySelector<HTMLElement>(".sazo-coupon-center-header");
+    const tabs = container.querySelector<HTMLElement>(".sazo-coupon-tabs");
+    const actions = container.querySelector<HTMLElement>(".sazo-coupon-actions");
+    const list = container.querySelector<HTMLElement>(".sazo-coupon-ticket-list");
+    const card = container.querySelector<HTMLElement>(".sazo-coupon-ticket");
 
     expect(screen.getByRole("heading", { level: 1, name: "クーポン" })).toBeTruthy();
     if (
       header === null ||
-      content === null ||
-      registerFields === null ||
-      count === null ||
+      tabs === null ||
+      actions === null ||
+      list === null ||
       card === null
     ) {
       throw new Error("Missing CouponsView layout element");
     }
 
     expect(getComputedStyle(header).display).toBe("grid");
-    expect(getComputedStyle(content).marginLeft).toBe("auto");
-    expect(getComputedStyle(registerFields).display).toBe("grid");
-    expect(getComputedStyle(count).display).toBe("flex");
+    expect(getComputedStyle(tabs).display).toBe("flex");
+    expect(getComputedStyle(actions).display).toBe("grid");
+    expect(getComputedStyle(list).display).toBe("grid");
     expect(getComputedStyle(card).display).toBe("grid");
   });
 });

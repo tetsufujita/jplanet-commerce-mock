@@ -93,6 +93,22 @@ const categoryAgentCopy: Record<DirectoryCategoryId, CategoryAgentCopy> = {
     nav: ["ホビー", "限定", "お知らせ"],
     wordmark: "HOBBY",
   },
+  shoes: {
+    badge: "J-Sneakers",
+    description: "日本で人気のスニーカーを、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本のスニーカーショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、スニーカーをリアルタイム検索！",
+    nav: ["スニーカー", "ブランド", "お知らせ"],
+    wordmark: "SNEAKERS",
+  },
+  electronics: {
+    badge: "J-Game",
+    description: "日本で人気のゲームや家電を、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本のゲーム・家電ショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、ゲームと家電をリアルタイム検索！",
+    nav: ["ゲーム", "家電", "お知らせ"],
+    wordmark: "GAME",
+  },
 };
 
 export interface BeautyViewProps {
@@ -137,6 +153,9 @@ export function BeautyView({ dispatch, categoryId = "beauty" }: BeautyViewProps)
           <MobileAgentComposer
             entryIntent={null}
             onEntryIntentConsumed={() => undefined}
+            onSubmitted={(request) => {
+              dispatch({ type: "start-agent-search", request });
+            }}
             seedRequest={null}
           />
         </section>

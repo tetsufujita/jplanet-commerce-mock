@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import {
   AddressView,
@@ -8,6 +8,7 @@ import {
   FavoritesView,
   MyPageView,
   NotificationsView,
+  OrderDetailView,
   OrdersView,
   PointsView,
   ProfileView,
@@ -21,31 +22,88 @@ import { AgentDesignCandidatesView } from "@/sazo-commerce/AgentDesignCandidates
 import { AgentFirstPrototypeView } from "@/sazo-commerce/AgentFirstPrototypeView";
 import { CatalogView } from "@/sazo-commerce/CatalogView";
 import { CartView } from "@/sazo-commerce/CartView";
+import { CheckoutView } from "@/sazo-commerce/CheckoutView";
 import { CampaignView } from "@/sazo-commerce/CampaignView";
 import { ChatPanel } from "@/sazo-commerce/ChatPanel";
 import { BeautyView } from "@/sazo-commerce/BeautyView";
-import { BrandsView, CategoriesView } from "@/sazo-commerce/DirectoryViews";
+import { CategoriesView } from "@/sazo-commerce/DirectoryViews";
 import { RankingView, ReviewsView } from "@/sazo-commerce/EditorialViews";
 import { HomeView } from "@/sazo-commerce/HomeView";
 import { MobileAgentHubView } from "@/sazo-commerce/MobileAgentHubView";
+import { AgentSearchLoadingView } from "@/sazo-commerce/AgentSearchLoadingView";
 import { GramCatalogView, GramDetailView } from "@/sazo-commerce/GramView";
 import { ProductDetailView } from "@/sazo-commerce/ProductDetailView";
+import { JplanetBrandDetailView, JplanetBrandsView } from "@/sazo-commerce/JplanetBrandViews";
 import { SazoShell } from "@/sazo-commerce/SazoShell";
 import { ServiceView } from "@/sazo-commerce/ServiceView";
 import { createInitialSazoState, sazoReducer } from "@/sazo-commerce/model";
 import "@/sazo-commerce/coupons.css";
 import "@/sazo-commerce/sazo.css";
+import "@/sazo-commerce/responsive.css";
 
 export function SazoCommercePage() {
   const [state, dispatch] = useReducer(sazoReducer, undefined, () =>
     createInitialSazoState(window.location.search),
   );
   const [headerCollapsed, setHeaderCollapsed] = useState(false);
+  const homeProductScrollTopRef = useRef<number | null>(null);
+  const brandDetailScrollTopRef = useRef<number | null>(null);
+  const previousViewRef = useRef(state.view);
   const authPageActive = state.authStep !== "provider" && state.view === "home";
 
   useEffect(() => {
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+    const previousView = previousViewRef.current;
+    const currentScrollTop = Math.max(
+      window.scrollY,
+      document.documentElement.scrollTop,
+      document.body.scrollTop,
+    );
+    const isOpeningHomeProduct = previousView === "home" && state.view === "product";
+    const isReturningToHome = previousView === "product" && state.view === "home";
+    const isOpeningBrandDetail = previousView === "brands" && state.view === "brand-detail";
+    const isReturningToBrands = previousView === "brand-detail" && state.view === "brands";
+    const restoreScrollTop = isReturningToHome
+      ? homeProductScrollTopRef.current
+      : isReturningToBrands
+        ? brandDetailScrollTopRef.current
+        : null;
+
+    if (isOpeningHomeProduct) {
+      homeProductScrollTopRef.current = currentScrollTop;
+    }
+    if (isOpeningBrandDetail) {
+      brandDetailScrollTopRef.current = currentScrollTop;
+    }
+
+    const targetScrollTop = restoreScrollTop ?? 0;
+    const applyScrollPosition = () => {
+      if (!navigator.userAgent.includes("jsdom")) {
+        window.scrollTo({ behavior: "instant", top: targetScrollTop });
+      }
+      document.documentElement.scrollTop = targetScrollTop;
+      document.body.scrollTop = targetScrollTop;
+    };
+
+    applyScrollPosition();
+    const restoreFrame =
+      restoreScrollTop === null
+        ? null
+        : window.requestAnimationFrame(() => {
+            applyScrollPosition();
+          });
+    if (isReturningToHome) {
+      homeProductScrollTopRef.current = null;
+    }
+    if (isReturningToBrands) {
+      brandDetailScrollTopRef.current = null;
+    }
+    previousViewRef.current = state.view;
+
+    return () => {
+      if (restoreFrame !== null) {
+        window.cancelAnimationFrame(restoreFrame);
+      }
+    };
   }, [state.selectedProductId, state.view]);
 
   useEffect(() => {
@@ -79,7 +137,10 @@ export function SazoCommercePage() {
 
   useEffect(() => {
     const updateHeader = () => {
-      setHeaderCollapsed(window.scrollY >= 38);
+      // The home header is part of the hero while the visitor is at the
+      // starting position. Once they begin reading, it becomes the familiar
+      // solid navigation surface instead of competing with the banner.
+      setHeaderCollapsed(Math.max(0, window.scrollY) > 12);
     };
 
     updateHeader();
@@ -111,7 +172,14 @@ export function SazoCommercePage() {
             <BeautyView categoryId={state.directoryCategory} dispatch={dispatch} />
           ) : null}
           {state.view === "agent-hub" ? (
-            <MobileAgentHubView dispatch={dispatch} entryIntent={state.agentEntryIntent} />
+            <MobileAgentHubView
+              dispatch={dispatch}
+              entryIntent={state.agentEntryIntent}
+              scenario={state.agentHubScenario}
+            />
+          ) : null}
+          {state.view === "agent-searching" && state.agentSearchRequest !== null ? (
+            <AgentSearchLoadingView dispatch={dispatch} request={state.agentSearchRequest} />
           ) : null}
           {state.view === "agent-designs" ? <AgentDesignCandidatesView /> : null}
           {state.view === "agent-first" ? <AgentFirstPrototypeView /> : null}
@@ -120,7 +188,10 @@ export function SazoCommercePage() {
           ) : null}
           {state.view === "service" ? <ServiceView dispatch={dispatch} /> : null}
           {state.view === "brands" ? (
-            <BrandsView dispatch={dispatch} state={state} />
+            <JplanetBrandsView dispatch={dispatch} state={state} />
+          ) : null}
+          {state.view === "brand-detail" ? (
+            <JplanetBrandDetailView dispatch={dispatch} state={state} />
           ) : null}
           {state.view === "categories" ? (
             <CategoriesView dispatch={dispatch} state={state} />
@@ -128,7 +199,16 @@ export function SazoCommercePage() {
           {state.view === "catalog" ? (
             <CatalogView dispatch={dispatch} state={state} />
           ) : null}
-          {state.view === "cart" ? <CartView dispatch={dispatch} items={state.cartItems} /> : null}
+          {state.view === "cart" ? (
+            <CartView
+              dispatch={dispatch}
+              items={state.cartItems}
+              selectedCouponId={state.couponSelectedId}
+            />
+          ) : null}
+          {state.view === "checkout" ? (
+            <CheckoutView dispatch={dispatch} items={state.checkoutItems} />
+          ) : null}
           {state.view === "gram" ? (
             <GramCatalogView dispatch={dispatch} state={state} />
           ) : null}
@@ -148,12 +228,17 @@ export function SazoCommercePage() {
               productId={state.selectedProductId}
             />
           ) : null}
-          {state.view === "mypage" ? <MyPageView dispatch={dispatch} /> : null}
-          {state.view === "favorites" ? <FavoritesView dispatch={dispatch} /> : null}
+          {state.view === "mypage" ? (
+            <MyPageView couponCount={state.couponOwnedIds.length} dispatch={dispatch} />
+          ) : null}
+          {state.view === "favorites" ? (
+            <FavoritesView dispatch={dispatch} initialTab={state.favoriteTab} state={state} />
+          ) : null}
           {state.view === "profile" ? <ProfileView dispatch={dispatch} /> : null}
           {state.view === "cards" ? <CardsView dispatch={dispatch} /> : null}
           {state.view === "orders" ? <OrdersView dispatch={dispatch} /> : null}
-          {state.view === "coupons" ? <CouponsView dispatch={dispatch} /> : null}
+          {state.view === "order-detail" ? <OrderDetailView dispatch={dispatch} /> : null}
+          {state.view === "coupons" ? <CouponsView dispatch={dispatch} state={state} /> : null}
           {state.view === "points" ? <PointsView dispatch={dispatch} /> : null}
           {state.view === "review-create" ? (
             <ReviewCreateView dispatch={dispatch} />

@@ -1,78 +1,55 @@
 import { useState } from "react";
-import {
-  Camera,
-  Image as ImageIcon,
-  Link2,
-  Mic,
-  Plus,
-  Sparkles,
-  Upload,
-} from "lucide-react";
+import { Camera, Image as ImageIcon, Link2, Plus, Sparkles } from "lucide-react";
 import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
 import "@/sazo-commerce/agent-designs.css";
 
-type CandidateId = "chat" | "modes" | "welcome" | "discovery" | "float";
+type CandidateId = "quiet" | "inset" | "orbit";
 
 const candidates: {
   id: CandidateId;
   number: string;
   title: string;
   subtitle: string;
+  recommendation?: string;
 }[] = [
   {
-    id: "chat",
+    id: "quiet",
     number: "01",
-    title: "ChatGPTライク",
-    subtitle: "入力をひとつにまとめ、＋から画像やカメラを呼び出す",
+    title: "クワイエット・コンポーザー",
+    subtitle: "一つの落ち着いた入力欄に、相談・URL・写真を自然にまとめる",
+    recommendation: "推奨",
   },
   {
-    id: "modes",
+    id: "inset",
     number: "02",
-    title: "3モードクイック入力",
-    subtitle: "URL・画像・商品名を最初から見せて迷いをなくす",
+    title: "インセット・シート",
+    subtitle: "説明と入力欄の階層を分け、初めてでも迷わせない",
   },
   {
-    id: "welcome",
+    id: "orbit",
     number: "03",
-    title: "ウェルカムカード",
-    subtitle: "J-Planet AIの役割を先に説明して安心感をつくる",
-  },
-  {
-    id: "discovery",
-    number: "04",
-    title: "発見型サーチ",
-    subtitle: "人気キーワードと候補商品を検索体験の中に配置する",
-  },
-  {
-    id: "float",
-    number: "05",
-    title: "フローティングアシスタント",
-    subtitle: "コンテンツを邪魔せず、いつでも相談できる最小UI",
+    title: "オービット・コマンドバー",
+    subtitle: "最小限の要素で、AIに渡す行為そのものを主役にする",
   },
 ];
 
-function Composer({ variant }: { variant: CandidateId }) {
+const sourceActions = [
+  { icon: Link2, label: "URLを貼る", notice: "日本の商品URLを貼り付けてください" },
+  { icon: ImageIcon, label: "写真を選ぶ", notice: "写真ライブラリから選択できます" },
+  { icon: Camera, label: "写真を撮る", notice: "カメラで商品の写真を撮影できます" },
+];
+
+function AgentComposer({ variant }: { variant: CandidateId }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [notice, setNotice] = useState("");
   const [value, setValue] = useState("");
 
   return (
     <div className={`agent-design-composer agent-design-composer--${variant}`}>
-      {variant === "welcome" ? (
-        <div className="agent-design-welcome-copy">
-          <span className="agent-design-avatar">✿</span>
-          <div>
-            <strong>J-Planet AIエージェント</strong>
-          </div>
-        </div>
-      ) : null}
-
-      {variant === "discovery" ? (
-        <div className="agent-design-discovery-heading">
-          <Sparkles aria-hidden size={18} />
-          <strong>ブラジルで人気の日本アイテムを探す</strong>
-        </div>
-      ) : null}
-
+      <div className="agent-design-composer-caption">
+        <span className="agent-design-sakura-mark" aria-hidden>✿</span>
+        <span>J-Planet AIエージェント</span>
+      </div>
       <div className="agent-design-input-row">
         <button
           aria-expanded={menuOpen}
@@ -83,139 +60,89 @@ function Composer({ variant }: { variant: CandidateId }) {
           }}
           type="button"
         >
-          <Plus aria-hidden size={21} />
+          <Plus aria-hidden size={20} />
         </button>
         <input
           aria-label="AIへの相談内容"
           onChange={(event) => {
             setValue(event.target.value);
           }}
-          placeholder={
-            variant === "discovery"
-              ? "日本の商品名やキーワードを入力"
-              : "URL・画像・商品名をAIに渡す"
-          }
+          placeholder="URL・画像・商品名をAIに渡す"
           value={value}
         />
-        {variant === "float" ? (
-          <button aria-label="音声入力" className="agent-design-mic" type="button">
-            <Mic aria-hidden size={20} />
-          </button>
-        ) : null}
         <button aria-label="AIに送信" className="agent-design-submit" type="button">
-          <Sparkles aria-hidden size={19} />
+          <Sparkles aria-hidden size={18} />
         </button>
       </div>
-
       {menuOpen ? (
         <div className="agent-design-plus-menu" role="menu">
-          <button role="menuitem" type="button">
-            <Link2 aria-hidden size={18} /> URLを貼る
-          </button>
-          <button role="menuitem" type="button">
-            <ImageIcon aria-hidden size={18} /> 写真を選ぶ
-          </button>
-          <button role="menuitem" type="button">
-            <Camera aria-hidden size={18} /> 写真を撮る
-          </button>
+          {sourceActions.map(({ icon: Icon, label, notice: nextNotice }) => (
+            <button
+              key={label}
+              onClick={() => {
+                setNotice(nextNotice);
+                setMenuOpen(false);
+              }}
+              role="menuitem"
+              type="button"
+            >
+              <Icon aria-hidden size={18} />
+              {label}
+            </button>
+          ))}
         </div>
       ) : null}
-
-      {variant === "modes" ? (
-        <div className="agent-design-mode-row">
-          <button type="button"><Link2 aria-hidden size={16} />URLを貼る</button>
-          <button type="button"><ImageIcon aria-hidden size={16} />写真を選ぶ</button>
-          <button type="button"><Camera aria-hidden size={16} />写真を撮る</button>
-        </div>
+      {notice ? (
+        <p aria-live="polite" className="agent-design-action-notice">{notice}</p>
       ) : null}
-    </div>
-  );
-}
-
-function DiscoveryPreview() {
-  return (
-    <div className="agent-design-discovery-preview">
-      <div className="agent-design-chip-row">
-        <span>アニメグッズ</span><span>スニーカー</span><span>コスメ</span>
-      </div>
-      <div className="agent-design-mini-products">
-        <div><span className="agent-design-product-image agent-design-product-image--pink" /><b>日本限定ギフト</b><small>¥3,200〜</small></div>
-        <div><span className="agent-design-product-image agent-design-product-image--blue" /><b>人気の雑貨</b><small>¥2,480〜</small></div>
-      </div>
     </div>
   );
 }
 
 function CandidatePreview({ id }: { id: CandidateId }) {
-  if (id === "float") {
-    return (
-      <div className="agent-design-float-preview">
-        <div className="agent-design-float-bubble"><Sparkles aria-hidden size={18} /> いつでも相談できます</div>
-        <Composer variant={id} />
-      </div>
-    );
-  }
-
   return (
-    <>
-      <Composer variant={id} />
-      {id === "discovery" ? <DiscoveryPreview /> : null}
-      {id === "chat" ? (
-        <div className="agent-design-hint"><Upload aria-hidden size={16} /> URL・画像・商品名をまとめて送信</div>
-      ) : null}
-      {id === "welcome" ? (
-        <div className="agent-design-trust-row"><span>✓</span> 日本からブラジルまで購入・配送をサポート</div>
-      ) : null}
-    </>
+    <div
+      className={`agent-design-stage agent-design-stage--${id}`}
+      data-testid="home-agent-preview"
+    >
+      {id === "orbit" ? <div className="agent-design-orbit-ring" aria-hidden /> : null}
+      <AgentComposer variant={id} />
+    </div>
   );
 }
 
 export function AgentDesignCandidatesView() {
-  const [selected, setSelected] = useState<CandidateId>("chat");
+  const [selected, setSelected] = useState<CandidateId>("quiet");
 
   return (
     <main className="agent-designs-page" data-agent-design-candidates>
       <header className="agent-designs-header">
-        <div className="agent-designs-brand"><JplanetLogo /><span>AIエージェントUI</span></div>
+        <div className="agent-designs-brand"><JplanetLogo /><span>AI INPUT STUDY</span></div>
         <p className="agent-designs-eyebrow">J-PLANET DESIGN LAB</p>
-        <h1>AIエージェントのUI 5案</h1>
+        <h1>J-Planet AI入力カード — 3案</h1>
         <p className="agent-designs-intro">
-          URL・画像・商品名をひとつの入口にまとめ、ブラジルのお客様が直感的に使える形を比較します。
+          商品名はそのまま入力。URLや写真は＋から追加する、iPhoneらしい静かな操作感を比較できます。
         </p>
-        <div aria-label="デザイン案を選択" className="agent-designs-tabs" role="tablist">
-          {candidates.map((candidate) => (
-            <button
-              aria-selected={selected === candidate.id}
-              className={selected === candidate.id ? "is-active" : ""}
-              key={candidate.id}
-              onClick={() => {
-                setSelected(candidate.id);
-                document.querySelector(`[data-agent-design="${candidate.id}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
-              }}
-              role="tab"
-              type="button"
-            >
-              {candidate.number} <span>{candidate.title}</span>
-            </button>
-          ))}
-        </div>
       </header>
 
-      <section className="agent-designs-grid" aria-label="5つのデザイン候補">
+      <section aria-label="3つのデザイン候補" className="agent-designs-grid">
         {candidates.map((candidate) => (
           <article
             className={`agent-design-card ${selected === candidate.id ? "is-selected" : ""}`}
             data-agent-design={candidate.id}
             key={candidate.id}
-            onClick={() => {
-              setSelected(candidate.id);
-            }}
           >
             <div className="agent-design-card-heading">
               <span className="agent-design-number">{candidate.number}</span>
-              <div><h2>{candidate.title}</h2><p>{candidate.subtitle}</p></div>
+              <div>
+                <div className="agent-design-title-line">
+                  <h2>{candidate.title}</h2>
+                  {candidate.recommendation ? <span>{candidate.recommendation}</span> : null}
+                </div>
+                <p>{candidate.subtitle}</p>
+              </div>
             </div>
-            <div className="agent-design-phone-frame"><CandidatePreview id={candidate.id} /></div>
+            <CandidatePreview id={candidate.id} />
             <button
               className="agent-design-select"
               onClick={() => {

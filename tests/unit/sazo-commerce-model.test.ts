@@ -13,6 +13,8 @@ import {
   homeGramEntryIds,
   homeReviewIds,
   homeReviews,
+  jplanetBrandDirectory,
+  nikeBrandProducts,
   recordedDesktopRankingReviewIds,
   recordedDesktopRankingReviews,
   recordedMobileProfileReviewIds,
@@ -38,6 +40,7 @@ import {
 describe("sazoReducer", () => {
   it.each([
     "orders",
+    "order-detail",
     "coupons",
     "points",
     "review-create",
@@ -54,6 +57,10 @@ describe("sazoReducer", () => {
     expect(createInitialSazoState("?qa=1&view=beauty").view).toBe("beauty");
   });
 
+  it("accepts the deterministic checkout QA route", () => {
+    expect(createInitialSazoState("?qa=1&view=checkout").view).toBe("checkout");
+  });
+
   it("uses the recorded account balances and profile values", () => {
     expect(sazoAccountFixture).toMatchObject({
       birthday: "2001-08-22",
@@ -63,6 +70,26 @@ describe("sazoReducer", () => {
       phone: "08039390822",
       points: 500,
     });
+  });
+
+  it("keeps the coupon wallet count and selected coupon in reducer state", () => {
+    const initial = createInitialSazoState();
+    const selected = sazoReducer(initial, {
+      type: "select-coupon",
+      couponId: "international-shipping-r30",
+    });
+    const claimed = sazoReducer(selected, {
+      type: "claim-coupon",
+      couponId: "welcome-code-r20",
+    });
+
+    expect(initial.couponOwnedIds).toHaveLength(4);
+    expect(selected.couponSelectedId).toBe("international-shipping-r30");
+    expect(claimed.couponOwnedIds).toHaveLength(5);
+    expect(
+      sazoReducer(claimed, { type: "claim-coupon", couponId: "welcome-code-r20" })
+        .couponOwnedIds,
+    ).toHaveLength(5);
   });
 
   it("defines the recorded GRAM categories and complete local post feed", () => {
@@ -175,32 +202,159 @@ describe("sazoReducer", () => {
     expect(qaState.view).toBe("agent-hub");
   });
 
-  it("opens and consumes a fullscreen agent entry intent", () => {
-    const opened = sazoReducer(createInitialSazoState(), {
-      type: "open-agent-hub",
-      intent: "image-picker",
-    });
+  it("enables the agent customs action only through the deterministic QA scenario and clears it after mock input", () => {
+    const standard = createInitialSazoState("?qa=1&view=agent-hub");
+    const actionRequired = createInitialSazoState(
+      "?qa=1&view=agent-hub&agentScenario=customs-action",
+    );
 
-    expect(opened).toMatchObject({
-      agentEntryIntent: "image-picker",
-      overlay: "none",
-      view: "agent-hub",
-    });
+    expect(standard.agentHubScenario).toBe("normal");
+    expect(actionRequired.agentHubScenario).toBe("customs-action");
     expect(
-      sazoReducer(opened, { type: "consume-agent-entry-intent" }),
-    ).toMatchObject({ agentEntryIntent: null, view: "agent-hub" });
+      sazoReducer(actionRequired, { type: "complete-agent-customs-action" }).agentHubScenario,
+    ).toBe("normal");
   });
 
-  it("opens product detail and returns to the source view", () => {
+  it("opens the requested saved-item tab through My Page", () => {
+    const opened = sazoReducer(createInitialSazoState(), {
+      type: "open-favorites",
+      tab: "brand",
+    });
+
+    expect(opened).toMatchObject({ favoriteTab: "brand", overlay: "none", view: "favorites" });
+  });
+
+  it("uses one shared NIKE destination while preserving local brand save state", () => {
+    const initial = createInitialSazoState();
+    const detail = sazoReducer(initial, { type: "open-brand-detail" });
+    const saved = sazoReducer(initial, { type: "toggle-saved-brand", brandId: "nike" });
+    const unsaved = sazoReducer(saved, { type: "toggle-saved-brand", brandId: "nike" });
+
+    expect(detail).toMatchObject({ brandLoading: true, overlay: "none", view: "brand-detail" });
+    expect(sazoReducer(detail, { type: "brand-loaded" }).brandLoading).toBe(false);
+    expect(saved.savedBrandIds).toContain("nike");
+    expect(unsaved.savedBrandIds).not.toContain("nike");
+    expect(jplanetBrandDirectory).toHaveLength(8);
+    expect(nikeBrandProducts.filter((product) => product.category === "general")).toHaveLength(12);
+    expect(nikeBrandProducts.every((product) => product.priceBrl > 0)).toBe(true);
+  });
+
+  it.each(["compose", "image-picker", "camera"] as const)(
+    "opens and consumes the %s fullscreen agent entry intent",
+    (intent) => {
+      const opened = sazoReducer(createInitialSazoState(), {
+        type: "open-agent-hub",
+        intent,
+      });
+
+      expect(opened).toMatchObject({
+        agentEntryIntent: intent,
+        overlay: "none",
+        view: "agent-hub",
+      });
+      expect(sazoReducer(opened, { type: "consume-agent-entry-intent" })).toMatchObject({
+        agentEntryIntent: null,
+        view: "agent-hub",
+      });
+    },
+  );
+
+  it("keeps the submitted request while the agent checks it and returns safely on cancellation", () => {
+    const searching = sazoReducer(createInitialSazoState(), {
+      type: "start-agent-search",
+      request: { imageName: "limited.png", summary: "日本限定スニーカー" },
+    });
+    const cancelled = sazoReducer(searching, { type: "cancel-agent-search" });
+
+    expect(searching).toMatchObject({
+      agentSearchRequest: { imageName: "limited.png", summary: "日本限定スニーカー" },
+      agentSearchReturnView: "home",
+      overlay: "none",
+      view: "agent-searching",
+    });
+    expect(cancelled).toMatchObject({
+      agentSearchRequest: null,
+      view: "home",
+    });
+  });
+
+  it("opens the shared J-Planet controller detail after an agent search completes", () => {
+    const searching = sazoReducer(createInitialSazoState(), {
+      type: "start-agent-search",
+      request: { imageName: "switch.png", summary: "Nintendo Switch OLED" },
+    });
+    const fetched = sazoReducer(searching, { type: "complete-agent-search" });
+
+    expect(fetched).toMatchObject({
+      agentSearchRequest: null,
+      productReturnView: "home",
+      selectedProductId: "jplanet-nintendo-pro-controller",
+      view: "product",
+    });
+  });
+
+  it("normalizes any product card to the shared detail and returns to the source view", () => {
     const catalog = { ...createInitialSazoState(), view: "catalog" } as SazoState;
     const detail = sazoReducer(catalog, { type: "open-product", productId: "p01" });
 
     expect(detail).toMatchObject({
       productReturnView: "catalog",
-      selectedProductId: "p01",
+      selectedProductId: "jplanet-nintendo-pro-controller",
       view: "product",
     });
     expect(sazoReducer(detail, { type: "close-product" }).view).toBe("catalog");
+  });
+
+  it("keeps legacy and J-Planet card IDs out of the retired SAZO detail flow", () => {
+    for (const productId of [
+      "p01",
+      "recommendation-heart",
+      "jplanet-new-balance-9060",
+      "jplanet-nintendo-switch-oled",
+      "jplanet-nintendo-pro-controller",
+    ]) {
+      const detail = sazoReducer(createInitialSazoState(), {
+        type: "open-product",
+        productId,
+      });
+
+      expect(detail.selectedProductId).toBe("jplanet-nintendo-pro-controller");
+      expect(detail.view).toBe("product");
+    }
+  });
+
+  it("keeps cart quantities and selected variants in reducer state", () => {
+    const initial = createInitialSazoState();
+    const quantityUpdated = sazoReducer(initial, {
+      option: "カラー: ホワイト",
+      productId: "jplanet-nintendo-switch-oled",
+      quantity: 2,
+      type: "set-cart-item-quantity",
+    });
+    const variantUpdated = sazoReducer(quantityUpdated, {
+      option: "カラー: ネオンブルー・ネオンレッド",
+      previousOption: "カラー: ホワイト",
+      productId: "jplanet-nintendo-switch-oled",
+      type: "set-cart-item-option",
+    });
+
+    expect(variantUpdated.cartItems).toContainEqual({
+      option: "カラー: ネオンブルー・ネオンレッド",
+      productId: "jplanet-nintendo-switch-oled",
+      quantity: 2,
+    });
+  });
+
+  it("hands only the selected cart items to checkout", () => {
+    const checkoutItems = [
+      { option: "カラー: ホワイト", productId: "jplanet-nintendo-switch-oled", quantity: 1 },
+    ];
+    const checkout = sazoReducer(createInitialSazoState(), {
+      items: checkoutItems,
+      type: "begin-checkout",
+    });
+
+    expect(checkout).toMatchObject({ checkoutItems, overlay: "none", view: "checkout" });
   });
 
   it("keeps the original return view when another recommendation is opened", () => {
@@ -211,13 +365,13 @@ describe("sazoReducer", () => {
     const second = sazoReducer(first, { type: "open-product", productId: "p02" });
 
     expect(second.productReturnView).toBe("ranking");
-    expect(second.selectedProductId).toBe("p02");
+    expect(second.selectedProductId).toBe("jplanet-nintendo-pro-controller");
   });
 
-  it("accepts a deterministic product QA entry and falls back safely", () => {
+  it("normalizes deterministic product QA entries and falls back safely", () => {
     expect(createInitialSazoState("?qa=1&view=product&product=p01")).toMatchObject({
       productReturnView: "home",
-      selectedProductId: "p01",
+      selectedProductId: "jplanet-nintendo-pro-controller",
       view: "product",
     });
     expect(getProductDetail("missing-id").product.id).toBe(products[0]?.id);
@@ -290,38 +444,16 @@ describe("sazoReducer", () => {
     });
   });
 
-  it("maps every recorded campaign-feed snapshot to the evidenced slide order", () => {
+  it("maps every hero feed to the three J-Planet campaign banners", () => {
     const ids = (feed: Parameters<typeof getHeroSlidesForFeed>[0]) =>
       getHeroSlidesForFeed(feed).map(({ id }) => id);
 
-    expect(ids("natural")).toEqual([
-      "delivery-line",
-      "new-benefits",
-      "large-furniture",
-      "cold-delivery",
-      "friend-invite",
-    ]);
-    expect(ids("cold-first")).toEqual([
-      "cold-delivery",
-      "friend-invite",
-      "new-benefits",
-      "large-furniture",
-      "delivery-line",
-    ]);
-    expect(ids("delivery-last")).toEqual([
-      "new-benefits",
-      "large-furniture",
-      "cold-delivery",
-      "friend-invite",
-      "delivery-line",
-    ]);
-    expect(ids("large-first")).toEqual([
-      "large-furniture",
-      "cold-delivery",
-      "friend-invite",
-      "delivery-line",
-      "new-benefits",
-    ]);
+    const expected = ["jplanet-ai-emerald", "jplanet-ai-violet", "jplanet-ai-coral"];
+
+    expect(ids("natural")).toEqual(expected);
+    expect(ids("cold-first")).toEqual(expected);
+    expect(ids("delivery-last")).toEqual(expected);
+    expect(ids("large-first")).toEqual(expected);
   });
 
   it("navigates catalog and preserves its display mode", () => {
@@ -347,10 +479,10 @@ describe("sazoReducer", () => {
     },
   );
 
-  it("wraps the five-slide hero and toggles pause", () => {
+  it("wraps the three-slide hero and toggles pause", () => {
     let state = createInitialSazoState();
 
-    for (let index = 0; index < 5; index += 1) {
+    for (let index = 0; index < 3; index += 1) {
       state = sazoReducer(state, { type: "hero-next" });
     }
 
@@ -528,7 +660,7 @@ describe("SAZO fixture asset contract", () => {
       reviews: reviews.length,
       gramEntries: gramEntries.length,
     }).toEqual({
-      heroSlides: 5,
+      heroSlides: 3,
       shortcuts: 5,
       products: 12,
       rankingKeywords: 10,
@@ -539,13 +671,18 @@ describe("SAZO fixture asset contract", () => {
     });
   });
 
+  it("places the emerald J-Planet AI banner first in the standard home feed", () => {
+    expect(getHeroSlidesForFeed("natural")[0]).toMatchObject({
+      id: "jplanet-ai-emerald",
+      image: "/sazo-commerce/hero/jplanet-ai-emerald-v1.png",
+    });
+  });
+
   it("uses only Task 4 and Task 5 delivery paths for fixture imagery", () => {
     expect(heroSlides.map(({ image }) => image)).toEqual([
-      "/sazo-commerce/hero/slide-1.webp",
-      "/sazo-commerce/hero/slide-2.webp",
-      "/sazo-commerce/hero/slide-3.webp",
-      "/sazo-commerce/hero/slide-4.webp",
-      "/sazo-commerce/hero/slide-5.webp",
+      "/sazo-commerce/hero/jplanet-ai-emerald-v1.png",
+      "/sazo-commerce/hero/jplanet-ai-violet-v1.png",
+      "/sazo-commerce/hero/jplanet-ai-coral-v1.png",
     ]);
     expect(products.map(({ image }) => image)).toEqual([
       "/sazo-commerce/products/01.webp",
@@ -611,12 +748,12 @@ describe("SAZO fixture asset contract", () => {
       ...gramEntries,
     ].map(({ image }) => image);
 
-    expect(imagePaths).toHaveLength(53);
+    expect(imagePaths).toHaveLength(51);
     expect(imagePaths.every((image) => image.startsWith("/sazo-commerce/"))).toBe(true);
     expect(imagePaths.every((image) => /\.(?:jpe?g|png|webp)$/.test(image))).toBe(true);
     expect(
       imagePaths.every((image) =>
-        /^\/sazo-commerce\/(?:(?:hero\/slide-0?[1-5]|products\/(0[1-9]|1[0-2])|brands\/0[1-8]|community\/(0[1-9]|1[0-4]))\.webp|review-media\/r0[1-8]\.jpg)$/.test(
+        /^\/sazo-commerce\/(?:hero\/jplanet-ai-(?:emerald|violet|coral)-v1\.png|products\/(?:0[1-9]|1[0-2])\.webp|brands\/0[1-8]\.webp|community\/(?:0[1-9]|1[0-4])\.webp|review-media\/r0[1-8]\.jpg)$/.test(
           image,
         ),
       ),

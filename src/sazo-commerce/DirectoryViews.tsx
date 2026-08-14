@@ -216,6 +216,9 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
         <MobileAgentComposer
           entryIntent={null}
           onEntryIntentConsumed={() => undefined}
+          onSubmitted={(request) => {
+            dispatch({ type: "start-agent-search", request });
+          }}
           seedRequest={null}
         />
       </section>

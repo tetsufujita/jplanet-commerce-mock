@@ -62,7 +62,7 @@ function openAgent() {
 }
 
 describe("AgentComposerSheet", () => {
-  it("enables a URL request and navigates to the catalog when submitted", async () => {
+  it("enables a URL request and starts the agent search when submitted", async () => {
     await renderAgent();
 
     const { dialog } = openAgent();
@@ -76,7 +76,7 @@ describe("AgentComposerSheet", () => {
 
     expect((submit as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(submit);
-    expect(document.querySelector("[data-view='catalog']")).not.toBeNull();
+    expect(document.querySelector("[data-view='agent-searching']")).not.toBeNull();
   });
 
   it("opens the hidden image picker from the visible chip and enables submission", async () => {

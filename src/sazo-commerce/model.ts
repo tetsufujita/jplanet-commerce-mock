@@ -1,4 +1,6 @@
 import type { GramCategoryId } from "@/sazo-commerce/gramFixtures";
+import { heroSlides } from "@/sazo-commerce/fixtures";
+import { initialJplanetCouponIds } from "@/sazo-commerce/couponFixtures";
 
 export type SazoAccountView =
   | "mypage"
@@ -6,6 +8,7 @@ export type SazoAccountView =
   | "profile"
   | "cards"
   | "orders"
+  | "order-detail"
   | "coupons"
   | "points"
   | "review-create"
@@ -20,6 +23,7 @@ export type SazoView =
   | "home"
   | "service"
   | "brands"
+  | "brand-detail"
   | "categories"
   | "catalog"
   | "campaign"
@@ -29,15 +33,23 @@ export type SazoView =
   | "gram"
   | "gram-detail"
   | "agent-hub"
+  | "agent-searching"
   | "agent-designs"
   | "agent-first"
   | "beauty"
-  | "cart";
+  | "cart"
+  | "checkout";
 
 export type SazoNonProductView = Exclude<SazoView, "product">;
 
 export type SazoOverlay = "none" | "login" | "chat" | "agent";
-export type AgentEntryIntent = "compose" | "image-picker";
+export type SazoFavoriteTab = "product" | "brand" | "review";
+export type AgentEntryIntent = "camera" | "compose" | "image-picker";
+export type AgentHubScenario = "normal" | "customs-action";
+export interface AgentSearchRequest {
+  imageName: string | null;
+  summary: string;
+}
 export type SazoAuthStep = "provider" | "google" | "birthday" | "phone";
 export type SazoLoadingSurface =
   | "none"
@@ -65,7 +77,9 @@ export type DirectoryCategoryId =
   | "food"
   | "pets"
   | "appliances"
-  | "hobby";
+  | "hobby"
+  | "shoes"
+  | "electronics";
 export type CatalogTabId =
   | "skincare"
   | "base-makeup"
@@ -116,6 +130,9 @@ export interface SazoState {
   view: SazoView;
   overlay: SazoOverlay;
   agentEntryIntent: AgentEntryIntent | null;
+  agentHubScenario: AgentHubScenario;
+  agentSearchRequest: AgentSearchRequest | null;
+  agentSearchReturnView: SazoNonProductView;
   authStep: SazoAuthStep;
   catalogMode: CatalogMode;
   catalogTab: CatalogTabId;
@@ -130,7 +147,10 @@ export interface SazoState {
   campaignLoaded: boolean;
   authenticated: boolean;
   loadingSurface: SazoLoadingSurface;
+  brandLoading: boolean;
+  savedBrandIds: readonly string[];
   reviewFeed: SazoReviewFeed;
+  favoriteTab: SazoFavoriteTab;
   selectedProductId: string | null;
   productReturnView: SazoNonProductView;
   gramCategory: GramCategoryId;
@@ -138,6 +158,9 @@ export interface SazoState {
   gramLoadToken: number;
   selectedGramPostId: string | null;
   cartItems: readonly CartItem[];
+  checkoutItems: readonly CartItem[];
+  couponOwnedIds: readonly string[];
+  couponSelectedId: string | null;
 }
 
 export interface CartItem {
@@ -146,10 +169,26 @@ export interface CartItem {
   quantity: number;
 }
 
+/**
+ * The commerce mock deliberately uses one purchase-ready detail page for every
+ * product discovery surface. Catalog metadata stays varied, while opening a
+ * card always enters the same J-Planet purchase flow.
+ */
+export const JPLANET_PRODUCT_DETAIL_ID = "jplanet-nintendo-pro-controller";
+
+export function normalizeJplanetProductDetailId(_productId: string | null): string {
+  return JPLANET_PRODUCT_DETAIL_ID;
+}
+
 export type SazoAction =
   | { type: "navigate"; view: SazoView }
+  | { type: "open-favorites"; tab: SazoFavoriteTab }
   | { type: "open-agent-hub"; intent: AgentEntryIntent }
   | { type: "consume-agent-entry-intent" }
+  | { type: "complete-agent-customs-action" }
+  | { type: "start-agent-search"; request: AgentSearchRequest }
+  | { type: "cancel-agent-search" }
+  | { type: "complete-agent-search" }
   | { type: "set-catalog-mode"; mode: CatalogMode }
   | { type: "hero-next" }
   | { type: "toggle-hero-pause" }
@@ -163,6 +202,9 @@ export type SazoAction =
   | { type: "close-overlay" }
   | { type: "select-directory-category"; category: DirectoryCategoryId }
   | { type: "select-brand-filter"; filter: BrandFilterId }
+  | { type: "open-brand-detail" }
+  | { type: "brand-loaded" }
+  | { type: "toggle-saved-brand"; brandId: string }
   | { type: "select-catalog-tab"; tab: CatalogTabId }
   | { type: "select-catalog-chip"; chip: string | null }
   | { type: "select-review-category"; category: ReviewCategoryId }
@@ -173,10 +215,24 @@ export type SazoAction =
   | { type: "gram-loaded"; token: number }
   | { type: "open-gram-post"; postId: string }
   | { type: "add-to-cart"; item: CartItem }
-  | { type: "set-cart-item-quantity"; productId: string; option: string; quantity: number }
+  | { type: "begin-checkout"; items: readonly CartItem[] }
+  | {
+      type: "set-cart-item-quantity";
+      productId: string;
+      option: string;
+      quantity: number;
+    }
+  | {
+      type: "set-cart-item-option";
+      productId: string;
+      previousOption: string;
+      option: string;
+    }
+  | { type: "claim-coupon"; couponId: string }
+  | { type: "select-coupon"; couponId: string | null }
   | { type: "reset" };
 
-const heroSlideCount = 5;
+const heroSlideCount = heroSlides.length;
 
 const qaLoadingSurfaces = new Set<SazoLoadingSurface>([
   "none",
@@ -196,10 +252,13 @@ const qaReviewFeeds = new Set<SazoReviewFeed>([
   "desktop-ranking",
   "mobile-profile",
 ]);
+const qaFavoriteTabs = new Set<SazoFavoriteTab>(["product", "brand", "review"]);
+const qaAgentHubScenarios = new Set<AgentHubScenario>(["normal", "customs-action"]);
 const qaViews = new Set<SazoView>([
   "home",
   "service",
   "brands",
+  "brand-detail",
   "categories",
   "catalog",
   "campaign",
@@ -210,6 +269,7 @@ const qaViews = new Set<SazoView>([
   "profile",
   "cards",
   "orders",
+  "order-detail",
   "coupons",
   "points",
   "review-create",
@@ -222,10 +282,12 @@ const qaViews = new Set<SazoView>([
   "gram",
   "gram-detail",
   "agent-hub",
+  "agent-searching",
   "agent-designs",
   "agent-first",
   "beauty",
   "cart",
+  "checkout",
 ]);
 const qaAuthSteps = new Set<SazoAuthStep>(["provider", "google", "birthday", "phone"]);
 
@@ -234,6 +296,9 @@ export function createInitialSazoState(search = ""): SazoState {
     view: "home",
     overlay: "none",
     agentEntryIntent: null,
+    agentHubScenario: "normal",
+    agentSearchRequest: null,
+    agentSearchReturnView: "home",
     authStep: "provider",
     catalogMode: "list",
     catalogTab: "skincare",
@@ -248,7 +313,10 @@ export function createInitialSazoState(search = ""): SazoState {
     campaignLoaded: false,
     authenticated: false,
     loadingSurface: "none",
+    brandLoading: false,
+    savedBrandIds: ["new-balance", "sony"],
     reviewFeed: "natural",
+    favoriteTab: "product",
     selectedProductId: null,
     productReturnView: "home",
     gramCategory: "all",
@@ -256,9 +324,17 @@ export function createInitialSazoState(search = ""): SazoState {
     gramLoadToken: 0,
     selectedGramPostId: null,
     cartItems: [
-      { productId: "p01", option: "標準", quantity: 1 },
-      { productId: "p02", option: "標準", quantity: 1 },
+      { productId: "jplanet-nintendo-switch-oled", option: "カラー: ホワイト", quantity: 1 },
+      { productId: "jplanet-new-balance-9060", option: "サイズ: 27cm", quantity: 1 },
+      { productId: "jplanet-sony-a7c-ii", option: "バリエーション: 本体のみ", quantity: 1 },
     ],
+    checkoutItems: [
+      { productId: "jplanet-nintendo-switch-oled", option: "カラー: ホワイト", quantity: 1 },
+      { productId: "jplanet-new-balance-9060", option: "サイズ: 27cm", quantity: 1 },
+      { productId: "jplanet-sony-a7c-ii", option: "バリエーション: 本体のみ", quantity: 1 },
+    ],
+    couponOwnedIds: [...initialJplanetCouponIds],
+    couponSelectedId: null,
   };
 
   const parameters = new URLSearchParams(search);
@@ -270,9 +346,13 @@ export function createInitialSazoState(search = ""): SazoState {
   const loadingSurface = parameters.get("loading") as SazoLoadingSurface | null;
   const heroFeed = parameters.get("heroFeed") as SazoHeroFeed | null;
   const reviewFeed = parameters.get("reviewFeed") as SazoReviewFeed | null;
+  const favoriteTab = parameters.get("favoriteTab") as SazoFavoriteTab | null;
+  const agentHubScenario = parameters.get("agentScenario") as AgentHubScenario | null;
   const view = parameters.get("view") as SazoView | null;
   const authStep = parameters.get("auth") as SazoAuthStep | null;
   const heroIndex = Number(parameters.get("heroIndex"));
+  const couponWallet = parameters.get("couponWallet");
+  const brandLoading = parameters.get("brandLoading");
 
   if (loadingSurface !== null && qaLoadingSurfaces.has(loadingSurface)) {
     state.loadingSurface = loadingSurface;
@@ -286,15 +366,32 @@ export function createInitialSazoState(search = ""): SazoState {
     state.reviewFeed = reviewFeed;
   }
 
+  if (favoriteTab !== null && qaFavoriteTabs.has(favoriteTab)) {
+    state.favoriteTab = favoriteTab;
+  }
+
+  if (agentHubScenario !== null && qaAgentHubScenarios.has(agentHubScenario)) {
+    state.agentHubScenario = agentHubScenario;
+  }
+
   if (view !== null && qaViews.has(view)) {
     state.view = view;
 
     if (view === "product") {
-      state.selectedProductId = parameters.get("product");
+      state.selectedProductId = normalizeJplanetProductDetailId(
+        parameters.get("product"),
+      );
     }
 
     if (view === "gram-detail") {
       state.selectedGramPostId = parameters.get("gramPost");
+    }
+
+    if (view === "agent-searching") {
+      state.agentSearchRequest = {
+        imageName: null,
+        summary: "日本限定スニーカー",
+      };
     }
   }
 
@@ -306,6 +403,14 @@ export function createInitialSazoState(search = ""): SazoState {
     state.heroIndex = heroIndex;
   }
 
+  if (couponWallet === "empty") {
+    state.couponOwnedIds = [];
+  }
+
+  if (view === "brand-detail" && brandLoading === "1") {
+    state.brandLoading = true;
+  }
+
   return state;
 }
 
@@ -315,11 +420,19 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
       return {
         ...state,
         agentEntryIntent: null,
+        brandLoading: action.view === "brand-detail",
         gramLoading: false,
         overlay: "none",
         selectedGramPostId:
           action.view === "gram-detail" ? state.selectedGramPostId : null,
         view: action.view,
+      };
+    case "open-favorites":
+      return {
+        ...state,
+        favoriteTab: action.tab,
+        overlay: "none",
+        view: "favorites",
       };
     case "open-agent-hub":
       return {
@@ -330,6 +443,38 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
       };
     case "consume-agent-entry-intent":
       return { ...state, agentEntryIntent: null };
+    case "complete-agent-customs-action":
+      return { ...state, agentHubScenario: "normal" };
+    case "start-agent-search":
+      return {
+        ...state,
+        agentEntryIntent: null,
+        agentSearchRequest: action.request,
+        agentSearchReturnView:
+          state.view === "product"
+            ? state.productReturnView
+            : state.view === "agent-searching"
+              ? "home"
+              : state.view,
+        overlay: "none",
+        view: "agent-searching",
+      };
+    case "cancel-agent-search":
+      return {
+        ...state,
+        agentSearchRequest: null,
+        overlay: "none",
+        view: state.agentSearchReturnView,
+      };
+    case "complete-agent-search":
+      return {
+        ...state,
+        agentSearchRequest: null,
+        overlay: "none",
+        productReturnView: state.agentSearchReturnView,
+        selectedProductId: JPLANET_PRODUCT_DETAIL_ID,
+        view: "product",
+      };
     case "set-catalog-mode":
       return { ...state, catalogMode: action.mode };
     case "hero-next":
@@ -362,6 +507,22 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
       return { ...state, directoryCategory: action.category };
     case "select-brand-filter":
       return { ...state, brandFilter: action.filter };
+    case "open-brand-detail":
+      return {
+        ...state,
+        brandLoading: true,
+        overlay: "none",
+        view: "brand-detail",
+      };
+    case "brand-loaded":
+      return { ...state, brandLoading: false };
+    case "toggle-saved-brand":
+      return {
+        ...state,
+        savedBrandIds: state.savedBrandIds.includes(action.brandId)
+          ? state.savedBrandIds.filter((brandId) => brandId !== action.brandId)
+          : [...state.savedBrandIds, action.brandId],
+      };
     case "select-catalog-tab":
       return { ...state, catalogTab: action.tab, catalogChip: null };
     case "select-catalog-chip":
@@ -376,7 +537,7 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
         overlay: "none",
         productReturnView:
           state.view === "product" ? state.productReturnView : state.view,
-        selectedProductId: action.productId,
+        selectedProductId: normalizeJplanetProductDetailId(action.productId),
         view: "product",
       };
     case "close-product":
@@ -422,6 +583,13 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
               ),
       };
     }
+    case "begin-checkout":
+      return {
+        ...state,
+        checkoutItems: action.items,
+        overlay: "none",
+        view: "checkout",
+      };
     case "set-cart-item-quantity": {
       const quantity = Math.max(0, Math.floor(action.quantity));
       return {
@@ -439,6 +607,22 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
               ),
       };
     }
+    case "set-cart-item-option": {
+      return {
+        ...state,
+        cartItems: state.cartItems.map((item) =>
+          item.productId === action.productId && item.option === action.previousOption
+            ? { ...item, option: action.option }
+            : item,
+        ),
+      };
+    }
+    case "claim-coupon":
+      return state.couponOwnedIds.includes(action.couponId)
+        ? state
+        : { ...state, couponOwnedIds: [...state.couponOwnedIds, action.couponId] };
+    case "select-coupon":
+      return { ...state, couponSelectedId: action.couponId };
     case "reset":
       return createInitialSazoState();
     default:

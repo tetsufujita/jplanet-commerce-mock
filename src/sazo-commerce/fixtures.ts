@@ -10,6 +10,59 @@ import type {
 
 export type SazoImagePath = `/sazo-commerce/${string}`;
 
+export interface ProductSpecification {
+  label: string;
+  value: string;
+}
+
+/**
+ * 商品ページの説明を、安全に表示するための構造化コンテンツです。
+ * 外部ページの HTML は取り込まず、このブロックだけをレンダーします。
+ */
+export type ProductContentBlock =
+  | {
+      id: string;
+      type: "heading";
+      level: 2 | 3;
+      text: string;
+    }
+  | {
+      id: string;
+      type: "paragraph";
+      text: string;
+    }
+  | {
+      id: string;
+      type: "bulletList";
+      items: readonly string[];
+    }
+  | {
+      id: string;
+      type: "specTable";
+      rows: readonly ProductSpecification[];
+    }
+  | {
+      id: string;
+      type: "image";
+      src: SazoImagePath;
+      alt: string;
+      caption?: string;
+      aspectRatio?: number;
+    }
+  | {
+      id: string;
+      type: "imageGallery";
+      images: readonly {
+        src: SazoImagePath;
+        alt: string;
+        caption?: string;
+      }[];
+    }
+  | {
+      id: string;
+      type: "divider";
+    };
+
 export interface HeroSlide {
   id: string;
   title: string;
@@ -66,6 +119,10 @@ export interface Product {
   image: SazoImagePath;
   badge?: string;
   sourceIcon?: SazoImagePath;
+  /** 商品仕様。未設定の既存商品は ProductDetail.information を利用します。 */
+  specifications?: readonly ProductSpecification[];
+  /** リッチな商品説明。文字列だけの既存商品は paragraph ブロックへ変換します。 */
+  descriptionBlocks?: readonly ProductContentBlock[];
 }
 
 export interface ProductDetail {
@@ -91,6 +148,10 @@ export function parseYenPrice(price: string): number {
 
 export function formatYen(amount: number): string {
   return `¥${new Intl.NumberFormat("ja-JP").format(amount)}`;
+}
+
+export function formatBrl(amount: number): string {
+  return `R$ ${new Intl.NumberFormat("en-US").format(Math.max(0, Math.round(amount)))}`;
 }
 
 export function calculateProductTotal(
@@ -275,81 +336,45 @@ export const sazoCountryOptions = [
 
 export const heroSlides = [
   {
-    id: "delivery-line",
-    title: "配送状況をLINEでお届け！",
-    subtitle: "配送料50%OFF クーポンプレゼント！",
-    image: "/sazo-commerce/hero/slide-1.webp",
-    mobileHeight: 490,
-    mobileImage: "/sazo-commerce/hero/slide-1.webp",
-    mobileWidth: 1200,
+    id: "jplanet-ai-emerald",
+    title: "J-Planet AI",
+    subtitle: "AIと一緒に、日本の商品をもっと自由に。",
+    image: "/sazo-commerce/hero/jplanet-ai-emerald-v1.png",
+    mobileHeight: 1024,
+    mobileImage: "/sazo-commerce/hero/jplanet-ai-emerald-v1.png",
+    mobileWidth: 1536,
   },
   {
-    id: "new-benefits",
-    title: "新規特典がリニューアル クーポンパック登場！",
-    subtitle: "新規会員登録・アプリDL・LINE追加でお得にJ-Planetを利用できます！",
-    image: "/sazo-commerce/hero/slide-2.webp",
-    mobileHeight: 490,
-    mobileImage: "/sazo-commerce/hero/mobile/slide-2.webp",
-    mobileWidth: 794,
+    id: "jplanet-ai-violet",
+    title: "J-Planet AI",
+    subtitle: "URL・画像・商品名から、欲しい商品を探せます。",
+    image: "/sazo-commerce/hero/jplanet-ai-violet-v1.png",
+    mobileHeight: 1024,
+    mobileImage: "/sazo-commerce/hero/jplanet-ai-violet-v1.png",
+    mobileWidth: 1536,
   },
   {
-    id: "large-furniture",
-    title: "大型家具、解禁。",
-    subtitle: "30kg以上のソファーや棚も、お得な価格で手に入ります！",
-    image: "/sazo-commerce/hero/slide-3.webp",
-    mobileHeight: 490,
-    mobileImage: "/sazo-commerce/hero/slide-3.webp",
-    mobileWidth: 1200,
-  },
-  {
-    id: "cold-delivery",
-    title: "冷蔵食品・香水など配送可能に",
-    subtitle: "配送の幅が広がり、狙っていた商品を手に入れられるチャンス！",
-    image: "/sazo-commerce/hero/slide-4.webp",
-    mobileHeight: 490,
-    mobileImage: "/sazo-commerce/hero/mobile/slide-4.webp",
-    mobileWidth: 794,
-  },
-  {
-    id: "friend-invite",
-    title: "友達招待でお得！",
-    subtitle: "友達招待で友達もあなたも送料無料クーポンをゲット！",
-    image: "/sazo-commerce/hero/slide-5.webp",
-    mobileHeight: 490,
-    mobileImage: "/sazo-commerce/hero/mobile/slide-5.webp",
-    mobileWidth: 794,
+    id: "jplanet-ai-coral",
+    title: "J-Planet AI",
+    subtitle: "日本からブラジルへのショッピングを、もっと身近に。",
+    image: "/sazo-commerce/hero/jplanet-ai-coral-v1.png",
+    mobileHeight: 1024,
+    mobileImage: "/sazo-commerce/hero/jplanet-ai-coral-v1.png",
+    mobileWidth: 1536,
   },
 ] satisfies readonly HeroSlide[];
 
+const jplanetHeroSlideIds = [
+  "jplanet-ai-emerald",
+  "jplanet-ai-violet",
+  "jplanet-ai-coral",
+] as const;
+
 const heroSlideIdsByFeed = {
-  natural: [
-    "delivery-line",
-    "new-benefits",
-    "large-furniture",
-    "cold-delivery",
-    "friend-invite",
-  ],
-  "cold-first": [
-    "cold-delivery",
-    "friend-invite",
-    "new-benefits",
-    "large-furniture",
-    "delivery-line",
-  ],
-  "delivery-last": [
-    "new-benefits",
-    "large-furniture",
-    "cold-delivery",
-    "friend-invite",
-    "delivery-line",
-  ],
-  "large-first": [
-    "large-furniture",
-    "cold-delivery",
-    "friend-invite",
-    "delivery-line",
-    "new-benefits",
-  ],
+  natural: jplanetHeroSlideIds,
+  "cold-first": jplanetHeroSlideIds,
+  "delivery-last": jplanetHeroSlideIds,
+  "large-first": jplanetHeroSlideIds,
 } as const satisfies Record<SazoHeroFeed, readonly string[]>;
 
 export function getHeroSlidesForFeed(feed: SazoHeroFeed): readonly HeroSlide[] {
@@ -357,7 +382,7 @@ export function getHeroSlidesForFeed(feed: SazoHeroFeed): readonly HeroSlide[] {
     const slide = heroSlides.find((candidate) => candidate.id === id);
 
     if (slide === undefined) {
-      throw new Error(`Missing SAZO hero slide: ${id}`);
+      throw new Error(`Missing J-Planet hero slide: ${id}`);
     }
 
     return slide;
@@ -477,6 +502,116 @@ export const products = [
     name: "優しい人形室 手編みマカロン綿糸",
     price: "¥104",
     image: "/sazo-commerce/products/12.webp",
+  },
+] satisfies readonly Product[];
+
+/** Reference products used by the J-Planet mobile commerce mock. */
+export const referenceProducts = [
+  {
+    id: "jplanet-new-balance-9060",
+    brand: "New Balance Japan",
+    name: "New Balance 9060",
+    price: "¥22,000",
+    image: "/sazo-commerce/reference/new-balance-9060.png",
+  },
+  {
+    id: "jplanet-sony-a7c-ii",
+    brand: "Sony Japan",
+    name: "Sony α7C II ボディ",
+    price: "¥189,800",
+    image: "/sazo-commerce/reference/mirrorless-camera.png",
+  },
+  {
+    id: "jplanet-nintendo-switch-oled",
+    brand: "Rakuten Japan・公式ストア",
+    name: "Nintendo Switch OLED",
+    price: "¥37,980",
+    image: "/sazo-commerce/reference/nintendo-switch-oled.png",
+  },
+  {
+    id: "jplanet-nintendo-pro-controller",
+    brand: "Nintendo 公式",
+    name: "Nintendo Switch Proコントローラー",
+    price: "¥6,900",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
+    specifications: [
+      { label: "対応機種", value: "Nintendo Switch / Nintendo Switch OLED" },
+      { label: "接続方式", value: "Bluetooth / USB Type-C" },
+      { label: "カラー", value: "ブラック" },
+      { label: "バッテリー", value: "充電式リチウムイオン" },
+      { label: "連続使用時間", value: "約40時間" },
+      { label: "重量", value: "約246g" },
+      { label: "付属品", value: "USB充電ケーブル" },
+      { label: "型番", value: "HAC-A-FSSKA" },
+      { label: "メーカー", value: "Nintendo" },
+      { label: "商品状態", value: "新品" },
+    ],
+    descriptionBlocks: [
+      {
+        id: "controller-headline",
+        type: "heading",
+        level: 2,
+        text: "快適な操作を、長時間楽しめる。",
+      },
+      {
+        id: "controller-introduction",
+        type: "paragraph",
+        text: "Nintendo SwitchのTVモードやテーブルモードで、安定した操作を楽しめるワイヤレスコントローラーです。手になじみやすいグリップで、集中したプレイにも自然に対応します。",
+      },
+      {
+        id: "controller-front-image",
+        type: "image",
+        src: "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
+        alt: "Nintendo Switch Proコントローラー ブラックの正面",
+        caption: "ブラック",
+        aspectRatio: 1,
+      },
+      {
+        id: "controller-features",
+        type: "bulletList",
+        items: [
+          "Bluetoothによるワイヤレス接続",
+          "USB Type-Cで充電可能",
+          "モーションIRカメラ対応",
+          "HD振動対応",
+          "長時間プレイしやすいグリップ形状",
+        ],
+      },
+      { id: "controller-divider", type: "divider" },
+      {
+        id: "controller-specification-heading",
+        type: "heading",
+        level: 3,
+        text: "主な仕様",
+      },
+      {
+        id: "controller-specification-table",
+        type: "specTable",
+        rows: [
+          { label: "対応機種", value: "Nintendo Switch / Nintendo Switch OLED" },
+          { label: "接続方式", value: "Bluetooth / USB Type-C" },
+          { label: "連続使用時間", value: "約40時間" },
+          { label: "重量", value: "約246g" },
+          { label: "同梱物", value: "USB充電ケーブル" },
+        ],
+      },
+      {
+        id: "controller-colors",
+        type: "imageGallery",
+        images: [
+          {
+            src: "/sazo-commerce/reference/nintendo-pro-controller-white-v1.png",
+            alt: "Nintendo Switch Proコントローラー ホワイト",
+            caption: "ホワイト",
+          },
+          {
+            src: "/sazo-commerce/reference/nintendo-pro-controller-splatoon-v1.png",
+            alt: "Nintendo Switch Proコントローラー スプラトゥーンカラー",
+            caption: "スプラトゥーン",
+          },
+        ],
+      },
+    ],
   },
 ] satisfies readonly Product[];
 
@@ -660,6 +795,379 @@ export const brands = [
   },
 ] satisfies readonly Brand[];
 
+export type JplanetBrandDirectoryCategory =
+  | "apparel"
+  | "accessories"
+  | "sneakers"
+  | "cosmetics"
+  | "electronics"
+  | "hobby";
+
+export type BrandProductCategory =
+  | "general"
+  | "limited"
+  | "flea"
+  | "cosmetics"
+  | "kpop";
+
+export interface BrandProduct {
+  id: string;
+  brandId: string;
+  name: string;
+  image: SazoImagePath;
+  source: string;
+  priceBrl: number;
+  category: BrandProductCategory;
+  condition?: "new" | "unused" | "used";
+  isSaved: boolean;
+}
+
+export interface BrandSection {
+  id: string;
+  title: string;
+  category: BrandProductCategory;
+  products: readonly BrandProduct[];
+}
+
+export interface JplanetBrandDirectoryItem {
+  id: string;
+  name: string;
+  nameJa: string;
+  logo?: SazoImagePath;
+  category: JplanetBrandDirectoryCategory;
+  previewProducts: readonly SazoImagePath[];
+  isSaved: boolean;
+}
+
+/**
+ * J-Planet用のブランドディレクトリ。ロゴが存在しないブランドは、名前だけを
+ * タイポグラフィとして表示します。保存状態はアプリの state 側で保持します。
+ */
+export const jplanetBrandDirectory = [
+  {
+    id: "nike",
+    name: "NIKE",
+    nameJa: "ナイキ",
+    logo: "/sazo-commerce/brand-logos/01.webp",
+    category: "sneakers",
+    previewProducts: [
+      "/sazo-commerce/reference/air-jordan-1-retro-high-og.png",
+      "/sazo-commerce/reference/new-balance-9060.png",
+      "/sazo-commerce/products/09.webp",
+    ],
+    isSaved: false,
+  },
+  {
+    id: "acne-studios",
+    name: "ACNE STUDIOS",
+    nameJa: "アクネ ストゥディオズ",
+    category: "accessories",
+    previewProducts: [
+      "/sazo-commerce/products/08.webp",
+      "/sazo-commerce/products/07.webp",
+      "/sazo-commerce/products/09.webp",
+    ],
+    isSaved: false,
+  },
+  {
+    id: "arcteryx",
+    name: "ARC'TERYX",
+    nameJa: "アークテリクス",
+    category: "apparel",
+    previewProducts: [
+      "/sazo-commerce/products/08.webp",
+      "/sazo-commerce/products/06.webp",
+      "/sazo-commerce/products/09.webp",
+    ],
+    isSaved: false,
+  },
+  {
+    id: "new-balance",
+    name: "NEW BALANCE",
+    nameJa: "ニューバランス",
+    category: "sneakers",
+    previewProducts: [
+      "/sazo-commerce/reference/new-balance-9060.png",
+      "/sazo-commerce/reference/air-jordan-1-retro-high-og.png",
+      "/sazo-commerce/products/09.webp",
+    ],
+    isSaved: true,
+  },
+  {
+    id: "adidas",
+    name: "ADIDAS",
+    nameJa: "アディダス",
+    category: "sneakers",
+    previewProducts: [
+      "/sazo-commerce/products/09.webp",
+      "/sazo-commerce/reference/new-balance-9060.png",
+      "/sazo-commerce/reference/air-jordan-1-retro-high-og.png",
+    ],
+    isSaved: false,
+  },
+  {
+    id: "apple",
+    name: "APPLE",
+    nameJa: "アップル",
+    category: "electronics",
+    previewProducts: [
+      "/sazo-commerce/reference/mirrorless-camera.png",
+      "/sazo-commerce/reference/nintendo-switch-oled.png",
+      "/sazo-commerce/reference/nintendo-joycon-v1.png",
+    ],
+    isSaved: false,
+  },
+  {
+    id: "sony",
+    name: "SONY",
+    nameJa: "ソニー",
+    category: "electronics",
+    previewProducts: [
+      "/sazo-commerce/reference/mirrorless-camera.png",
+      "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
+      "/sazo-commerce/reference/nintendo-switch-oled.png",
+    ],
+    isSaved: true,
+  },
+  {
+    id: "nintendo",
+    name: "NINTENDO",
+    nameJa: "任天堂",
+    category: "hobby",
+    previewProducts: [
+      "/sazo-commerce/reference/nintendo-switch-oled.png",
+      "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
+      "/sazo-commerce/reference/nintendo-joycon-v1.png",
+    ],
+    isSaved: false,
+  },
+] as const satisfies readonly JplanetBrandDirectoryItem[];
+
+/** NIKE詳細で比較するためのBRL建てモック在庫。 */
+export const nikeBrandProducts = [
+  {
+    id: "nike-air-jordan-1-retro",
+    brandId: "nike",
+    name: "Air Jordan 1 Retro High OG",
+    image: "/sazo-commerce/reference/air-jordan-1-retro-high-og.png",
+    source: "SNKRS Japan",
+    priceBrl: 789,
+    category: "general",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-new-balance-9060",
+    brandId: "nike",
+    name: "New Balance 9060",
+    image: "/sazo-commerce/reference/new-balance-9060.png",
+    source: "日本公式サイト",
+    priceBrl: 748,
+    category: "general",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-original-black",
+    brandId: "nike",
+    name: "Original Black サンダル",
+    image: "/sazo-commerce/products/09.webp",
+    source: "日本公式サイト",
+    priceBrl: 363,
+    category: "general",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-sneaker-collection",
+    brandId: "nike",
+    name: "日本限定 スニーカーコレクション",
+    image: "/sazo-commerce/products/08.webp",
+    source: "Rakuten Japan",
+    priceBrl: 472,
+    category: "general",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-street-runner",
+    brandId: "nike",
+    name: "ストリート ランナー ブラック",
+    image: "/sazo-commerce/products/06.webp",
+    source: "日本公式サイト",
+    priceBrl: 524,
+    category: "general",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-limited-jordan",
+    brandId: "nike",
+    name: "Air Jordan 1 日本限定カラー",
+    image: "/sazo-commerce/reference/air-jordan-1-retro-high-og.png",
+    source: "SNKRS Japan",
+    priceBrl: 1_120,
+    category: "limited",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-limited-runner",
+    brandId: "nike",
+    name: "Nike ランナー コラボレーション",
+    image: "/sazo-commerce/reference/new-balance-9060.png",
+    source: "日本限定",
+    priceBrl: 986,
+    category: "limited",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-limited-black",
+    brandId: "nike",
+    name: "限定カラー ブラック エディション",
+    image: "/sazo-commerce/products/09.webp",
+    source: "ブランド限定",
+    priceBrl: 899,
+    category: "limited",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-flea-jordan",
+    brandId: "nike",
+    name: "Air Jordan 1 Retro High OG 中古",
+    image: "/sazo-commerce/reference/air-jordan-1-retro-high-og.png",
+    source: "日本フリマ",
+    priceBrl: 612,
+    category: "flea",
+    condition: "used",
+    isSaved: false,
+  },
+  {
+    id: "nike-flea-runner",
+    brandId: "nike",
+    name: "Nike ランナー 未使用品",
+    image: "/sazo-commerce/reference/new-balance-9060.png",
+    source: "日本フリマ",
+    priceBrl: 581,
+    category: "flea",
+    condition: "unused",
+    isSaved: false,
+  },
+  {
+    id: "nike-flea-sandal",
+    brandId: "nike",
+    name: "Original Black 中古",
+    image: "/sazo-commerce/products/09.webp",
+    source: "日本フリマ",
+    priceBrl: 294,
+    category: "flea",
+    condition: "used",
+    isSaved: false,
+  },
+  {
+    id: "nike-sport-jacket",
+    brandId: "nike",
+    name: "スポーツ ジャケット",
+    image: "/sazo-commerce/products/07.webp",
+    source: "日本公式サイト",
+    priceBrl: 658,
+    category: "general",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-urban-tote",
+    brandId: "nike",
+    name: "Urban Tote Bag",
+    image: "/sazo-commerce/products/08.webp",
+    source: "Rakuten Japan",
+    priceBrl: 449,
+    category: "general",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-training-gear",
+    brandId: "nike",
+    name: "トレーニング ギア",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
+    source: "日本公式サイト",
+    priceBrl: 429,
+    category: "general",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-tech-edition",
+    brandId: "nike",
+    name: "Tech Edition アクセサリー",
+    image: "/sazo-commerce/reference/nintendo-joycon-v1.png",
+    source: "日本公式サイト",
+    priceBrl: 512,
+    category: "general",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-city-pack",
+    brandId: "nike",
+    name: "City Pack スニーカー",
+    image: "/sazo-commerce/products/10.webp",
+    source: "Rakuten Japan",
+    priceBrl: 538,
+    category: "general",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-everyday-pack",
+    brandId: "nike",
+    name: "Everyday スポーツバッグ",
+    image: "/sazo-commerce/products/11.webp",
+    source: "日本公式サイト",
+    priceBrl: 592,
+    category: "general",
+    condition: "new",
+    isSaved: false,
+  },
+  {
+    id: "nike-training-kit",
+    brandId: "nike",
+    name: "トレーニング キット",
+    image: "/sazo-commerce/products/12.webp",
+    source: "日本公式サイト",
+    priceBrl: 676,
+    category: "general",
+    condition: "new",
+    isSaved: false,
+  },
+] as const satisfies readonly BrandProduct[];
+
+export const nikeBrandSections = [
+  {
+    id: "general",
+    title: "最安値・一般",
+    category: "general",
+    products: nikeBrandProducts.filter((product) => product.category === "general"),
+  },
+  {
+    id: "limited",
+    title: "限定・ハイブランド",
+    category: "limited",
+    products: nikeBrandProducts.filter((product) => product.category === "limited"),
+  },
+  {
+    id: "flea",
+    title: "フリマ・中古",
+    category: "flea",
+    products: nikeBrandProducts.filter((product) => product.category === "flea"),
+  },
+  { id: "cosmetics", title: "コスメ", category: "cosmetics", products: [] },
+  { id: "kpop", title: "K-POP", category: "kpop", products: [] },
+] as const satisfies readonly BrandSection[];
+
 export const categories = [
   { id: "skincare", name: "スキンケア", image: "/sazo-commerce/products/01.webp" },
   { id: "makeup", name: "メイクアップ", image: "/sazo-commerce/products/02.webp" },
@@ -819,7 +1327,7 @@ export const homeCategoryItems: readonly HomeCategoryItem[] = [
   {
     id: "beauty",
     labelKey: "beauty",
-    image: "/sazo-commerce/beauty/trend-01.webp",
+    image: "/sazo-commerce/categories/trend.png",
     view: "categories",
   },
   {
@@ -837,13 +1345,13 @@ export const homeCategoryItems: readonly HomeCategoryItem[] = [
   {
     id: "kids",
     labelKey: "kids",
-    image: "/sazo-commerce/mobile-picks/11.png",
+    image: "/sazo-commerce/products/11.webp",
     view: "categories",
   },
   {
     id: "living",
     labelKey: "living",
-    image: "/sazo-commerce/mobile-picks/02.png",
+    image: "/sazo-commerce/products/02.webp",
     view: "categories",
   },
   {
@@ -861,13 +1369,13 @@ export const homeCategoryItems: readonly HomeCategoryItem[] = [
   {
     id: "appliances",
     labelKey: "appliances",
-    image: "/sazo-commerce/mobile-picks/13.png",
+    image: "/sazo-commerce/products/13.webp",
     view: "categories",
   },
   {
     id: "hobby",
     labelKey: "hobby",
-    image: "/sazo-commerce/mobile-picks/11.png",
+    image: "/sazo-commerce/products/11.webp",
     view: "categories",
   },
 ] satisfies readonly HomeCategoryItem[];
@@ -1492,6 +2000,7 @@ const productRegistry = new Map<string, Product>();
 
 for (const product of [
   ...products,
+  ...referenceProducts,
   ...interestedProducts,
   ...searchDiscoveryProducts,
   ...catalogInventory.map(({ product }) => product),
@@ -1530,6 +2039,48 @@ const productDetailOverrides = new Map<string, Omit<ProductDetail, "product">>([
       information:
         "日本の販売元から手配し、検品後にブラジルへお届けします。配送日数と関税は、お届け先と商品の条件により異なります。",
       recommendationIds: ["p02", "p03", "p04", "p05", "p06", "p07"],
+    },
+  ],
+  [
+    "jplanet-nintendo-switch-oled",
+    {
+      gallery: ["/sazo-commerce/reference/nintendo-switch-oled.png"],
+      originalName: "Nintendo Switch OLED / ホワイトセット",
+      categoryLabel: "ゲーム・家電",
+      originalUrl: "https://example.com/jplanet/source/nintendo-switch-oled",
+      unitPriceAmount: 37980,
+      localDistributionFeeAmount: 420,
+      purchaseTypeId: "direct",
+      deliveryEstimateDays: 10,
+      optionLabel: "カラー",
+      options: ["ホワイト", "ネオンブルー・ネオンレッド"],
+      purchaseNote: "日本の公式ストアで手配し、検品後にブラジルへお届けします。",
+      information:
+        "J-Planetが販売元・規制・ブラジル到着総額を確認してから手配します。配送日数と関税はお届け先と商品の条件により異なります。",
+      recommendationIds: ["jplanet-new-balance-9060", "jplanet-sony-a7c-ii", "p02"],
+    },
+  ],
+  [
+    "jplanet-nintendo-pro-controller",
+    {
+      gallery: [
+        "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
+        "/sazo-commerce/reference/nintendo-pro-controller-white-v1.png",
+        "/sazo-commerce/reference/nintendo-pro-controller-splatoon-v1.png",
+      ],
+      originalName: "Nintendo Switch Proコントローラー",
+      categoryLabel: "ゲーム・家電",
+      originalUrl: "https://example.com/jplanet/source/nintendo-pro-controller",
+      unitPriceAmount: 429,
+      localDistributionFeeAmount: 0,
+      purchaseTypeId: "direct",
+      deliveryEstimateDays: 10,
+      optionLabel: "カラー",
+      options: ["ブラック", "ホワイト", "スプラトゥーン"],
+      purchaseNote: "関税込み・国際送料を含む見込みです。",
+      information:
+        "販売元・輸入条件・配送予定を確認してから手配します。表示金額と到着予定は、選択したカラーと配送先により変わる場合があります。",
+      recommendationIds: ["jplanet-nintendo-switch-oled", "jplanet-new-balance-9060", "p02"],
     },
   ],
 ]);

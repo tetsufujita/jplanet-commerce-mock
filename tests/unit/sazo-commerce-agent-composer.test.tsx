@@ -107,6 +107,16 @@ describe("MobileAgentComposer", () => {
     );
   });
 
+  it("opens the camera-capable picker when a camera entry intent arrives", async () => {
+    const click = vi.spyOn(HTMLInputElement.prototype, "click");
+    await renderComposer({ entryIntent: "camera" });
+
+    expect(click).toHaveBeenCalledTimes(1);
+    expect(screen.getByLabelText("カメラ").getAttribute("capture")).toBe(
+      "environment",
+    );
+  });
+
   it("opens the hidden picker from the plus menu", async () => {
     const click = vi.spyOn(HTMLInputElement.prototype, "click");
     await renderComposer({ entryIntent: "image-picker" });

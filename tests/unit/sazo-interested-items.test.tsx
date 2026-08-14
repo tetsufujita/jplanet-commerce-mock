@@ -102,14 +102,9 @@ describe("J-Planet interested item card", () => {
 });
 
 describe("J-Planet interested items rail", () => {
-  it("places the interested rail between the intro and customer reviews", async () => {
+  it("keeps the interested rail out of the home feed", async () => {
     const i18n = await createI18n("ja");
     const dispatch = vi.fn();
-    const firstInterestedProduct = interestedProducts[0];
-
-    if (firstInterestedProduct === undefined) {
-      throw new Error("Expected the interested-items fixture to include a product");
-    }
     const { container } = render(
       <I18nextProvider i18n={i18n}>
         <HomeView dispatch={dispatch} state={createInitialSazoState()} />
@@ -118,34 +113,16 @@ describe("J-Planet interested items rail", () => {
     const children = Array.from(
       container.querySelector("[data-home-view]")?.children ?? [],
     );
-    const introIndex = children.findIndex((child) =>
-      child.classList.contains("sazo-home-intro"),
-    );
+    const heroIndex = children.findIndex((child) => child.classList.contains("sazo-hero"));
     const interestedIndex = children.findIndex((child) =>
       child.classList.contains("sazo-interested-items"),
     );
-    const reviewsIndex = children.findIndex((child) =>
-      child.classList.contains("sazo-review-section"),
-    );
 
-    expect(introIndex).toBeGreaterThanOrEqual(0);
-    expect([introIndex, interestedIndex, reviewsIndex]).toEqual([
-      introIndex,
-      introIndex + 1,
-      introIndex + 2,
-    ]);
-    expect(screen.getByRole("heading", { name: "気になっているアイテム" })).toBeTruthy();
-    expect(container.querySelectorAll('[data-variant="interest"]')).toHaveLength(5);
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: `商品詳細を開く: ${firstInterestedProduct.name}`,
-      }),
-    );
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "open-product",
-      productId: "interested-nike-rope",
-    });
+    expect(heroIndex).toBe(0);
+    expect(interestedIndex).toBe(-1);
+    expect(screen.queryByRole("heading", { name: "気になっているアイテム" })).toBeNull();
+    expect(container.querySelectorAll('[data-variant="interest"]')).toHaveLength(0);
+    expect(dispatch).not.toHaveBeenCalled();
   });
 
   it("scrolls one card and wraps to the start with reduced-motion support", async () => {
@@ -161,7 +138,7 @@ describe("J-Planet interested items rail", () => {
     });
     const { container } = render(
       <I18nextProvider i18n={i18n}>
-        <HomeView dispatch={() => undefined} state={createInitialSazoState()} />
+        <InterestedItemsRail dispatch={() => undefined} />
       </I18nextProvider>,
     );
     const track = screen.getByTestId("interested-items-track");

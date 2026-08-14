@@ -32,7 +32,13 @@ export function AgentComposerSheet({ dispatch }: AgentComposerSheetProps) {
   const submit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canSubmit) return;
-    dispatch({ type: "navigate", view: "catalog" });
+    dispatch({
+      type: "start-agent-search",
+      request: {
+        imageName: fileName,
+        summary: draft.trim() || fileName || "画像の商品",
+      },
+    });
   };
 
   useEffect(() => {

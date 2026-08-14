@@ -1,9 +1,9 @@
 import type { Dispatch } from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { calculateProductTotal, formatYen } from "@/sazo-commerce/fixtures";
+import { calculateProductTotal, formatBrl, formatYen } from "@/sazo-commerce/fixtures";
 import type { ProductDetail } from "@/sazo-commerce/fixtures";
-import type { SazoAction } from "@/sazo-commerce/model";
+import { JPLANET_PRODUCT_DETAIL_ID, type SazoAction } from "@/sazo-commerce/model";
 
 export type PurchaseIntent = "cart" | "buy";
 
@@ -56,7 +56,12 @@ export function useProductPurchaseController({
           detail.localDistributionFeeAmount,
         );
   const productAmount = detail.unitPriceAmount * quantity;
-  const formattedTotal = totalAmount === 0 ? String(totalAmount) : formatYen(totalAmount);
+  const formattedTotal =
+    totalAmount === 0
+      ? String(totalAmount)
+      : detail.product.id === JPLANET_PRODUCT_DETAIL_ID
+        ? formatBrl(totalAmount)
+        : formatYen(totalAmount);
 
   const selectOption = (value: string) => {
     setSelectedOption(value);

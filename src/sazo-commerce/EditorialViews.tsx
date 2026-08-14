@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { MessageCircle, ThumbsUp } from "lucide-react";
+import { MessageCircle, Plus, Sparkles, ThumbsUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ViewHeader, type StatefulViewProps } from "@/sazo-commerce/DirectoryViews";
 import {
@@ -113,22 +113,87 @@ export function ReviewsView({ dispatch, state }: StatefulViewProps) {
     <div className="sazo-editorial-view" data-view-content="reviews">
       <ViewHeader dispatch={dispatch} title={t("sazo.views.reviews.title")} />
       <section className="sazo-reviews-view-content">
-        <h1>{t("sazo.views.reviews.title")}</h1>
-        <div className="sazo-review-category-rail">
-          {reviewCategories.map((category) => (
-            <button
-              aria-pressed={state.reviewCategory === category.id}
-              key={category.id}
-              onClick={() => {
-                dispatch({ type: "select-review-category", category: category.id });
-              }}
-              type="button"
-            >
-              {category.label}
-            </button>
-          ))}
-        </div>
-        <div className="sazo-review-masonry" ref={masonryRef}>
+        <section className="sazo-review-hero" data-review-hero="true">
+          <p className="sazo-review-hero-eyebrow">
+            7,335件超のリアルなユーザーの声 <span aria-label="5つ星">★★★★★</span>
+          </p>
+          <h1>
+            おトクに、
+            <br />
+            スピーディーに、
+            <br />
+            そして安全に。
+          </h1>
+          <p className="sazo-review-hero-copy">
+            実際のユーザー体験を読んで、さっそく試してみませんか？
+            <br />
+            5人に1人が3万円で再び選ぶSAZOで、あなたも楽々ショッピングを。
+          </p>
+          <a className="sazo-review-hero-link" href="#review-feed">
+            サービス紹介を見る
+          </a>
+          <div className="sazo-review-agent-entry" data-review-agent-entry="true">
+            <div className="sazo-review-agent-entry-heading">
+              <img alt="" aria-hidden="true" src="/sazo-commerce/jplanet-sakura-mark.png" />
+              <strong>{t("sazo.agentHub.composer.title")}</strong>
+            </div>
+            <div className="sazo-review-agent-composer" role="search">
+              <Plus aria-hidden size={21} />
+              <input
+                aria-label={t("sazo.agentHub.composer.draftLabel")}
+                onFocus={() => {
+                  dispatch({ type: "open-agent-hub", intent: "compose" });
+                }}
+                placeholder={t("sazo.agentHub.composer.inputPlaceholder")}
+                type="text"
+              />
+              <button
+                aria-label={t("sazo.agentHub.composer.send")}
+                onClick={() => {
+                  dispatch({ type: "open-agent-hub", intent: "compose" });
+                }}
+                type="button"
+              >
+                <Sparkles aria-hidden size={20} />
+              </button>
+            </div>
+          </div>
+          <div aria-label="注目レビュー" className="sazo-review-feature-rail">
+            {visibleReviews.slice(0, 4).map((review) => (
+              <article className="sazo-review-feature-card" key={review.id}>
+                <div className="sazo-review-feature-media">
+                  {review.image ? (
+                    <img alt="" decoding="async" loading="lazy" src={review.image} />
+                  ) : (
+                    <span aria-hidden />
+                  )}
+                </div>
+                <strong>{review.author}</strong>
+                <p>{review.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+        <section className="sazo-review-feed" id="review-feed">
+          <div className="sazo-review-feed-heading">
+            <h2>{t("sazo.views.reviews.title")}</h2>
+            <span>実際に利用した方の声</span>
+          </div>
+          <div className="sazo-review-category-rail" data-review-category-filter="true">
+            {reviewCategories.map((category) => (
+              <button
+                aria-pressed={state.reviewCategory === category.id}
+                key={category.id}
+                onClick={() => {
+                  dispatch({ type: "select-review-category", category: category.id });
+                }}
+                type="button"
+              >
+                {category.label}
+              </button>
+            ))}
+          </div>
+        <div className="sazo-review-masonry" data-review-columns="2" ref={masonryRef}>
           {visibleReviews.map((review) => (
             <article
               className="sazo-review-tile"
@@ -188,6 +253,7 @@ export function ReviewsView({ dispatch, state }: StatefulViewProps) {
               />
             ))}
           </div>
+        </section>
         </section>
       </section>
     </div>

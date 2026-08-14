@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { ViewHeader, type ViewDispatchProps } from "@/sazo-commerce/DirectoryViews";
 import { serviceSteps } from "@/sazo-commerce/fixtures";
 import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
+import { MobileAgentComposer } from "@/sazo-commerce/MobileAgentComposer";
 
 const problemItems = [
   {
@@ -239,6 +240,21 @@ function ServiceVideoRail({
   );
 }
 
+function ServiceAgentEntry({ dispatch }: ViewDispatchProps) {
+  return (
+    <div className="sazo-service-video-agent-entry" data-service-agent-entry>
+      <MobileAgentComposer
+        entryIntent={null}
+        onEntryIntentConsumed={() => undefined}
+        onSubmitted={(request) => {
+          dispatch({ type: "start-agent-search", request });
+        }}
+        seedRequest={null}
+      />
+    </div>
+  );
+}
+
 function ServiceVideoIntro({ dispatch }: ViewDispatchProps) {
   return (
     <section className="sazo-service-video-intro" data-service-video-intro>
@@ -286,13 +302,7 @@ function ServiceVideoIntro({ dispatch }: ViewDispatchProps) {
 
       <ServiceVideoRail images={serviceVideoBottomThumbnails} reverse />
 
-      <div className="sazo-service-video-url" role="search">
-        <Search aria-hidden size={22} strokeWidth={2.1} />
-        <span>日本のショップURLを入力してね</span>
-        <button aria-label="URLを検索" type="button">
-          <Search aria-hidden size={20} />
-        </button>
-      </div>
+      <ServiceAgentEntry dispatch={dispatch} />
     </section>
   );
 }

@@ -19,6 +19,8 @@ import {
   FavoritesView,
   MyPageView,
   NotificationsView,
+  OrderDetailView,
+  OrdersView,
   PointsView,
   ProfileView,
   SupportView,
@@ -26,13 +28,14 @@ import {
 import { AuthFlow } from "@/sazo-commerce/AuthFlow";
 import { ChatPanel } from "@/sazo-commerce/ChatPanel";
 import { SazoCommercePage } from "@/sazo-commerce/SazoCommercePage";
-import type { SazoAction } from "@/sazo-commerce/model";
+import { createInitialSazoState, type SazoAction } from "@/sazo-commerce/model";
 
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  window.history.replaceState({}, "", "/sazo-commerce-mock/");
   document.body.style.overflow = "";
 });
 
@@ -297,41 +300,71 @@ describe("SAZO local authentication", () => {
 });
 
 describe("SAZO recorded account views", () => {
-  it("dispatches every recorded My Page destination", async () => {
+  it("dispatches every destination in the post-purchase My Page", async () => {
     const dispatch = vi.fn();
 
-    await renderWithI18n(<MyPageView dispatch={dispatch} />);
+    await renderWithI18n(<MyPageView couponCount={4} dispatch={dispatch} />);
 
     const destinations = [
-      ["ご注文全体を確認", "orders"],
-      ["注文履歴", "orders"],
-      ["お気に入り", "favorites"],
-      ["クーポン", "coupons"],
-      ["ポイント", "points"],
-      ["レビューを作成", "review-create"],
-      ["作成したレビュー", "review-history"],
-      ["会員情報の修正", "profile"],
-      ["登録カード管理", "cards"],
-      ["配送先管理", "delivery"],
-      ["通知設定", "notifications"],
-      ["サポート", "support"],
+      [/500.*ポイント/, { type: "navigate", view: "points" }],
+      [/4.*クーポン/, { type: "navigate", view: "coupons" }],
+      [/注文・配送/, { type: "navigate", view: "orders" }],
+      ["お気に入り", { type: "open-favorites", tab: "product" }],
+      ["配送先", { type: "navigate", view: "delivery" }],
+      ["支払い方法", { type: "navigate", view: "cards" }],
+      ["通知設定", { type: "navigate", view: "notifications" }],
+      ["会員情報", { type: "navigate", view: "profile" }],
+      ["サポート", { type: "navigate", view: "support" }],
     ] as const;
 
-    for (const [label, view] of destinations) {
+    for (const [label, action] of destinations) {
       fireEvent.click(screen.getByRole("button", { name: label }));
-      expect(dispatch).toHaveBeenLastCalledWith({ type: "navigate", view });
+      expect(dispatch).toHaveBeenLastCalledWith(action);
     }
   });
 
+  it("opens the unified favorites page from My Page with product and brand tabs", async () => {
+    window.history.replaceState({}, "", "/sazo-commerce-mock/?qa=1&view=mypage");
+    const { container } = await renderPage();
+    const myPage = container.querySelector<HTMLElement>('[data-view-content="mypage"]');
+
+    if (myPage === null) {
+      throw new Error("My Page was not rendered");
+    }
+
+    fireEvent.click(within(myPage).getByRole("button", { name: "お気に入り" }));
+
+    await waitFor(() => {
+      const favorites = container.querySelector<HTMLElement>('[data-view-content="favorites"]');
+
+      expect(favorites).not.toBeNull();
+      expect(
+        within(favorites as HTMLElement)
+          .getByRole("tab", { name: /商品/ })
+          .getAttribute("aria-selected"),
+      ).toBe("true");
+    });
+
+    const favorites = container.querySelector<HTMLElement>('[data-view-content="favorites"]');
+    if (favorites === null) {
+      throw new Error("Favorites was not rendered");
+    }
+
+    fireEvent.click(within(favorites).getByRole("tab", { name: /ブランド/ }));
+    expect(within(favorites).getByRole("tab", { name: /ブランド/ }).getAttribute("aria-selected")).toBe(
+      "true",
+    );
+  });
+
   it.each([
-    ["orders", "注文履歴", "検索結果が見つかりませんでした。"],
-    ["coupons", "クーポン", "送料50%割引クーポン"],
+    ["orders", "対応が必要", "CPF情報の確認が必要です"],
+    ["coupons", "クーポン", "国際送料 R$30 OFF"],
     ["points", "ポイント", "500P"],
     ["review-create", "レビュー作成", "レビュー済みの場合"],
     ["review-history", "作成したレビュー", "作成したレビューがございません"],
     ["delivery", "配送先管理", "登録されたお届け先住所がありません。"],
     ["address", "住所の追加・変更", "日本国内のご自身名義の自宅の住所"],
-    ["notifications", "通知設定", "メール通知"],
+    ["notifications", "お知らせ", "購入に関する変化をまとめてお知らせします。"],
     ["support", "ヘルプ", "何かお困りですか？"],
   ] as const)("renders the recorded %s account screen", async (view, heading, copy) => {
     window.history.replaceState({}, "", `/sazo-commerce-mock/?qa=1&view=${view}`);
@@ -342,55 +375,122 @@ describe("SAZO recorded account views", () => {
     expect(screen.getByText(copy, { exact: false })).toBeTruthy();
   });
 
-  it("renders the recorded member summary and shopping/review destinations", async () => {
+  it("renders the member summary with points, coupons and account destinations", async () => {
     await renderWithI18n(<MyPageView dispatch={noDispatch} />);
 
     expect(screen.getByRole("heading", { name: "マイページ" })).toBeTruthy();
-    expect(screen.getByText("Tetsu Fujita さん")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Tetsu Fujita さん" })).toBeTruthy();
     expect(screen.getByText("500")).toBeTruthy();
     expect(screen.getByText("1")).toBeTruthy();
     for (const label of [
-      "注文履歴",
+      /注文・配送/,
       "お気に入り",
-      "クーポン",
-      "ポイント",
-      "レビューを作成",
-      "作成したレビュー",
-      "会員情報の修正",
-      "登録カード管理",
+      "配送先",
+      "支払い方法",
+      "通知設定",
+      "会員情報",
+      "サポート",
     ]) {
       expect(screen.getByRole("button", { name: label })).toBeTruthy();
     }
   });
 
-  it("uses J-Planet Brasil company information in the recorded account footer", async () => {
+  it("uses the supplied J-Planet wordmark in the My Page header", async () => {
     await renderWithI18n(<MyPageView dispatch={noDispatch} />);
 
-    expect(screen.getByText("© 2024-2026 J-Planet Brasil")).toBeTruthy();
-    expect(screen.getByText("São Paulo - SP, Brasil")).toBeTruthy();
-    expect(document.body.textContent).not.toMatch(/SAJWO|Republic of Korea|韓国/i);
+    expect(document.querySelector("img[data-jplanet-wordmark='true']")?.getAttribute("src")).toBe(
+      "/sazo-commerce/jplanet-wordmark.png",
+    );
   });
 
-  it("renders the product favorite empty state and local favorite tabs", async () => {
+  it("opens the CPF order detail and switches to the local submission success state", async () => {
+    const dispatch = vi.fn();
+
+    const orders = await renderWithI18n(<OrdersView dispatch={dispatch} />);
+    fireEvent.click(screen.getByRole("button", { name: "CPF情報を提出する" }));
+    expect(dispatch).toHaveBeenLastCalledWith({ type: "navigate", view: "order-detail" });
+    orders.unmount();
+
+    await renderWithI18n(<OrderDetailView dispatch={noDispatch} />);
+    expect(screen.getByRole("heading", { name: "提出が必要な書類" })).toBeTruthy();
+    expect(screen.getByText("書類の提出後に次へ進みます")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "CPF情報を提出する" }));
+    expect(screen.getByRole("status").textContent).toContain("CPF情報を送信しました");
+  });
+
+  it("expands Nintendo shipping status locally from the tracking action", async () => {
+    await renderWithI18n(<OrdersView dispatch={noDispatch} />);
+
+    const tracking = screen.getByRole("button", { name: "Nintendo Switch OLEDを追跡する" });
+    expect(tracking.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(tracking);
+    expect(tracking.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByRole("status").textContent).toContain("国際配送の準備状況");
+  });
+
+  it("renders the reference favorite products and local favorite tabs", async () => {
     await renderWithI18n(<FavoritesView dispatch={noDispatch} />);
 
     expect(screen.getByRole("heading", { name: "お気に入り" })).toBeTruthy();
-    expect(screen.getByText("お気に入り商品がありません")).toBeTruthy();
-    fireEvent.click(screen.getByRole("tab", { name: "ブランド" }));
-    expect(screen.getByText("お気に入りブランドがありません")).toBeTruthy();
+    expect(screen.getByText("購入条件を確認した商品")).toBeTruthy();
+    expect(screen.getByText("New Balance 9060")).toBeTruthy();
+    expect(screen.getByText("Sony α7C II")).toBeTruthy();
+    expect(screen.getByText("Nintendo Switch OLED")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("tab", { name: "ブランド 2" }));
+    expect(screen.getByText("保存したブランド")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "NEW BALANCE" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("tab", { name: "レビュー 1" }));
+    expect(screen.getByText("保存したレビュー")).toBeTruthy();
   });
 
-  it("reaches recorded reviews from the review favorite empty state", async () => {
-    const { container } = await renderPage();
-    const desktopShell = container.querySelector<HTMLElement>('[data-shell="desktop"]');
+  it("removes a favorite locally and opens product details from the row", async () => {
+    const dispatch = vi.fn();
 
-    if (desktopShell === null) {
-      throw new Error("Desktop SAZO shell not found");
+    await renderWithI18n(<FavoritesView dispatch={dispatch} />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "New Balance 9060をお気に入りから削除" }),
+    );
+    expect(screen.queryByText("New Balance 9060")).toBeNull();
+    expect(screen.getByRole("tab", { name: "商品 3" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Sony α7C IIの商品詳細を開く" }));
+    expect(dispatch).toHaveBeenLastCalledWith({
+      type: "open-product",
+      productId: "jplanet-sony-a7c-ii",
+    });
+  });
+
+  it("sorts favorite products and starts the deferred product check", async () => {
+    const dispatch = vi.fn();
+
+    await renderWithI18n(<FavoritesView dispatch={dispatch} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "新しい順" }));
+    fireEvent.click(screen.getByRole("menuitemradio", { name: "到着総額が安い順" }));
+    expect(screen.getByRole("button", { name: "到着総額が安い順" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "確認をはじめる" }));
+    expect(dispatch).toHaveBeenLastCalledWith({
+      type: "open-product",
+      productId: "jplanet-nintendo-switch-oled",
+    });
+  });
+
+  it("reaches recorded reviews from the favorite review tab", async () => {
+    window.history.replaceState({}, "", "/sazo-commerce-mock/?qa=1&view=mypage");
+    const { container } = await renderPage();
+    const myPage = container.querySelector<HTMLElement>('[data-view-content="mypage"]');
+
+    if (myPage === null) {
+      throw new Error("My Page was not rendered");
     }
 
-    fireEvent.click(within(desktopShell).getByRole("button", { name: "お気に入り" }));
-    fireEvent.click(screen.getByRole("tab", { name: "レビュー" }));
-    fireEvent.click(screen.getByRole("button", { name: "レビューを見に行く" }));
+    fireEvent.click(within(myPage).getByRole("button", { name: "お気に入り" }));
+    fireEvent.click(screen.getByRole("tab", { name: "レビュー 1" }));
+    fireEvent.click(screen.getByRole("button", { name: "購入判断に役立ったレビュー" }));
 
     expect(container.querySelector('[data-view-content="reviews"]')).not.toBeNull();
   });
@@ -440,16 +540,65 @@ describe("SAZO recorded account views", () => {
     expect(screen.getByText("登録されているカードがありません。")).toBeTruthy();
   });
 
-  it("reproduces coupon registration and recorded customer-support details", async () => {
-    const { unmount } = await renderWithI18n(<CouponsView dispatch={noDispatch} />);
-    expect(screen.getByRole("textbox", { name: "クーポン番号" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "登録" })).toBeTruthy();
+  it("supports the coupon wallet filters, code states, conditions and discovery", async () => {
+    const dispatch = vi.fn();
+    const { unmount } = await renderWithI18n(
+      <CouponsView dispatch={dispatch} state={createInitialSazoState()} />,
+    );
+
+    expect(screen.getByRole("heading", { name: "クーポン" })).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "すべて (4)" })).toBeTruthy();
+    expect(screen.getAllByTestId("jplanet-coupon-ticket")).toHaveLength(4);
+
+    fireEvent.click(screen.getByRole("tab", { name: "配送 (2)" }));
+    expect(screen.getAllByTestId("jplanet-coupon-ticket")).toHaveLength(2);
+
+    fireEvent.click(screen.getByRole("button", { name: "コードを入力" }));
+    const codeDialog = screen.getByRole("form", { name: "クーポンコードを入力" });
+    const apply = within(codeDialog).getByRole("button", { name: "適用" });
+    expect(apply.hasAttribute("disabled")).toBe(true);
+    const codeInput = within(codeDialog).getByRole("textbox", { name: "クーポンコードを入力" });
+    fireEvent.change(codeInput, {
+      target: { value: "USED2026" },
+    });
+    fireEvent.click(apply);
+    expect(screen.getByRole("status").textContent).toContain("このコードは使用済みです");
+    fireEvent.change(codeInput, {
+      target: { value: "INVALID" },
+    });
+    fireEvent.click(apply);
+    expect(screen.getByRole("status").textContent).toContain("有効なクーポンコードではありません");
+    fireEvent.change(codeInput, {
+      target: { value: "JPLANET20" },
+    });
+    fireEvent.click(apply);
+    expect(screen.getByRole("status").textContent).toContain("クーポンを追加しました");
+    expect(dispatch).toHaveBeenCalledWith({ type: "claim-coupon", couponId: "welcome-code-r20" });
+
+    fireEvent.click(screen.getByRole("button", { name: "閉じる" }));
+    const firstConditionsButton = screen.getAllByRole("button", { name: "利用条件" })[0];
+    if (firstConditionsButton === undefined) throw new Error("Coupon conditions button missing");
+    fireEvent.click(firstConditionsButton);
+    expect(screen.getByRole("dialog", { name: /国際送料 R\$30 OFFの利用条件/ })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "閉じる" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "クーポンを探す" }));
+    expect(screen.getByRole("heading", { name: "クーポンを探す" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "配布終了" }).hasAttribute("disabled")).toBe(true);
 
     unmount();
+    await renderWithI18n(
+      <CouponsView dispatch={noDispatch} state={{ ...createInitialSazoState(), couponOwnedIds: [] }} />,
+    );
+    expect(screen.getByTestId("jplanet-coupon-empty")).toBeTruthy();
+
+    cleanup();
     await renderWithI18n(<SupportView />);
     expect(screen.getByText("平日：10:00〜18:00")).toBeTruthy();
     expect(screen.getByText("土日・祝日：15:00〜18:00")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /すぐに問い合わせを開始する/ })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: /すぐに問い合わせを開始する/ }),
+    ).toBeTruthy();
   });
 
   it("opens the recorded address form from delivery management", async () => {
@@ -472,30 +621,55 @@ describe("SAZO recorded account views", () => {
   it("toggles each notification setting locally", async () => {
     await renderWithI18n(<NotificationsView dispatch={noDispatch} />);
 
+    fireEvent.click(screen.getByRole("button", { name: "通知設定" }));
     const email = screen.getByRole("switch", { name: "メール通知" });
     expect(email.getAttribute("aria-checked")).toBe("true");
     fireEvent.click(email);
     expect(email.getAttribute("aria-checked")).toBe("false");
   });
 
-  it("shows demo order notices and routes a notice to the order summary", async () => {
+  it("uses the dedicated notification inbox frame", async () => {
+    const { container } = await renderWithI18n(
+      <NotificationsView dispatch={noDispatch} />,
+    );
+
+    expect(
+      container
+        .querySelector(".sazo-notifications-view")
+        ?.getAttribute("data-view-content"),
+    ).toBe("notifications");
+    expect(screen.getByRole("tablist", { name: "通知を絞り込む" })).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "ご案内" })).toBeTruthy();
+  });
+
+  it("filters purchase updates and preserves their routes without the retired size alert", async () => {
     const dispatch = vi.fn();
     await renderWithI18n(<NotificationsView dispatch={dispatch} />);
 
-    expect(screen.getByRole("button", { name: "全体" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "注文・配送" })).toBeTruthy();
-    expect(screen.getByText("注文を受け付けました")).toBeTruthy();
-    expect(screen.getByText("追加書類が必要です")).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "すべて" })).toBeTruthy();
+    expect(screen.queryByText("New Balance 9060 のサイズを選ぶ")).toBeNull();
+    expect(screen.getByText("Air Jordan 1 Retro High OG")).toBeTruthy();
+    expect(screen.getByText("Nintendo Switch OLED")).toBeTruthy();
 
-    fireEvent.click(screen.getByTestId("sazo-notification-documents"));
-    expect(dispatch).toHaveBeenLastCalledWith({ type: "navigate", view: "mypage" });
+    fireEvent.click(screen.getByRole("tab", { name: "配送" }));
+    expect(screen.queryByText("Air Jordan 1 Retro High OG")).toBeNull();
+
+    fireEvent.click(screen.getByRole("tab", { name: "ご案内" }));
+    expect(screen.queryByText("Nintendo Switch OLED")).toBeNull();
+
+    fireEvent.click(screen.getByRole("tab", { name: "配送" }));
+    fireEvent.click(screen.getByTestId("sazo-notification-switch"));
+    expect(dispatch).toHaveBeenLastCalledWith({
+      type: "open-product",
+      productId: "jplanet-nintendo-switch-oled",
+    });
   });
 });
 
 describe("SAZO local chat overlay", () => {
   it("uses dialog semantics, traps focus, and closes from its close button", async () => {
     const { container } = await renderPage();
-    const launcher = screen.getByRole("button", { name: "チャットを開く" });
+    const launcher = screen.getByTestId("chat-launcher");
     launcher.focus();
     fireEvent.click(launcher);
 
@@ -536,7 +710,7 @@ describe("SAZO local chat overlay", () => {
 
   it("closes on its backdrop and on Escape", async () => {
     await renderPage();
-    const launcher = screen.getByRole("button", { name: "チャットを開く" });
+    const launcher = screen.getByTestId("chat-launcher");
 
     fireEvent.click(launcher);
     fireEvent.mouseDown(screen.getByTestId("sazo-chat-backdrop"));

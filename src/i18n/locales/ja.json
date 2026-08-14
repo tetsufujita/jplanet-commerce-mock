@@ -303,7 +303,11 @@
         "noticeHeading": "お知らせ",
         "settingsHeading": "通知設定",
         "filterLabel": "お知らせの種類",
-        "filters": { "all": "全体", "orders": "注文・配送", "announcements": "J-Planetのご案内" },
+        "filters": {
+          "all": "全体",
+          "orders": "注文・配送",
+          "announcements": "J-Planetのご案内"
+        },
         "readAll": "すべてを既読にする",
         "unread": "未読のお知らせ",
         "demo": {
@@ -317,8 +321,14 @@
           "announcementBody": "日本からブラジルへの配送状況をお知らせします。",
           "announcementMeta": "今日 · J-Planetサポート"
         },
-        "email": { "title": "メール通知", "body": "注文や配送に関するお知らせをメールで受け取ります。" },
-        "mobile": { "title": "携帯通知", "body": "重要なお知らせを携帯電話で受け取ります。" }
+        "email": {
+          "title": "メール通知",
+          "body": "注文や配送に関するお知らせをメールで受け取ります。"
+        },
+        "mobile": {
+          "title": "携帯通知",
+          "body": "重要なお知らせを携帯電話で受け取ります。"
+        }
       },
       "support": {
         "title": "ヘルプ",
@@ -327,7 +337,11 @@
         "searchLabel": "ヘルプを検索",
         "searchPlaceholder": "質問を検索してください",
         "faq": "よくある質問",
-        "topics": { "order": "注文について", "payment": "お支払いについて", "shipping": "配送について" },
+        "topics": {
+          "order": "注文について",
+          "payment": "お支払いについて",
+          "shipping": "配送について"
+        },
         "customerSupport": "カスタマーサポート",
         "weekday": "平日：10:00〜18:00",
         "weekend": "土日・祝日：15:00〜18:00",
@@ -370,6 +384,25 @@
           "title": "リアクションしたレビューがありません",
           "body": "他のレビューにリアクションしてみましょう",
           "cta": "レビューを見に行く"
+        }
+      },
+      "reference": {
+        "approvedTitle": "購入条件を確認した商品",
+        "pendingTitle": "あとで確認",
+        "pendingSeller": "販売元を確認",
+        "pendingPrice": "価格を確認",
+        "startCheck": "確認をはじめる",
+        "pendingNote": "保存した情報は、次の購入判断でそのまま使えます。",
+        "noApprovedProducts": "購入条件を確認した商品はありません。",
+        "savedBrandsTitle": "保存したブランド",
+        "savedReviewsTitle": "保存したレビュー",
+        "savedReviewItem": "購入判断に役立ったレビュー",
+        "openProduct": "{{name}}の商品詳細を開く",
+        "removeProduct": "{{name}}をお気に入りから削除",
+        "sort": {
+          "label": "並び順",
+          "latest": "新しい順",
+          "price": "到着総額が安い順"
         }
       }
     },
@@ -426,12 +459,21 @@
       "submit": "AIに探してもらう"
     },
     "agentHub": {
+      "title": "エージェント",
+      "chat": "チャット",
       "launcher": "URL・画像・商品名をAIに相談",
       "launcherLabel": "AIエージェントに相談",
       "backHome": "ホームへ戻る",
       "recentConsultations": "最近の相談",
+      "resumeConsultations": "相談を再開",
+      "showAllConsultations": "すべて",
+      "showAllConsultationsLabel": "相談をすべて表示",
       "clearConsultations": "最近の相談を削除",
       "recentProducts": "最近見た商品",
+      "reviewResults": "確認結果",
+      "reviewProduct": "{{name}}を確認",
+      "available": "購入可能",
+      "reviewResultsNote": "結果を開くと、販売元・規制・関税の内容を確認できます。",
       "clearProducts": "最近見た商品を削除",
       "brand": "J-Planet AI",
       "purchaseStatusTitle": "進行中の購入依頼",
@@ -454,6 +496,9 @@
       "rankedTopic": "{{rank}}位 {{topic}}",
       "composer": {
         "title": "J-Planet AIエージェント",
+        "purchaseTitle": "購入エージェント",
+        "purchaseIntro": "商品を送るだけで、購入判断まで。",
+        "agentHubPlaceholder": "URL・画像・商品名を送る",
         "intro": "日本の商品探し・購入からブラジルへの配送まで、AIがサポートします。",
         "menuLabel": "入力メニュー",
         "inputPlaceholder": "URL・画像・商品名をAIに渡す",
@@ -533,13 +578,20 @@
         "food": "食品",
         "pets": "ペット",
         "appliances": "家電",
-        "hobby": "趣味"
+        "hobby": "趣味",
+        "shoes": "スニーカー",
+        "game": "ゲーム",
+        "figure": "フィギュア",
+        "camera": "カメラ",
+        "brands": "ブランド",
+        "cosmetics": "コスメ",
+        "sale": "セール"
       },
       "introTitle": "ブラジル最大級\n日本直輸入ショップ",
       "introBody": "J-Planetは日本の人気ショップの商品を購入し、ブラジルへ直接お届けします",
       "firstGuide": "J-Planetを初めてご利用ですか？",
       "couponBannerLabel": "J-Planet クーポン",
-      "couponBannerArtwork": "J-Planet 初回限定クーポン",
+      "couponBannerArtwork": "J-Planet PIX DAYセール",
       "couponBannerCta": "クーポンを受け取る",
       "categoryRailLabel": "商品カテゴリーから探す",
       "categoryRailTitle": "カテゴリーから探す",

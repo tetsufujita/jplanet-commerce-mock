@@ -1,30 +1,29 @@
 import type {
   CSSProperties,
-  ChangeEvent,
   Dispatch,
   MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
-  SyntheticEvent,
 } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Camera,
   CircleHelp,
+  CircleDollarSign,
   ChevronLeft,
   ChevronRight,
   Grid2X2,
-  ImagePlus,
   MessageCircle,
   Newspaper,
   Pause,
   Play,
-  Plus,
   Search,
+  ShieldCheck,
   Sparkles,
   Star,
   Store,
   Tags,
+  Truck,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -34,22 +33,24 @@ import {
   homeCategoryItems,
   homeGramEntries,
   homeReviews,
-  interestedProducts,
   products,
   rankingKeywords,
   reviewRecommendations,
   recordedDesktopRankingReviews,
   recordedMobileProfileReviews,
   searchDiscoveryProducts,
-  shortcuts,
+  type HomeCategoryItem,
   type HomeShortcutIconId,
   type Product,
   type ShortcutIconId,
 } from "@/sazo-commerce/fixtures";
-import type { SazoAction, SazoState } from "@/sazo-commerce/model";
+import {
+  JPLANET_PRODUCT_DETAIL_ID,
+  type SazoAction,
+  type SazoState,
+} from "@/sazo-commerce/model";
 import { JplanetShortcutIcon } from "@/sazo-commerce/JplanetShortcutIcon";
 import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
-import { InterestedItemsRail } from "@/sazo-commerce/InterestedItemsRail";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 import { useSazoHero } from "@/sazo-commerce/useSazoHero";
 
@@ -65,12 +66,13 @@ interface HeroPointerStart {
 }
 
 const heroSwipeThreshold = 40;
-const mobileAgentCompactThreshold = 168;
 
-const mobileCategoryPages = Array.from(
-  { length: Math.ceil(homeCategoryItems.length / 8) },
-  (_, pageIndex) => homeCategoryItems.slice(pageIndex * 8, pageIndex * 8 + 8),
-);
+function getMobileCategoryPages(items: readonly HomeCategoryItem[]) {
+  return Array.from(
+    { length: Math.ceil(items.length / 8) },
+    (_, pageIndex) => items.slice(pageIndex * 8, pageIndex * 8 + 8),
+  );
+}
 
 export interface HomeViewProps {
   dispatch: Dispatch<SazoAction>;
@@ -82,82 +84,37 @@ interface SectionHeadingProps {
   title: string;
 }
 
-function requiredProduct(list: readonly Product[], index: number) {
-  const product = list[index];
-
-  if (product === undefined) {
-    throw new Error(`Missing mobile home product at index ${String(index)}`);
-  }
-
-  return product;
+interface HomeDenseProduct {
+  arrival: string;
+  discount?: string;
+  id: string;
+  image: string;
+  imageFit?: "contain";
+  label: string;
+  name: string;
+  price: string;
+  rating: string;
+  reviews: string;
 }
 
-const mobileGiftFairSections = [
-  {
-    products: [
-      requiredProduct(interestedProducts, 2),
-      requiredProduct(interestedProducts, 3),
-    ],
-    title: "MY GIFT FAIR - 日本のおしゃれブランド",
-  },
-  {
-    products: [requiredProduct(interestedProducts, 1), requiredProduct(products, 8)],
-    title: "MY GIFT FAIR - プレミアムスニーカー",
-  },
-  {
-    products: [requiredProduct(products, 7), requiredProduct(products, 6)],
-    title: "MY GIFT FAIR - 日本のセンスあるインテリア雑貨",
-  },
-  {
-    products: [requiredProduct(products, 9), requiredProduct(products, 10)],
-    title: "MY GIFT FAIR - 置くだけで垢抜ける日本雑貨",
-  },
-] as const;
-
-const mobilePickCopy = [
-  ["NAVER", "[五行 厄除け] お守り 塩キーホルダー", "¥2,392", "21%"],
-  ["ABLY", "[オヌレジブ単独] トゥデイ・スイッチ・カバー", "¥4,397", "10%"],
-  ["Alo Yoga", "Iconic Shopper Tote Bag Grey Tiedye", "¥6,285"],
-  ["Oofos", "OOriginal Black", "¥6,997"],
-  ["KREAM", "Nike Mind 001 Black Chrome", "¥16,839"],
-  ["KREAM", "Nike ReactX Rejuven8 Slide Black", "¥5,100"],
-  ["KREAM", "AMOU Trouble Half T-Shirts Gray", "¥2,591", "54%"],
-  ["KREAM", "Adidas Originals Capri Shorts Black White", "¥9,013"],
-  ["29CM", "Deus Ex Machina Seoul T-shirt", "¥4,930"],
-  ["29CM", "Daisy Graphic T-shirt Black", "¥4,594"],
-  ["KREAM", "Peaceminusone x Toy Story The First Fan Plush", "¥3,914"],
-  ["KREAM", "New Balance 530 Raincloud Silver Metallic", "¥17,788"],
-  ["NAVER", "スノーイヤホン / Cタイプ", "¥2,185"],
-  ["29CM", "cat cushion mirror2", "¥6,333"],
-  ["29CM", "Vintage Cupid Angel スマホケース", "¥1,601"],
-  ["29CM", "furry tissue cover (2colors)", "¥2,954", "5%"],
-  ["NAVER", "Twinkle cushion keyring - wing", "¥1,727"],
-  ["29CM", "マートルハンドクリーム 13ml", "¥1,601", "14%"],
-  ["KREAM", "Starbucks Siren Mini Cold Cup 300ml", "¥2,372"],
-  ["29CM", "UVカット ケノフィ サンシャインファームハウス3段日傘", "¥4,836", "20%"],
-  ["29CM", "シルバー925 ボール＆スネークレイヤードブレスレット", "¥6,010", "6%"],
-  ["29CM", "Leo Eco Bag_Mint", "¥4,109", "18%"],
-  ["29CM", "【当日配送】Poco summer knit bag", "¥5,181", "46%"],
-  ["29CM", "CLASSIC UMBRELLA SHORT - 6 colors", "¥4,675", "18%"],
-  ["29CM", "OORIGINAL STARDUST", "¥6,753", "15%"],
-  ["NAVER", "デコミニチュアパーツアクセサリー - アザラシ", "¥145"],
-  ["NAVER", "Lucky Turtle + 3M Double-Sided Tape", "¥383", "13%"],
-  ["11ST", "夜光フルーツカメフィギュア", "¥448"],
-  ["11ST", "ホームスタイリングカメミニチュア4種", "¥713", "12%"],
-  ["11ST", "ホームスタイリングミニチュアダスト装飾妖精", "¥307", "12%"],
-  ["KAKAO", "モンチッチストリングポーチ - チムタン", "¥2,073"],
-] as const;
-
-const mobilePickProducts: readonly Product[] = mobilePickCopy.map(
-  ([brand, name, price, badge], index) => ({
-    badge,
-    brand,
-    id: `mobile-pick-${String(index + 1)}`,
-    image: `/sazo-commerce/mobile-picks/${String(index + 1).padStart(2, "0")}.png`,
-    name,
-    price,
-  }),
-);
+const homeDenseProducts: readonly HomeDenseProduct[] = [
+  { id: "pro-controller", image: "/sazo-commerce/reference/nintendo-pro-controller-v1.png", imageFit: "contain", label: "日本公式", name: "Nintendo Switch Proコントローラー", price: "R$ 429", rating: "4.8", reviews: "128", arrival: "関税込み · 8〜12日", discount: "-14%" },
+  { id: "switch-oled", image: "/sazo-commerce/reference/nintendo-switch-oled.png", imageFit: "contain", label: "日本公式", name: "Nintendo Switch OLED ホワイトセット", price: "R$ 2,184", rating: "4.9", reviews: "86", arrival: "関税込み · 8〜12日" },
+  { id: "sony-a7c", image: "/sazo-commerce/reference/mirrorless-camera.png", imageFit: "contain", label: "人気", name: "Sony α7C II ボディ", price: "R$ 2,680", rating: "4.8", reviews: "74", arrival: "関税込み · 8〜12日" },
+  { id: "new-balance", image: "/sazo-commerce/reference/new-balance-9060.png", imageFit: "contain", label: "限定ハイブラ", name: "New Balance 9060", price: "R$ 748", rating: "4.7", reviews: "112", arrival: "関税込み · 7〜10日" },
+  { id: "air-jordan", image: "/sazo-commerce/reference/air-jordan-1-retro-high-og.png", imageFit: "contain", label: "人気", name: "Air Jordan 1 Retro High OG", price: "R$ 789", rating: "4.9", reviews: "63", arrival: "関税込み · 7〜10日", discount: "-8%" },
+  { id: "figure", image: "/sazo-commerce/reference/figure.png", imageFit: "contain", label: "限定", name: "日本限定 キャラクターフィギュア", price: "R$ 318", rating: "4.8", reviews: "42", arrival: "関税込み · 8〜12日" },
+  { id: "joy-con", image: "/sazo-commerce/reference/nintendo-joycon-v1.png", imageFit: "contain", label: "日本公式", name: "Nintendo Joy-Con (L)/(R)", price: "R$ 512", rating: "4.8", reviews: "57", arrival: "関税込み · 8〜12日" },
+  { id: "switch-case", image: "/sazo-commerce/reference/nintendo-switch-case-v1.png", imageFit: "contain", label: "日本公式", name: "Nintendo Switch キャリングケース", price: "R$ 188", rating: "4.7", reviews: "39", arrival: "関税込み · 8〜12日" },
+  { id: "game-controller", image: "/sazo-commerce/reference/game-controller.png", imageFit: "contain", label: "人気", name: "ワイヤレスゲームコントローラー", price: "R$ 318", rating: "4.6", reviews: "91", arrival: "関税込み · 8〜12日" },
+  { id: "handbag", image: "/sazo-commerce/reference/handbag.png", imageFit: "contain", label: "限定ハイブラ", name: "日本製 レザーハンドバッグ", price: "R$ 926", rating: "4.8", reviews: "51", arrival: "関税込み · 8〜12日" },
+  { id: "lipstick", image: "/sazo-commerce/reference/lipstick.png", imageFit: "contain", label: "日本公式", name: "リップスティック コレクション", price: "R$ 164", rating: "4.7", reviews: "203", arrival: "関税込み · 7〜10日", discount: "-12%" },
+  { id: "shopper-tote", image: "/sazo-commerce/products/08.webp", label: "人気", name: "Iconic Shopper Tote Bag", price: "R$ 684", rating: "4.7", reviews: "47", arrival: "関税込み · 8〜12日" },
+  { id: "black-sandal", image: "/sazo-commerce/products/09.webp", label: "限定ハイブラ", name: "OOriginal Black サンダル", price: "R$ 522", rating: "4.8", reviews: "65", arrival: "関税込み · 8〜12日" },
+  { id: "gift-accessory", image: "/sazo-commerce/products/10.webp", label: "日本セレクト", name: "プチプチ ギフトアクセサリー", price: "R$ 96", rating: "4.6", reviews: "88", arrival: "関税込み · 7〜10日" },
+  { id: "mask-pack", image: "/sazo-commerce/products/11.webp", label: "日本公式", name: "高濃縮アンプルマスクパック 30枚", price: "R$ 148", rating: "4.8", reviews: "176", arrival: "関税込み · 7〜10日", discount: "-10%" },
+  { id: "collection", image: "/sazo-commerce/mobile-picks/29.png", label: "限定", name: "日本デザイン コレクション", price: "R$ 218", rating: "4.7", reviews: "54", arrival: "関税込み · 8〜12日" },
+];
 
 function useMobileHome() {
   const query = "(max-width: 767px)";
@@ -327,25 +284,15 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
                   className="sazo-hero-artwork"
                   decoding="async"
                   fetchPriority={index === 0 ? "high" : "auto"}
-                  height={490}
+                  height={slide.mobileHeight}
                   loading={index === 0 ? "eager" : "lazy"}
                   src={slide.image}
-                  width={1200}
+                  width={slide.mobileWidth}
                 />
               </picture>
               <span className="sazo-visually-hidden">
                 {slide.title} {slide.subtitle}
               </span>
-              {slide.id === "new-benefits" ? (
-                <button
-                  aria-label="クーポンキャンペーンを見る"
-                  className="sazo-hero-campaign-link"
-                  onClick={() => {
-                    dispatch({ type: "open-campaign" });
-                  }}
-                  type="button"
-                />
-              ) : null}
             </article>
           );
         })}
@@ -433,8 +380,8 @@ function MobileShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
       aria-label={t("sazo.home.shortcutLabel")}
       className="sazo-shortcuts"
       data-mobile-shortcut-grid
-      data-layout="five-column-two-row"
-      data-page-size="10"
+      data-layout="horizontal-menu"
+      data-page-size="9"
       role="group"
     >
       {homeShortcutItems.map((shortcut) => {
@@ -466,35 +413,32 @@ function MobileShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
 }
 
 function DesktopShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
-  const { t } = useTranslation();
+  const desktopShortcuts = [
+    { icon: "categories" as const, id: "categories", label: "商品カテゴリー", view: "categories" as const },
+    { icon: "brands" as const, id: "brands", label: "人気ブランド", view: "brands" as const },
+    { icon: "reviews" as const, id: "reviews", label: "購入者の声", view: "reviews" as const },
+    { icon: "service" as const, id: "service", label: "J-Planetの使い方", view: "service" as const },
+    { icon: "help" as const, id: "help", label: "ヘルプ", view: "support" as const },
+  ];
 
   return (
     <div
-      aria-label={t("sazo.home.shortcutLabel")}
+      aria-label="J-Planetのショートカット"
       className="sazo-shortcuts"
       role="group"
     >
-      {shortcuts.map((shortcut) => (
+      {desktopShortcuts.map((shortcut) => (
         <button
           aria-label={shortcut.label}
           className="sazo-shortcut"
           key={shortcut.id}
-          onClick={
-            shortcut.id === "cosmetics"
-              ? () => {
-                  dispatch({ type: "navigate", view: "beauty" });
-                }
-              : undefined
-          }
+          onClick={() => {
+            dispatch({ type: "navigate", view: shortcut.view });
+          }}
           type="button"
         >
           <span className="sazo-shortcut-icon" data-icon={shortcut.id}>
-            <JplanetShortcutIcon id={shortcut.id} />
-            {shortcut.badge ? (
-              <span aria-hidden className="sazo-shortcut-badge">
-                {shortcut.badge}
-              </span>
-            ) : null}
+            <ShortcutArtwork icon={shortcut.icon} />
           </span>
           <span>{shortcut.label}</span>
         </button>
@@ -568,47 +512,19 @@ function HomeIntro() {
   );
 }
 
-function MobileAgentSearch({ compact }: { compact: boolean }) {
+function MobileAgentSearch({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [draft, setDraft] = useState("");
-  const [status, setStatus] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
-  const textInputRef = useRef<HTMLTextAreaElement>(null);
-
-  const choosePhoto = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-
-    if (file?.type.startsWith("image/") === true) {
-      setStatus(t("sazo.agentHub.composer.selectedImageAlt", { name: file.name }));
-      setMenuOpen(false);
-    }
-
-    event.target.value = "";
-  };
-
-  const submit = (event: SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (draft.trim().length > 0) {
-      setStatus(t("sazo.agentHub.composer.submitted"));
-      setDraft("");
-    }
+  const openAgent = () => {
+    dispatch({ type: "open-agent-hub", intent: "compose" });
   };
 
   return (
-    <div
-      className="sazo-mobile-search-overlap"
-      data-compact={compact ? "true" : undefined}
-      data-mobile-home
-    >
+    <div className="sazo-mobile-search-overlap" data-mobile-home>
       <div
         aria-label={t("sazo.home.agentEntryGroup")}
         className="sazo-mobile-agent-entry sazo-home-agent-card"
         data-home-agent-entry
         data-apple-surface="true"
-        data-compact={compact ? "true" : undefined}
         role="group"
       >
         <header className="sazo-home-agent-card-header">
@@ -621,117 +537,52 @@ function MobileAgentSearch({ compact }: { compact: boolean }) {
             width={28}
           />
           <div>
-            <strong>{t("sazo.agentHub.composer.title")}</strong>
+            <strong>購入エージェント</strong>
+            <span>商品を送るだけで、購入判断まで。</span>
           </div>
         </header>
-        <form className="sazo-home-agent-form" onSubmit={submit}>
-          <input
-            accept="image/*"
-            aria-hidden="true"
-            className="sazo-mobile-agent-image-entry"
-            data-mobile-agent-image-entry
-            hidden
-            onChange={choosePhoto}
-            ref={fileInputRef}
-            type="file"
+        <button
+          aria-label={t("sazo.agentHub.composer.draftLabel")}
+          className="sazo-home-agent-launcher"
+          data-mobile-agent-search
+          onClick={openAgent}
+          type="button"
+        >
+          <span>URL・画像・商品名を送る</span>
+          <Camera
+            aria-hidden
+            className="sazo-home-agent-camera"
+            size={21}
+            strokeWidth={2.1}
           />
-          <input
-            accept="image/*"
-            aria-hidden="true"
-            capture="environment"
-            hidden
-            onChange={choosePhoto}
-            ref={cameraInputRef}
-            type="file"
+          <ArrowRight
+            aria-hidden
+            className="sazo-home-agent-send"
+            size={18}
+            strokeWidth={2.8}
           />
-          <div className="sazo-home-agent-input-shell">
-            <button
-              aria-expanded={menuOpen}
-              aria-haspopup="menu"
-              aria-label={t("sazo.agentHub.composer.menuLabel")}
-              className="sazo-home-agent-plus"
-              onClick={() => {
-                setMenuOpen((open) => !open);
-              }}
-              type="button"
-            >
-              <Plus aria-hidden size={20} />
-            </button>
-            <textarea
-              aria-label={t("sazo.agentHub.composer.draftLabel")}
-              className="sazo-mobile-agent-entry-main"
-              data-mobile-agent-search
-              onChange={(event) => {
-                setDraft(event.target.value);
-                setStatus(null);
-              }}
-              placeholder={t("sazo.agentHub.composer.inputPlaceholder")}
-              ref={textInputRef}
-              rows={1}
-              value={draft}
-            />
-            <button
-              aria-label={t("sazo.agentHub.composer.send")}
-              className="sazo-home-agent-submit"
-              disabled={draft.trim().length === 0}
-              type="submit"
-            >
-              <Sparkles aria-hidden size={18} />
-            </button>
-          </div>
-          {menuOpen ? (
-            <div
-              aria-label={t("sazo.agentHub.composer.menuLabel")}
-              className="sazo-home-agent-menu"
-              role="menu"
-            >
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  cameraInputRef.current?.click();
-                }}
-                role="menuitem"
-                type="button"
-              >
-                <Camera aria-hidden size={17} />
-                {t("sazo.agentHub.composer.takePhoto")}
-              </button>
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  fileInputRef.current?.click();
-                }}
-                role="menuitem"
-                type="button"
-              >
-                <ImagePlus aria-hidden size={17} />
-                {t("sazo.agentHub.composer.selectPhoto")}
-              </button>
-            </div>
-          ) : null}
-          {status === null ? null : (
-            <p className="sazo-home-agent-status" role="status">
-              {status}
-            </p>
-          )}
-        </form>
+        </button>
+        <div className="sazo-home-agent-assurances" aria-label="購入サポート">
+          <span>
+            <ShieldCheck aria-hidden size={19} strokeWidth={2.15} />
+            購入できるか
+          </span>
+          <span>
+            <CircleDollarSign aria-hidden size={19} strokeWidth={2.1} />
+            ブラジル到着総額
+          </span>
+          <span>
+            <Truck aria-hidden size={20} strokeWidth={2.05} />
+            配送・通関
+          </span>
+        </div>
       </div>
     </div>
   );
 }
 
 function MobileCouponBanner({ dispatch }: Pick<HomeViewProps, "dispatch">) {
-  const { i18n, t } = useTranslation();
-  const artworkByLocale = {
-    en: "/sazo-commerce/campaign/jplanet-coupon-banner-en.svg",
-    ja: "/sazo-commerce/campaign/jplanet-coupon-banner.svg",
-    "pt-BR": "/sazo-commerce/campaign/jplanet-coupon-banner-pt-BR.svg",
-  } as const;
-  const locale = i18n.resolvedLanguage;
-  const artwork =
-    locale === "en" || locale === "pt-BR"
-      ? artworkByLocale[locale]
-      : artworkByLocale.ja;
+  const { t } = useTranslation();
 
   return (
     <section
@@ -750,10 +601,9 @@ function MobileCouponBanner({ dispatch }: Pick<HomeViewProps, "dispatch">) {
         <img
           alt={t("sazo.home.couponBannerArtwork")}
           decoding="async"
-          src={artwork}
+          src="/sazo-commerce/campaign/jplanet-pix-day-sale.png"
         />
-        <span>{t("sazo.home.couponBannerCta")}</span>
-        <ChevronRight aria-hidden size={18} />
+        <span className="sazo-visually-hidden">{t("sazo.home.couponBannerCta")}</span>
       </button>
     </section>
   );
@@ -775,33 +625,6 @@ function MobileCategoryArtwork({ image }: { image: string }) {
         imageFailed ? "/sazo-commerce/jplanet-sakura-mark.png" : image
       }
     />
-  );
-}
-
-function MobileGiftFair({ dispatch }: Pick<HomeViewProps, "dispatch">) {
-  return (
-    <div className="sazo-mobile-gift-fairs">
-      {mobileGiftFairSections.map((section) => (
-        <section
-          className="sazo-mobile-editorial-section"
-          data-mobile-gift-fair
-          key={section.title}
-        >
-          <SectionHeading title={section.title} />
-          <div className="sazo-mobile-editorial-grid">
-            {section.products.map((product) => (
-              <ProductCard
-                key={`${section.title}-${product.id}`}
-                onOpen={(productId) => {
-                  dispatch({ type: "open-product", productId });
-                }}
-                product={product}
-              />
-            ))}
-          </div>
-        </section>
-      ))}
-    </div>
   );
 }
 
@@ -838,39 +661,48 @@ function MobileGramGrid({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   );
 }
 
-function MobileCategoryRail({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+function MobileCategoryRail({
+  compact = false,
+  dispatch,
+  items = homeCategoryItems,
+}: Pick<HomeViewProps, "dispatch"> & {
+  compact?: boolean;
+  items?: readonly HomeCategoryItem[];
+}) {
   const { t } = useTranslation();
 
   return (
     <section
       aria-label={t("sazo.home.categoryRailLabel")}
-      className="sazo-mobile-category-section"
+      className={`sazo-mobile-category-section${compact ? " sazo-mobile-category-section--compact" : ""}`}
       data-mobile-category-rail
-      data-testid="mobile-category-rail"
+      data-testid={compact ? "mobile-reference-category-rail" : "mobile-category-rail"}
     >
-      <div className="sazo-section-heading">
-        <h2>{t("sazo.home.categoryRailTitle")}</h2>
-        <button
-          aria-label="カテゴリーをもっと見る"
-          className="sazo-more-link sazo-mobile-category-more"
-          onClick={() => {
-            dispatch({ type: "navigate", view: "categories" });
-          }}
-          type="button"
-        >
-          {t("sazo.home.more")}
-          <ChevronRight aria-hidden size={16} />
-        </button>
-      </div>
+      {compact ? null : (
+        <div className="sazo-section-heading">
+          <h2>{t("sazo.home.categoryRailTitle")}</h2>
+          <button
+            aria-label="カテゴリーをもっと見る"
+            className="sazo-more-link sazo-mobile-category-more"
+            onClick={() => {
+              dispatch({ type: "navigate", view: "categories" });
+            }}
+            type="button"
+          >
+            {t("sazo.home.more")}
+            <ChevronRight aria-hidden size={16} />
+          </button>
+        </div>
+      )}
       <div
         aria-label={t("sazo.home.categoryRailLabel")}
         className="sazo-mobile-category-rail"
         data-mobile-category-grid
-        data-layout="four-column-page"
-        data-page-size="8"
+        data-layout={compact ? "seven-column-quick-row" : "four-column-page"}
+        data-page-size={compact ? String(items.length) : "8"}
         role="group"
       >
-        {mobileCategoryPages.map((page, pageIndex) => (
+        {(compact ? [items] : getMobileCategoryPages(items)).map((page, pageIndex) => (
           <div
             className="sazo-mobile-category-page"
             data-mobile-category-page
@@ -909,21 +741,43 @@ function MobileCategoryRail({ dispatch }: Pick<HomeViewProps, "dispatch">) {
 
 function MobilePicksGrid({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   return (
-    <section className="sazo-mobile-picks-section">
-      <SectionHeading title="J-Planet's PICK" />
-      <div className="sazo-mobile-picks-grid" data-mobile-picks-grid>
-        {mobilePickProducts.map((product, index) => (
-          <div className="sazo-mobile-ranked-product" key={product.id}>
-            <span aria-hidden className="sazo-mobile-rank-badge">
-              {index + 1}
-            </span>
-            <ProductCard
-              onOpen={(productId) => {
-                dispatch({ type: "open-product", productId });
+    <section className="sazo-home-dense-picks" data-mobile-picks-grid>
+      <div className="sazo-home-dense-picks-heading">
+        <h2>おすすめ商品</h2>
+      </div>
+      <div className="sazo-home-dense-product-grid" data-home-dense-product-grid>
+        {homeDenseProducts.map((product) => (
+          <article
+            className="sazo-home-dense-product"
+            data-product-target={JPLANET_PRODUCT_DETAIL_ID}
+            data-testid="home-dense-product-card"
+            key={product.id}
+          >
+            <button
+              aria-label={`${product.name}の商品詳細を見る`}
+              onClick={() => {
+                dispatch({ type: "open-product", productId: JPLANET_PRODUCT_DETAIL_ID });
               }}
-              product={product}
-            />
-          </div>
+              type="button"
+            >
+              <span className="sazo-home-dense-product-media" data-fit={product.imageFit ?? "cover"}>
+                <img alt={product.name} decoding="async" height={640} src={product.image} width={640} />
+                {product.discount === undefined ? null : (
+                  <em>{product.discount}</em>
+                )}
+              </span>
+              <span className="sazo-home-dense-product-copy">
+                <small>{product.label}</small>
+                <strong>{product.name}</strong>
+                <span className="sazo-home-dense-product-rating">
+                  <Star aria-hidden fill="currentColor" size={12} strokeWidth={1.8} />
+                  {product.rating} <i>({product.reviews})</i>
+                </span>
+                <b>{product.price}</b>
+                <span className="sazo-home-dense-product-arrival">{product.arrival}</span>
+              </span>
+            </button>
+          </article>
         ))}
       </div>
     </section>
@@ -1196,36 +1050,16 @@ function SearchDiscovery({ dispatch, state }: Pick<HomeViewProps, "dispatch" | "
 
 export function HomeView({ dispatch, state }: HomeViewProps) {
   const mobileHome = useMobileHome();
-  const [compactMobileAgent, setCompactMobileAgent] = useState(false);
-
-  useEffect(() => {
-    if (!mobileHome) {
-      return undefined;
-    }
-
-    const updateCompactState = () => {
-      setCompactMobileAgent(window.scrollY >= mobileAgentCompactThreshold);
-    };
-
-    updateCompactState();
-    window.addEventListener("scroll", updateCompactState, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", updateCompactState);
-    };
-  }, [mobileHome]);
 
   return (
     <div className="sazo-home" data-home-view>
       {mobileHome ? (
         <>
           <HeroCarousel dispatch={dispatch} state={{ ...state, heroFeed: "large-first" }} />
-          <MobileAgentSearch compact={compactMobileAgent} />
+          <MobileAgentSearch dispatch={dispatch} />
           <MobileShortcutRow dispatch={dispatch} />
           <MobileCouponBanner dispatch={dispatch} />
-          <InterestedItemsRail dispatch={dispatch} />
           <ReviewStrip dispatch={dispatch} state={state} title="利用者レビュー" />
-          <MobileGiftFair dispatch={dispatch} />
           <MobileGramGrid dispatch={dispatch} />
           <MobileCategoryRail dispatch={dispatch} />
           <MobilePicksGrid dispatch={dispatch} />
@@ -1234,14 +1068,11 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
       ) : (
         <>
           <HeroCarousel dispatch={dispatch} state={state} />
+          <MobileAgentSearch dispatch={dispatch} />
           <DesktopShortcutRow dispatch={dispatch} />
-          <HomeIntro />
-          <InterestedItemsRail dispatch={dispatch} />
-          <ReviewStrip dispatch={dispatch} state={state} />
-          <GramStrip dispatch={dispatch} />
-          <RecommendedReviews dispatch={dispatch} />
-          <ProductDiscovery dispatch={dispatch} state={state} />
-          <SearchDiscovery dispatch={dispatch} state={state} />
+          <MobileCouponBanner dispatch={dispatch} />
+          <MobileGramGrid dispatch={dispatch} />
+          <MobilePicksGrid dispatch={dispatch} />
         </>
       )}
     </div>

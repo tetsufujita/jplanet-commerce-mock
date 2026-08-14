@@ -1,10 +1,8 @@
 import type { Dispatch, ReactNode } from "react";
 import {
   Bell,
-  Bookmark,
-  ChevronDown,
-  ClipboardPaste,
-  Heart,
+  Camera,
+  Tag,
   Home,
   MessageCircle,
   Search,
@@ -24,18 +22,17 @@ import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
 
 interface NavigationItem {
   icon?: LucideIcon;
+  label?: string;
   translationKey: string;
   view?: SazoView;
 }
 
 const desktopNavigation = [
   { translationKey: "sazo.navigation.home", view: "home" },
-  { translationKey: "sazo.navigation.service", view: "service" },
-  { translationKey: "sazo.navigation.brands", view: "brands" },
-  { translationKey: "sazo.navigation.categories", view: "categories" },
-  { translationKey: "sazo.navigation.reviews", view: "reviews" },
-  { translationKey: "sazo.navigation.help", view: "support" },
-  { translationKey: "sazo.navigation.news" },
+  { label: "ブランド", translationKey: "sazo.navigation.brands", view: "brands" },
+  { translationKey: "sazo.agent.navigation", view: "agent-hub" },
+  { translationKey: "sazo.navigation.notification", view: "notifications" },
+  { translationKey: "sazo.navigation.mypage", view: "mypage" },
 ] satisfies readonly NavigationItem[];
 
 const mobileSecondaryNavigation = [
@@ -168,13 +165,23 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
   const loginExpanded = state.overlay === "login";
   const serviceView = state.view === "service";
   const agentHubView = state.view === "agent-hub";
-  const dedicatedMobileHeader = agentHubView || state.view === "beauty" || state.view === "cart";
+  const couponView = state.view === "coupons";
+  const brandDetailView = state.view === "brand-detail";
+  const dedicatedMobileHeader =
+    agentHubView ||
+    couponView ||
+    state.view === "beauty" ||
+    state.view === "cart" ||
+    state.view === "checkout" ||
+    state.view === "brands" ||
+    brandDetailView;
   const accountDetailViews = new Set<SazoAccountView>([
     "mypage",
     "favorites",
     "profile",
     "cards",
     "orders",
+    "order-detail",
     "coupons",
     "points",
     "review-create",
@@ -186,7 +193,14 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
   const accountView = accountDetailViews.has(state.view as SazoAccountView);
   const accountAvailable = state.authenticated || accountView || state.view === "support";
   const myPageSectionActive =
-    (accountView && state.view !== "favorites") || state.view === "support";
+    (accountView && state.view !== "notifications") ||
+    state.view === "support";
+  const postPurchaseView =
+    state.view === "mypage" ||
+    state.view === "orders" ||
+    state.view === "order-detail" ||
+    couponView ||
+    brandDetailView;
 
   return (
     <div className="sazo-shell-background" data-overlay-background="true">
@@ -196,33 +210,39 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
             <header className="sazo-desktop-header">
               <Wordmark dispatch={dispatch} homeLabel={t("sazo.brand.homeLabel")} />
 
-              <div className="sazo-search" role="search">
-                <label className="sazo-visually-hidden" htmlFor="sazo-desktop-search">
-                  {t("sazo.search.label")}
-                </label>
-                <ClipboardPaste aria-hidden size={21} strokeWidth={1.7} />
-                <input
-                  id="sazo-desktop-search"
-                  placeholder={t("sazo.search.placeholder")}
-                  type="search"
-                />
-                <ChevronDown aria-hidden size={14} strokeWidth={2} />
-                <Search aria-hidden size={23} strokeWidth={1.8} />
-              </div>
+              <nav
+                aria-label={t("sazo.navigation.desktopLabel")}
+                className="sazo-desktop-nav"
+                data-behavior="sticky"
+              >
+                {desktopNavigation.map((item) => (
+                  <NavigationButton
+                    className="sazo-secondary-button"
+                    dispatch={dispatch}
+                    key={item.translationKey}
+                    label={item.label ?? t(item.translationKey)}
+                    state={state}
+                    view={item.view}
+                  />
+                ))}
+              </nav>
 
               <div
                 aria-label={t("sazo.actions.topActionsLabel")}
                 className="sazo-top-actions"
                 role="group"
               >
-                <NavigationButton
-                  className="sazo-top-action"
-                  dispatch={dispatch}
-                  icon={Bookmark}
-                  label={t("sazo.navigation.favorites")}
-                  state={state}
-                  view="favorites"
-                />
+                <button
+                  aria-label="AI検索を開く"
+                  className="sazo-desktop-agent-search"
+                  onClick={() => {
+                    dispatch({ type: "open-agent-hub", intent: "compose" });
+                  }}
+                  type="button"
+                >
+                  <Search aria-hidden size={18} strokeWidth={2} />
+                  <span>AI検索</span>
+                </button>
                 <ControlButton
                   className="sazo-top-action"
                   icon={ShoppingCart}
@@ -239,6 +259,9 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
                     dispatch({ type: "navigate", view: "notifications" });
                   }}
                 />
+                <span aria-label="未読の通知 1件" className="sazo-desktop-notification-badge">
+                  1
+                </span>
                 {accountAvailable ? (
                   <NavigationButton
                     active={myPageSectionActive}
@@ -261,36 +284,8 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
                     testId="login-launcher"
                   />
                 )}
-                <button
-                  aria-label={t("sazo.actions.language")}
-                  className="sazo-top-action sazo-language-action"
-                  type="button"
-                >
-                  <span aria-hidden className="sazo-language-flag">
-                    🇯🇵
-                  </span>
-                </button>
               </div>
             </header>
-
-            <nav
-              aria-hidden={serviceView}
-              aria-label={t("sazo.navigation.desktopLabel")}
-              className="sazo-desktop-nav"
-              data-behavior="sticky"
-            >
-              {desktopNavigation.map((item) => (
-                <NavigationButton
-                  className="sazo-secondary-button"
-                  dispatch={dispatch}
-                  key={item.translationKey}
-                  label={t(item.translationKey)}
-                  state={state}
-                  testId={item.view === "reviews" ? "nav-reviews" : undefined}
-                  view={item.view}
-                />
-              ))}
-            </nav>
           </div>
         </div>
 
@@ -300,68 +295,92 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
 
       <div className="sazo-mobile-shell" data-shell="mobile">
         {dedicatedMobileHeader ? null : (
-          <header className="sazo-mobile-header">
-            <div className="sazo-mobile-header-primary">
-              <Wordmark dispatch={dispatch} homeLabel={t("sazo.brand.homeLabel")} />
-              <div
-                aria-label="モバイルヘッダー操作"
-                className="sazo-mobile-header-actions"
-                role="group"
-              >
+          <header className="sazo-mobile-header" data-sazo-topbar="true">
+            <div
+              className="sazo-mobile-header-primary sazo-mobile-header-primary--commerce"
+              data-sazo-topbar-primary
+            >
+              <div className="sazo-mobile-agent-searchbar" role="search">
                 <button
-                  aria-label={t("sazo.actions.language")}
-                  className="sazo-mobile-header-action sazo-language-action"
-                  type="button"
-                >
-                  <span aria-hidden className="sazo-language-flag">
-                    🇯🇵
-                  </span>
-                </button>
-                <button
-                  aria-label={t("sazo.actions.cart")}
-                  className="sazo-mobile-header-action"
-                  onClick={() => {
-                    dispatch({ type: "navigate", view: "cart" });
-                  }}
-                  type="button"
-                >
-                  <ShoppingCart aria-hidden size={23} strokeWidth={2.2} />
-                </button>
-                <button
-                  aria-label={t("sazo.navigation.search")}
-                  className="sazo-mobile-header-action"
+                  aria-label={t("sazo.agentHub.composer.draftLabel")}
+                  className="sazo-mobile-agent-search-trigger"
+                  data-shell-search-button
                   onClick={() => {
                     dispatch({ type: "open-agent-hub", intent: "compose" });
                   }}
                   type="button"
                 >
                   <Search aria-hidden size={23} strokeWidth={2.1} />
+                  <span>{t("sazo.agentHub.composer.inputPlaceholder")}</span>
+                </button>
+                <button
+                  aria-label={t("sazo.agentHub.composer.takePhoto")}
+                  className="sazo-mobile-header-camera"
+                  data-shell-camera-button
+                  onClick={() => {
+                    dispatch({ type: "open-agent-hub", intent: "camera" });
+                  }}
+                  type="button"
+                >
+                  <Camera aria-hidden size={25} strokeWidth={2} />
+                </button>
+              </div>
+              <div
+                aria-label="モバイルヘッダー操作"
+                className="sazo-mobile-header-actions"
+                role="group"
+              >
+                <button
+                  aria-label={t("sazo.actions.cart")}
+                  className="sazo-mobile-header-action"
+                  data-shell-cart-button
+                  onClick={() => {
+                    dispatch({ type: "navigate", view: "cart" });
+                  }}
+                  type="button"
+                >
+                  <ShoppingCart aria-hidden size={23} strokeWidth={2.2} />
+                  <span aria-hidden="true" data-shell-cart-badge>
+                    {state.cartItems.length}
+                  </span>
+                </button>
+                <button
+                  aria-expanded={state.overlay === "chat"}
+                  aria-label={t("sazo.actions.chat")}
+                  className="sazo-mobile-header-action sazo-mobile-header-chat"
+                  data-shell-chat-button
+                  onClick={() => {
+                    dispatch({ type: "open-chat" });
+                  }}
+                  type="button"
+                >
+                  <MessageCircle aria-hidden size={25} strokeWidth={1.9} />
                 </button>
               </div>
             </div>
-            {state.view === "home" ? null : (
-              <nav
-                aria-label={t("sazo.navigation.mobileSecondaryLabel")}
-                className="sazo-mobile-secondary-nav"
-              >
-                {mobileSecondaryNavigation.map((item) => (
-                  <NavigationButton
-                    className="sazo-mobile-secondary-button"
-                    dispatch={dispatch}
-                    key={item.translationKey}
-                    label={t(item.translationKey)}
-                    state={state}
-                    view={item.view}
-                  />
-                ))}
-              </nav>
-            )}
+            <nav
+              aria-label={t("sazo.navigation.mobileSecondaryLabel")}
+              className="sazo-mobile-secondary-nav"
+              data-sazo-topbar-nav
+            >
+              {mobileSecondaryNavigation.map((item) => (
+                <NavigationButton
+                  className="sazo-mobile-secondary-button"
+                  dispatch={dispatch}
+                  key={item.translationKey}
+                  label={t(item.translationKey)}
+                  state={state}
+                  view={item.view}
+                />
+              ))}
+            </nav>
           </header>
         )}
 
         <main className="sazo-main sazo-mobile-main" />
         <ShellFooter copyright={t("sazo.footer.copyright")} />
 
+        {postPurchaseView ? null : (
         <nav
           aria-hidden={serviceView}
           aria-label={t("sazo.navigation.mobileLabel")}
@@ -377,10 +396,10 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
           />
           <NavigationButton
             dispatch={dispatch}
-            icon={Bell}
-            label={t("sazo.navigation.notification")}
+            icon={Tag}
+            label="ブランド"
             state={state}
-            view="notifications"
+            view="brands"
           />
           <NavigationButton
             className="sazo-nav-button sazo-agent-nav-button"
@@ -392,14 +411,15 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
           />
           <NavigationButton
             dispatch={dispatch}
-            icon={Heart}
-            label={t("sazo.navigation.favorites")}
+            icon={Bell}
+            label={t("sazo.navigation.notification")}
             state={state}
-            view="favorites"
+            view="notifications"
           />
           {accountAvailable ? (
             <NavigationButton
               active={myPageSectionActive}
+              className="sazo-nav-button sazo-mypage-nav-button"
               dispatch={dispatch}
               icon={UserRound}
               label={t("sazo.navigation.mypage")}
@@ -418,20 +438,23 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
             />
           )}
         </nav>
+        )}
       </div>
 
-      <button
-        aria-expanded={state.overlay === "chat"}
-        aria-label={t("sazo.actions.chat")}
-        className="sazo-chat-button"
-        data-testid="chat-launcher"
-        onClick={() => {
-          dispatch({ type: "open-chat" });
-        }}
-        type="button"
-      >
-        <MessageCircle aria-hidden size={26} strokeWidth={1.8} />
-      </button>
+      {postPurchaseView || state.view === "brands" ? null : (
+        <button
+          aria-expanded={state.overlay === "chat"}
+          aria-label={t("sazo.actions.chat")}
+          className="sazo-chat-button"
+          data-testid="chat-launcher"
+          onClick={() => {
+            dispatch({ type: "open-chat" });
+          }}
+          type="button"
+        >
+          <MessageCircle aria-hidden size={26} strokeWidth={1.8} />
+        </button>
+      )}
     </div>
   );
 }

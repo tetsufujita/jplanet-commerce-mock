@@ -2,12 +2,13 @@ import { useRef } from "react";
 import { Minus, Plus, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { formatYen } from "@/sazo-commerce/fixtures";
+import { formatBrl, formatYen } from "@/sazo-commerce/fixtures";
 import type { ProductDetail } from "@/sazo-commerce/fixtures";
 import type {
   ProductPurchaseController,
   PurchaseIntent,
 } from "@/sazo-commerce/useProductPurchaseController";
+import { JPLANET_PRODUCT_DETAIL_ID } from "@/sazo-commerce/model";
 
 export interface ProductPurchasePanelProps {
   announceFeedback?: boolean;
@@ -32,6 +33,8 @@ export function ProductPurchasePanel({
 }: ProductPurchasePanelProps) {
   const { t } = useTranslation();
   const { product } = detail;
+  const usesBrl = product.id === JPLANET_PRODUCT_DETAIL_ID;
+  const formatAmount = usesBrl ? formatBrl : formatYen;
   const selectRef = useRef<HTMLSelectElement>(null);
   const headingId = `sazo-product-purchase-heading-${idPrefix}`;
   const optionId = `sazo-product-option-${idPrefix}`;
@@ -93,7 +96,7 @@ export function ProductPurchasePanel({
               <span>{t("sazo.views.productDetail.purchase.selectedProduct")}</span>
               <strong>{product.name}</strong>
               <small>{controller.selectedOption}</small>
-              <b>{product.price}</b>
+              <b>{usesBrl ? "R$ 429〜" : product.price}</b>
             </div>
             <div
               aria-label={t("sazo.views.productDetail.purchase.quantity.label")}
@@ -178,12 +181,12 @@ export function ProductPurchasePanel({
             <div>
               <dt>{t("sazo.views.productDetail.purchase.productPrice")}</dt>
               <dd data-testid="product-unit-price">
-                {formatYen(controller.productAmount)}
+                {formatAmount(controller.productAmount)}
               </dd>
             </div>
             <div>
               <dt>{t("sazo.views.productDetail.purchase.localDistributionFee")}</dt>
-              <dd>{formatYen(detail.localDistributionFeeAmount)}</dd>
+              <dd>{formatAmount(detail.localDistributionFeeAmount)}</dd>
             </div>
             <div className="sazo-product-detail-total-final">
               <dt>{t("sazo.views.productDetail.purchase.total")}</dt>

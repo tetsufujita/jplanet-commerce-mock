@@ -1,283 +1,177 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createI18n } from "@/i18n/createI18n";
 import { MobileAgentHubView } from "@/sazo-commerce/MobileAgentHubView";
-import type { AgentEntryIntent } from "@/sazo-commerce/model";
+import type {
+  AgentEntryIntent,
+  AgentHubScenario,
+  SazoAction,
+} from "@/sazo-commerce/model";
 
-const originalScrollIntoView = Object.getOwnPropertyDescriptor(
-  HTMLElement.prototype,
-  "scrollIntoView",
-);
-const originalMatchMedia = Object.getOwnPropertyDescriptor(window, "matchMedia");
-const scrollIntoView = vi.fn();
-
-function installReducedMotion(matches: boolean) {
-  Object.defineProperty(window, "matchMedia", {
-    configurable: true,
-    value: (query: string): MediaQueryList => ({
-      addEventListener: vi.fn(),
-      addListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-      matches,
-      media: query,
-      onchange: null,
-      removeEventListener: vi.fn(),
-      removeListener: vi.fn(),
-    }),
-    writable: true,
-  });
-}
-
-beforeEach(() => {
-  scrollIntoView.mockClear();
-  installReducedMotion(false);
-  Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
-    configurable: true,
-    value: scrollIntoView,
-    writable: true,
-  });
-});
+const createDispatch = () => vi.fn<(action: SazoAction) => void>();
 
 afterEach(() => {
   cleanup();
-  Reflect.deleteProperty(HTMLElement.prototype, "scrollIntoView");
-  if (originalScrollIntoView !== undefined) {
-    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", originalScrollIntoView);
-  }
-  Reflect.deleteProperty(window, "matchMedia");
-  if (originalMatchMedia !== undefined) {
-    Object.defineProperty(window, "matchMedia", originalMatchMedia);
-  }
 });
 
-async function renderHub(
-  locale: "ja" | "en" | "pt-BR" = "ja",
-  dispatch = vi.fn(),
-  entryIntent: AgentEntryIntent | null = null,
-) {
-  const i18n = await createI18n(locale);
+async function renderHub({
+  dispatch = createDispatch(),
+  entryIntent = null,
+  scenario = "normal",
+}: {
+  dispatch?: ReturnType<typeof createDispatch>;
+  entryIntent?: AgentEntryIntent | null;
+  scenario?: AgentHubScenario;
+} = {}) {
+  const i18n = await createI18n("ja");
 
   return {
     dispatch,
     ...render(
       <I18nextProvider i18n={i18n}>
-        <MobileAgentHubView dispatch={dispatch} entryIntent={entryIntent} />
+        <MobileAgentHubView
+          dispatch={dispatch}
+          entryIntent={entryIntent}
+          scenario={scenario}
+        />
       </I18nextProvider>,
     ),
   };
 }
 
 describe("MobileAgentHubView", () => {
-  it("exposes the shared Apple-style agent layout contract", async () => {
-    const { container } = await renderHub("ja");
+  it("renders the compact agent form, newest two submissions, disclosure, and a separate recent-products rail", async () => {
+    const { container } = await renderHub();
 
-    expect(container.querySelector('.sazo-agent-hub[data-apple-layout="agent"]')).not.toBeNull();
-    expect(container.querySelector('[data-section="composer"][data-apple-surface="true"]')).not.toBeNull();
-  });
-
-  it("renders the SAZO-inspired sections in the approved order", async () => {
-    await renderHub("ja");
-
+    expect(container.querySelector('[data-mobile-agent-hub][data-scenario="normal"]')).not.toBeNull();
+    expect(screen.getByRole("heading", { name: "購入エージェント" })).toBeTruthy();
+    expect(screen.getByPlaceholderText("URL・画像・商品名を送る")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "カメラ" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "送信履歴" })).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: /の結果を見る$/ })).toHaveLength(2);
     expect(
-      screen
-        .getAllByTestId("agent-hub-section")
-        .map((section) => section.dataset.section),
-    ).toEqual([
-      "composer",
-      "consultations",
-      "recent-products",
-      "popular-topics",
-      "footer",
-    ]);
-    expect(screen.getByText("最近の相談")).toBeTruthy();
-    expect(screen.getByText("最近見た商品")).toBeTruthy();
-    expect(screen.getByText("J-Planet AI")).toBeTruthy();
-    expect(screen.getByText("人気キーワード")).toBeTruthy();
-    expect(screen.getAllByRole("listitem", { name: /位/ })).toHaveLength(20);
-  });
-
-  it("keeps the four header controls in order and leaves the cart inert", async () => {
-    const dispatch = vi.fn();
-    const { container } = await renderHub("ja", dispatch);
-
-    const header = container.querySelector<HTMLElement>(".sazo-agent-hub-header");
-    if (header === null) {
-      throw new Error("Agent hub header is missing");
-    }
-    const back = within(header).getByRole("button", { name: "ホームへ戻る" });
-    const launcher = within(header).getByRole("button", {
-      name: "AIエージェントに相談",
-    });
-    const home = within(header).getByRole("button", { name: "J-Planet ホーム" });
-    const cart = within(header).getByRole("button", { name: "カート" });
-
-    expect(within(header).getAllByRole("button")).toEqual([back, launcher, home, cart]);
-
-    fireEvent.click(launcher);
-    fireEvent.click(home);
-    fireEvent.click(cart);
-
-    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "home" });
-    expect(dispatch).not.toHaveBeenCalledWith({ type: "open-agent" });
-    expect(dispatch).toHaveBeenCalledTimes(1);
-  });
-
-  it.each([
-    ["standard motion", false, "smooth"],
-    ["reduced motion", true, "auto"],
-  ] as const)("scrolls to the composer with %s behavior", async (_label, reduced, behavior) => {
-    installReducedMotion(reduced);
-    await renderHub("ja");
-
-    fireEvent.click(screen.getByRole("button", { name: "AIエージェントに相談" }));
-
-    expect(scrollIntoView).toHaveBeenCalledWith({ behavior, block: "start" });
-  });
-
-  it("exposes stable hooks for the mobile hub layout", async () => {
-    const { container } = await renderHub("ja");
-
-    expect(container.querySelector(".sazo-mobile-agent-composer")).not.toBeNull();
-    expect(
-      container.querySelector(".sazo-agent-hub > .sazo-agent-hub-header"),
-    ).not.toBeNull();
-    expect(
-      container.querySelector(
-        ".sazo-agent-hub-header > .sazo-agent-hub-launcher",
+      screen.getByRole("button", { name: /過去の送信履歴 18件/ }).getAttribute(
+        "aria-expanded",
       ),
-    ).not.toBeNull();
-    expect(container.querySelectorAll(".sazo-agent-hub-consultation-row")).toHaveLength(
-      3,
+    ).toBe("false");
+    expect(screen.getByRole("heading", { name: "最近見た商品" })).toBeTruthy();
+    expect(container.querySelectorAll(".sazo-agent-hub-product-card")).toHaveLength(4);
+  });
+
+  it("keeps older submission history collapsed until its disclosure is activated", async () => {
+    await renderHub();
+    const disclosure = screen.getByRole("button", { name: /過去の送信履歴 18件/ });
+
+    expect(screen.queryByText("8月10日 10:11")).toBeNull();
+    fireEvent.click(disclosure);
+
+    expect(disclosure.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByText("8月10日 10:11")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /履歴を閉じる/ })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: /履歴を閉じる/ }));
+    expect(screen.queryByText("8月10日 10:11")).toBeNull();
+  });
+
+  it("opens the shared J-Planet detail flow from a submission result or a recently viewed product", async () => {
+    const dispatch = createDispatch();
+    await renderHub({ dispatch });
+
+    fireEvent.click(screen.getByRole("button", { name: "New Balance 9060の結果を見る" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Nintendo Switch OLEDの商品詳細を見る" }),
     );
-    expect(container.querySelector(".sazo-agent-hub-product-rail")).not.toBeNull();
-    expect(container.querySelectorAll(".sazo-agent-hub-product-card")).toHaveLength(3);
-    expect(container.querySelector(".sazo-agent-hub-ranked-list")).not.toBeNull();
-    expect(container.querySelectorAll(".sazo-agent-hub-ranked-row")).toHaveLength(20);
-    expect(container.querySelector(".sazo-agent-hub-footer")).not.toBeNull();
-  });
 
-  it("keeps purchase progress and document attachment out of the agent hub", async () => {
-    await renderHub("ja");
-
-    expect(screen.queryByText("進行中の購入依頼")).toBeNull();
-    expect(screen.queryByText("日本側で購入準備中")).toBeNull();
-    expect(screen.queryByText("配送手配")).toBeNull();
-    expect(screen.queryByText("追加書類を添付")).toBeNull();
-    expect(screen.queryByRole("button", { name: "カメラで撮影" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "写真を選択" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "PDFを添付" })).toBeNull();
-  });
-
-  it("dispatches home and product actions while seeding the composer from ranked topics", async () => {
-    const dispatch = vi.fn();
-    await renderHub("ja", dispatch);
-
-    fireEvent.click(screen.getByRole("button", { name: "AIエージェントに相談" }));
-    fireEvent.click(screen.getByRole("button", { name: "ホームへ戻る" }));
-    const [firstProductButton] = screen.getAllByRole("button", {
-      name: /商品詳細を見る/,
+    expect(dispatch).toHaveBeenNthCalledWith(1, {
+      type: "open-product",
+      productId: "rakuten-new-balance",
     });
-    if (firstProductButton === undefined) {
-      throw new Error("Recent product button is missing");
-    }
-    fireEvent.click(firstProductButton);
-    scrollIntoView.mockClear();
-    fireEvent.click(screen.getByRole("button", { name: "1位 アニメグッズ" }));
-    await waitFor(() => {
-      expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
-    });
-
-    expect(dispatch).toHaveBeenNthCalledWith(1, { type: "navigate", view: "home" });
     expect(dispatch).toHaveBeenNthCalledWith(2, {
       type: "open-product",
-      // Vitest's asymmetric matcher is intentionally typed as any.
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      productId: expect.any(String),
+      productId: "jplanet-nintendo-switch-oled",
     });
-    expect(dispatch).not.toHaveBeenCalledWith({ type: "open-agent" });
-    expect(dispatch).toHaveBeenCalledTimes(2);
-    expect(
-      screen.getByRole<HTMLTextAreaElement>("textbox", {
-        name: "URL・画像・商品名をAIに渡す",
-      }).value,
-    ).toBe(
-      "アニメグッズ",
-    );
   });
 
-  it("reapplies the same ranked topic after the draft is edited", async () => {
-    await renderHub("ja");
-    const rankedTopic = screen.getByRole("button", { name: "1位 アニメグッズ" });
+  it("keeps the real wordmark, cart, and chat controls in the compact header", async () => {
+    const dispatch = createDispatch();
+    const { container } = await renderHub({ dispatch });
+    const header = container.querySelector<HTMLElement>(".sazo-agent-hub-header");
 
-    fireEvent.click(rankedTopic);
-    const draft = screen.getByRole<HTMLTextAreaElement>("textbox", {
-      name: "URL・画像・商品名をAIに渡す",
-    });
-    expect(draft.value).toBe("アニメグッズ");
+    if (header === null) {
+      throw new Error("Agent header is missing");
+    }
 
-    fireEvent.change(draft, { target: { value: "編集した相談内容" } });
-    expect(draft.value).toBe("編集した相談内容");
-    fireEvent.click(rankedTopic);
-    await waitFor(() => {
-      expect(scrollIntoView).toHaveBeenCalledTimes(2);
-    });
+    expect(header.querySelector("[data-jplanet-wordmark]")).not.toBeNull();
+    fireEvent.click(within(header).getByRole("button", { name: "J-Planet ホーム" }));
+    fireEvent.click(within(header).getByRole("button", { name: "カート" }));
+    fireEvent.click(within(header).getByRole("button", { name: "チャット" }));
 
-    expect(draft.value).toBe("アニメグッズ");
+    expect(dispatch).toHaveBeenNthCalledWith(1, { type: "navigate", view: "home" });
+    expect(dispatch).toHaveBeenNthCalledWith(2, { type: "navigate", view: "cart" });
+    expect(dispatch).toHaveBeenNthCalledWith(3, { type: "open-chat" });
   });
 
-  it("consumes the image picker intent through the embedded composer", async () => {
-    const dispatch = vi.fn();
-    await renderHub("ja", dispatch, "image-picker");
+  it("starts the existing product lookup from the compact composer", async () => {
+    const dispatch = createDispatch();
+    await renderHub({ dispatch });
+
+    fireEvent.change(screen.getByPlaceholderText("URL・画像・商品名を送る"), {
+      target: { value: "日本限定スニーカー" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "送信" }));
+
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "start-agent-search",
+      request: { imageName: null, summary: "日本限定スニーカー" },
+    });
+  });
+
+  it("does not render ambiguous purchase status or generic result sections in the normal state", async () => {
+    await renderHub();
+
+    expect(screen.queryByText("購入可能")).toBeNull();
+    expect(screen.queryByText("確認待ち")).toBeNull();
+    expect(screen.queryByText("進行中")).toBeNull();
+    expect(screen.queryByText("確認結果")).toBeNull();
+    expect(screen.queryByText("カラーを選ぶと確定")).toBeNull();
+    expect(screen.queryByRole("button", { name: "カートに入れる" })).toBeNull();
+    expect(screen.queryByTestId("agent-customs-action-card")).toBeNull();
+  });
+
+  it("only displays the concrete customs action in the fixture-driven exception state", async () => {
+    const dispatch = createDispatch();
+    await renderHub({ dispatch, scenario: "customs-action" });
+
+    const action = screen.getByTestId("agent-customs-action-card");
+    expect(action.textContent).toContain("通関手続きに必要な情報があります");
+    expect(action.textContent).toContain("Air Jordan 1 Retro High OG");
+    expect(action.textContent).toContain("SNKRS Japan の商品ページを送信");
+    expect(action.textContent).toContain("受取人情報を入力してください");
+    expect(action.textContent).toContain("通関に提出する情報として必要です");
+    expect(action.textContent).toContain("CPF・お届け先の確認");
+
+    fireEvent.click(screen.getByRole("button", { name: "情報を入力する" }));
+    const dialog = screen.getByRole("dialog", { name: "CPF・お届け先を確認" });
+    fireEvent.change(within(dialog).getByRole("textbox", { name: "CPF" }), {
+      target: { value: "123.456.789-00" },
+    });
+    fireEvent.change(within(dialog).getByRole("textbox", { name: "お届け先" }), {
+      target: { value: "São Paulo, Brazil" },
+    });
+    fireEvent.click(within(dialog).getByRole("button", { name: "入力内容を保存する" }));
+
+    expect(screen.queryByTestId("agent-customs-action-card")).toBeNull();
+    expect(screen.getByRole("status").textContent).toContain("受取人情報を保存しました");
+    expect(dispatch).toHaveBeenCalledWith({ type: "complete-agent-customs-action" });
+  });
+
+  it("consumes a camera-entry intent through the shared composer", async () => {
+    const dispatch = createDispatch();
+    await renderHub({ dispatch, entryIntent: "camera" });
 
     expect(dispatch).toHaveBeenCalledWith({ type: "consume-agent-entry-intent" });
   });
-
-  it("clears only the requested transient section", async () => {
-    await renderHub("ja");
-
-    fireEvent.click(screen.getByRole("button", { name: "最近の相談を削除" }));
-    expect(screen.queryByText("日本限定スニーカーを探したい")).toBeNull();
-    expect(screen.getAllByRole("button", { name: /商品詳細を見る/ })).toHaveLength(3);
-  });
-
-  it.each([
-    [
-      "ja",
-      "URL・画像・商品名をAIに相談",
-      ["最近の相談", "最近見た商品", "J-Planet AI", "人気キーワード"],
-    ],
-    [
-      "en",
-      "Ask AI about a URL, image, or product name",
-      [
-        "Recent consultations",
-        "Recently viewed products",
-        "J-Planet AI",
-        "Popular keywords",
-      ],
-    ],
-    [
-      "pt-BR",
-      "Consulte a IA com URL, imagem ou nome do produto",
-      [
-        "Consultas recentes",
-        "Produtos vistos recentemente",
-        "J-Planet AI",
-        "Palavras-chave populares",
-      ],
-    ],
-  ] as const)(
-    "renders the translated launcher and section headings for %s",
-    async (locale, launcher, headings) => {
-      await renderHub(locale);
-
-      expect(screen.getByText(launcher)).toBeTruthy();
-      for (const heading of headings) {
-        expect(screen.getByText(heading)).toBeTruthy();
-      }
-    },
-  );
 });
