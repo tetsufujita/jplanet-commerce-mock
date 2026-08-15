@@ -658,8 +658,17 @@
         "categories": "Categorias"
       },
       "productsTitle": "Produtos populares conferidos pelo agente",
+      "community": {
+        "previousReviews": "Mostrar avaliações anteriores",
+        "nextReviews": "Mostrar próximas avaliações",
+        "previousGram": "Mostrar posts anteriores do J-Planet GRAM",
+        "nextGram": "Mostrar próximos posts do J-Planet GRAM",
+        "openReview": "Abrir avaliação de {{author}}"
+      },
       "categoriesLabel": "Categorias de produtos",
       "categoriesTitle": "Categorias",
+      "categoryProductsLabel": "Lista de produtos por categoria",
+      "categoryProductsTitle": "Produtos por categoria",
       "categories": {
         "ladies": "Moda feminina",
         "mens": "Moda masculina",
@@ -745,6 +754,12 @@
         "source": {
           "label": "Loja japonesa · {{brand}}",
           "openOriginal": "Ir para a página original"
+        },
+        "commerceMeta": {
+          "reviews": "{{count}} avaliações",
+          "sold": "{{count}} vendidos",
+          "sellerPage": "Página do vendedor",
+          "sellerPageAria": "Abrir página do vendedor {{seller}}"
         },
         "metadata": {
           "purchaseType": "Tipo de compra",
@@ -924,6 +939,11 @@
       "reviews": {
         "title": "Avaliações da experiência de compra",
         "subtitle": "Como o produto foi encontrado e como chegou",
+        "agentEntry": {
+          "title": "Agente de compra",
+          "subtitle": "Confira antes de comprar com URL, foto ou nome do produto.",
+          "hint": "Pesquise um produto japonês por URL,\nimagem ou nome aqui!"
+        },
         "featuredLabel": "Experiências de compra em destaque",
         "communityHeading": "Experiências de compra da comunidade",
         "imageAlt": "Item recebido por {{author}}",

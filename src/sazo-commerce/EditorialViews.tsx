@@ -1,6 +1,7 @@
-import { CircleUserRound } from "lucide-react";
+import { CircleUserRound, CornerLeftUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ViewHeader, type StatefulViewProps } from "@/sazo-commerce/DirectoryViews";
+import { MobileAgentComposer } from "@/sazo-commerce/MobileAgentComposer";
 import {
   purchaseExperienceReviews,
   purchaseExperienceReviewFeed,
@@ -75,14 +76,49 @@ export function ReviewsView({ dispatch, state }: StatefulViewProps) {
       : purchaseExperienceReviewFeed.filter((review) =>
           review.decisionAxes.includes(activeDecisionAxis),
         );
+  const reviewColumns = [
+    visibleReviews.filter((_, index) => index % 2 === 0),
+    visibleReviews.filter((_, index) => index % 2 === 1),
+  ];
 
   return (
     <div className="sazo-editorial-view" data-view-content="reviews">
       <ViewHeader dispatch={dispatch} title={t("sazo.views.reviews.title")} />
       <section className="sazo-reviews-view-content">
-        <section className="sazo-review-intro">
-          <h1>{t("sazo.views.reviews.title")}</h1>
-          <p>{t("sazo.views.reviews.subtitle")}</p>
+        <section
+          aria-labelledby="review-agent-entry-title"
+          className="sazo-review-agent-entry"
+          data-review-agent-entry
+        >
+          <div className="sazo-review-agent-entry-heading">
+            <img
+              alt=""
+              aria-hidden="true"
+              height={38}
+              src="/sazo-commerce/jplanet-sakura-mark.png"
+              width={38}
+            />
+            <div>
+              <h2 id="review-agent-entry-title">
+                {t("sazo.views.reviews.agentEntry.title")}
+              </h2>
+              <p>{t("sazo.views.reviews.agentEntry.subtitle")}</p>
+            </div>
+          </div>
+          <MobileAgentComposer
+            entryIntent={null}
+            onEntryIntentConsumed={() => undefined}
+            onSubmitted={(request) => {
+              dispatch({ type: "start-agent-search", request });
+            }}
+            presentation="agent-hub"
+            seedRequest={null}
+            showHeader={false}
+          />
+          <div className="sazo-review-agent-entry-hint" role="note">
+            <CornerLeftUp aria-hidden size={22} strokeWidth={2.4} />
+            <span>{t("sazo.views.reviews.agentEntry.hint")}</span>
+          </div>
         </section>
         <section
           aria-label={t("sazo.views.reviews.featuredLabel")}
@@ -113,6 +149,9 @@ export function ReviewsView({ dispatch, state }: StatefulViewProps) {
           ))}
         </section>
         <section className="sazo-review-feed" id="review-feed">
+          <div className="sazo-review-feed-heading">
+            <h2>{t("sazo.views.reviews.communityHeading")}</h2>
+          </div>
           <div className="sazo-review-category-rail" data-review-category-filter="true">
             {purchaseReviewFilters.map((filter) => (
               <button
@@ -127,34 +166,35 @@ export function ReviewsView({ dispatch, state }: StatefulViewProps) {
               </button>
             ))}
           </div>
-          <div className="sazo-review-feed-heading">
-            <h2>{t("sazo.views.reviews.communityHeading")}</h2>
-          </div>
           <div className="sazo-review-masonry" data-review-columns="2">
-            {visibleReviews.map((review) => (
-              <article
-                className="sazo-review-tile"
-                data-review-id={review.id}
-                key={review.id}
-              >
-                <div className="sazo-review-tile-media">
-                  <img
-                    alt={t(review.imageAltKey, { author: review.author })}
-                    decoding="async"
-                    height={260}
-                    loading="lazy"
-                    src={review.image}
-                    width={260}
-                  />
-                </div>
-                <div className="sazo-review-tile-copy">
-                  <p className="sazo-review-tile-author">
-                    <CircleUserRound aria-hidden size={14} />
-                    {review.author} · {review.city}
-                  </p>
-                  <p>{t(review.bodyKey)}</p>
-                </div>
-              </article>
+            {reviewColumns.map((column, columnIndex) => (
+              <div className="sazo-review-masonry-column" key={columnIndex}>
+                {column.map((review) => (
+                  <article
+                    className="sazo-review-tile"
+                    data-review-id={review.id}
+                    key={review.id}
+                  >
+                    <div className="sazo-review-tile-media">
+                      <img
+                        alt={t(review.imageAltKey, { author: review.author })}
+                        decoding="async"
+                        height={260}
+                        loading="lazy"
+                        src={review.image}
+                        width={260}
+                      />
+                    </div>
+                    <div className="sazo-review-tile-copy">
+                      <p className="sazo-review-tile-author">
+                        <CircleUserRound aria-hidden size={14} />
+                        {review.author} · {review.city}
+                      </p>
+                      <p>{t(review.bodyKey)}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
             ))}
           </div>
         </section>

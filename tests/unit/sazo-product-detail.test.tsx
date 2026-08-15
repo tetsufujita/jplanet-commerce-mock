@@ -122,12 +122,69 @@ describe("SAZO product detail navigation", () => {
 });
 
 describe("J-Planet product detail experience", () => {
-  it("renders the Nintendo reference detail on a mobile viewport and keeps its core actions live", async () => {
+  it("wires desktop purchase options to the shared cart and checkout actions", async () => {
     Object.defineProperty(window, "matchMedia", {
       configurable: true,
       value: () => ({
         addEventListener: vi.fn(),
         matches: true,
+        removeEventListener: vi.fn(),
+      }),
+    });
+    const dispatch = vi.fn();
+    await renderWithI18n(
+      <ProductDetailView dispatch={dispatch} productId="jplanet-nintendo-pro-controller" />,
+    );
+
+    const controllerCommerceMeta = screen.getByTestId(
+      "jplanet-desktop-controller-commerce-meta",
+    );
+    expect(within(controllerCommerceMeta).getByText("4.8")).toBeTruthy();
+    expect(within(controllerCommerceMeta).getByText("864件のレビュー")).toBeTruthy();
+    expect(within(controllerCommerceMeta).getByText("30mil+ 購入済み")).toBeTruthy();
+    expect(within(controllerCommerceMeta).getByText("Nintendo 公式")).toBeTruthy();
+    expect(
+      within(controllerCommerceMeta).getByRole("link", {
+        name: "Nintendo 公式の販売ページへ",
+      }),
+    ).toBeTruthy();
+
+    const desktopPurchase = screen.getByTestId("jplanet-desktop-controller-purchase");
+    fireEvent.click(within(desktopPurchase).getByRole("button", { name: "ホワイト 在庫あり" }));
+    fireEvent.click(within(desktopPurchase).getByRole("button", { name: "PCで数量を増やす" }));
+    fireEvent.click(
+      within(desktopPurchase).getByRole("button", { name: "商品をカートに入れる" }),
+    );
+
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "add-to-cart",
+      item: {
+        option: "Proコントローラー / ホワイト",
+        productId: "jplanet-nintendo-pro-controller",
+        quantity: 2,
+      },
+    });
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "cart" });
+
+    fireEvent.click(within(desktopPurchase).getByRole("button", { name: "商品を購入に進む" }));
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "begin-checkout",
+      items: [
+        {
+          option: "Proコントローラー / ホワイト",
+          productId: "jplanet-nintendo-pro-controller",
+          quantity: 2,
+        },
+      ],
+    });
+  });
+
+  it("renders the Nintendo reference detail on a mobile viewport and keeps its core actions live", async () => {
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: (query: string) => ({
+        addEventListener: vi.fn(),
+        matches: query.includes("max-width"),
         removeEventListener: vi.fn(),
       }),
     });
@@ -351,10 +408,21 @@ describe("J-Planet product detail experience", () => {
       screen.queryByRole("button", { name: /ブラジル到着総額 R\$ 2,184 の内訳を見る/ }),
     ).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "配送・通関の詳細を開く" }));
-    expect(screen.getByTestId("jplanet-delivery-detail")).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "配送・通関の詳細" })).toBeTruthy();
+    const deliveryGuide = screen.getByTestId("jplanet-desktop-delivery-guide");
+    expect(deliveryGuide).toBeTruthy();
+    expect(
+      screen.getByRole("heading", { name: "配送・通関に関するご案内" }),
+    ).toBeTruthy();
+    expect(screen.getByText("到着予定の目安")).toBeTruthy();
+    expect(screen.getByText("日本での手配")).toBeTruthy();
     expect(screen.getByText("注文確定後 1〜2日")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "戻る" }));
+    expect(screen.getByText("日本 → ブラジル: 7〜10日")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "購入前に確認する事項" })).toBeTruthy();
+    expect(screen.getByText("配送先・バリエーションごとに確認が必要です。")).toBeTruthy();
+    expect(screen.getByText("送料・税金の内訳は、購入前に確認が必要です。")).toBeTruthy();
+    expect(screen.queryByText("関税込み・国際送料を含む見込みです。")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "配送・通関のご案内を閉じる" }));
+    expect(screen.queryByTestId("jplanet-desktop-delivery-guide")).toBeNull();
     fireEvent.click(screen.getAllByRole("button", { name: "すべてのレビューを見る" })[0]!);
     expect(screen.getByTestId("jplanet-product-reviews")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "商品レビュー" })).toBeTruthy();

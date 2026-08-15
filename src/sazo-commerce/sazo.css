@@ -496,17 +496,12 @@
 
   .sazo-root[data-view="home"] .sazo-desktop-home-community {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
-    margin-top: 24px;
+    gap: 42px;
+    margin-top: 34px;
   }
 
   .sazo-root[data-view="home"] .sazo-desktop-home-community-panel {
     min-width: 0;
-    overflow: hidden;
-    border: 1px solid var(--jplanet-line);
-    border-radius: 12px;
-    background: var(--jplanet-surface);
   }
 
   .sazo-root[data-view="home"] .sazo-desktop-home-community-heading {
@@ -514,116 +509,253 @@
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 16px 18px 13px;
-    border-bottom: 1px solid var(--jplanet-line);
+    padding: 0 0 16px;
   }
 
   .sazo-root[data-view="home"] .sazo-desktop-home-community-heading h2 {
     margin: 0;
     color: var(--jplanet-navy);
-    font-size: 18px;
-    font-weight: 850;
+    font-size: clamp(20px, 1.65vw, 26px);
+    font-weight: 900;
     line-height: 1.25;
+    letter-spacing: -0.025em;
   }
 
   .sazo-root[data-view="home"] .sazo-desktop-home-community-heading button {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
     padding: 0;
     border: 0;
     background: transparent;
     color: var(--jplanet-navy);
     font: inherit;
-    font-size: 12px;
-    font-weight: 750;
+    font-size: 15px;
+    font-weight: 850;
+    line-height: 1.25;
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 5px;
     white-space: nowrap;
     cursor: pointer;
   }
 
+  .sazo-root[data-view="home"] .sazo-desktop-home-community-rail-shell {
+    position: relative;
+    min-width: 0;
+  }
+
   .sazo-root[data-view="home"]
     :is(.sazo-desktop-home-review-list, .sazo-desktop-home-gram-list) {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    gap: 16px;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding: 2px 1px 15px;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scrollbar-color: #a2adc0 transparent;
+    scrollbar-width: thin;
+  }
+
+  .sazo-root[data-view="home"]
+    :is(.sazo-desktop-home-review-list, .sazo-desktop-home-gram-list)::-webkit-scrollbar {
+    height: 7px;
+  }
+
+  .sazo-root[data-view="home"]
+    :is(
+      .sazo-desktop-home-review-list,
+      .sazo-desktop-home-gram-list
+    )::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: #a2adc0;
   }
 
   .sazo-root[data-view="home"]
     :is(.sazo-desktop-home-review-card, .sazo-desktop-home-gram-card) {
     display: grid;
-    grid-template-columns: 78px minmax(0, 1fr);
-    align-items: center;
+    flex: 0 0 clamp(188px, 18.6vw, 250px);
     min-width: 0;
-    gap: 10px;
-    min-height: 102px;
-    padding: 12px;
+    padding: 0;
     border: 0;
-    border-right: 1px solid var(--jplanet-line);
-    background: var(--jplanet-surface);
+    background: transparent;
     color: var(--jplanet-navy);
     font: inherit;
     text-align: left;
+    scroll-snap-align: start;
     cursor: pointer;
   }
 
   .sazo-root[data-view="home"]
-    :is(.sazo-desktop-home-review-card, .sazo-desktop-home-gram-card):last-child {
-    border-right: 0;
+    :is(.sazo-desktop-home-review-card, .sazo-desktop-home-gram-card):hover
+    > :is(.sazo-desktop-home-review-media, .sazo-desktop-home-gram-media) {
+    outline: 2px solid var(--jplanet-sakura);
+    outline-offset: 2px;
   }
 
   .sazo-root[data-view="home"]
-    :is(.sazo-desktop-home-review-card, .sazo-desktop-home-gram-card):hover {
-    background: var(--jplanet-blue-soft);
+    :is(.sazo-desktop-home-review-media, .sazo-desktop-home-gram-media) {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 18px;
+    background: var(--jplanet-surface);
   }
 
   .sazo-root[data-view="home"]
-    :is(.sazo-desktop-home-review-card, .sazo-desktop-home-gram-card)
+    :is(.sazo-desktop-home-review-media, .sazo-desktop-home-gram-media)
     > img {
     display: block;
-    width: 78px;
-    height: 78px;
-    border: 1px solid var(--jplanet-line);
-    border-radius: 8px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
   }
 
-  .sazo-root[data-view="home"]
-    :is(.sazo-desktop-home-review-card, .sazo-desktop-home-gram-card)
-    > span {
-    display: grid;
-    min-width: 0;
-    gap: 6px;
+  .sazo-root[data-view="home"] .sazo-desktop-home-review-media {
+    aspect-ratio: 1 / 1;
   }
 
-  .sazo-root[data-view="home"]
-    :is(.sazo-desktop-home-review-card, .sazo-desktop-home-gram-card)
-    strong,
-  .sazo-root[data-view="home"]
-    :is(.sazo-desktop-home-review-card, .sazo-desktop-home-gram-card)
-    small {
+  .sazo-root[data-view="home"] .sazo-desktop-home-gram-media {
+    aspect-ratio: 0.78 / 1;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-review-author {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: calc(100% - 20px);
+    padding: 7px 10px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 999px;
+    background: var(--jplanet-surface);
+    color: var(--jplanet-navy);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-review-card > strong {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    min-height: 44px;
+    margin: 12px 2px 0;
+    color: var(--jplanet-navy);
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.55;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-review-stats {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 8px 1px 0;
+    color: var(--jplanet-muted);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-review-stats > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-gram-camera {
+    position: absolute;
+    top: 13px;
+    left: 13px;
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 2px solid #fff;
+    border-radius: 11px;
+    background: rgb(31 56 100 / 76%);
+    color: #fff;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-gram-product {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    padding: 12px 2px 0;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-gram-product > img {
+    display: block;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 10px;
+    object-fit: cover;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-gram-product > span {
+    display: grid;
+    min-width: 0;
+    gap: 4px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-gram-product strong,
+  .sazo-root[data-view="home"] .sazo-desktop-home-gram-product small {
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
     text-overflow: ellipsis;
   }
 
-  .sazo-root[data-view="home"]
-    :is(.sazo-desktop-home-review-card, .sazo-desktop-home-gram-card)
-    strong {
-    -webkit-line-clamp: 2;
+  .sazo-root[data-view="home"] .sazo-desktop-home-gram-product strong {
+    -webkit-line-clamp: 1;
     color: var(--jplanet-navy);
     font-size: 13px;
-    font-weight: 800;
+    font-weight: 850;
     line-height: 1.35;
   }
 
-  .sazo-root[data-view="home"]
-    :is(.sazo-desktop-home-review-card, .sazo-desktop-home-gram-card)
-    small {
-    -webkit-line-clamp: 2;
+  .sazo-root[data-view="home"] .sazo-desktop-home-gram-product small {
+    -webkit-line-clamp: 1;
     color: var(--jplanet-muted);
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.4;
+    font-size: 12px;
+    font-weight: 750;
+    line-height: 1.2;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-community-arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: grid;
+    width: 54px;
+    height: 54px;
+    padding: 0;
+    place-items: center;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 999px;
+    background: var(--jplanet-surface);
+    box-shadow: 0 5px 14px rgb(31 56 100 / 12%);
+    color: var(--jplanet-navy);
+    cursor: pointer;
+    transform: translateY(-50%);
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-community-arrow--previous {
+    left: -25px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-community-arrow--next {
+    right: -25px;
   }
 
   .sazo-root[data-view="home"] .sazo-desktop-home-categories {
@@ -699,6 +831,99 @@
     object-fit: cover;
   }
 
+  .sazo-root[data-view="home"] .sazo-desktop-home-category-products {
+    margin-top: 34px;
+    padding: 20px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 12px;
+    background: var(--jplanet-surface);
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-category-products-heading {
+    display: flex;
+    align-items: center;
+    min-height: 28px;
+    margin-bottom: 18px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-category-products-heading h2 {
+    margin: 0;
+    color: var(--jplanet-navy);
+    font-size: 20px;
+    font-weight: 850;
+    letter-spacing: -0.025em;
+    line-height: 1.3;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-category-product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-category-product-grid .sazo-home-dense-product {
+    border: 1px solid var(--jplanet-line);
+    border-radius: 9px;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-desktop-home-category-product-grid
+    .sazo-home-dense-product-media,
+  .sazo-root[data-view="home"]
+    .sazo-desktop-home-category-product-grid
+    .sazo-home-dense-product[data-media-aspect="portrait"]
+    .sazo-home-dense-product-media,
+  .sazo-root[data-view="home"]
+    .sazo-desktop-home-category-product-grid
+    .sazo-home-dense-product[data-media-aspect="wide"]
+    .sazo-home-dense-product-media {
+    aspect-ratio: 1 / 1;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-desktop-home-category-product-grid
+    .sazo-home-dense-product-copy {
+    min-height: 128px;
+    padding: 10px;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-desktop-home-category-product-grid
+    .sazo-home-dense-product-copy
+    > strong {
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-desktop-home-category-product-grid
+    .sazo-home-dense-product-price-row
+    > b {
+    font-size: 17px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-category-products-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: min(300px, 100%);
+    min-height: 46px;
+    gap: 3px;
+    margin: 24px auto 0;
+    padding: 0 18px;
+    border: 1px solid var(--jplanet-sakura);
+    border-radius: 8px;
+    background: var(--jplanet-surface);
+    color: var(--jplanet-sakura-ink);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-home-category-products-more:hover {
+    background: var(--jplanet-sakura-soft);
+  }
+
   .sazo-root[data-view="home"]
     :is(
       .sazo-desktop-agent-search,
@@ -707,6 +932,7 @@
       .sazo-desktop-home-shortcuts > button,
       .sazo-desktop-home-categories-grid > button,
       .sazo-desktop-home-products-heading button,
+      .sazo-desktop-home-category-products-more,
       .sazo-desktop-home-community-heading button,
       .sazo-desktop-home-review-card,
       .sazo-desktop-home-gram-card
@@ -756,6 +982,10 @@
 }
 
 @media (min-width: 1024px) {
+  .sazo-root[data-view="home"] .sazo-desktop-home-category-product-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
   .sazo-root[data-view="home"] .sazo-desktop-home-categories-grid {
     grid-template-columns: repeat(10, minmax(0, 1fr));
   }
@@ -768,6 +998,12 @@
     .sazo-desktop-home-categories-grid
     > button:nth-child(10n) {
     border-right: 0;
+  }
+}
+
+@media (min-width: 1280px) {
+  .sazo-root[data-view="home"] .sazo-desktop-home-category-product-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 
@@ -27514,11 +27750,143 @@
     Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
 }
 
-.sazo-root[data-view="reviews"] .sazo-review-intro {
-  margin: 0 0 12px;
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry {
+  margin: 0 0 14px;
+  padding: 0 0 13px;
+  border-bottom: 1px solid #e5eaf1;
 }
 
-.sazo-root[data-view="reviews"] .sazo-review-intro h1,
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry-heading {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry-heading img {
+  display: block;
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry-heading h2 {
+  margin: 0;
+  color: #1f3864;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry-heading p,
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry-hint {
+  margin: 2px 0 0;
+  color: #667085;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry .sazo-mobile-agent-composer-form {
+  position: relative;
+  margin-top: 9px;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry .sazo-mobile-agent-composer-input-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 38px 42px;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 4px 0 13px;
+  border: 1px solid #e5eaf1;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 3px 10px rgb(31 56 100 / 7%);
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry textarea {
+  display: block;
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 0 11px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #1f3864;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.3;
+  resize: none;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry textarea::placeholder {
+  color: #667085;
+  opacity: 1;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry .sazo-mobile-agent-composer-camera,
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry .sazo-mobile-agent-composer-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #1f3864;
+  cursor: pointer;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry .sazo-mobile-agent-composer-submit {
+  border-radius: 50%;
+  background: #fea2ac;
+  color: #fff;
+}
+
+.sazo-root[data-view="reviews"]
+  .sazo-review-agent-entry
+  .sazo-mobile-agent-composer-submit:disabled {
+  opacity: 0.56;
+  cursor: not-allowed;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry .sazo-mobile-agent-composer-submit span,
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry .sazo-mobile-agent-composer-menu {
+  display: none;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 5px 0 0;
+  padding: 0 8px;
+  color: #151923;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.45;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry-hint svg {
+  flex: 0 0 auto;
+  margin-top: -9px;
+  color: #151923;
+  transform: rotate(-7deg) scale(1.3);
+  transform-origin: 58% 50%;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry-hint span {
+  white-space: pre-line;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-agent-entry :is(button, textarea):focus-visible {
+  outline: 3px solid rgb(254 162 172 / 38%);
+  outline-offset: 2px;
+}
+
 .sazo-root[data-view="reviews"] .sazo-review-feed-heading h2 {
   margin: 0;
   color: #1f3864;
@@ -27526,14 +27894,6 @@
   font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1.35;
-}
-
-.sazo-root[data-view="reviews"] .sazo-review-intro p {
-  margin: 3px 0 0;
-  color: #667085;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.5;
 }
 
 .sazo-root[data-view="reviews"] .sazo-review-feature-rail {
@@ -27583,6 +27943,25 @@
   padding: 12px;
   background: transparent;
   color: #fff;
+  isolation: isolate;
+}
+
+/* A faint black veil keeps each photo-led review readable without masking the
+ * arrival photo or reintroducing the previous opaque information band. */
+.sazo-root[data-view="reviews"] .sazo-review-feature-copy::before {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  height: 36%;
+  background: rgb(0 0 0 / 24%);
+  content: "";
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-feature-copy > * {
+  position: relative;
+  z-index: 1;
 }
 
 .sazo-root[data-view="reviews"] .sazo-review-feature-author {
@@ -27687,6 +28066,14 @@
   grid-auto-rows: auto;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+  align-items: start;
+}
+
+.sazo-root[data-view="reviews"] .sazo-review-masonry-column {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
 }
 
 .sazo-root[data-view="reviews"]
@@ -27765,20 +28152,6 @@
 
   .sazo-root[data-view="reviews"] .sazo-reviews-view-content {
     padding: 14px 20px calc(var(--sazo-mobile-nav-height) + 20px);
-  }
-
-  .sazo-root[data-view="reviews"] .sazo-review-intro {
-    margin-bottom: 8px;
-  }
-
-  .sazo-root[data-view="reviews"] .sazo-review-intro h1 {
-    font-size: 21px;
-    line-height: 1.25;
-  }
-
-  .sazo-root[data-view="reviews"] .sazo-review-intro p {
-    font-size: 12px;
-    line-height: 1.35;
   }
 
   .sazo-root[data-view="reviews"] .sazo-review-feature-rail {
@@ -28499,6 +28872,278 @@
 
   .sazo-root[data-view="home"] .sazo-mobile-coupon-banner > button > :is(span, svg) {
     display: none;
+  }
+}
+
+/* Desktop product result: the mobile footer becomes a right-side purchase
+ * column. Mobile keeps its original sheet and fixed footer unchanged. */
+.sazo-desktop-controller-purchase {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller {
+    width: min(1240px, calc(100% - 48px));
+    min-height: 0;
+    margin: 0 auto;
+    padding: 0 0 64px;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller > main {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+    align-items: start;
+    gap: 32px;
+    padding: 32px 0 0;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-media {
+    grid-column: 1;
+    margin: 0;
+    padding: 24px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 16px;
+    background: #f6f8fb;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-hero {
+    height: clamp(360px, 35vw, 520px);
+    transform: none;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-media-count {
+    right: 20px;
+    bottom: 18px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-variant-rail {
+    display: none;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-purchase-column {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    padding: 2px 0 0;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-heading {
+    gap: 10px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-title h1 {
+    white-space: normal;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-price {
+    margin-top: 18px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase {
+    display: grid;
+    gap: 18px;
+    margin: 22px 0;
+    padding: 20px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 14px;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-heading h2,
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase h3 {
+    margin: 0;
+    color: var(--jplanet-navy);
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.3;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-heading p {
+    margin: 4px 0 0;
+    color: var(--jplanet-muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-heading > span {
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #fff4f5;
+    color: #c44f63;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-colors {
+    display: grid;
+    gap: 9px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-colors > div {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-colors button {
+    position: relative;
+    display: grid;
+    min-width: 0;
+    grid-template-rows: 66px auto;
+    gap: 6px;
+    padding: 7px;
+    overflow: hidden;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--jplanet-navy);
+    cursor: pointer;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 750;
+    text-align: center;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-colors button img {
+    width: 100%;
+    height: 66px;
+    object-fit: contain;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-colors button svg {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: var(--jplanet-sakura);
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-colors button[aria-pressed="true"] {
+    border-color: var(--jplanet-navy);
+    box-shadow: inset 0 0 0 1px var(--jplanet-navy);
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-colors button.is-sold-out {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-quantity {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-quantity > div {
+    display: grid;
+    grid-template-columns: 34px 46px 34px;
+    overflow: hidden;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 8px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-quantity button,
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-quantity span {
+    display: grid;
+    height: 34px;
+    place-items: center;
+    border: 0;
+    background: #fff;
+    color: var(--jplanet-navy);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 750;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-quantity button {
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-quantity button:disabled {
+    color: #aab3c2;
+    cursor: not-allowed;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-quantity span {
+    border-right: 1px solid var(--jplanet-line);
+    border-left: 1px solid var(--jplanet-line);
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--jplanet-muted);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-check svg {
+    flex: 0 0 auto;
+    color: var(--jplanet-navy);
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-actions button {
+    display: inline-flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid var(--jplanet-navy);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--jplanet-navy);
+    cursor: pointer;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase-actions button:last-child {
+    border-color: var(--jplanet-sakura);
+    background: var(--jplanet-sakura);
+    color: #fff;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-scroll-section {
+    grid-column: 1 / -1;
+    margin: 8px 0 0;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-footer {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller {
+    width: min(960px, calc(100% - 36px));
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller > main {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.84fr);
+    gap: 24px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-purchase {
+    padding: 16px;
   }
 }
 

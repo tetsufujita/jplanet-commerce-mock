@@ -124,6 +124,28 @@ type ReferenceNintendoMobileScreen =
   | "reviews"
   | "controller";
 
+function useDesktopControllerGallery() {
+  const query = "(min-width: 768px)";
+  const readMatch = () =>
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(query).matches
+      : false;
+  const [isDesktop, setIsDesktop] = useState(readMatch);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+
+    const mediaQuery = window.matchMedia(query);
+    const update = () => setIsDesktop(mediaQuery.matches);
+
+    update();
+    mediaQuery.addEventListener("change", update);
+    return () => mediaQuery.removeEventListener("change", update);
+  }, []);
+
+  return isDesktop;
+}
+
 type ControllerReviewFilter = "all" | "media" | "five-star";
 
 const controllerGalleryVariants = [
@@ -780,7 +802,9 @@ function MobileReferenceProductDetail({
   detail: ReturnType<typeof getProductDetail>;
   dispatch: Dispatch<SazoAction>;
 }) {
+  const { t } = useTranslation();
   const { product } = detail;
+  const isDesktopControllerGallery = useDesktopControllerGallery();
   const [variantSheetOpen, setVariantSheetOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState("White");
   const [selectedModel, setSelectedModel] = useState("OLED");
@@ -794,6 +818,7 @@ function MobileReferenceProductDetail({
   const [isControllerSaved, setIsControllerSaved] = useState(false);
   const [isControllerSpecificationSheetOpen, setIsControllerSpecificationSheetOpen] =
     useState(false);
+  const [isDesktopDeliveryGuideOpen, setIsDesktopDeliveryGuideOpen] = useState(false);
   const [isControllerDescriptionOpen, setIsControllerDescriptionOpen] = useState(false);
   const [expandedDescriptionImage, setExpandedDescriptionImage] = useState<{
     src: string;
@@ -819,6 +844,7 @@ function MobileReferenceProductDetail({
   const controllerSpecificationSummary =
     controllerSpecifications.find((specification) => specification.label === "接続方式")?.value ??
     controllerSpecifications[0]?.value;
+  const controllerPointsAmount = Math.floor(detail.unitPriceAmount * 0.01);
   const activeControllerGalleryVariant =
     controllerGalleryVariants[controllerThumbnail] ?? controllerGalleryVariants[0]!;
   const visibleControllerReviews = controllerProductReviews.filter((review) => {
@@ -840,6 +866,34 @@ function MobileReferenceProductDetail({
     }
   };
 
+  const openDeliveryDetails = () => {
+    if (isDesktopControllerGallery) {
+      setIsDesktopDeliveryGuideOpen(true);
+      return;
+    }
+
+    openMobileScreen("delivery");
+  };
+
+  useEffect(() => {
+    if (!isDesktopControllerGallery) {
+      setIsDesktopDeliveryGuideOpen(false);
+    }
+  }, [isDesktopControllerGallery]);
+
+  useEffect(() => {
+    if (!isDesktopDeliveryGuideOpen) return;
+
+    const closeOnEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsDesktopDeliveryGuideOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [isDesktopDeliveryGuideOpen]);
+
   const openVariantSheet = () => {
     setVariantSheetOpen(true);
   };
@@ -850,6 +904,19 @@ function MobileReferenceProductDetail({
 
   const closeControllerSheet = () => {
     setControllerSheetIntent(null);
+  };
+
+  const controllerCartItem = () => ({
+    option: `Proコントローラー / ${controllerColor}`,
+    productId: "jplanet-nintendo-pro-controller",
+    quantity: controllerQuantity,
+  });
+
+  const addControllerToCart = () => {
+    dispatch({
+      type: "add-to-cart",
+      item: controllerCartItem(),
+    });
   };
 
   const closeControllerDescription = () => {
@@ -865,16 +932,13 @@ function MobileReferenceProductDetail({
   };
 
   const completeControllerIntent = () => {
-    dispatch({
-      type: "add-to-cart",
-      item: {
-        option: `Proコントローラー / ${controllerColor}`,
-        productId: "jplanet-nintendo-pro-controller",
-        quantity: controllerQuantity,
-      },
-    });
+    addControllerToCart();
     closeControllerSheet();
     dispatch({ type: "navigate", view: "cart" });
+  };
+
+  const beginControllerCheckout = () => {
+    dispatch({ type: "begin-checkout", items: [controllerCartItem()] });
   };
 
   const returnToProduct = () => {
@@ -1201,6 +1265,25 @@ function MobileReferenceProductDetail({
           <span aria-hidden className="sazo-reference-nintendo-controller-media-count">
             {controllerThumbnail + 1}/{controllerGalleryVariants.length}
           </span>
+          {isDesktopControllerGallery ? (
+            <div
+              aria-label="商品画像を選択"
+              className="sazo-desktop-controller-gallery-thumbnails"
+            >
+              {controllerGalleryVariants.map((variant, index) => (
+                <button
+                  aria-current={controllerThumbnail === index ? "true" : undefined}
+                  aria-label={`${variant.color}の商品画像を表示`}
+                  key={variant.color}
+                  onClick={() => setControllerThumbnail(index)}
+                  type="button"
+                >
+                  <img alt="" src={variant.image} />
+                  <span>{variant.color}</span>
+                </button>
+              ))}
+            </div>
+          ) : null}
         </section>
         <section
           aria-label="カラーを選択"
@@ -1236,15 +1319,51 @@ function MobileReferenceProductDetail({
           >
             <div className="sazo-reference-nintendo-controller-title">
               <h1>Nintendo Switch Proコントローラー</h1>
+              {isDesktopControllerGallery ? (
+                <div
+                  aria-label="商品評価と販売元"
+                  className="sazo-desktop-controller-commerce-meta"
+                  data-testid="jplanet-desktop-controller-commerce-meta"
+                >
+                  <div className="sazo-desktop-controller-rating">
+                    <b>{detail.commerce.rating.toFixed(1)}</b>
+                    <ProductRatingStars rating={detail.commerce.rating} size={13} />
+                  </div>
+                  <span>{t("sazo.views.productDetail.commerceMeta.reviews", {
+                    count: detail.commerce.reviewCount,
+                  })}</span>
+                  <span>{t("sazo.views.productDetail.commerceMeta.sold", {
+                    count: detail.commerce.soldLabel,
+                  })}</span>
+                  <div className="sazo-desktop-controller-seller">
+                    <span aria-label={`${detail.commerce.sellerLogoLabel}のロゴ`}>
+                      {detail.commerce.sellerLogoLabel}
+                    </span>
+                    <b>{detail.commerce.sellerName}</b>
+                  </div>
+                  <a
+                    aria-label={t("sazo.views.productDetail.commerceMeta.sellerPageAria", {
+                      seller: detail.commerce.sellerName,
+                    })}
+                    href={detail.originalUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                    {t("sazo.views.productDetail.commerceMeta.sellerPage")}
+                  </a>
+                </div>
+              ) : null}
             </div>
-            <div className="sazo-reference-nintendo-controller-source">
-              <span>Nintendo</span>
-              <b>Nintendo 公式</b>
-              <a href={detail.originalUrl} rel="noreferrer" target="_blank">
-                <ExternalLink aria-hidden size={15} />
-                元ページを開く
-              </a>
-            </div>
+            {!isDesktopControllerGallery ? (
+              <div className="sazo-reference-nintendo-controller-source">
+                <span>Nintendo</span>
+                <b>Nintendo 公式</b>
+                <a href={detail.originalUrl} rel="noreferrer" target="_blank">
+                  <ExternalLink aria-hidden size={15} />
+                  元ページを開く
+                </a>
+              </div>
+            ) : null}
           </div>
           <section aria-label="価格情報" className="sazo-reference-nintendo-controller-price">
             <div className="sazo-reference-nintendo-controller-price-main">
@@ -1253,7 +1372,7 @@ function MobileReferenceProductDetail({
               <em>-14%</em>
             </div>
             <div className="sazo-reference-nintendo-controller-price-meta">
-              <span>30mil+ 購入済み</span>
+              {!isDesktopControllerGallery ? <span>30mil+ 購入済み</span> : null}
               <button
                 aria-label={isControllerSaved ? "お気に入りから削除" : "お気に入りに追加"}
                 aria-pressed={isControllerSaved}
@@ -1270,11 +1389,112 @@ function MobileReferenceProductDetail({
             </div>
           </section>
           <section
+            aria-label="PC用の購入オプション"
+            className="sazo-desktop-controller-purchase"
+            data-testid="jplanet-desktop-controller-purchase"
+          >
+            <div className="sazo-desktop-controller-purchase-heading">
+              <div>
+                <h2>バリエーション</h2>
+                <p>カラーと数量を選択してください</p>
+              </div>
+              <span>購入可能</span>
+            </div>
+            <section className="sazo-desktop-controller-purchase-colors">
+              <h3>カラー</h3>
+              <div>
+                {controllerPurchaseVariants.map((variant) => {
+                  const selected = controllerColor === variant.color;
+
+                  return (
+                    <button
+                      aria-disabled={!variant.available}
+                      aria-label={`${variant.color} ${variant.stockLabel}`}
+                      aria-pressed={selected}
+                      className={variant.available ? undefined : "is-sold-out"}
+                      disabled={!variant.available}
+                      key={variant.color}
+                      onClick={() => {
+                        setControllerColor(variant.color);
+                        setControllerThumbnail(
+                          controllerGalleryVariants.findIndex(
+                            (galleryVariant) => galleryVariant.color === variant.color,
+                          ),
+                        );
+                      }}
+                      type="button"
+                    >
+                      <img alt="" aria-hidden src={variant.image} />
+                      <span>{variant.color}</span>
+                      {selected ? <CircleCheck aria-hidden size={17} /> : null}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+            <section className="sazo-desktop-controller-purchase-quantity">
+              <h3>数量</h3>
+              <div aria-label="購入数量">
+                <button
+                  aria-label="PCで数量を減らす"
+                  disabled={controllerQuantity === 1}
+                  onClick={() =>
+                    setControllerQuantity((current) => Math.max(1, current - 1))
+                  }
+                  type="button"
+                >
+                  <Minus aria-hidden size={17} />
+                </button>
+                <span>{controllerQuantity}</span>
+                <button
+                  aria-label="PCで数量を増やす"
+                  onClick={() => setControllerQuantity((current) => current + 1)}
+                  type="button"
+                >
+                  <Plus aria-hidden size={17} />
+                </button>
+              </div>
+            </section>
+            <p className="sazo-desktop-controller-purchase-check">
+              <ClipboardCheck aria-hidden size={18} />
+              販売元・通関・配送条件を確認済み
+            </p>
+            <div className="sazo-desktop-controller-purchase-actions">
+              <button
+                aria-label="商品をカートに入れる"
+                onClick={() => {
+                  addControllerToCart();
+                  dispatch({ type: "navigate", view: "cart" });
+                }}
+                type="button"
+              >
+                <ShoppingCart aria-hidden size={18} />
+                カートに入れる
+              </button>
+              <button
+                aria-label="商品を購入に進む"
+                onClick={beginControllerCheckout}
+                type="button"
+              >
+                購入に進む
+              </button>
+            </div>
+          </section>
+          <section
             aria-label="通常日本商品"
             className="sazo-reference-nintendo-variant-info"
           >
             <strong>通常日本商品</strong>
             <span>日本の素敵な商品をすぐにお届けします。</span>
+            {isDesktopControllerGallery ? (
+              <p
+                className="sazo-desktop-controller-points"
+                data-testid="jplanet-desktop-controller-points"
+              >
+                <span>ポイント</span>
+                <b>{controllerPointsAmount}P (1%)</b>
+              </p>
+            ) : null}
           </section>
           <section aria-label="通関配送情報" className="sazo-reference-nintendo-estimate">
             <div className="sazo-reference-nintendo-estimate-header">
@@ -1286,7 +1506,7 @@ function MobileReferenceProductDetail({
               </p>
               <button
                 aria-label="配送・通関の詳細を開く"
-                onClick={() => openMobileScreen("delivery")}
+                onClick={openDeliveryDetails}
                 type="button"
               >
                 詳細 <ChevronRight aria-hidden size={16} />
@@ -1412,6 +1632,115 @@ function MobileReferenceProductDetail({
           </section>
         </>
       ) : null}
+      {isDesktopDeliveryGuideOpen ? (
+        <>
+          <div
+            aria-hidden="true"
+            className="sazo-desktop-controller-delivery-guide-scrim"
+            onClick={() => setIsDesktopDeliveryGuideOpen(false)}
+          />
+          <section
+            aria-describedby="jplanet-desktop-delivery-guide-description"
+            aria-labelledby="jplanet-desktop-delivery-guide-title"
+            aria-modal="true"
+            className="sazo-desktop-controller-delivery-guide"
+            data-testid="jplanet-desktop-delivery-guide"
+            role="dialog"
+          >
+            <header>
+              <div>
+                <Truck aria-hidden size={22} />
+                <div>
+                  <span>配送・通関</span>
+                  <h2 id="jplanet-desktop-delivery-guide-title">配送・通関に関するご案内</h2>
+                </div>
+              </div>
+              <button
+                aria-label="配送・通関のご案内を閉じる"
+                onClick={() => setIsDesktopDeliveryGuideOpen(false)}
+                type="button"
+              >
+                <X aria-hidden size={22} />
+              </button>
+            </header>
+            <div className="sazo-desktop-controller-delivery-guide-content">
+              <p id="jplanet-desktop-delivery-guide-description">
+                配送条件は、販売元の発送状況・商品の種類・配送先により変わります。
+              </p>
+              <div className="sazo-desktop-controller-delivery-guide-product">
+                <img alt="Nintendo Switch Proコントローラー" src={activeControllerGalleryVariant.image} />
+                <div>
+                  <strong>Nintendo Switch Proコントローラー</strong>
+                  <span>{controllerColor} / 購入可能</span>
+                </div>
+              </div>
+              <section className="sazo-desktop-controller-delivery-guide-arrival">
+                <h3>到着予定の目安</h3>
+                <ol>
+                  <li>
+                    <span>
+                      <Box aria-hidden size={18} />
+                    </span>
+                    <div>
+                      <b>日本での手配</b>
+                      <small>販売元の発送予定を確認します。</small>
+                    </div>
+                    <strong>注文確定後 1〜2日</strong>
+                  </li>
+                  <li>
+                    <span>
+                      <Truck aria-hidden size={18} />
+                    </span>
+                    <div>
+                      <b>ブラジル到着予定</b>
+                      <small>国際配送・通関手続きの日数を含む目安です。</small>
+                    </div>
+                    <strong>日本 → ブラジル: 7〜10日</strong>
+                  </li>
+                </ol>
+              </section>
+              <section className="sazo-desktop-controller-delivery-guide-checks">
+                <h3>購入前に確認する事項</h3>
+                <dl>
+                  <div>
+                    <dt>
+                      <Store aria-hidden size={18} />
+                      販売元
+                    </dt>
+                    <dd>Nintendo 公式の元ページに記載された販売・発送条件を確認します。</dd>
+                  </div>
+                  <div>
+                    <dt>
+                      <ShoppingCart aria-hidden size={18} />
+                      購入条件
+                    </dt>
+                    <dd>配送先・バリエーションごとに確認が必要です。</dd>
+                  </div>
+                  <div>
+                    <dt>
+                      <ShieldCheck aria-hidden size={18} />
+                      通関・費用
+                    </dt>
+                    <dd>送料・税金の内訳は、購入前に確認が必要です。</dd>
+                  </div>
+                </dl>
+              </section>
+              <aside>
+                <Info aria-hidden size={19} />
+                <p>
+                  <b>表示内容について</b>
+                  <span>表示日数は参考です。選択したバリエーション、販売元の発送状況、配送・通関手続きにより前後する可能性があります。</span>
+                </p>
+              </aside>
+            </div>
+            <footer>
+              <button onClick={() => setIsDesktopDeliveryGuideOpen(false)} type="button">
+                閉じる
+              </button>
+            </footer>
+          </section>
+        </>
+      ) : null}
       {controllerSheetIntent !== null ? (
         <>
           <div
@@ -1441,7 +1770,7 @@ function MobileReferenceProductDetail({
                 <em>購入可能</em>
                 <span>R$ 429</span>
                 <small>
-                  税金・国際送料を含む見込み <Info aria-hidden size={16} />
+                  送料・税金の内訳は購入前に確認が必要です <Info aria-hidden size={16} />
                 </small>
               </div>
             </div>
@@ -1620,7 +1949,7 @@ function MobileReferenceProductDetail({
           <strong>R$ 2,184</strong>
           <div>
             <small>
-              税金・国際送料を含む見込み <Info aria-hidden size={13} />
+              送料・税金の内訳は購入前に確認が必要です <Info aria-hidden size={13} />
             </small>
             <button
               aria-expanded={isBreakdownOpen}
@@ -1633,7 +1962,7 @@ function MobileReferenceProductDetail({
           </div>
           {isBreakdownOpen ? (
             <p className="sazo-retrieved-product-breakdown" role="status">
-              商品価格・国際送料・税金を含む到着見込み額です。
+              商品価格をもとにした参考表示です。送料・税金の内訳は購入前に確認が必要です。
             </p>
           ) : null}
         </section>

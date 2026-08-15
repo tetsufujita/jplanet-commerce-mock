@@ -47,6 +47,144 @@ final result: passed
 
 ---
 
+## 2026-08-15 — PC商品詳細: 配送・通関ガイド
+
+**Comparison input**
+
+- Source visual mechanism: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_WyUOb6/スクリーンショット 2026-08-15 0.03.12.png`（SAZOの中央モーダル、暗いスクリーン、閉じる操作）。固有ロゴ・文言・保証表現は移植しない。
+- Browser-rendered implementation: `/tmp/jplanet-desktop-delivery-guide-1440.png`（CSS viewport `1440 × 960`）。比較画像は `/tmp/jplanet-delivery-guide-comparison.png`（上段: 参照、下段: J-Planet実装）です。
+- State: Nintendo Switch ProコントローラーのPC商品詳細で`配送・通関の詳細を開く`を選択した状態。
+
+**Comparison history and findings**
+
+- P1 → fixed: PCで詳細を開くとモバイル専用の配送詳細画面に遷移していました。PCだけ中央モーダルを開くようにし、商品詳細のコンテキストを保ちます。
+- P1 → fixed: `関税込み・国際送料を含む見込みです。`は根拠のないため削除しました。送料・税金は`購入前に確認が必要です`と明示しています。
+
+**Full-view and focused comparison**
+
+- Layout and hierarchy: 参照と同じく、背景を暗くした上に中央の白いコンパクトな面を表示します。J-Planetではトラックアイコン、タイトル、3つの確認項目、到着日の注意、閉じるCTAを読み順どおりに配置しました。
+- Typography and color: 既存Arial系、ネイビー`#1f3864`、白、薄い罫線`#e5eaf1`のみを使っています。SAZOロゴ・コピー・保証表現・グラデーションは使っていません。
+- Interaction: `詳細`で開き、右上の閉じる、下部の`閉じる`、背景クリック、Escapeで閉じます。`prefers-reduced-motion`では出現アニメーションを無効化します。
+
+**Responsive and implementation checks**
+
+- 1440 × 960: 商品画像、右側購入面、背景の配送情報を保ったまま、中央モーダルが重なりなく表示されることを実ブラウザで確認しました。
+- 1024 × 900: モーダルは`560 × 501px`、左右余白を保持し、横オーバーフローなしを実測しました。
+- 768 × 900: モーダルは`560 × 501px`、左右余白を保持し、横オーバーフローなしを実測しました。
+- 390 × 844: PCモーダルは表示されず、既存のモバイル配送詳細画面へ遷移することを確認しました。偽の費用包含表現だけは全表示面から除去しています。
+- `pnpm typecheck`、商品詳細Unit 34件、PC／mobile対象E2E、`git diff --check`を通過しました。
+
+final result: passed
+
+---
+
+## 2026-08-14 — PC商品詳細の購入情報・バリエーション階層（追記）
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-14 23.36.18.png` と `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_oWhHso/スクリーンショット 2026-08-14 23.34.52.png`。商品種別、ポイント、配送情報、コンパクトな選択肢の情報階層だけを参照対象にしました。SAZOのロゴ、コピー、保証表現、色は取り込みません。
+- Browser-rendered implementation: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=1&view=product&product=jplanet-nintendo-pro-controller`。in-app Browserで CSS viewport `1440 × 960`、`1024 × 900`、`768 × 900` を実画像で確認しました。
+- State: Nintendo Switch Proコントローラー、ブラック選択、数量1、PC商品詳細。
+
+**Findings and resolution**
+
+- [P1 → fixed] 価格以下の情報が重い購入カードに混在していました。商品種別・ポイントを価格直後の軽い行、配送・通関とBRL見込みを次の情報カード、バリエーションと数量・CTAを最後の購入面に分離しました。
+- [P1 → fixed] 1024px未満で横長の選択肢が窮屈になるため、768〜899pxでは画像を上、ラベルを下にした小さな選択肢へ切り替え、900px以上は横並びのコンパクトな選択肢にしました。
+- P0/P1/P2: なし。1440pxでは左右の主カラムが通常フローで収まり、画像・タイトル・価格・情報・CTAの重なりはありません。
+
+**Visual and interaction checks**
+
+- 左のギャラリーは既存画像を`object-fit: contain`で表示し、下の3枚のサムネイルでメイン画像を切り替えます。画像を背景化せず、右カラムと重なりません。
+- 右カラムは既存のタイトル、販売元、BRL価格、値引き、販売実績、お気に入りを維持したまま、`通常日本商品`、`4P (1%)`、通関配送情報、`関税込み・国際送料を含む見込みです。`、コンパクトなカラー選択、数量、横並びCTAの順です。
+- カラー選択、数量変更、カート追加、購入開始、元ページへの既存遷移をdesktop E2Eで確認しました。ブラウザconsole errorは0件です。
+- 341px、390px、440pxではPC限定のポイント・BRL見込み行はDOMに出さず、PC購入面は非表示、既存のモバイル変種レールと固定CTAは維持されています。横オーバーフローはありません。
+
+**Verification**
+
+- `pnpm typecheck`
+- `pnpm exec vitest run tests/unit/sazo-product-detail.test.tsx`（34件）
+- `pnpm exec playwright test tests/e2e/sazo-commerce-reproduction.spec.ts --project=desktop --grep 'keeps desktop product actions'`
+- `pnpm exec playwright test tests/e2e/sazo-commerce-reproduction.spec.ts --project=mobile --grep 'continues a retrieved Nintendo product'`
+- `git diff --check`
+
+final result: passed
+
+---
+
+## 2026-08-14 — レビュー導入部の重複見出しを削除
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-14 23.38.35.png`。赤枠は購入エージェントの直下にある重複した `購入体験レビュー` と説明文で、削除対象です。
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-381ae-th-working-decision-filters-mobile/reviews-390.png`（390 × 844 CSS viewport、DPR 2）。同一の導入部を比較しました。
+
+**Result**
+
+- [P1 → fixed] `.sazo-review-intro` をレビュー画面から削除しました。ヘッダーにのみ `購入体験レビュー` を残し、購入エージェントの検索案内の直後から最初の写真レビューを開始します。
+- 余白・既存操作: 罫線後にカルーセルが始まり、検索入力・カメラ・送信、判断軸フィルター、横スワイプ、下部ナビを維持しました。
+- Checks: `pnpm typecheck`、対象Unit、対象モバイルE2E、`git diff --check` を実行しました。既存の全Unitには今回と無関係な4件の失敗があります。
+
+final result: passed
+
+---
+
+## 2026-08-14 — 購入体験レビューの検索案内
+
+**Comparison input**
+
+- Source visual truth: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_ZaPyHg/スクリーンショット 2026-08-14 23.26.13.png`（`668 × 1182` px）の検索欄直下。黒い上向きの手描き風矢印と、`購入したい商品の名前を / こちらで検索してください！` の二行を比較対象にしました。
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-381ae-th-working-decision-filters-mobile/reviews-390.png`（CSS viewport `390 × 844`、2× density、`780 × 1688` px）。対象領域を同じ大きさへ正規化して横に並べた比較入力は `/tmp/jplanet-review-agent-callout-comparison.png` です（左: 参照、右: 実装）。
+- State: `?qa=1&view=reviews`、購入エージェント入力欄は未入力、固定ナビ表示。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 初回は桜ピンクの小さい矢印と一行の案内だったため、参照の黒い矢印・二行の強い検索誘導と一致していませんでした。Lucideの`CornerLeftUp`を黒・太線・拡大表示へ変更し、指定文言を二行で配置しました。
+- P0/P1/P2: なし。矢印は入力欄左下から上向きに視線を戻し、二行の文言は入力欄の直下で読み切れます。赤枠や選択ハンドルは参照の注釈であり、実装には含めていません。
+
+**Fidelity and interaction checks**
+
+- Typography / spacing: 参照どおり太い黒文字と二行構成にし、エージェント入口の外側余白とレビュー見出しの区切り線を維持しました。
+- Colors / assets: 桜色を黒矢印へ置き換え、既存LucideアイコンとJ-Planetの桜マークだけを使用しています。新規画像や独自SVGは追加していません。
+- Copy: 日本語は参照の指定文言をそのまま採用し、英語・ポルトガル語も同じ二行の検索案内へ更新しました。
+- Responsive / interaction: 341px、390px、440pxで横オーバーフローなし。入力・カメラ・送信は既存のエージェント検索導線を維持し、送信後に`agent-searching`へ遷移する対象E2Eを確認しました。
+- `pnpm typecheck`、対象モバイルE2E、`git diff --check`: passed。
+
+final result: passed
+
+---
+
+## 2026-08-14 — PCホームのレビュー／J-Planet GRAM 横レール
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-14 19.01.26.png`（レビュー）と `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-14 19.01.33.png`、`/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-14 19.01.36.png`（GRAM）。PCの横スクロール、写真主体のカード、下部の商品情報、下線付きの「もっと見る」を比較対象にしました。
+- Intended implementation: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent` のPCホーム、`1440 × 1000` CSS viewport。レビュー6件、GRAM5件、左右スクロールボタンの状態です。
+- Browser-rendered implementation screenshot: 利用不可。ローカルページを再読み込み後、in-app BrowserのURLポリシーがDOM取得／スクリーンショットをブロックしました。別ブラウザや直接的な代替自動化には切り替えていません。
+
+**Implemented fidelity surfaces**
+
+- Fonts and typography: 既存Arial系とネイビーを維持し、見出しを横レールの起点として強調、`もっと見る` を参照どおり下線付きのテキスト操作にしました。
+- Spacing and layout rhythm: 既存の2列パネルを廃止し、2つの全幅セクションへ変更。レビューは正方形の写真＋本文・反応数、GRAMは縦長のメディア＋商品サムネイル／名称／価格の構成です。
+- Colors and visual tokens: 白、ネイビー、桜ピンク、既存の薄い罫線だけを使用。新しいバナー、グラデーション、モバイル用スタイルは追加していません。
+- Image quality and asset fidelity: 既存の`review-media`、`community`、既存カタログ画像だけを使用し、GRAMの縦長比率を維持しています。
+- Copy and interactions: すべての新規アクセシブル名を全localeへ追加。左右ボタンは各レールをスクロールし、カードと`もっと見る`は既存のレビュー／GRAM画面へ遷移します。
+
+**Verification recorded**
+
+- `pnpm typecheck`: passed
+- `pnpm exec vitest run tests/unit/sazo-commerce-home.test.tsx`: 53 passed
+- PCホーム対象E2E（768px / 1024px / 1440px、横オーバーフロー、レール要素・遷移）: passed
+- `git diff --check`: passed
+- モバイルへの影響: 新規レンダーは`DesktopHomeCommunity`のみ、スタイルは既存の`@media (min-width: 768px)`ブロック内です。
+
+**Open QA blocker**
+
+- 実装スクリーンショットを参照画像と同じ比較入力へ並べられていないため、P0/P1/P2の最終視覚判定は未完了です。ブラウザが再接続でき次第、1440pxで写真のクロップ、レールの見切れ、矢印の位置、下部商品情報を比較します。
+
+final result: blocked
+
+---
+
 ## 2026-08-14 — ホーム購入エージェントの確認範囲を一文化
 
 **Comparison input**
@@ -2285,5 +2423,38 @@ final result: passed
 - 1024px: 10列×2段、長いラベルの自然な折り返し、横オーバーフローなしを確認しました。
 - 768px: 6列の読みやすい密度へ切り替え、横オーバーフローなしを確認しました。
 - `pnpm typecheck`、ホームUnit 52件、PCホームE2E、モバイル既存導線E2E、`git diff --check`を通過しました。ブラウザconsole errorは0件です。カテゴリー部は`DesktopHomeView`だけでレンダーし、スタイルも`@media (min-width: 768px)`に閉じているため、モバイルのDOM・UIは変更していません。
+
+final result: passed
+
+---
+
+## 2026-08-15 — PC商品詳細: 詳細版の配送・通関ガイド
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-15 0.26.05.png`（`840 × 1258` px、スマホ版）。`到着予定`、商品要約、`確認した内容`、不確実性の注記という情報構造をPCモーダルへ反映する対象です。
+- Browser-rendered implementation: `/tmp/jplanet-desktop-delivery-guide-detailed-1440.png`（CSS viewport `1440 × 960`、ブラウザキャプチャ `1440 × 960` px）。正規化済み比較入力は `/tmp/jplanet-delivery-guide-detailed-comparison.png`（左: 参照を`400 × 570` px、右: PCモーダルを`450 × 548` px）です。デバイス幅が異なるため、同一ピクセルの比較ではなく情報階層・余白・可読性を比較しました。
+- State: Nintendo Switch ProコントローラーのPC商品詳細で`配送・通関の詳細を開く`を選択した状態。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 初回のPCモーダルは、発送・通関・費用を一行ずつ示すだけで、ユーザーが到着目安と確認範囲を把握できませんでした。
+- 修正後は、商品要約、`到着予定の目安`の2段タイムライン、`購入前に確認する事項`の3行、表示条件の注記へ再編しました。
+- P0/P1/P2: なし。送料・税金の内訳は確定情報として表示せず、購入前確認が必要である旨を保持しています。
+
+**Full-view and focused comparison**
+
+- Fonts and typography: 既存Arial系、ネイビー`#1f3864`、見出しの太字と補足のmuted navyを維持しました。タイムラインの期日は右寄せで、ラベル・補足・日数の優先度を分けています。
+- Spacing and layout rhythm: PCは`640px`幅、内容の実高`779px`で表示し、1440pxと768pxのどちらでもモーダル内スクロールなし・上下余白ありを確認しました。白い区切り線と10px角丸の情報面を使い、密度を保ちながら読み分けられます。
+- Colors and visual tokens: 白、ネイビー、薄い罫線、既存の淡い情報面だけを使っています。SAZO固有の色・コピー・保証表現、グラデーションは使っていません。
+- Image quality and asset fidelity: 商品要約には既存の選択中コントローラー画像を`object-fit: contain`で使い、画像生成や代替図形を追加していません。
+- Copy and content: `販売元`、`購入条件`、`通関・費用`を分け、販売・発送条件、配送先／バリエーション、費用内訳の確認責任を明確にしました。到着日数は目安とし、送料・税金の包含を断定していません。
+
+**Responsive and implementation checks**
+
+- 1440 × 960: モーダルは`640 × 779px`、内側スクロールなし、横オーバーフローなしを実測しました。
+- 768 × 900: モーダルは`640 × 779px`、上下61pxの余白、横オーバーフローなしを実測しました。
+- 390 × 844: PCモーダルは表示されず、既存のモバイル配送詳細画面が開くこと、横オーバーフローなしを確認しました。
+- `pnpm typecheck`、商品詳細Unit 34件、PC／mobile対象E2E、`git diff --check`を通過しました。
 
 final result: passed

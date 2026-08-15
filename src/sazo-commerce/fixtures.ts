@@ -153,6 +153,13 @@ export interface ProductDetail {
   originalName: string;
   categoryLabel: string;
   originalUrl: string;
+  commerce: {
+    rating: number;
+    reviewCount: number;
+    sellerLogoLabel: string;
+    sellerName: string;
+    soldLabel: string;
+  };
   unitPriceAmount: number;
   localDistributionFeeAmount: number;
   purchaseTypeId: "direct" | "marketplace";
@@ -1745,7 +1752,7 @@ export const purchaseExperienceReviews: readonly PurchaseExperienceReview[] = [
     bodyKey: "sazo.views.reviews.entries.mika",
     chipKeys: ["sazo.views.reviews.chips.url", "sazo.views.reviews.chips.condition"],
     decisionAxes: ["condition", "brl-total"],
-    image: "/sazo-commerce/reference/new-balance-9060.png",
+    image: "/sazo-commerce/review-media/mika-sneakers-arrival-v1.png",
     imageAltKey: "sazo.views.reviews.imageAlt",
   },
   {
@@ -1806,13 +1813,30 @@ export const purchaseExperienceReviews: readonly PurchaseExperienceReview[] = [
  * review reference. Keeping the order in fixtures avoids presentation order
  * being scattered through the view component.
  */
-export const purchaseExperienceReviewFeed: readonly PurchaseExperienceReview[] = [
+const purchaseExperienceReviewFeedBase: readonly PurchaseExperienceReview[] = [
   purchaseExperienceReviews[2]!,
   purchaseExperienceReviews[3]!,
   purchaseExperienceReviews[0]!,
   purchaseExperienceReviews[1]!,
   purchaseExperienceReviews[4]!,
   purchaseExperienceReviews[5]!,
+];
+
+/**
+ * The mock feed deliberately repeats the approved six review examples three
+ * times. This gives the mobile review wall enough vertical density for visual
+ * testing without implying that these are eighteen distinct customer reviews.
+ */
+export const purchaseExperienceReviewFeed: readonly PurchaseExperienceReview[] = [
+  ...purchaseExperienceReviewFeedBase,
+  ...purchaseExperienceReviewFeedBase.map((review) => ({
+    ...review,
+    id: `${review.id}-test-repeat-2`,
+  })),
+  ...purchaseExperienceReviewFeedBase.map((review) => ({
+    ...review,
+    id: `${review.id}-test-repeat-3`,
+  })),
 ];
 
 export const serviceSteps = [
@@ -2232,6 +2256,53 @@ export const homeGramEntries: readonly HomeGramEntry[] = homeGramEntryIds.map((i
   };
 });
 
+/**
+ * The desktop discovery rail intentionally has a deeper set than the mobile
+ * home preview. Keeping this fixture separate preserves the mobile DOM and
+ * its two-post entry point while giving wide screens the full editorial rail.
+ */
+export const desktopHomeGramEntryIds = [
+  "g01",
+  "g03",
+  "g02",
+  "g04",
+  "g05",
+] as const satisfies readonly GramEntryId[];
+
+const desktopHomeGramProducts = {
+  g01: homeGramProducts.g01,
+  g02: homeGramProducts.g02,
+  g03: homeGramProducts.g03,
+  g04: {
+    image: "/sazo-commerce/reference/figure.png",
+    name: "日本限定 キャラクターフィギュア",
+    price: "R$ 318",
+  },
+  g05: {
+    image: "/sazo-commerce/reference/new-balance-9060.png",
+    name: "New Balance 9060",
+    price: "R$ 748",
+  },
+} as const satisfies Record<
+  (typeof desktopHomeGramEntryIds)[number],
+  HomeGramEntry["product"]
+>;
+
+export const desktopHomeGramEntries: readonly HomeGramEntry[] =
+  desktopHomeGramEntryIds.map((id) => {
+    const entry = gramEntries.find((candidate) => candidate.id === id);
+
+    if (!entry) {
+      throw new Error(`Missing J-Planet desktop GRAM entry: ${id}`);
+    }
+
+    return {
+      ...entry,
+      image: id === "g02" ? "/sazo-commerce/gram/home/02.png" : entry.image,
+      product: desktopHomeGramProducts[id],
+    };
+  });
+
 export const reviewRecommendations = [
   {
     id: "recommendation-01",
@@ -2296,6 +2367,13 @@ const productDetailOverrides = new Map<string, Omit<ProductDetail, "product">>([
       originalName: "NCT WISH - STEADY Mini Keyring",
       categoryLabel: "K-POP・アイドル",
       originalUrl: "https://example.com/jplanet/source/p01",
+      commerce: {
+        rating: 4.8,
+        reviewCount: 128,
+        sellerLogoLabel: "J-Planet",
+        sellerName: "J-Planet セレクション",
+        soldLabel: "1mil+",
+      },
       unitPriceAmount: 3799,
       localDistributionFeeAmount: 350,
       purchaseTypeId: "direct",
@@ -2315,6 +2393,13 @@ const productDetailOverrides = new Map<string, Omit<ProductDetail, "product">>([
       originalName: "Nintendo Switch OLED / ホワイトセット",
       categoryLabel: "ゲーム・家電",
       originalUrl: "https://example.com/jplanet/source/nintendo-switch-oled",
+      commerce: {
+        rating: 4.8,
+        reviewCount: 864,
+        sellerLogoLabel: "Nintendo",
+        sellerName: "Nintendo 公式",
+        soldLabel: "30mil+",
+      },
       unitPriceAmount: 37980,
       localDistributionFeeAmount: 420,
       purchaseTypeId: "direct",
@@ -2338,13 +2423,20 @@ const productDetailOverrides = new Map<string, Omit<ProductDetail, "product">>([
       originalName: "Nintendo Switch Proコントローラー",
       categoryLabel: "ゲーム・家電",
       originalUrl: "https://example.com/jplanet/source/nintendo-pro-controller",
+      commerce: {
+        rating: 4.8,
+        reviewCount: 864,
+        sellerLogoLabel: "Nintendo",
+        sellerName: "Nintendo 公式",
+        soldLabel: "30mil+",
+      },
       unitPriceAmount: 429,
       localDistributionFeeAmount: 0,
       purchaseTypeId: "direct",
       deliveryEstimateDays: 10,
       optionLabel: "カラー",
       options: ["ブラック", "ホワイト", "スプラトゥーン"],
-      purchaseNote: "関税込み・国際送料を含む見込みです。",
+      purchaseNote: "送料・税金の内訳は購入前に確認が必要です。",
       information:
         "販売元・輸入条件・配送予定を確認してから手配します。表示金額と到着予定は、選択したカラーと配送先により変わる場合があります。",
       recommendationIds: [
@@ -2363,6 +2455,13 @@ function createGeneratedProductDetail(product: Product): ProductDetail {
     originalName: product.name,
     categoryLabel: "J-Planet セレクション",
     originalUrl: `https://example.com/jplanet/source/${encodeURIComponent(product.id)}`,
+    commerce: {
+      rating: 4.8,
+      reviewCount: 0,
+      sellerLogoLabel: product.brand,
+      sellerName: product.brand,
+      soldLabel: "",
+    },
     unitPriceAmount: parseYenPrice(product.price),
     localDistributionFeeAmount: 350,
     purchaseTypeId: "direct",

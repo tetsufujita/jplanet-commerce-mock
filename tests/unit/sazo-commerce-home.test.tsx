@@ -386,16 +386,35 @@ describe("SAZO home composition", () => {
     const desktopReviews = screen.getByTestId("desktop-home-reviews");
     const desktopGram = screen.getByTestId("desktop-home-gram");
     const desktopCategories = screen.getByTestId("desktop-home-category-grid");
-    expect(desktopReviews.querySelectorAll(".sazo-desktop-home-review-card")).toHaveLength(2);
-    expect(desktopGram.querySelectorAll(".sazo-desktop-home-gram-card")).toHaveLength(2);
+    const desktopCategoryProducts = screen.getByTestId(
+      "desktop-home-category-products",
+    );
+    expect(
+      desktopReviews.querySelectorAll(".sazo-desktop-home-review-card"),
+    ).toHaveLength(6);
+    expect(desktopGram.querySelectorAll(".sazo-desktop-home-gram-card")).toHaveLength(5);
+    expect(
+      within(desktopReviews).getByRole("button", { name: "次のレビューを表示" }),
+    ).toBeTruthy();
+    expect(
+      within(desktopGram).getByRole("button", { name: "次のJ-Planet GRAM投稿を表示" }),
+    ).toBeTruthy();
     expect(
       screen
         .getByTestId("desktop-home-product-rail")
         .compareDocumentPosition(desktopReviews) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(
-      desktopGram.compareDocumentPosition(desktopCategories) & Node.DOCUMENT_POSITION_FOLLOWING,
+      desktopGram.compareDocumentPosition(desktopCategories) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+    expect(
+      desktopCategories.compareDocumentPosition(desktopCategoryProducts) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      within(desktopCategoryProducts).getAllByTestId("home-dense-product-card"),
+    ).toHaveLength(60);
     expect(container.querySelector(".sazo-desktop-home-hero-search")).toBeNull();
     expect(screen.queryByRole("search", { name: "購入エージェント検索" })).toBeNull();
 
@@ -404,6 +423,11 @@ describe("SAZO home composition", () => {
 
     fireEvent.click(within(desktopGram).getByRole("button", { name: "もっと見る" }));
     expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "gram" });
+
+    fireEvent.click(
+      within(desktopCategoryProducts).getByRole("button", { name: "もっと見る" }),
+    );
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "ranking" });
 
     fireEvent.click(
       screen.getAllByRole("button", {

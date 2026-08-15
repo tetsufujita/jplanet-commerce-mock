@@ -436,15 +436,17 @@ async function replayMobileScenario(page: Page) {
   await expect(persistentAssurances).toBeVisible();
   await expect(persistentAssurances).toHaveCSS("display", "grid");
   await expect(persistentAssurances).toHaveCSS("border-top-width", "0px");
-  const agentEntryAlignment = await page.locator("[data-home-agent-entry]").evaluate((entry) => {
-    const launcher = entry.querySelector<HTMLElement>(".sazo-home-agent-launcher");
-    const assurances = entry.querySelector<HTMLElement>(".sazo-home-agent-assurances");
+  const agentEntryAlignment = await page
+    .locator("[data-home-agent-entry]")
+    .evaluate((entry) => {
+      const launcher = entry.querySelector<HTMLElement>(".sazo-home-agent-launcher");
+      const assurances = entry.querySelector<HTMLElement>(".sazo-home-agent-assurances");
 
-    return Math.abs(
-      (launcher?.getBoundingClientRect().left ?? Number.NaN) -
-        (assurances?.getBoundingClientRect().left ?? Number.NaN),
-    );
-  });
+      return Math.abs(
+        (launcher?.getBoundingClientRect().left ?? Number.NaN) -
+          (assurances?.getBoundingClientRect().left ?? Number.NaN),
+      );
+    });
   expect(agentEntryAlignment).toBeLessThanOrEqual(1);
   await expectLoadedDenseHomeProducts(page);
   externalRequests.length = 0;
@@ -1834,11 +1836,36 @@ test("renders mobile purchase experience reviews with working decision filters",
   await page.goto(`${routePath}&view=reviews`);
 
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "reviews");
+  await expect(page.getByRole("heading", { name: "購入体験レビュー" })).toHaveCount(1);
+
+  const reviewAgentEntry = page.locator("[data-review-agent-entry]");
+  await expect(reviewAgentEntry).toBeVisible();
   await expect(
-    page.locator('[data-view-content="reviews"] .sazo-review-intro h1'),
-  ).toHaveText("購入体験レビュー");
+    reviewAgentEntry.getByRole("heading", { name: "購入エージェント" }),
+  ).toBeVisible();
+  await expect(
+    reviewAgentEntry.getByText("購入したい日本商品のURL・画像・名前を\nこちらで検索してみてください！", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(reviewAgentEntry.locator(".sazo-review-agent-entry-hint svg")).toBeVisible();
+  const reviewAgentComposer = reviewAgentEntry.locator(".sazo-mobile-agent-composer");
+  await expect(
+    reviewAgentComposer.getByRole("textbox", { name: "URL・画像・商品名をAIに渡す" }),
+  ).toBeVisible();
+  await expect(
+    reviewAgentComposer.getByRole("button", { name: "カメラ" }),
+  ).toBeVisible();
+  await expect(
+    reviewAgentComposer.locator(".sazo-mobile-agent-composer-input-shell"),
+  ).toHaveCSS("min-height", "48px");
 
   const carousel = page.locator('[data-review-feature-carousel="true"]');
+  await expect(carousel).toBeVisible();
+  expect(await carousel.evaluate((element) => Math.round(element.getBoundingClientRect().top))).toBeGreaterThan(
+    Math.round(await reviewAgentEntry.evaluate((element) => element.getBoundingClientRect().bottom)),
+  );
+
   const featureCards = carousel.locator(".sazo-review-feature-card");
   await expect(featureCards).toHaveCount(3);
   await expect
@@ -1868,14 +1895,55 @@ test("renders mobile purchase experience reviews with working decision filters",
       );
     }),
   ).toBe(true);
-  await expect(page.locator(".sazo-review-feature-copy").first()).toHaveCSS(
-    "background-color",
-    "rgba(0, 0, 0, 0)",
+  const featureOverlay = await page
+    .locator(".sazo-review-feature-copy")
+    .first()
+    .evaluate((element) => {
+      const overlay = getComputedStyle(element, "::before");
+      return {
+        color: overlay.backgroundColor,
+        height: Number.parseFloat(overlay.height),
+      };
+    });
+  expect(featureOverlay.color).toBe("rgba(0, 0, 0, 0.24)");
+  expect(featureOverlay.height).toBeGreaterThan(100);
+  await expect(featureCards.first().locator("img")).toHaveAttribute(
+    "src",
+    "/sazo-commerce/review-media/mika-sneakers-arrival-v1.png",
   );
   await expect(page.locator(".sazo-review-tile").first()).toHaveAttribute(
     "data-review-id",
     "purchase-review-yuri",
   );
+  await expect(page.locator(".sazo-review-tile")).toHaveCount(18);
+  const reviewFeedHeading = page.locator(".sazo-review-feed-heading");
+  const reviewCategoryRail = page.locator("[data-review-category-filter=\"true\"]");
+  expect(
+    await reviewFeedHeading.evaluate((heading) => heading.getBoundingClientRect().top),
+  ).toBeLessThan(
+    await reviewCategoryRail.evaluate((rail) => rail.getBoundingClientRect().top),
+  );
+  const firstReviewColumn = page.locator(".sazo-review-masonry-column").first();
+  const firstColumnTiles = firstReviewColumn.locator(".sazo-review-tile");
+  await expect(firstColumnTiles).toHaveCount(9);
+  expect(
+    await firstColumnTiles.nth(1).evaluate((tile) => tile.getBoundingClientRect().top),
+  ).toBeLessThanOrEqual(
+    (await firstColumnTiles.nth(0).evaluate((tile) => tile.getBoundingClientRect().bottom)) + 10,
+  );
+  const reviewMasonry = page.locator(".sazo-review-masonry");
+  await expect(reviewMasonry).toHaveCSS("grid-auto-rows", "auto");
+  expect(
+    await reviewMasonry.evaluate((masonry) => {
+      const editorialView = masonry.closest(".sazo-editorial-view");
+      return (
+        editorialView !== null &&
+        editorialView.getBoundingClientRect().bottom >= masonry.getBoundingClientRect().bottom
+      );
+    }),
+  ).toBe(true);
+  await firstColumnTiles.nth(1).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath("reviews-feed-390.png") });
 
   const mobileNavigation = page.getByRole("navigation", { name: "モバイルメニュー" });
   await expect(mobileNavigation).toBeVisible();
@@ -1887,7 +1955,7 @@ test("renders mobile purchase experience reviews with working decision filters",
   await page.screenshot({ path: testInfo.outputPath("reviews-390.png") });
 
   await page.getByRole("button", { name: "商品の状態" }).click();
-  await expect(page.locator(".sazo-review-tile")).toHaveCount(4);
+  await expect(page.locator(".sazo-review-tile")).toHaveCount(12);
   await expect(page.getByRole("button", { name: "商品の状態" })).toHaveAttribute(
     "aria-pressed",
     "true",
@@ -1898,6 +1966,13 @@ test("renders mobile purchase experience reviews with working decision filters",
     await expectNoHorizontalPageOverflow(page);
     await expect(mobileNavigation).toBeVisible();
   }
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await reviewAgentComposer
+    .getByRole("textbox", { name: "URL・画像・商品名をAIに渡す" })
+    .fill("New Balance 9060");
+  await reviewAgentComposer.getByRole("button", { name: "送信" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-searching");
 });
 
 test("replays the deterministic SAZO commerce journey", async ({ page }, testInfo) => {
@@ -2047,26 +2122,61 @@ test("keeps the selected agentic-commerce home responsive and interactive on des
     await expect(
       page.getByTestId("desktop-home-category-grid").getByRole("button"),
     ).toHaveCount(20);
+    const categoryProducts = page.getByTestId("desktop-home-category-products");
+    await expect(categoryProducts).toBeVisible();
+    await expect(categoryProducts.getByTestId("home-dense-product-card")).toHaveCount(60);
+    const categoryProductColumnCount = await categoryProducts
+      .locator(".sazo-desktop-home-category-product-grid")
+      .evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length);
+    expect(categoryProductColumnCount).toBe(
+      viewport.width >= 1280 ? 6 : viewport.width >= 1024 ? 5 : 4,
+    );
     await expect(page.getByTestId("desktop-home-reviews")).toBeVisible();
     await expect(page.getByTestId("desktop-home-gram")).toBeVisible();
     await expect(
       page.getByTestId("desktop-home-reviews").locator(".sazo-desktop-home-review-card"),
-    ).toHaveCount(2);
+    ).toHaveCount(6);
     await expect(
       page.getByTestId("desktop-home-gram").locator(".sazo-desktop-home-gram-card"),
-    ).toHaveCount(2);
+    ).toHaveCount(5);
+    await expect(
+      page
+        .getByTestId("desktop-home-reviews")
+        .getByRole("button", { name: "次のレビューを表示" }),
+    ).toBeVisible();
+    await expect(
+      page
+        .getByTestId("desktop-home-gram")
+        .getByRole("button", { name: "次のJ-Planet GRAM投稿を表示" }),
+    ).toBeVisible();
     expect(
       await desktopHome.evaluate((home) => {
-        const products = home.querySelector("[data-testid=\"desktop-home-product-rail\"]");
-        const community = home.querySelector("[data-testid=\"desktop-home-community\"]");
-        const categories = home.querySelector("[data-testid=\"desktop-home-category-grid\"]");
+        const products = home.querySelector('[data-testid="desktop-home-product-rail"]');
+        const community = home.querySelector('[data-testid="desktop-home-community"]');
+        const categories = home.querySelector(
+          '[data-testid="desktop-home-category-grid"]',
+        );
+        const categoryProducts = home.querySelector(
+          '[data-testid="desktop-home-category-products"]',
+        );
 
         return (
           products !== null &&
           community !== null &&
           categories !== null &&
-          Boolean(products.compareDocumentPosition(community) & Node.DOCUMENT_POSITION_FOLLOWING) &&
-          Boolean(community.compareDocumentPosition(categories) & Node.DOCUMENT_POSITION_FOLLOWING)
+          categoryProducts !== null &&
+          Boolean(
+            products.compareDocumentPosition(community) &
+            Node.DOCUMENT_POSITION_FOLLOWING,
+          ) &&
+          Boolean(
+            community.compareDocumentPosition(categories) &
+              Node.DOCUMENT_POSITION_FOLLOWING,
+          ) &&
+          Boolean(
+            categories.compareDocumentPosition(categoryProducts) &
+              Node.DOCUMENT_POSITION_FOLLOWING,
+          )
         );
       }),
     ).toBe(true);
@@ -2158,4 +2268,72 @@ test("keeps the selected agentic-commerce home responsive and interactive on des
     .first()
     .click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "product");
+
+  await page.goto(routePath);
+  await page
+    .getByTestId("desktop-home-category-products")
+    .getByRole("button", { name: "もっと見る" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ranking");
+});
+
+test("keeps desktop product actions in the purchase column without changing mobile", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "desktop",
+    "desktop project covers the desktop-only product purchase layout",
+  );
+
+  const productPath = `${routePath}&view=product&product=jplanet-nintendo-pro-controller`;
+
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await page.goto(productPath);
+
+  const desktopPurchase = page.getByTestId("jplanet-desktop-controller-purchase");
+  await expect(desktopPurchase).toBeVisible();
+  await expect(page.getByTestId("jplanet-desktop-controller-points")).toHaveText(
+    /4P \(1%\)/,
+  );
+  await expect(page.getByTestId("jplanet-desktop-controller-delivery-note")).toHaveCount(0);
+  await expect(page.getByText("関税込み・国際送料を含む見込みです。")).toHaveCount(0);
+  await page.getByRole("button", { name: "配送・通関の詳細を開く" }).click();
+  const deliveryGuide = page.getByTestId("jplanet-desktop-delivery-guide");
+  await expect(deliveryGuide).toBeVisible();
+  await expect(deliveryGuide).toContainText("送料・税金の内訳は、購入前に確認が必要です。");
+  await deliveryGuide.getByRole("button", { name: "配送・通関のご案内を閉じる" }).click();
+  await expect(deliveryGuide).toHaveCount(0);
+  await expect(page.getByTestId("jplanet-controller-variant-rail")).toBeHidden();
+  await expect(page.locator(".sazo-reference-nintendo-controller-footer")).toBeHidden();
+  const desktopGallery = page.locator(".sazo-desktop-controller-gallery-thumbnails");
+  await expect(desktopGallery).toBeVisible();
+  await expect(desktopGallery.getByRole("button")).toHaveCount(3);
+  await desktopGallery.getByRole("button", { name: "ホワイトの商品画像を表示" }).click();
+  await expect(
+    page.locator(".sazo-reference-nintendo-controller-hero"),
+  ).toHaveAttribute("src", "/sazo-commerce/reference/nintendo-pro-controller-white-v1.png");
+  await desktopPurchase.getByRole("button", { name: "ホワイト 在庫あり" }).click();
+  await expect(
+    page.locator(".sazo-reference-nintendo-controller-hero"),
+  ).toHaveAttribute("src", "/sazo-commerce/reference/nintendo-pro-controller-white-v1.png");
+  await desktopPurchase.getByRole("button", { name: "PCで数量を増やす" }).click();
+  await desktopPurchase.getByRole("button", { name: "商品をカートに入れる" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "cart");
+
+  await page.goto(productPath);
+  await page
+    .getByTestId("jplanet-desktop-controller-purchase")
+    .getByRole("button", { name: "商品を購入に進む" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "checkout");
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto(productPath);
+  await expect(page.getByTestId("jplanet-desktop-controller-purchase")).toBeHidden();
+  await expect(page.getByTestId("jplanet-desktop-controller-points")).toHaveCount(0);
+  await expect(page.getByTestId("jplanet-desktop-controller-delivery-note")).toHaveCount(0);
+  await expect(page.getByTestId("jplanet-controller-variant-rail")).toBeVisible();
+  await expect(page.locator(".sazo-reference-nintendo-controller-footer")).toBeVisible();
+  await page.getByRole("button", { name: "配送・通関の詳細を開く" }).click();
+  await expect(page.getByTestId("jplanet-delivery-detail")).toBeVisible();
 });

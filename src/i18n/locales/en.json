@@ -658,8 +658,17 @@
         "categories": "Categories"
       },
       "productsTitle": "Popular products checked by the agent",
+      "community": {
+        "previousReviews": "Show previous reviews",
+        "nextReviews": "Show next reviews",
+        "previousGram": "Show previous J-Planet GRAM posts",
+        "nextGram": "Show next J-Planet GRAM posts",
+        "openReview": "Open {{author}}'s review"
+      },
       "categoriesLabel": "Product categories",
       "categoriesTitle": "Categories",
+      "categoryProductsLabel": "Category product list",
+      "categoryProductsTitle": "Products by category",
       "categories": {
         "ladies": "Women's fashion",
         "mens": "Men's fashion",
@@ -745,6 +754,12 @@
         "source": {
           "label": "Japanese retailer · {{brand}}",
           "openOriginal": "Go to original page"
+        },
+        "commerceMeta": {
+          "reviews": "{{count}} reviews",
+          "sold": "{{count}} sold",
+          "sellerPage": "Seller page",
+          "sellerPageAria": "Open {{seller}} seller page"
         },
         "metadata": {
           "purchaseType": "Purchase type",
@@ -924,6 +939,11 @@
       "reviews": {
         "title": "Purchase experience reviews",
         "subtitle": "How shoppers found an item and how it arrived",
+        "agentEntry": {
+          "title": "Purchase agent",
+          "subtitle": "Check before buying with a URL, photo, or product name.",
+          "hint": "Search a Japanese product by URL,\nphoto, or name here!"
+        },
         "featuredLabel": "Featured purchase experiences",
         "communityHeading": "Purchase experiences from the community",
         "imageAlt": "{{author}}'s delivered item",

@@ -658,8 +658,17 @@
         "categories": "カテゴリー"
       },
       "productsTitle": "エージェントが確認した人気商品",
+      "community": {
+        "previousReviews": "前のレビューを表示",
+        "nextReviews": "次のレビューを表示",
+        "previousGram": "前のJ-Planet GRAM投稿を表示",
+        "nextGram": "次のJ-Planet GRAM投稿を表示",
+        "openReview": "{{author}}のレビューを開く"
+      },
       "categoriesLabel": "商品カテゴリー",
       "categoriesTitle": "カテゴリー",
+      "categoryProductsLabel": "カテゴリーの商品一覧",
+      "categoryProductsTitle": "カテゴリーの商品",
       "categories": {
         "ladies": "レディース",
         "mens": "メンズ",
@@ -745,6 +754,12 @@
         "source": {
           "label": "日本の販売サイト · {{brand}}",
           "openOriginal": "元のページへ"
+        },
+        "commerceMeta": {
+          "reviews": "{{count}}件のレビュー",
+          "sold": "{{count}} 購入済み",
+          "sellerPage": "販売ページへ",
+          "sellerPageAria": "{{seller}}の販売ページへ"
         },
         "metadata": {
           "purchaseType": "購入方法",
@@ -924,6 +939,11 @@
       "reviews": {
         "title": "購入体験レビュー",
         "subtitle": "商品をどう探し、届いてどうだったか",
+        "agentEntry": {
+          "title": "購入エージェント",
+          "subtitle": "URL・画像・商品名から、購入前に確認。",
+          "hint": "購入したい日本商品のURL・画像・名前を\nこちらで検索してみてください！"
+        },
         "featuredLabel": "注目の購入体験",
         "communityHeading": "みんなの購入体験",
         "imageAlt": "{{author}}の購入後写真",

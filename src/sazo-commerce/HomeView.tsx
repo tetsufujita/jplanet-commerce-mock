@@ -9,6 +9,7 @@ import {
   ArrowRight,
   Box,
   Camera,
+  CircleUserRound,
   CircleHelp,
   ChevronLeft,
   ChevronRight,
@@ -28,12 +29,14 @@ import {
   Star,
   Store,
   Tags,
+  ThumbsUp,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   getHeroSlidesForFeed,
   desktopHomeCategoryItems,
+  desktopHomeGramEntries,
   desktopHomeShortcutItems,
   homeShortcutItems,
   homeGramEntries,
@@ -281,6 +284,20 @@ const homeDenseProductFeed = Array.from(
       id: `${product.id}-home-batch-${String(batchIndex + 1)}`,
     })),
 ).flat();
+
+// The desktop catalog intentionally has enough repeated fixture items to make a
+// complete discovery surface. It is desktop-only; the mobile product feed keeps
+// its established length and composition.
+const desktopHomeCatalogProducts = Array.from(
+  { length: 4 },
+  (_, batchIndex) =>
+    homeDenseProducts.map((product) => ({
+      ...product,
+      id: `${product.id}-desktop-catalog-${String(batchIndex + 1)}`,
+    })),
+)
+  .flat()
+  .slice(0, 60);
 
 const homeDenseColumnBreakpoints = [
   { columns: 5, query: "(min-width: 1440px)" },
@@ -824,6 +841,71 @@ interface JplanetRecommendationGridProps extends Pick<HomeViewProps, "dispatch">
   testId?: string;
 }
 
+interface HomeDenseProductCardProps {
+  onOpen: () => void;
+  product: HomeDenseProduct;
+}
+
+function HomeDenseProductCard({ onOpen, product }: HomeDenseProductCardProps) {
+  return (
+    <article
+      className="sazo-home-dense-product"
+      data-media-aspect={product.mediaAspect}
+      data-product-target={JPLANET_PRODUCT_DETAIL_ID}
+      data-testid="home-dense-product-card"
+    >
+      <span className="sazo-home-dense-product-media">
+        <button
+          aria-label={`${product.name}の商品詳細を見る`}
+          className="sazo-home-dense-product-media-open"
+          onClick={onOpen}
+          type="button"
+        >
+          <img
+            alt={product.name}
+            decoding="async"
+            height={640}
+            src={product.image}
+            width={640}
+          />
+          <em>{product.label}</em>
+        </button>
+        <button
+          aria-label={`${product.name}の購入オプションを選ぶ`}
+          className="sazo-home-dense-product-add"
+          onClick={onOpen}
+          type="button"
+        >
+          <ShoppingCart aria-hidden size={19} strokeWidth={2} />
+          <Plus
+            aria-hidden
+            className="sazo-home-dense-product-add-plus"
+            size={11}
+            strokeWidth={2.6}
+          />
+        </button>
+      </span>
+      <button
+        aria-label={`${product.name}の商品詳細を見る`}
+        className="sazo-home-dense-product-copy"
+        onClick={onOpen}
+        type="button"
+      >
+        <strong>{product.name}</strong>
+        <span className="sazo-home-dense-product-price-before">
+          <em>{product.discount}</em>
+          <s>{product.originalPrice}</s>
+        </span>
+        <span className="sazo-home-dense-product-price-row">
+          <b>{product.price}</b>
+          <span className="sazo-home-dense-product-sales">{product.salesCount}</span>
+        </span>
+        <span className="sazo-home-dense-product-direct">日本から直送</span>
+      </button>
+    </article>
+  );
+}
+
 export function JplanetRecommendationGrid({
   dispatch,
   heading = "おすすめ商品",
@@ -865,64 +947,11 @@ export function JplanetRecommendationGrid({
         {columns.map((column, columnIndex) => (
           <div className="sazo-home-dense-product-column" key={columnIndex}>
             {column.map((product) => (
-              <article
-                className="sazo-home-dense-product"
-                data-media-aspect={product.mediaAspect}
-                data-product-target={JPLANET_PRODUCT_DETAIL_ID}
-                data-testid="home-dense-product-card"
+              <HomeDenseProductCard
                 key={product.id}
-              >
-                <span className="sazo-home-dense-product-media">
-                  <button
-                    aria-label={`${product.name}の商品詳細を見る`}
-                    className="sazo-home-dense-product-media-open"
-                    onClick={openProduct}
-                    type="button"
-                  >
-                    <img
-                      alt={product.name}
-                      decoding="async"
-                      height={640}
-                      src={product.image}
-                      width={640}
-                    />
-                    <em>{product.label}</em>
-                  </button>
-                  <button
-                    aria-label={`${product.name}の購入オプションを選ぶ`}
-                    className="sazo-home-dense-product-add"
-                    onClick={openProduct}
-                    type="button"
-                  >
-                    <ShoppingCart aria-hidden size={19} strokeWidth={2} />
-                    <Plus
-                      aria-hidden
-                      className="sazo-home-dense-product-add-plus"
-                      size={11}
-                      strokeWidth={2.6}
-                    />
-                  </button>
-                </span>
-                <button
-                  aria-label={`${product.name}の商品詳細を見る`}
-                  className="sazo-home-dense-product-copy"
-                  onClick={openProduct}
-                  type="button"
-                >
-                  <strong>{product.name}</strong>
-                  <span className="sazo-home-dense-product-price-before">
-                    <em>{product.discount}</em>
-                    <s>{product.originalPrice}</s>
-                  </span>
-                  <span className="sazo-home-dense-product-price-row">
-                    <b>{product.price}</b>
-                    <span className="sazo-home-dense-product-sales">
-                      {product.salesCount}
-                    </span>
-                  </span>
-                  <span className="sazo-home-dense-product-direct">日本から直送</span>
-                </button>
-              </article>
+                onOpen={openProduct}
+                product={product}
+              />
             ))}
           </div>
         ))}
@@ -1007,14 +1036,59 @@ function DesktopHomeCategoryGrid({ dispatch }: Pick<HomeViewProps, "dispatch">) 
   );
 }
 
+function DesktopHomeCategoryProductCatalog({
+  dispatch,
+}: Pick<HomeViewProps, "dispatch">) {
+  const { t } = useTranslation();
+  const openProduct = () => {
+    dispatch({ type: "open-product", productId: JPLANET_PRODUCT_DETAIL_ID });
+  };
+
+  return (
+    <section
+      aria-label={t("sazo.desktopHome.categoryProductsLabel")}
+      className="sazo-desktop-home-category-products"
+      data-testid="desktop-home-category-products"
+    >
+      <div className="sazo-desktop-home-category-products-heading">
+        <h2>{t("sazo.desktopHome.categoryProductsTitle")}</h2>
+      </div>
+      <div className="sazo-desktop-home-category-product-grid">
+        {desktopHomeCatalogProducts.map((product) => (
+          <HomeDenseProductCard key={product.id} onOpen={openProduct} product={product} />
+        ))}
+      </div>
+      <button
+        className="sazo-desktop-home-category-products-more"
+        onClick={() => {
+          dispatch({ type: "navigate", view: "ranking" });
+        }}
+        type="button"
+      >
+        {t("sazo.home.more")}
+        <ChevronRight aria-hidden size={19} strokeWidth={2.2} />
+      </button>
+    </section>
+  );
+}
+
 function DesktopHomeCommunity({ dispatch, state }: HomeViewProps) {
   const { t } = useTranslation();
+  const reviewsRailRef = useRef<HTMLDivElement>(null);
+  const gramRailRef = useRef<HTMLDivElement>(null);
   const displayedReviews =
     state.reviewFeed === "desktop-ranking"
       ? recordedDesktopRankingReviews
       : state.reviewFeed === "mobile-profile"
         ? recordedMobileProfileReviews
         : homeReviews;
+
+  const scrollRail = (rail: HTMLDivElement | null, direction: -1 | 1) => {
+    rail?.scrollBy({
+      behavior: "smooth",
+      left: direction * Math.max(rail.clientWidth * 0.74, 260),
+    });
+  };
 
   return (
     <section
@@ -1028,7 +1102,7 @@ function DesktopHomeCommunity({ dispatch, state }: HomeViewProps) {
         data-testid="desktop-home-reviews"
       >
         <div className="sazo-desktop-home-community-heading">
-          <h2>{t("sazo.navigation.reviews")}</h2>
+          <h2>{t("sazo.home.reviewsTitle")}</h2>
           <button
             onClick={() => {
               dispatch({ type: "navigate", view: "reviews" });
@@ -1036,27 +1110,68 @@ function DesktopHomeCommunity({ dispatch, state }: HomeViewProps) {
             type="button"
           >
             {t("sazo.home.more")}
-            <ChevronRight aria-hidden size={18} strokeWidth={2.2} />
           </button>
         </div>
-        <div className="sazo-desktop-home-review-list">
-          {displayedReviews.slice(0, 2).map((review) => (
-            <button
-              aria-label={t("sazo.navigation.reviews")}
-              className="sazo-desktop-home-review-card"
-              key={review.id}
-              onClick={() => {
-                dispatch({ type: "navigate", view: "reviews" });
-              }}
-              type="button"
-            >
-              <img alt="" aria-hidden decoding="async" src={review.image} />
-              <span>
-                <strong>{review.author}</strong>
-                <small>{review.comment}</small>
-              </span>
-            </button>
-          ))}
+        <div className="sazo-desktop-home-community-rail-shell">
+          <button
+            aria-label={t("sazo.desktopHome.community.previousReviews")}
+            className="sazo-desktop-home-community-arrow sazo-desktop-home-community-arrow--previous"
+            onClick={() => {
+              scrollRail(reviewsRailRef.current, -1);
+            }}
+            type="button"
+          >
+            <ChevronLeft aria-hidden size={28} strokeWidth={2.2} />
+          </button>
+          <div
+            className="sazo-desktop-home-review-list"
+            data-testid="desktop-home-reviews-rail"
+            ref={reviewsRailRef}
+          >
+            {displayedReviews.map((review) => (
+              <button
+                aria-label={t("sazo.desktopHome.community.openReview", {
+                  author: review.author,
+                })}
+                className="sazo-desktop-home-review-card"
+                data-review-id={review.id}
+                key={review.id}
+                onClick={() => {
+                  dispatch({ type: "navigate", view: "reviews" });
+                }}
+                type="button"
+              >
+                <span className="sazo-desktop-home-review-media">
+                  <img alt="" aria-hidden decoding="async" src={review.image} />
+                  <span className="sazo-desktop-home-review-author">
+                    <CircleUserRound aria-hidden size={16} strokeWidth={2.1} />
+                    {review.author}
+                  </span>
+                </span>
+                <strong>{review.comment}</strong>
+                <span className="sazo-desktop-home-review-stats">
+                  <span>
+                    <ThumbsUp aria-hidden size={16} strokeWidth={2} />
+                    {review.likes}
+                  </span>
+                  <span>
+                    <MessageCircle aria-hidden size={16} strokeWidth={2} />
+                    {review.comments}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+          <button
+            aria-label={t("sazo.desktopHome.community.nextReviews")}
+            className="sazo-desktop-home-community-arrow sazo-desktop-home-community-arrow--next"
+            onClick={() => {
+              scrollRail(reviewsRailRef.current, 1);
+            }}
+            type="button"
+          >
+            <ChevronRight aria-hidden size={28} strokeWidth={2.2} />
+          </button>
         </div>
       </section>
 
@@ -1074,27 +1189,60 @@ function DesktopHomeCommunity({ dispatch, state }: HomeViewProps) {
             type="button"
           >
             {t("sazo.home.more")}
-            <ChevronRight aria-hidden size={18} strokeWidth={2.2} />
           </button>
         </div>
-        <div className="sazo-desktop-home-gram-list">
-          {homeGramEntries.slice(0, 2).map((entry) => (
-            <button
-              aria-label={t("sazo.gram.openPost", { caption: entry.caption })}
-              className="sazo-desktop-home-gram-card"
-              key={entry.id}
-              onClick={() => {
-                dispatch({ type: "navigate", view: "gram" });
-              }}
-              type="button"
-            >
-              <img alt="" aria-hidden decoding="async" src={entry.image} />
-              <span>
-                <strong>{entry.caption}</strong>
-                <small>{entry.product.name}</small>
-              </span>
-            </button>
-          ))}
+        <div className="sazo-desktop-home-community-rail-shell">
+          <button
+            aria-label={t("sazo.desktopHome.community.previousGram")}
+            className="sazo-desktop-home-community-arrow sazo-desktop-home-community-arrow--previous"
+            onClick={() => {
+              scrollRail(gramRailRef.current, -1);
+            }}
+            type="button"
+          >
+            <ChevronLeft aria-hidden size={28} strokeWidth={2.2} />
+          </button>
+          <div
+            className="sazo-desktop-home-gram-list"
+            data-testid="desktop-home-gram-rail"
+            ref={gramRailRef}
+          >
+            {desktopHomeGramEntries.map((entry) => (
+              <button
+                aria-label={t("sazo.gram.openPost", { caption: entry.caption })}
+                className="sazo-desktop-home-gram-card"
+                key={entry.id}
+                onClick={() => {
+                  dispatch({ type: "navigate", view: "gram" });
+                }}
+                type="button"
+              >
+                <span className="sazo-desktop-home-gram-media">
+                  <img alt="" aria-hidden decoding="async" src={entry.image} />
+                  <span aria-hidden className="sazo-desktop-home-gram-camera">
+                    <Camera size={21} strokeWidth={2.2} />
+                  </span>
+                </span>
+                <span className="sazo-desktop-home-gram-product">
+                  <img alt="" aria-hidden decoding="async" src={entry.product.image} />
+                  <span>
+                    <strong>{entry.product.name}</strong>
+                    <small>{entry.product.price}</small>
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+          <button
+            aria-label={t("sazo.desktopHome.community.nextGram")}
+            className="sazo-desktop-home-community-arrow sazo-desktop-home-community-arrow--next"
+            onClick={() => {
+              scrollRail(gramRailRef.current, 1);
+            }}
+            type="button"
+          >
+            <ChevronRight aria-hidden size={28} strokeWidth={2.2} />
+          </button>
         </div>
       </section>
     </section>
@@ -1245,6 +1393,8 @@ function DesktopHomeView({ dispatch, state }: HomeViewProps) {
       <DesktopHomeCommunity dispatch={dispatch} state={state} />
 
       <DesktopHomeCategoryGrid dispatch={dispatch} />
+
+      <DesktopHomeCategoryProductCatalog dispatch={dispatch} />
     </div>
   );
 }

@@ -57,7 +57,12 @@ function stateWithCatalogMode(mode: CatalogMode): SazoState {
 }
 
 function openCatalogFromCategoryDirectory(category: string) {
-  fireEvent.click(screen.getByRole("button", { name: "商品カテゴリー" }));
+  fireEvent.click(
+    within(screen.getByRole("navigation", { name: "メインメニュー" })).getByRole(
+      "button",
+      { name: "カテゴリー" },
+    ),
+  );
   fireEvent.click(screen.getByRole("button", { name: category }));
 }
 
@@ -435,10 +440,10 @@ describe("SAZO captured view contracts", () => {
       <ReviewsView dispatch={dispatch} state={createInitialSazoState()} />,
     );
 
-    expect(screen.getAllByRole("heading", { name: "購入体験レビュー" })).toHaveLength(2);
-    expect(screen.getByText("商品をどう探し、届いてどうだったか")).toBeTruthy();
-    expect(container.querySelector('[data-review-agent-entry="true"]')).toBeNull();
-    expect(container.querySelector("input")).toBeNull();
+    expect(screen.getAllByRole("heading", { name: "購入体験レビュー" })).toHaveLength(1);
+    expect(screen.getByRole("heading", { name: "購入エージェント" })).toBeTruthy();
+    expect(container.querySelector('[data-review-agent-entry="true"]')).not.toBeNull();
+    expect(container.querySelector("textarea")).not.toBeNull();
     expect(
       container.querySelector('[data-review-category-filter="true"]'),
     ).not.toBeNull();
@@ -454,7 +459,7 @@ describe("SAZO captured view contracts", () => {
     );
     const purchaseTiles = container.querySelectorAll(".sazo-review-tile");
 
-    expect(purchaseTiles).toHaveLength(6);
+    expect(purchaseTiles).toHaveLength(18);
     expect(container.textContent).toContain("Yuri · Belo Horizonte");
     expect(container.textContent).toContain("Ken · Rio de Janeiro");
     expect(container.querySelector(".sazo-review-tile-actions")).toBeNull();
@@ -654,7 +659,7 @@ describe("SAZO captured view contracts", () => {
       container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
     ).getByRole("navigation", { name: "メインメニュー" });
 
-    fireEvent.click(screen.getByRole("button", { name: "商品カテゴリー" }));
+    fireEvent.click(within(desktopNav).getByRole("button", { name: "カテゴリー" }));
     fireEvent.click(screen.getByRole("button", { name: "ベースメイク" }));
 
     expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(0);
@@ -675,7 +680,7 @@ describe("SAZO captured view contracts", () => {
       container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
     ).getByRole("navigation", { name: "メインメニュー" });
 
-    fireEvent.click(screen.getByRole("button", { name: "商品カテゴリー" }));
+    fireEvent.click(within(desktopNav).getByRole("button", { name: "カテゴリー" }));
     fireEvent.click(screen.getByRole("button", { name: "レディース" }));
     fireEvent.click(screen.getByRole("button", { name: "トップス" }));
 
@@ -717,10 +722,16 @@ describe("SAZO captured view contracts", () => {
       container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
     ).getByRole("navigation", { name: "メインメニュー" });
 
-    fireEvent.click(screen.getByRole("button", { name: "商品カテゴリー" }));
+    fireEvent.click(within(desktopNav).getByRole("button", { name: "カテゴリー" }));
     fireEvent.click(screen.getByRole("button", { name: "レディース" }));
     fireEvent.click(within(desktopNav).getByRole("button", { name: "ホーム" }));
-    fireEvent.click(screen.getByRole("button", { name: "購入者の声" }));
+    const reviewsShortcut = container.querySelector<HTMLButtonElement>(
+      '.sazo-shortcut[aria-label="レビュー"]',
+    );
+    if (reviewsShortcut === null) {
+      throw new Error("Missing home review shortcut");
+    }
+    fireEvent.click(reviewsShortcut);
 
     expect(
       screen.getByRole("button", { name: "すべて" }).getAttribute("aria-pressed"),
@@ -756,11 +767,11 @@ describe("SAZO captured view contracts", () => {
     expect(firstReview?.querySelector("img")?.getAttribute("src")).toBe(
       "/sazo-commerce/review-media/r06.jpg",
     );
-    expect(container.querySelectorAll<HTMLElement>(".sazo-review-tile")).toHaveLength(6);
+    expect(container.querySelectorAll<HTMLElement>(".sazo-review-tile")).toHaveLength(18);
 
     fireEvent.click(screen.getByRole("button", { name: "配送・通関" }));
 
-    expect(container.querySelectorAll<HTMLElement>(".sazo-review-tile")).toHaveLength(3);
+    expect(container.querySelectorAll<HTMLElement>(".sazo-review-tile")).toHaveLength(9);
     expect(container.textContent).not.toContain("João · Porto Alegre");
   });
 
