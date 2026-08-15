@@ -142,10 +142,10 @@ describe("J-Planet product detail experience", () => {
     expect(within(controllerCommerceMeta).getByText("4.8")).toBeTruthy();
     expect(within(controllerCommerceMeta).getByText("864件のレビュー")).toBeTruthy();
     expect(within(controllerCommerceMeta).getByText("30mil+ 購入済み")).toBeTruthy();
-    expect(within(controllerCommerceMeta).getByText("Nintendo 公式")).toBeTruthy();
+    expect(within(controllerCommerceMeta).queryByText("Nintendo 公式")).toBeNull();
     expect(
       within(controllerCommerceMeta).getByRole("link", {
-        name: "Nintendo 公式の販売ページへ",
+        name: "元ページを開く",
       }),
     ).toBeTruthy();
 

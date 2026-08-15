@@ -758,8 +758,8 @@
         "commerceMeta": {
           "reviews": "{{count}} avaliações",
           "sold": "{{count}} vendidos",
-          "sellerPage": "Página do vendedor",
-          "sellerPageAria": "Abrir página do vendedor {{seller}}"
+          "sellerPage": "Página original",
+          "sellerPageAria": "Abrir página original"
         },
         "metadata": {
           "purchaseType": "Tipo de compra",

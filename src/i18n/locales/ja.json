@@ -758,8 +758,8 @@
         "commerceMeta": {
           "reviews": "{{count}}件のレビュー",
           "sold": "{{count}} 購入済み",
-          "sellerPage": "販売ページへ",
-          "sellerPageAria": "{{seller}}の販売ページへ"
+          "sellerPage": "元ページへ",
+          "sellerPageAria": "元ページを開く"
         },
         "metadata": {
           "purchaseType": "購入方法",

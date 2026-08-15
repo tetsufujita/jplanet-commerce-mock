@@ -1339,18 +1339,15 @@ function MobileReferenceProductDetail({
                     <span aria-label={`${detail.commerce.sellerLogoLabel}のロゴ`}>
                       {detail.commerce.sellerLogoLabel}
                     </span>
-                    <b>{detail.commerce.sellerName}</b>
+                    <a
+                      aria-label={t("sazo.views.productDetail.commerceMeta.sellerPageAria")}
+                      href={detail.originalUrl}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      {t("sazo.views.productDetail.commerceMeta.sellerPage")}
+                    </a>
                   </div>
-                  <a
-                    aria-label={t("sazo.views.productDetail.commerceMeta.sellerPageAria", {
-                      seller: detail.commerce.sellerName,
-                    })}
-                    href={detail.originalUrl}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                    {t("sazo.views.productDetail.commerceMeta.sellerPage")}
-                  </a>
                 </div>
               ) : null}
             </div>
