@@ -43,16 +43,9 @@ const desktopNavigation = [
   { translationKey: "sazo.navigation.home", view: "home" },
   { label: "ブランド", translationKey: "sazo.navigation.brands", view: "brands" },
   { translationKey: "sazo.agent.navigation", view: "agent-hub" },
-  { translationKey: "sazo.navigation.notification", view: "notifications" },
-  { translationKey: "sazo.navigation.mypage", view: "mypage" },
-] satisfies readonly NavigationItem[];
-
-const desktopHomeNavigation = [
-  { translationKey: "sazo.navigation.home", view: "home" },
-  { label: "ブランド", translationKey: "sazo.navigation.brands", view: "brands" },
-  { translationKey: "sazo.agent.navigation", view: "agent-hub" },
   { translationKey: "sazo.navigation.categories", view: "categories" },
-  { translationKey: "sazo.desktopHome.navigation.popular", view: "ai-search" },
+  { translationKey: "sazo.navigation.reviews", view: "reviews" },
+  { label: "J-Planet GRAM", translationKey: "sazo.gram.title", view: "gram" },
   { translationKey: "sazo.desktopHome.navigation.delivery", view: "service" },
 ] satisfies readonly NavigationItem[];
 
@@ -79,6 +72,7 @@ interface NavigationButtonProps {
   dispatch: Dispatch<SazoAction>;
   icon?: LucideIcon;
   label: string;
+  onPress?: () => void;
   state: SazoState;
   testId?: string;
   view?: SazoView;
@@ -90,11 +84,12 @@ function NavigationButton({
   dispatch,
   icon: Icon,
   label,
+  onPress,
   state,
   testId,
   view,
 }: NavigationButtonProps) {
-  const isNavigable = view !== undefined;
+  const isNavigable = view !== undefined || onPress !== undefined;
 
   return (
     <button
@@ -104,7 +99,13 @@ function NavigationButton({
       onClick={
         isNavigable
           ? () => {
-              dispatch({ type: "navigate", view });
+              if (onPress !== undefined) {
+                onPress();
+                return;
+              }
+              if (view !== undefined) {
+                dispatch({ type: "navigate", view });
+              }
             }
           : undefined
       }
@@ -279,14 +280,13 @@ export function SazoShell({
     couponView ||
     brandDetailView;
   const hideFloatingChat = myPageView || postPurchaseView || state.view === "reviews";
-  const desktopHome = state.view === "home";
-  const activeDesktopNavigation = desktopHome ? desktopHomeNavigation : desktopNavigation;
+  const activeDesktopNavigation = desktopNavigation;
 
   useEffect(() => {
-    if (!desktopHome || isMobileViewport) {
+    if (isMobileViewport) {
       setHeaderAiSearchHistoryOpen(false);
     }
-  }, [desktopHome, isMobileViewport]);
+  }, [isMobileViewport]);
 
   return (
     <div className="sazo-shell-background" data-overlay-background="true">
@@ -297,7 +297,7 @@ export function SazoShell({
             <header className="sazo-desktop-header">
               <Wordmark dispatch={dispatch} homeLabel={t("sazo.brand.homeLabel")} />
 
-              {desktopHome && !isMobileViewport ? (
+              {!isMobileViewport ? (
                 <DesktopAiSearchTray
                   dispatch={dispatch}
                   historyControls="desktop-header-ai-search-history-popover"
@@ -315,10 +315,25 @@ export function SazoShell({
               >
                 {activeDesktopNavigation.map((item) => (
                   <NavigationButton
+                    active={
+                      item.view === "agent-hub"
+                        ? headerAiSearchHistoryOpen
+                        : state.view === item.view
+                    }
                     className="sazo-secondary-button"
                     dispatch={dispatch}
                     key={item.translationKey}
                     label={("label" in item ? item.label : undefined) ?? t(item.translationKey)}
+                    onPress={
+                      item.view === "agent-hub"
+                        ? () => {
+                            setHeaderAiSearchHistoryOpen(true);
+                            window.requestAnimationFrame(() => {
+                              headerAiSearchInputRef.current?.focus();
+                            });
+                          }
+                        : undefined
+                    }
                     state={state}
                     view={item.view}
                   />
@@ -330,86 +345,55 @@ export function SazoShell({
                 className="sazo-top-actions"
                 role="group"
               >
-                {desktopHome ? null : (
-                  <button
-                    aria-label="AI検索を開く"
-                    className="sazo-desktop-agent-search"
-                    onClick={() => {
-                      dispatch({ type: "open-agent-hub", intent: "compose" });
-                    }}
-                    type="button"
-                  >
-                    <Search aria-hidden size={18} strokeWidth={2} />
-                    <span>AI検索</span>
-                  </button>
-                )}
                 <ControlButton
-                  className={
-                    desktopHome ? "sazo-top-action sazo-desktop-home-top-action" : "sazo-top-action"
-                  }
+                  className="sazo-top-action sazo-desktop-home-top-action"
                   icon={ShoppingCart}
                   label={t("sazo.actions.cart")}
                   onPress={() => {
                     dispatch({ type: "navigate", view: "cart" });
                   }}
                 />
-                {desktopHome ? (
-                  <ControlButton
-                    className="sazo-top-action sazo-desktop-home-top-action"
-                    icon={MessageCircle}
-                    label={t("sazo.desktopHome.actions.chat")}
-                    onPress={() => {
-                      dispatch({ type: "open-chat" });
-                    }}
-                  />
-                ) : (
-                  <>
-                    <ControlButton
-                      className="sazo-top-action"
-                      icon={Bell}
-                      label={t("sazo.navigation.notification")}
-                      onPress={() => {
-                        dispatch({ type: "navigate", view: "notifications" });
-                      }}
-                    />
-                    <span
-                      aria-label="未読の通知 1件"
-                      className="sazo-desktop-notification-badge"
-                    >
-                      1
-                    </span>
-                  </>
-                )}
-                {accountAvailable || desktopHome ? (
-                  <NavigationButton
-                    active={myPageSectionActive}
-                    className={
-                      desktopHome ? "sazo-top-action sazo-desktop-home-top-action" : "sazo-top-action"
-                    }
-                    dispatch={dispatch}
-                    icon={UserRound}
-                    label={t("sazo.navigation.mypage")}
-                    state={state}
-                    view="mypage"
-                  />
-                ) : (
-                  <ControlButton
-                    className="sazo-top-action"
-                    expanded={loginExpanded}
-                    icon={UserRound}
-                    label={t("sazo.actions.login")}
-                    onPress={() => {
-                      dispatch({ type: "open-login" });
-                    }}
-                    testId="login-launcher"
-                  />
-                )}
+                <ControlButton
+                  className="sazo-top-action sazo-desktop-home-top-action"
+                  icon={Bell}
+                  label={t("sazo.navigation.notification")}
+                  onPress={() => {
+                    dispatch({ type: "navigate", view: "notifications" });
+                  }}
+                />
+                <span aria-label="未読の通知 1件" className="sazo-desktop-notification-badge">
+                  1
+                </span>
+                <ControlButton
+                  className="sazo-top-action sazo-desktop-home-top-action"
+                  icon={MessageCircle}
+                  label={t("sazo.desktopHome.actions.chat")}
+                  onPress={() => {
+                    dispatch({ type: "open-chat" });
+                  }}
+                />
+                <NavigationButton
+                  active={myPageSectionActive}
+                  className="sazo-top-action sazo-desktop-home-top-action"
+                  dispatch={dispatch}
+                  icon={UserRound}
+                  label={t("sazo.navigation.mypage")}
+                  onPress={
+                    accountAvailable
+                      ? undefined
+                      : () => {
+                          dispatch({ type: "open-login" });
+                        }
+                  }
+                  state={state}
+                  view={accountAvailable ? "mypage" : undefined}
+                />
               </div>
             </header>
           </div>
         </div>
 
-        {desktopHome && !isMobileViewport ? (
+        {!isMobileViewport ? (
           <DesktopAgentSearchHistoryPopover
             dispatch={dispatch}
             id="desktop-header-ai-search-history-popover"

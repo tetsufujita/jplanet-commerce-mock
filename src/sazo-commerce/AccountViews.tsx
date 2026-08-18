@@ -1329,6 +1329,87 @@ export function NotificationsView({ dispatch }: AccountViewProps) {
       detail: "配送状況はマイページで確認できます",
       time: "昨日",
     },
+    {
+      id: "camera-quote",
+      product: {
+        image: "/sazo-commerce/reference/mirrorless-camera.png",
+        name: "Sony α7C II ボディ",
+      },
+      filter: "agent" as const,
+      status: "見積もりを更新しました",
+      detail: "販売元とBRL総額をもう一度確認できます",
+      time: "昨日",
+      timeline: "販売価格の変更を確認しました",
+      timelineTime: "昨日",
+    },
+    {
+      id: "new-balance-check",
+      product: {
+        image: "/sazo-commerce/reference/new-balance-9060.png",
+        name: "New Balance 9060",
+      },
+      filter: "agent" as const,
+      status: "購入条件を確認しました",
+      detail: "サイズと販売元の情報を確認できます",
+      time: "2日前",
+    },
+    {
+      id: "joycon-arrival",
+      product: {
+        image: "/sazo-commerce/reference/nintendo-joycon-v1.png",
+        name: "Nintendo Joy-Con (L)/(R)",
+      },
+      filter: "shipping" as const,
+      status: "ブラジルに到着しました",
+      detail: "国内配送へ引き渡す準備をしています",
+      time: "3日前",
+      timeline: "国際配送の追跡情報を更新しました",
+      timelineTime: "3日前",
+    },
+    {
+      id: "controller-delivered",
+      product: {
+        image: "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
+        name: "Nintendo Switch Proコントローラー",
+      },
+      filter: "shipping" as const,
+      status: "配送が完了しました",
+      detail: "商品の状態を購入体験レビューで共有できます",
+      time: "今週",
+    },
+    {
+      id: "figure-guide",
+      product: {
+        image: "/sazo-commerce/reference/figure.png",
+        name: "日本限定 キャラクターフィギュア",
+      },
+      filter: "guide" as const,
+      status: "画像検索の使い方",
+      detail: "カメラや画像から商品候補を探せます",
+      time: "今週",
+    },
+    {
+      id: "coupon-guide",
+      product: {
+        image: "/sazo-commerce/reference/lipstick.png",
+        name: "はじめてのクーポン",
+      },
+      filter: "guide" as const,
+      status: "利用できるクーポンがあります",
+      detail: "対象条件と有効期限を確認してください",
+      time: "今週",
+    },
+    {
+      id: "bag-guide",
+      product: {
+        image: "/sazo-commerce/reference/handbag.png",
+        name: "バッグ・小物のおすすめ",
+      },
+      filter: "guide" as const,
+      status: "あなたへのおすすめを更新しました",
+      detail: "最近確認した商品をもとに候補を表示しています",
+      time: "以前",
+    },
   ];
   const visibleUpdates = updates.filter(
     (update) => filter === "all" || update.filter === filter,
@@ -1377,8 +1458,8 @@ export function NotificationsView({ dispatch }: AccountViewProps) {
             [
               ["all", "すべて"],
               ["agent", "エージェント"],
-            ["shipping", "配送"],
-            ["guide", "ご案内"],
+              ["shipping", "配送"],
+              ["guide", "ご案内"],
             ] as const
           ).map(([value, label]) => (
             <button

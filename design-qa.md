@@ -2,6 +2,57 @@
 
 ---
 
+## 2026-08-18 — PCホーム: Agent Lensの縦密度調整
+
+**Comparison input**
+
+- Source annotation: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260818-cmbk.jpeg`。赤枠、Chrome UI、カーソルは説明用であり、実装対象外です。
+- Browser before: `/tmp/jplanet-lens-density-before-1536.png`。
+- Browser after: `/tmp/jplanet-lens-density-after-1536.png`。
+- Side-by-side comparison: `/tmp/jplanet-lens-density-comparison.png`（参照注釈・変更前・変更後を同じ表示幅で比較）。
+
+**Findings and verification**
+
+- [P1 → fixed] 1536px表示でLensが約`699px`高、中央操作面が`540px`高となり、ファーストビューを占有しすぎていました。4分割バナーの横幅と主題は維持したまま、Lensを`580px`、中央操作面を`440px`へ短縮しました。
+- [P1 → fixed] 見出しを`58px → 46px`、主検索欄を`90px → 74px`へ調整し、入力文、カメラ、送信操作の可読性と44px以上の操作領域を維持しました。
+- [P1 → fixed] 変更後はLens直下の3導線が`y=742px`から表示され、1536×1024のファーストビュー内に商品レールまで自然につながります。中央楕円、4分割境界、各バナーのクリック導線は維持しています。
+- 中央検索欄のクリック前後で中央操作面の座標は同一です。検索履歴は独立パネルとして開き、Escapeで閉じる既存操作も維持しています。
+- `1536×1024`、`1440×1024`、`1280×900`ではLens高`580px`、中央面高`440px`、検索欄高`74px`。`1024×900`、`768×900`は今回の1280px以上専用調整の対象外で、既存タブレット配置を維持しました。全幅で横overflowはありません。
+- `341px`、`390px`、`440px`ではPC用LensがDOMに存在せず、既存モバイル分岐を維持しています。
+- `pnpm typecheck`、ホームUnit 59件、desktop E2E 8件（18件skip）、`pnpm build`、`git diff --check`は通過しました。mobile E2Eは21件通過・4件skipで、今回と無関係な既存の`限定`フィルターlocator曖昧性により1件だけ失敗しました。
+
+final result: passed
+
+---
+
+## 2026-08-18 — PC共通シェルと非ホーム画面の横幅最適化
+
+**Comparison input**
+
+- Before: `/tmp/jplanet-category-before-1536.png`、`/tmp/jplanet-reviews-before-1536.png`、`/tmp/jplanet-gram-before-1536.png`、`/tmp/jplanet-product-before-1536.png`。
+- After: `/tmp/jplanet-category-after2-1536.png`、`/tmp/jplanet-reviews-after2-1536.png`、`/tmp/jplanet-gram-after-1536.png`、`/tmp/jplanet-product-after-1536.png`。
+- Combined same-viewport comparison: `/tmp/jplanet-pc-before-after-comparison.png`。すべて`1536 × 1024`の同一viewportで、左を変更前、右を変更後として比較しました。
+
+**Findings and fixes**
+
+- [P1 → fixed] 非ホーム画面ごとにヘッダーと検索入口が分岐し、中央の細い固定幅へ戻っていました。PC共通ヘッダーを`min(1680px, calc(100% - 64px))`へ統一し、AI検索、ナビ、右側操作を全対象画面で同じ横ラインへ揃えました。
+- [P1 → fixed] PCの独立`ai-search`画面は内容がなく、検索導線を分断していました。PCではホームへ戻し、共通ヘッダーのAI検索履歴・候補と各画面の既存検索処理を共有しました。モバイルの既存AI検索画面は維持しています。
+- [P1 → fixed] カテゴリーは6枚の巨大カードと狭いサイドバーでした。14親カテゴリー、化粧品9サブカテゴリーを、240pxサイドバー＋4/3/2列の画像カードへ再構成しました。
+- [P1 → fixed] 購入体験レビューは680px付近へ閉じ、カードが右で切れていました。注目3件と購入体験18件を、PC4列・タブレット2列へ整理しました。
+- [P1 → fixed] J-Planet GRAMは狭い列と不均一な折返しでした。PC5列、1024pxで4列、768pxで3列の比較可能なグリッドへ変更しました。
+- [P1 → fixed] 通知は9件の横長一覧＋フィルターレール、マイページは12カラムのダッシュボード、商品詳細は共通AI検索ヘッダー＋2カラムへ揃えました。
+
+**Responsive and interaction QA**
+
+- `1920 / 1536 / 1440 / 1280 / 1024 / 768px`: ホーム、カテゴリー、通知、マイページ、レビュー、GRAM、商品詳細で`documentElement.scrollWidth === clientWidth`を確認しました。
+- `341 / 390 / 440px`: 同対象画面とAI検索で横overflowなし。PC専用ヘッダー／グリッドは適用されず、既存モバイル構造を維持しています。
+- 操作: 共通AI検索のフォーカス・履歴表示・Escape、カテゴリー切替、通知フィルター／設定、マイページ導線、レビューフィルター、GRAMフィルター／詳細、商品詳細検索を実ブラウザで確認しました。
+- Verification passed: `pnpm typecheck`; Unit `87/87`; desktop Playwright `8 passed`; mobile Playwright `22 passed`; `pnpm build`; `git diff --check`。
+
+final result: passed
+
+---
+
 ## 2026-08-18 — モバイルホームからのAI検索フォーカス
 
 **Comparison input**
@@ -26,6 +77,25 @@ final result: passed
 
 ---
 
+## 2026-08-18 — PC Lens: 中央AI検索面の固定化
+
+**Scope**
+
+- PC／タブレットのAgent Lens中央操作面だけを固定しました。中央の白い楕円、AI検索欄、確認項目は、hover・クリック・focus・カーソル移動で位置や大きさを変えません。
+- 4枚の背景バナーにある既存のカーソル追従と浮き上がりは維持しています。767px以下のモバイル構造、検索履歴の開閉、検索送信は変更していません。
+
+**Findings and verification**
+
+- [P1 → fixed] 中央操作面に`translate3d`と`scale`を与えるhover指定、検索欄と確認項目を個別に動かすhover／focus指定を削除しました。
+- [P1 → fixed] 中央操作面でカーソル座標を追跡してLiquid Glassのハイライト位置を書き換えるReact処理を削除しました。背景バナー側の独立したpointer処理は残しています。
+- [P1 → fixed] 入力欄そのものに付いていたネイビーの`2px`フォーカスoutlineを削除しました。フォーカス状態は検索ピル全体の薄い桜色borderと3pxの低濃度リングで示し、二重枠を解消しています。カメラ・送信ボタンのキーボードフォーカス表示は維持しています。
+- Playwrightで中央AI検索面のhover前後・クリック前後について、操作面と検索欄の座標および各`transform`が同一であることを確認しました。同じシナリオ内で、背景バナーのhover時にはバナー本体の`transform`が有効になることも確認しました。
+- 検索欄のfocusで既存の検索履歴が開き、Escapeで閉じる導線を維持しています。
+
+final result: passed
+
+---
+
 ## 2026-08-18 — PC Lens: 検索履歴パネルの幅と開閉モーション
 
 **Comparison input**
@@ -40,6 +110,69 @@ final result: passed
 - [P1 → fixed] Lens用パネルは`clamp(640px, 50vw, 760px)`へ拡張しました。1536pxでは760px幅で横レールに5商品と次の商品を余裕を持って見せ、1024px/768pxでもviewportからはみ出さずに収まります。ヘッダー検索トレーのコンパクトな履歴幅は変更していません。
 - [P2 → fixed] 開閉中もPortalを維持し、`opacity`、`translate3d`、`scale`を240ms（閉じる側210ms）の`cubic-bezier(.22,1,.36,1)`で遷移させます。閉じるタイマーも220msに揃え、急な消滅をなくしました。`prefers-reduced-motion`既存対応も維持しています。
 - 1536px、1024px、768pxで、中央楕円の寸法・4分割バナー・Lens直下導線を変えず、パネルがLensから独立して前面に表示されることを実ブラウザで確認しました。341px/390px/440pxではPC用Portalが表示されず、既存モバイル表示のままです。
+
+final result: passed
+
+---
+
+## 2026-08-18 — PCホーム: Agent Lens検索タブ削除と上方整列
+
+**Comparison input**
+
+- Source annotation: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260818-clll.jpeg`（`3024 × 1964` px）。Chrome UIと赤枠は説明用であり、実装対象外です。
+- Browser-rendered implementation: `/tmp/jplanet-lens-after-tabs-remove-1536x1024.png`。
+- Same-size comparison: `/tmp/jplanet-lens-source-vs-implementation.png`（参照のページ領域と実装をともに`1512 × 829`へ正規化して左右比較）。
+
+**Comparison findings**
+
+- [P1 → fixed] 赤枠の`URLで検索 / 画像で検索 / 商品名で検索`の3タブをPC用LensのDOMから削除しました。主検索欄はURL・画像・商品名の既存入力処理を引き続き使用します。
+- [P1 → fixed] 見出し、説明、主検索欄、確認項目、補足を一体で`88px`上方へ移し、空いたタブ領域を詰めました。Lens外枠、中央楕円、4分割背景の寸法・位置は変更していません。
+- [P1 → fixed] `1536 × 1024`で主検索欄中心`x=761px`、中央操作面中心`x=761px`となり、中心差`0px`を実測しました。
+- P0/P1/P2: なし。赤枠・赤線はUIへ混入していません。
+
+**Responsive and interaction checks**
+
+- `1536 × 1024`: 見出し`y=309px`、主検索欄`y=415px`。変更前より双方`88px`上方へ移動し、検索欄は水平中央、横オーバーフローなしです。
+- `1440 × 1024` / `1024 × 900` / `768 × 900`: 主検索欄と中央操作面の中心差はいずれも`0px`、横オーバーフローなしです。
+- `341px` / `390px` / `440px`: PC用Lensは表示されず、既存モバイル表示を維持し、横オーバーフローなしです。
+- 主検索欄のフォーカスで既存の検索履歴パネルが開き、`Escape`で閉じることを実ブラウザで確認しました。
+- タイポグラフィ、画像、配色、コピー、4バナーの導線は変更していません。
+- `pnpm typecheck`、ホームUnit 59件、desktop E2E 8件（18件skip）、`pnpm build`、`git diff --check`は通過しました。mobile E2Eは21件通過・4件skipで、今回と無関係なAI検索結果の`限定`フィルターlocatorが商品名にも一致する既存の曖昧性により1件だけ停止しました。
+
+final result: passed
+
+---
+
+## 2026-08-18 — PCホーム: 常設2段AI検索ヘッダー
+
+**Comparison input**
+
+- Display-structure reference: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260818-bvqe.png`。SAZO画面のロゴ／横長検索／右側操作を上段へ、ナビゲーションを下段へ置く構造だけを参照し、SAZOのロゴ・色・コピーは実装していません。
+- Search-history reference: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260818-bvlj.png`。検索欄直下に検索履歴・最近見た商品を展開するレイヤー構造を比較対象にしました。
+- Browser-rendered implementation: `/tmp/jplanet-header-final-top-1536.png`、`/tmp/jplanet-header-final-history-1536.png`、`/tmp/jplanet-header-final-sticky-1536.png`。参照は `3024 × 1964` px（約2x、Chrome UIを除外して比較）、実装はChrome viewport override `1536 × 1024`、実描画領域 `1521 × 1014`、device scale 1です。
+- Focused comparisons: `/tmp/jplanet-header-comparison-focused.png`（ヘッダー構造）、`/tmp/jplanet-header-history-comparison.png`（検索欄と履歴面）。
+
+**Comparison history and findings**
+
+- [P1 → fixed] スクロール後だけ別レイヤーで現れる検索トレーを廃止し、PCホームのヘッダーを常設の2段sticky構造へ統合しました。検索は初期表示・スクロール後とも同じ位置と状態を維持します。
+- [P2 → fixed] ロゴ側と右側操作の列幅を同値にし、横長AI検索の中心を画面中央へ揃えました。1536px実描画では検索面 `x=380.5 / width=760`、中心 `760.5px`でviewport中央と一致します。
+- P0/P1/P2: なし。検索履歴は入力欄の直下へ表示され、ヘッダー、Lens、本文の横overflowや重なりはありません。
+
+**Fidelity surfaces**
+
+- Typography and copy: J-Planet既存のArial系、ネイビー、`AI検索`、`商品名・キーワード・画像・URLで検索`を維持しました。
+- Spacing and structure: 上段76px、下段48px、合計124px。ロゴ、検索、右側操作を同一行に揃え、ナビゲーションを全幅の2段目へ配置しました。
+- Colors and assets: 実J-Planetロゴ、白、`#1f3864`、`#fea2ac`、`#e5eaf1`のみを使い、SAZO固有アセットやオレンジは追加していません。
+- Interaction: 検索入力のクリックで履歴面を開き、Escapeで履歴だけを閉じても常設検索は残ります。スクロール後も同じ検索欄を使用し、既存の検索送信と最近見た商品導線を維持しています。
+
+**Responsive and implementation checks**
+
+- 1536 × 1024: 2段ヘッダー、760px検索、入力直下の履歴、スクロール後のsticky状態を確認。`documentElement.scrollWidth === clientWidth`。
+- 1024 × 900: 実描画幅1009px、検索637px、ナビ2段目、横overflowなし。
+- 768 × 900: 実描画幅753px、検索381px、ラベルだけを省略して入力・検索操作を保持、横overflowなし。
+- 341px / 390px / 440px: PCヘッダーとPC検索は表示されず、既存モバイルヘッダーを維持。横overflowなし。
+- Chrome consoleのerror／warningは0件です。
+- ホームUnit 59件、対象Shell Unit、対象desktop E2E、`pnpm build`、`git diff --check`を通過しました。最終の`pnpm typecheck`は同時に存在する別のAI検索fixture差分（`RankingMetric`のexport不整合）で停止し、対象ヘッダーのエラーではありません。mobile対象E2Eの既存期待値も`ranking`に対して現実装が`ai-search`のため停止しています。
 
 final result: passed
 

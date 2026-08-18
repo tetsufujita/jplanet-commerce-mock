@@ -10049,10 +10049,6 @@
     border-color: rgb(205 217 234 / 90%);
     background: rgb(255 255 255 / 97%);
     box-shadow: 0 3px 10px rgb(31 56 100 / 12%);
-    transition:
-      transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: transform;
   }
 
   .sazo-root[data-view="home"] .sazo-desktop-agent-lens-control::before {
@@ -10161,13 +10157,6 @@
     gap: 5px;
     font-size: clamp(9px, 1.15vw, 11px);
     white-space: nowrap;
-  }
-}
-
-@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
-  .sazo-root[data-view="home"] .sazo-desktop-agent-lens-control:hover:not(:focus-within) {
-    transform: translate3d(0, -3px, 0) scale(1.006);
-    box-shadow: 0 6px 14px rgb(31 56 100 / 14%);
   }
 }
 
@@ -11651,8 +11640,20 @@
   }
 
   .sazo-root[data-view="home"] .sazo-desktop-agent-lens-search:focus-within {
-    outline: 2px solid rgb(254 162 172 / 72%);
-    outline-offset: 2px;
+    border-color: rgb(254 162 172 / 82%);
+    outline: 0;
+    box-shadow:
+      0 0 0 3px rgb(254 162 172 / 14%),
+      0 10px 26px rgb(31 56 100 / 10%),
+      inset 0 1px 0 rgb(255 255 255 / 86%),
+      inset 0 -1px 0 rgb(31 56 100 / 10%);
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-agent-lens-search input:focus,
+  .sazo-root[data-view="home"] .sazo-desktop-agent-lens-search input:focus-visible {
+    border: 0;
+    outline: 0;
+    box-shadow: none;
   }
 
   .sazo-root[data-view="home"]
@@ -11723,32 +11724,9 @@
   .sazo-root[data-view="home"] .sazo-desktop-agent-lens-tabs button:focus-visible,
   .sazo-root[data-view="home"]
     .sazo-desktop-agent-lens-search
-    :is(input, button):focus-visible {
+    button:focus-visible {
     outline: 2px solid #1f3864;
     outline-offset: 2px;
-  }
-}
-
-@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
-  .sazo-root[data-view="home"]
-    .sazo-desktop-agent-lens-tabs[data-agent-lens-liquid-glass]:hover {
-    transform: translateY(-1px) scale(1.002);
-  }
-
-  .sazo-root[data-view="home"]
-    .sazo-desktop-agent-lens-search[data-agent-lens-liquid-glass]:hover,
-  .sazo-root[data-view="home"]
-    .sazo-desktop-agent-lens-search[data-agent-lens-liquid-glass]:focus-within {
-    transform: translateY(-2px) scale(1.003);
-    box-shadow:
-      0 12px 27px rgb(31 56 100 / 12%),
-      inset 0 1px 0 rgb(255 255 255 / 88%),
-      inset 0 -1px 0 rgb(31 56 100 / 10%);
-  }
-
-  .sazo-root[data-view="home"]
-    .sazo-desktop-agent-lens-evidence[data-agent-lens-liquid-glass]:hover {
-    transform: translateY(-1px) scale(1.002);
   }
 }
 
@@ -11766,9 +11744,20 @@
   }
 }
 
-/* Match the reference's generous gap between the glass tab rail and the
- * agent title. The wider desktop surface keeps the lower confirmation row
- * inside the ellipse instead of crowding it toward the input. */
+/* With the redundant mode rail removed, the AI search cluster starts in its
+ * former position. Keep the unified search field pinned to the exact
+ * horizontal centre of the ellipse at every PC/tablet width. */
+@media (min-width: 768px) {
+  .sazo-root[data-view="home"] .sazo-desktop-agent-lens-control h1 {
+    margin-top: 0;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-agent-lens-search {
+    justify-self: center;
+    margin-inline: auto;
+  }
+}
+
 @media (min-width: 1280px) {
   .sazo-root[data-view="home"] .sazo-desktop-agent-lens-control {
     height: min(540px, calc(100% - 130px));
@@ -11776,7 +11765,7 @@
   }
 
   .sazo-root[data-view="home"] .sazo-desktop-agent-lens-control h1 {
-    margin-top: 38px;
+    margin-top: 0;
   }
 
   .sazo-root[data-view="home"] .sazo-desktop-agent-lens-control > small {
@@ -11925,16 +11914,6 @@
   }
 }
 
-@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
-  .sazo-root[data-view="home"] .sazo-desktop-agent-lens-control:hover:not(:focus-within) {
-    box-shadow:
-      0 16px 30px rgb(31 56 100 / 16%),
-      0 3px 8px rgb(31 56 100 / 8%),
-      inset 0 1px 0 rgb(255 255 255 / 90%),
-      inset 0 -1px 0 rgb(186 204 230 / 26%);
-  }
-}
-
 /* Final PC canvas alignment. The shared shell uses !important page widths, so
  * the home needs its own wide Lens canvas and a separate commerce maximum.
  * At 1536px these meet on the same 24px inset; only large desktops bring the
@@ -11958,5 +11937,1261 @@
   .sazo-root[data-view="home"] .sazo-desktop-home-ec-content {
     width: min(1680px, 100%);
     margin-inline: auto;
+  }
+}
+
+/* PC Lens density calibration. Preserve the wide four-banner canvas while
+ * shortening the first-view module so the routes and commerce rail remain
+ * visible without making the search controls feel compressed. */
+@media (min-width: 1280px) {
+  .sazo-root[data-view="home"] .sazo-desktop-agent-lens {
+    height: 580px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-agent-lens-control {
+    height: 440px;
+    margin-top: 24px;
+    padding: 38px 50px 24px;
+    top: 8px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-agent-lens-control h1 {
+    font-size: 46px;
+    line-height: 1.08;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-agent-lens-control > p {
+    margin: 6px 0 9px;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-agent-lens-search {
+    width: min(680px, 100%);
+    min-height: 74px;
+    grid-template-columns: minmax(0, 1fr) 48px 50px;
+    padding: 6px 9px 6px 22px;
+    border-radius: 25px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-agent-lens-search input {
+    font-size: 18px;
+    line-height: 1.4;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-desktop-agent-lens-search
+    :is(.sazo-desktop-agent-search-camera, .sazo-desktop-agent-search-submit) {
+    width: 48px;
+    height: 48px;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-desktop-agent-lens-search
+    .sazo-desktop-agent-search-submit {
+    width: 50px;
+    height: 50px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-agent-lens-evidence {
+    width: min(680px, 100%);
+    min-height: 48px;
+    margin-top: 16px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-desktop-agent-lens-control > small {
+    margin-top: 24px;
+    font-size: 12px;
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * Shared PC commerce shell
+ *
+ * The desktop routes previously fell back to a 1200px shell while the home
+ * alone received a wider override.  Keep one wide, sticky header and one
+ * readable commerce canvas across product, category, review and GRAM routes.
+ * Phone presentation remains isolated below the 768px boundary.
+ * ---------------------------------------------------------------------- */
+@media (min-width: 768px) {
+  .sazo-root {
+    --jplanet-page-max: 1680px;
+    --jplanet-page-gutter: 32px;
+  }
+
+  .sazo-root .sazo-desktop-header-band {
+    z-index: 90;
+    height: 124px !important;
+    overflow: visible;
+    border-bottom: 1px solid var(--jplanet-line);
+    background: #fff;
+    box-shadow: 0 5px 16px rgb(31 56 100 / 5%);
+    isolation: isolate;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-delivery-guide-scrim {
+    z-index: 400;
+  }
+
+  .sazo-root[data-view="product"] .sazo-desktop-controller-delivery-guide {
+    z-index: 401;
+  }
+
+  .sazo-root .sazo-desktop-header-card {
+    width: min(1680px, calc(100% - 64px)) !important;
+    height: 124px !important;
+    margin-inline: auto;
+    overflow: visible;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  .sazo-root .sazo-desktop-header {
+    display: grid !important;
+    grid-template-columns: clamp(138px, 15vw, 220px) minmax(0, 1fr) clamp(164px, 15vw, 220px);
+    grid-template-rows: 76px 48px;
+    column-gap: 20px;
+    row-gap: 0;
+    width: 100%;
+    min-height: 124px;
+    height: 124px;
+    padding: 0 !important;
+  }
+
+  .sazo-root .sazo-desktop-header .sazo-wordmark {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    min-width: 0;
+  }
+
+  .sazo-root .sazo-desktop-header .sazo-wordmark img {
+    width: clamp(132px, 13vw, 194px);
+    max-width: 100%;
+  }
+
+  .sazo-root .sazo-desktop-ai-search-tray {
+    position: static;
+    z-index: auto;
+    display: block;
+    grid-column: 2;
+    grid-row: 1;
+    width: min(100%, 760px);
+    min-width: 0;
+    align-self: center;
+    justify-self: center;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .sazo-root .sazo-desktop-ai-search-tray-surface {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    min-height: 56px;
+    align-items: center;
+    margin: 0;
+    padding: 4px 6px 4px 18px;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: none;
+    transition:
+      border-color 200ms ease,
+      box-shadow 200ms ease;
+  }
+
+  .sazo-root .sazo-desktop-ai-search-tray-surface:focus-within {
+    border-color: var(--jplanet-sakura);
+    box-shadow: 0 0 0 3px rgb(254 162 172 / 14%);
+  }
+
+  .sazo-root .sazo-desktop-ai-search-tray-label {
+    flex: 0 0 auto;
+    padding-right: 16px;
+    border-right: 1px solid var(--jplanet-line);
+    color: var(--jplanet-navy);
+    font-size: 14px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .sazo-root .sazo-desktop-ai-search-tray-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px 44px;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 48px;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--jplanet-navy);
+  }
+
+  .sazo-root .sazo-desktop-ai-search-tray-form:focus-within {
+    box-shadow: none;
+  }
+
+  .sazo-root .sazo-desktop-ai-search-tray-form input {
+    width: 100%;
+    min-width: 0;
+    padding: 0 10px 0 14px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--jplanet-navy);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .sazo-root .sazo-desktop-ai-search-tray-form input::placeholder {
+    color: var(--jplanet-muted);
+    opacity: 1;
+  }
+
+  .sazo-root .sazo-desktop-ai-search-tray-form input:focus,
+  .sazo-root .sazo-desktop-ai-search-tray-form input:focus-visible {
+    border: 0;
+    outline: 0;
+    box-shadow: none;
+  }
+
+  .sazo-root .sazo-desktop-ai-search-tray-form :is(
+      .sazo-desktop-agent-search-camera,
+      .sazo-desktop-agent-search-submit
+    ) {
+    display: inline-grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--jplanet-navy);
+    cursor: pointer;
+  }
+
+  .sazo-root .sazo-desktop-ai-search-tray-form .sazo-desktop-agent-search-submit {
+    background: var(--jplanet-sakura);
+    color: #fff;
+  }
+
+  .sazo-root .sazo-desktop-ai-search-tray-form :is(
+      .sazo-desktop-agent-search-camera,
+      .sazo-desktop-agent-search-submit
+    ):focus-visible {
+    outline: 2px solid var(--jplanet-navy);
+    outline-offset: 2px;
+  }
+
+  .sazo-root .sazo-desktop-header .sazo-top-actions {
+    grid-column: 3;
+    grid-row: 1;
+    justify-content: flex-end;
+    gap: 2px;
+  }
+
+  .sazo-root .sazo-desktop-header .sazo-top-action {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+
+  .sazo-root .sazo-desktop-notification-badge {
+    top: 11px;
+    right: 90px;
+  }
+
+  .sazo-root .sazo-desktop-header .sazo-desktop-nav {
+    display: flex !important;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-width: 0;
+    min-height: 48px;
+    align-items: stretch;
+    justify-content: center;
+    gap: clamp(14px, 3vw, 46px);
+    padding: 0 18px;
+    border-top: 1px solid rgb(229 234 241 / 72%);
+  }
+
+  .sazo-root .sazo-desktop-header .sazo-secondary-button {
+    position: relative;
+    min-width: 0;
+    min-height: 48px;
+    padding: 0 3px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: var(--jplanet-navy);
+    font-size: 13px;
+    font-weight: 750;
+    white-space: nowrap;
+  }
+
+  .sazo-root .sazo-desktop-header .sazo-secondary-button::after {
+    display: none;
+  }
+
+  .sazo-root .sazo-desktop-header .sazo-secondary-button[aria-pressed="true"] {
+    border-bottom-color: var(--jplanet-sakura);
+    color: var(--jplanet-navy);
+  }
+
+  .sazo-root .sazo-main.sazo-content-main {
+    width: min(1680px, calc(100% - 64px)) !important;
+    min-width: 0;
+    margin-inline: auto;
+    padding: 32px 0 72px !important;
+  }
+
+  .sazo-root .sazo-view-header {
+    display: flex;
+    width: min(1440px, 100%);
+    min-height: 0;
+    align-items: center;
+    margin: 0 auto;
+    padding: 2px 0 24px;
+    border: 0;
+    background: transparent;
+  }
+
+  .sazo-root .sazo-view-header > :not(h1) {
+    display: none !important;
+  }
+
+  .sazo-root .sazo-view-header h1 {
+    margin: 0;
+    color: var(--jplanet-navy);
+    font-size: clamp(28px, 2.4vw, 36px);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.2;
+  }
+
+  /* Category directory: use the richer photo-first mobile information in a
+   * deliberate desktop sidebar + grid rather than stretching phone cards. */
+  .sazo-root[data-view="categories"] .sazo-directory-view {
+    width: min(1440px, 100%);
+    margin-inline: auto;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-agent {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px 24px;
+    width: 100%;
+    margin: 0 0 24px;
+    padding: 14px 18px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 10px 28px rgb(31 56 100 / 7%);
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-agent-entry {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-agent-mark {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-agent .sazo-mobile-agent-composer {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-agent .sazo-mobile-agent-composer-form {
+    margin: 0;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-agent .sazo-mobile-agent-composer-input-shell {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px 46px;
+    min-height: 54px;
+    align-items: center;
+    padding: 4px 5px 4px 16px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-agent textarea {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    padding: 12px 0;
+    overflow: hidden;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--jplanet-navy);
+    font: inherit;
+    font-size: 15px;
+    line-height: 20px;
+    resize: none;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-agent :is(
+      .sazo-mobile-agent-composer-camera,
+      .sazo-mobile-agent-composer-submit
+    ) {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    min-height: 42px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-agent-helper {
+    align-self: center;
+    max-width: 300px;
+    margin: 0;
+    color: var(--jplanet-muted);
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.45;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-tabs {
+    width: 100%;
+    margin: 0;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 18px 18px 0 0;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-tabs button {
+    min-height: 52px;
+    color: var(--jplanet-muted);
+    font-size: 14px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-tabs button[aria-selected="true"] {
+    border-bottom-color: var(--jplanet-sakura);
+    color: var(--jplanet-navy);
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-layout {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    width: 100%;
+    min-height: 680px;
+    margin: 0 0 56px;
+    overflow: clip;
+    border: 1px solid var(--jplanet-line);
+    border-top: 0;
+    border-radius: 0 0 22px 22px;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-parent-list {
+    position: sticky;
+    top: 140px;
+    align-self: start;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    border-right: 1px solid var(--jplanet-line);
+    background: #f8f9fc;
+    overscroll-behavior: contain;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-parent-list button {
+    position: relative;
+    min-height: 48px;
+    padding: 0 20px;
+    color: var(--jplanet-muted);
+    font-size: 14px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-parent-list button[aria-current="page"] {
+    background: #fff;
+    box-shadow: none;
+    color: var(--jplanet-navy);
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-parent-list button[aria-current="page"]::before {
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 0;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--jplanet-sakura);
+    content: "";
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-children {
+    min-width: 0;
+    padding: 0 28px 34px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-children-heading {
+    min-height: 70px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-children-heading h2 {
+    color: var(--jplanet-navy);
+    font-size: 22px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-child-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    padding-top: 22px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-child-list .sazo-category-child-card {
+    display: grid;
+    min-width: 0;
+    min-height: 176px;
+    align-content: center;
+    justify-items: center;
+    gap: 12px;
+    padding: 18px 12px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: none;
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      transform 180ms ease;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-child-list .sazo-category-child-card:hover,
+  .sazo-root[data-view="categories"] .sazo-category-child-list .sazo-category-child-card:focus-visible {
+    border-color: rgb(254 162 172 / 70%);
+    box-shadow: 0 12px 24px rgb(31 56 100 / 9%);
+    outline: none;
+    transform: translateY(-2px);
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-child-image {
+    display: grid;
+    width: 104px;
+    height: 104px;
+    overflow: hidden;
+    place-items: center;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 50%;
+    background: #f7f8fb;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-child-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-child-icon {
+    display: none;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-child-copy {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: var(--jplanet-navy);
+    font-size: 14px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-child-copy > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-child-copy svg {
+    flex: 0 0 auto;
+  }
+
+  /* Purchase reviews: retain the selected mobile cards and information, then
+   * expose them as a readable full-width desktop review wall. */
+  .sazo-root[data-view="reviews"] .sazo-reviews-view-content {
+    position: static;
+    left: auto;
+    width: min(1440px, 100%);
+    margin-inline: auto;
+    padding: 0 0 72px;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry {
+    display: grid;
+    grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+    gap: 8px 24px;
+    align-items: center;
+    margin: 0 0 24px;
+    padding: 18px 20px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 10px 28px rgb(31 56 100 / 7%);
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry-heading {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry-heading h2 {
+    font-size: 19px;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry-heading p {
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry .sazo-mobile-agent-composer {
+    grid-column: 2;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry .sazo-mobile-agent-composer-form {
+    margin: 0;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry .sazo-mobile-agent-composer-input-shell {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px 46px;
+    min-height: 56px;
+    align-items: center;
+    padding: 4px 5px 4px 16px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry textarea {
+    width: 100%;
+    min-width: 0;
+    height: 46px;
+    min-height: 46px;
+    max-height: 46px;
+    padding: 12px 0;
+    overflow: hidden;
+    font-size: 15px;
+    line-height: 22px;
+    resize: none;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry-hint {
+    grid-column: 2;
+    margin: 0;
+    padding: 0 4px;
+    color: var(--jplanet-muted);
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry-hint svg {
+    display: none;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-feature-rail {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-feature-card {
+    width: 100%;
+    min-width: 0;
+    aspect-ratio: 1.22;
+    border-radius: 18px;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-feature-copy {
+    padding: 16px;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-feature-copy > strong {
+    font-size: 17px;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-feed {
+    margin-top: 36px;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-feed-heading h2 {
+    font-size: 26px;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-category-rail {
+    gap: 10px;
+    margin: 0 0 20px;
+    padding: 0;
+    overflow: visible;
+    flex-wrap: wrap;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-category-rail button {
+    min-height: 38px;
+    padding-inline: 16px;
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-masonry[data-review-columns="2"] {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    align-items: start;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-masonry-column {
+    display: contents;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-masonry .sazo-review-tile {
+    grid-column: auto;
+    width: auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-tile-media img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.16;
+    object-fit: cover;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-tile-copy {
+    min-height: 88px;
+    padding: 10px 12px 12px;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-tile-copy > p {
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-tile-copy > .sazo-review-tile-author {
+    font-size: 11px;
+  }
+
+  /* J-Planet GRAM: use the shared commerce canvas and keep card width dense
+   * enough for scanning instead of leaving a narrow centered island. */
+  .sazo-root[data-view="gram"] .sazo-gram-view {
+    width: min(1440px, 100%);
+    margin-inline: auto;
+    padding: 4px 0 80px;
+  }
+
+  .sazo-root[data-view="gram"] .sazo-gram-view > h1 {
+    margin-bottom: 20px;
+    font-size: clamp(30px, 2.8vw, 40px);
+  }
+
+  .sazo-root[data-view="gram"] .sazo-gram-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 28px;
+    overflow: visible;
+  }
+
+  .sazo-root[data-view="gram"] .sazo-gram-filter button {
+    min-height: 40px;
+    padding-inline: 16px;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="gram"] .sazo-gram-catalog-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px 18px;
+  }
+
+  .sazo-root[data-view="gram-detail"] .sazo-gram-detail {
+    width: min(1360px, 100%);
+    max-width: none;
+    grid-template-columns: minmax(360px, 0.82fr) minmax(0, 1.18fr);
+    gap: 48px;
+    margin-inline: auto;
+    padding: 4px 0 80px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sazo-root[data-view="categories"] .sazo-category-child-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sazo-root[data-view="gram"] .sazo-gram-catalog-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .sazo-root[data-view="categories"] .sazo-category-child-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .sazo-root[data-view="gram"] .sazo-gram-catalog-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .sazo-root {
+    --jplanet-page-gutter: 24px;
+  }
+
+  .sazo-root .sazo-desktop-header-card,
+  .sazo-root .sazo-main.sazo-content-main {
+    width: calc(100% - 48px) !important;
+  }
+
+  .sazo-root .sazo-desktop-header {
+    grid-template-columns: 112px minmax(0, 1fr) 176px;
+    column-gap: 10px;
+  }
+
+  .sazo-root .sazo-desktop-ai-search-tray-label {
+    display: none;
+  }
+
+  .sazo-root .sazo-desktop-header .sazo-desktop-nav {
+    gap: 0;
+    justify-content: stretch;
+    padding-inline: 0;
+  }
+
+  .sazo-root .sazo-desktop-header .sazo-secondary-button {
+    flex: 1 1 auto;
+    padding-inline: 2px;
+    font-size: 11px;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-agent,
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry {
+    grid-template-columns: 1fr;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-agent-helper {
+    max-width: none;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-layout {
+    grid-template-columns: 210px minmax(0, 1fr);
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-child-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry-heading,
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry .sazo-mobile-agent-composer,
+  .sazo-root[data-view="reviews"] .sazo-review-agent-entry-hint {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .sazo-root[data-view="reviews"] .sazo-review-feature-rail,
+  .sazo-root[data-view="reviews"] .sazo-review-masonry[data-review-columns="2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sazo-root[data-view="gram"] .sazo-gram-catalog-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sazo-root[data-view="gram-detail"] .sazo-gram-detail {
+    grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.1fr);
+    gap: 28px;
+  }
+}
+
+@media (min-width: 768px) and (prefers-reduced-motion: reduce) {
+  .sazo-root[data-view="categories"] .sazo-category-child-list .sazo-category-child-card {
+    transition: none;
+  }
+
+  .sazo-root[data-view="categories"] .sazo-category-child-list .sazo-category-child-card:hover,
+  .sazo-root[data-view="categories"] .sazo-category-child-list .sazo-category-child-card:focus-visible {
+    transform: none;
+  }
+}
+
+/* Final PC account surfaces: the shared commerce header already carries the
+ * brand and actions, so these screens use the remaining width for actual
+ * account information instead of centering the mobile column. */
+@media (min-width: 768px) {
+  .sazo-root[data-view="notifications"] .sazo-notifications-view {
+    width: min(1440px, 100%);
+    min-height: 0;
+    margin-inline: auto;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-header {
+    display: none;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-reference-content {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 18px 32px;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 8px 0 72px;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-intro {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 20px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 18px;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-intro h2 {
+    font-size: 28px;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-reference-tabs {
+    position: sticky;
+    top: 144px;
+    display: grid;
+    grid-column: 1;
+    grid-row: 1;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    height: auto;
+    min-height: 0;
+    margin: 146px 0 0;
+    padding: 8px;
+    overflow: visible;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 18px;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-reference-tabs button {
+    display: flex;
+    min-height: 46px;
+    justify-content: flex-start;
+    padding: 0 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="notifications"]
+    .sazo-notifications-reference-tabs
+    button
+    + button::before {
+    display: none;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-updates {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    padding: 24px;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 20px;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-updates > h2 {
+    font-size: 24px;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-updates > ol {
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-update {
+    grid-template-columns: 18px minmax(0, 1fr);
+    gap: 12px;
+    padding: 0 0 12px;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-update > button {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr) 24px;
+    gap: 18px;
+    min-height: 112px;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    background: #fff;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-update > button:hover,
+  .sazo-root[data-view="notifications"] .sazo-notifications-update > button:focus-visible {
+    border-color: rgb(254 162 172 / 58%);
+    outline: none;
+    background: var(--jplanet-sakura-soft);
+    transform: translateY(-2px);
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-update > button > img {
+    width: 88px;
+    height: 88px;
+    border-radius: 12px;
+    object-fit: contain;
+    background: #f7f8fb;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-update-copy {
+    gap: 5px;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-update-copy > strong {
+    font-size: 16px;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-update-copy > b {
+    font-size: 14px;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-update-copy > small,
+  .sazo-root[data-view="notifications"] .sazo-notifications-update-copy > em {
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-timeline-detail {
+    margin: 8px 0 0 16px;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-reference-settings {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+    border: 1px solid var(--jplanet-line);
+    border-radius: 16px;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-postpurchase-view {
+    width: min(1440px, 100%);
+    max-width: none;
+    margin-inline: auto;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-postpurchase-header {
+    display: flex;
+    min-height: 0;
+    justify-content: flex-start;
+    padding: 4px 0 24px;
+    border: 0;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-postpurchase-header-start,
+  .sazo-root[data-view="mypage"] .sazo-postpurchase-header-actions {
+    display: none;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-postpurchase-header h1 {
+    font-size: clamp(28px, 2.4vw, 36px);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.2;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-content {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-areas:
+      "user user user user shopping shopping shopping shopping shopping shopping shopping shopping"
+      "balances balances balances balances shopping shopping shopping shopping shopping shopping shopping shopping"
+      "support support support support account account account account account account account account";
+    gap: 20px 24px;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0 0 72px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-user-row,
+  .sazo-root[data-view="mypage"] .sazo-mypage-balances,
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-group,
+  .sazo-root[data-view="mypage"] .sazo-mypage-support-row {
+    border: 1px solid var(--jplanet-line);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 10px 26px rgb(31 56 100 / 6%);
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-user-row {
+    grid-area: user;
+    min-height: 132px;
+    padding: 24px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-balances {
+    grid-area: balances;
+    width: 100%;
+    max-width: none;
+    min-height: 112px;
+    margin: 0;
+    padding: 20px 12px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-group:first-of-type {
+    grid-area: shopping;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-group:nth-of-type(2) {
+    grid-area: account;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-group {
+    margin: 0;
+    padding: 22px 24px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-group + .sazo-mypage-reference-group {
+    margin: 0;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-group h2 {
+    padding-bottom: 14px;
+    font-size: 22px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-row,
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-group .sazo-account-link {
+    min-height: 72px;
+    padding-inline: 8px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-group:nth-of-type(2) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 24px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-group:nth-of-type(2) h2 {
+    grid-column: 1 / -1;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-support-row {
+    grid-area: support;
+    min-height: 72px;
+    align-self: start;
+    margin: 0;
+    padding: 0 22px;
+  }
+
+  .sazo-root[data-view="mypage"] :is(
+      .sazo-mypage-user-row,
+      .sazo-mypage-balances button,
+      .sazo-mypage-reference-row,
+      .sazo-account-link,
+      .sazo-mypage-support-row
+    ):focus-visible {
+    outline: 2px solid var(--jplanet-navy);
+    outline-offset: 3px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .sazo-root[data-view="notifications"] .sazo-notifications-reference-content {
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-updates {
+    padding: 18px;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-update > button {
+    grid-template-columns: 72px minmax(0, 1fr) 20px;
+    gap: 12px;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-update > button > img {
+    width: 72px;
+    height: 72px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-content {
+    grid-template-areas:
+      "user user user user user balances balances balances balances balances balances balances"
+      "shopping shopping shopping shopping shopping shopping account account account account account account"
+      "support support support support support support account account account account account account";
+    gap: 18px;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-group:nth-of-type(2) {
+    grid-template-columns: 1fr;
+  }
+
+  .sazo-root[data-view="mypage"] .sazo-mypage-reference-group:nth-of-type(2) h2 {
+    grid-column: 1;
+  }
+}
+
+@media (min-width: 768px) and (prefers-reduced-motion: reduce) {
+  .sazo-root[data-view="notifications"] .sazo-notifications-update > button {
+    transition: none;
+  }
+
+  .sazo-root[data-view="notifications"] .sazo-notifications-update > button:hover,
+  .sazo-root[data-view="notifications"] .sazo-notifications-update > button:focus-visible {
+    transform: none;
   }
 }

@@ -37212,7 +37212,7 @@
   }
 
   .sazo-root[data-view="home"] .sazo-desktop-header {
-    grid-template-columns: 140px minmax(0, 1fr) 144px;
+    grid-template-columns: 148px minmax(0, 1fr) 148px;
     grid-template-rows: 76px 48px;
     column-gap: 14px;
     row-gap: 0;
@@ -37410,7 +37410,7 @@
 
 @media (min-width: 1120px) {
   .sazo-root[data-view="home"] .sazo-desktop-header {
-    grid-template-columns: 220px minmax(0, 1fr) 144px;
+    grid-template-columns: 220px minmax(0, 1fr) 220px;
     column-gap: 24px;
   }
 

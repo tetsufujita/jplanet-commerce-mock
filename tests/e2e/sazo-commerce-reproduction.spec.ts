@@ -227,7 +227,7 @@ test("matches the mobile category directory at supported mobile widths and prese
       await expect(page.locator('[data-view-content="categories"]')).toBeVisible();
       await expect(page.locator('[data-testid="category-agent-entry"]')).toBeVisible();
       await expect(page.locator(".sazo-mobile-category-title")).toHaveCount(0);
-      await expect(page.locator(".sazo-category-child-card")).toHaveCount(6);
+      await expect(page.locator(".sazo-category-child-card")).toHaveCount(9);
       await expectNoHorizontalPageOverflow(page);
     }
     return;
@@ -1726,7 +1726,7 @@ test("opens the dedicated mobile AI search with distinct text, URL, and image pa
     path: testInfo.outputPath("ai-search-390-new-balance-results.png"),
   });
 
-  await search.getByRole("button", { name: "限定" }).click();
+  await search.getByRole("button", { exact: true, name: "限定" }).click();
   await expect(search.getByText("限定 19件")).toBeVisible();
   await expect(search.locator('[data-result-group="limited"]')).toBeVisible();
   await expect(search.locator('[data-result-group="general"]')).toHaveCount(0);
@@ -1737,7 +1737,7 @@ test("opens the dedicated mobile AI search with distinct text, URL, and image pa
     })
     .click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "product");
-  await expect(page.getByText("New Balance 9060", { exact: true })).toBeVisible();
+  await expect(page.locator("h1").filter({ hasText: "New Balance 9060" })).toBeVisible();
 
   await page.goto(
     `${routePath}&view=ai-search&query=lo%C3%A7%C3%A3o%20facial`,
@@ -2260,12 +2260,20 @@ test("replays the deterministic SAZO commerce journey", async ({ page }, testInf
       exact: true,
       name: "メインメニュー",
     });
-    await expect(desktopNavigation.getByRole("button")).toHaveCount(6);
+    await expect(desktopNavigation.getByRole("button")).toHaveCount(7);
     expect(
       await desktopNavigation
         .getByRole("button")
         .evaluateAll((buttons) => buttons.map((button) => button.textContent?.trim())),
-    ).toEqual(["ホーム", "ブランド", "AI検索", "カテゴリー", "人気商品", "配送・通関"]);
+    ).toEqual([
+      "ホーム",
+      "ブランド",
+      "AI検索",
+      "カテゴリー",
+      "レビュー",
+      "J-Planet GRAM",
+      "配送・通関",
+    ]);
 
     await desktopNavigation
       .getByRole("button", { exact: true, name: "ブランド" })
@@ -2274,8 +2282,8 @@ test("replays the deterministic SAZO commerce journey", async ({ page }, testInf
     await expect(page.locator('[data-view-content="brands"]')).toBeVisible();
 
     await desktopNavigation.getByRole("button", { exact: true, name: "AI検索" }).click();
-    await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
-    await expect(page.locator("[data-mobile-agent-hub]")).toBeVisible();
+    await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "brands");
+    await expect(page.locator(".sazo-desktop-agent-search-history-popover")).toBeVisible();
 
     await desktopNavigation.getByRole("button", { exact: true, name: "ホーム" }).click();
     await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
@@ -2400,13 +2408,83 @@ test("keeps the selected agentic-commerce home responsive and interactive on des
       { filter: "none", opacity: "1", transform: "none" },
       { filter: "none", opacity: "1", transform: "none" },
     ]);
+    if (viewport.width === 1440) {
+      const control = agentLens.locator(".sazo-desktop-agent-lens-control");
+      const lensSearch = agentLens.getByRole("search", { name: "AI検索" });
+      const lensDensity = await agentLens.evaluate((lens) => {
+        const controlSurface = lens.querySelector<HTMLElement>(
+          ".sazo-desktop-agent-lens-control",
+        );
+        const searchSurface = lens.querySelector<HTMLElement>(
+          ".sazo-desktop-agent-lens-search",
+        );
+        const heading = lens.querySelector<HTMLElement>(
+          ".sazo-desktop-agent-lens-control h1",
+        );
+        const lensRect = lens.getBoundingClientRect();
+        const controlRect = controlSurface?.getBoundingClientRect();
+        const searchRect = searchSurface?.getBoundingClientRect();
+
+        return {
+          controlHeight: controlRect?.height ?? 0,
+          headingFontSize: heading ? Number.parseFloat(getComputedStyle(heading).fontSize) : 0,
+          lensHeight: lensRect.height,
+          lensWidth: lensRect.width,
+          searchHeight: searchRect?.height ?? 0,
+        };
+      });
+      expect(lensDensity.lensWidth).toBeGreaterThanOrEqual(viewport.width - 64);
+      expect(lensDensity.lensHeight).toBeLessThanOrEqual(600);
+      expect(lensDensity.controlHeight).toBeLessThanOrEqual(460);
+      expect(lensDensity.searchHeight).toBeLessThanOrEqual(78);
+      expect(lensDensity.headingFontSize).toBeLessThanOrEqual(48);
+      const getStaticSurfaceState = () =>
+        control.evaluate((surface) => {
+          const search = surface.querySelector<HTMLElement>(".sazo-desktop-agent-lens-search");
+          const evidence = surface.querySelector<HTMLElement>(".sazo-desktop-agent-lens-evidence");
+          const rect = surface.getBoundingClientRect();
+          const searchRect = search?.getBoundingClientRect();
+          return {
+            control: { x: rect.x, y: rect.y },
+            controlTransform: getComputedStyle(surface).transform,
+            evidenceTransform: evidence ? getComputedStyle(evidence).transform : null,
+            search: searchRect ? { x: searchRect.x, y: searchRect.y } : null,
+            searchTransform: search ? getComputedStyle(search).transform : null,
+          };
+        });
+      const staticSurfaceBefore = await getStaticSurfaceState();
+
+      await lensSearch.hover();
+      await page.waitForTimeout(350);
+      expect(await getStaticSurfaceState()).toEqual(staticSurfaceBefore);
+
+      const lensSearchInput = lensSearch.getByRole("textbox", {
+        name: "商品名・キーワード・画像・URLで検索",
+      });
+      await lensSearchInput.click();
+      await page.waitForTimeout(350);
+      expect(await getStaticSurfaceState()).toEqual(staticSurfaceBefore);
+      expect(
+        await lensSearchInput.evaluate((input) => ({
+          boxShadow: getComputedStyle(input).boxShadow,
+          outlineStyle: getComputedStyle(input).outlineStyle,
+          outlineWidth: getComputedStyle(input).outlineWidth,
+        })),
+      ).toEqual({ boxShadow: "none", outlineStyle: "none", outlineWidth: "0px" });
+      await lensSearchInput.press("Escape");
+
+      const firstBanner = lensBanners.first();
+      await firstBanner.hover({ position: { x: 24, y: 24 } });
+      await page.waitForTimeout(350);
+      expect(await firstBanner.evaluate((banner) => getComputedStyle(banner).transform)).not.toBe(
+        "none",
+      );
+    }
     const headerAiSearchTray = page.getByTestId("desktop-header-ai-search-tray");
-    await expect(page.getByTestId("desktop-ai-search-trigger")).toBeVisible();
-    await expect(headerAiSearchTray).toBeHidden();
-    await expect(agentLens.getByRole("tab", { name: "URLで検索" })).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
+    await expect(page.getByTestId("desktop-ai-search-trigger")).toHaveCount(0);
+    await expect(headerAiSearchTray).toBeVisible();
+    await expect(agentLens.getByRole("tablist")).toHaveCount(0);
+    await expect(agentLens.getByRole("tab")).toHaveCount(0);
     await expect(
       page
         .getByTestId("desktop-home-product-rail")
@@ -2447,7 +2525,7 @@ test("keeps the selected agentic-commerce home responsive and interactive on des
     });
     await expect(headerAiSearchTray).toBeVisible();
     await page.evaluate(() => window.scrollTo({ top: 0 }));
-    await expect(headerAiSearchTray).toBeHidden();
+    await expect(headerAiSearchTray).toBeVisible();
     expect(
       await desktopHome.evaluate((home) => {
         const products = home.querySelector('[data-testid="desktop-home-product-rail"]');
@@ -2495,11 +2573,7 @@ test("keeps the selected agentic-commerce home responsive and interactive on des
 
   await page.goto(routePath);
   const desktopAgentLens = page.getByTestId("desktop-agent-lens");
-  await desktopAgentLens.getByRole("tab", { name: "画像で検索" }).click();
-  await expect(desktopAgentLens.getByRole("tab", { name: "画像で検索" })).toHaveAttribute(
-    "aria-selected",
-    "true",
-  );
+  await expect(desktopAgentLens.getByRole("tablist")).toHaveCount(0);
   await desktopAgentLens.getByRole("button", { name: "カメラ" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
 
@@ -2519,13 +2593,12 @@ test("keeps the selected agentic-commerce home responsive and interactive on des
 
   await page.goto(routePath);
   const header = page.locator(".sazo-desktop-header");
-  const headerAiSearchTrigger = page.getByTestId("desktop-ai-search-trigger");
-  await headerAiSearchTrigger.click();
   const headerAiSearchTray = page.getByTestId("desktop-header-ai-search-tray");
   await expect(headerAiSearchTray).toBeVisible();
   const headerAiSearchInput = headerAiSearchTray.getByRole("textbox", {
     name: "商品名・キーワード・画像・URLで検索",
   });
+  await headerAiSearchInput.click();
   await expect(headerAiSearchInput).toBeFocused();
   const headerSearchHistoryPopover = page.getByRole("dialog", { name: "最近の検索" });
   await expect(headerSearchHistoryPopover).toBeVisible();
@@ -2541,10 +2614,9 @@ test("keeps the selected agentic-commerce home responsive and interactive on des
   await page.evaluate(() => window.scrollTo({ top: 700 }));
   await expect(headerAiSearchTray).toBeVisible();
   await headerAiSearchInput.press("Escape");
-  await expect(headerAiSearchTray).toBeHidden();
+  await expect(headerAiSearchTray).toBeVisible();
   await expect(headerSearchHistoryPopover).toHaveCount(0);
-  await expect(headerAiSearchTrigger).toBeFocused();
-  await headerAiSearchTrigger.click();
+  await expect(headerAiSearchInput).toBeFocused();
   await headerAiSearchInput.fill("Nintendo");
   await headerAiSearchTray.getByRole("button", { name: "AI検索を実行" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute(

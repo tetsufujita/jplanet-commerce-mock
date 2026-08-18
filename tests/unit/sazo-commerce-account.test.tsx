@@ -89,7 +89,7 @@ describe("SAZO local authentication", () => {
       throw new Error("Desktop SAZO shell not found");
     }
 
-    fireEvent.click(within(desktopShell).getByRole("button", { name: "ログイン" }));
+    fireEvent.click(within(desktopShell).getByRole("button", { name: "マイページ" }));
     fireEvent.click(screen.getByRole("button", { name: "Googleで続ける" }));
 
     expect(screen.queryByRole("dialog", { name: "ログイン または会員登録" })).toBeNull();
@@ -108,7 +108,7 @@ describe("SAZO local authentication", () => {
       throw new Error("Desktop SAZO shell not found");
     }
 
-    const launcher = within(desktopShell).getByRole("button", { name: "ログイン" });
+    const launcher = within(desktopShell).getByRole("button", { name: "マイページ" });
     fireEvent.click(launcher);
 
     const provider = screen.getByRole("dialog", {
@@ -163,7 +163,7 @@ describe("SAZO local authentication", () => {
       throw new Error("Desktop SAZO shell not found");
     }
 
-    fireEvent.click(within(desktopShell).getByRole("button", { name: "ログイン" }));
+    fireEvent.click(within(desktopShell).getByRole("button", { name: "マイページ" }));
     fireEvent.click(screen.getByRole("button", { name: "Appleで続ける" }));
 
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -236,7 +236,7 @@ describe("SAZO local authentication", () => {
       throw new Error("Desktop SAZO shell not found");
     }
 
-    const launcher = within(desktopShell).getByRole("button", { name: "ログイン" });
+    const launcher = within(desktopShell).getByRole("button", { name: "マイページ" });
     launcher.focus();
     fireEvent.click(launcher);
     fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
@@ -255,7 +255,7 @@ describe("SAZO local authentication", () => {
       throw new Error("Desktop SAZO shell not found");
     }
 
-    const launcher = within(desktopShell).getByRole("button", { name: "ログイン" });
+    const launcher = within(desktopShell).getByRole("button", { name: "マイページ" });
     launcher.focus();
     fireEvent.click(launcher);
 

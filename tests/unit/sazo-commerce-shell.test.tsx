@@ -45,6 +45,23 @@ function installMobileHome() {
   });
 }
 
+function installDesktopHome() {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    value: (query: string): MediaQueryList => ({
+      addEventListener: () => undefined,
+      addListener: () => undefined,
+      dispatchEvent: () => false,
+      matches: false,
+      media: query,
+      onchange: null,
+      removeEventListener: () => undefined,
+      removeListener: () => undefined,
+    }),
+    writable: true,
+  });
+}
+
 async function renderSazoCommercePage(locale: "ja" | "en" | "pt-BR" = "ja") {
   const i18n = await createI18n(locale);
 
@@ -131,7 +148,15 @@ describe("SazoCommercePage shell", () => {
       name: "モバイルメニュー",
     });
 
-    for (const label of ["ホーム", "ブランド", "エージェント", "通知", "マイページ"]) {
+    for (const label of [
+      "ホーム",
+      "ブランド",
+      "AI検索",
+      "カテゴリー",
+      "レビュー",
+      "J-Planet GRAM",
+      "配送・通関",
+    ]) {
       expect(
         Array.from(desktopNav.querySelectorAll("button")).some(
           (button) => button.textContent === label,
@@ -143,7 +168,7 @@ describe("SazoCommercePage shell", () => {
       throw new Error("Desktop global actions not found");
     }
 
-    for (const label of ["AI検索を開く", "カート", "通知", "ログイン"]) {
+    for (const label of ["カート", "通知", "チャット", "マイページ"]) {
       expect(within(desktopActions).getByRole("button", { name: label })).toBeTruthy();
     }
     expect(within(desktopActions).queryByRole("button", { name: "お気に入り" })).toBeNull();
@@ -155,7 +180,7 @@ describe("SazoCommercePage shell", () => {
     ).toBe("true");
 
     expect(within(mobileNav).getAllByRole("button")).toHaveLength(5);
-    for (const label of ["ホーム", "ブランド", "エージェント", "通知", "マイページ"]) {
+    for (const label of ["ホーム", "ブランド", "AI検索", "通知", "マイページ"]) {
       expect(within(mobileNav).getByRole("button", { name: label })).toBeTruthy();
     }
   });
@@ -216,7 +241,7 @@ describe("SazoCommercePage shell", () => {
     });
 
     for (const label of [
-      "URL・画像・商品名をAIに渡す",
+      "AI検索",
       "カメラ",
       "カート",
       "チャットを開く",
@@ -261,7 +286,7 @@ describe("SazoCommercePage shell", () => {
     ).not.toBeNull();
     expect(
       within(mobileHeader)
-        .getByRole("button", { name: "URL・画像・商品名をAIに渡す" })
+        .getByRole("button", { name: "AI検索" })
         .querySelector(".lucide-search"),
     ).not.toBeNull();
     expect(
@@ -310,23 +335,22 @@ describe("SazoCommercePage shell", () => {
     });
   });
 
-  it("opens the empty agent search state from the mobile header search bar", async () => {
+  it("opens the mobile AI search state from the mobile header search bar", async () => {
     const { container } = await renderSazoCommercePage();
     const mobileShell = getShell(container, "mobile");
     const mobileHeader = within(mobileShell).getByRole("banner");
 
     fireEvent.click(
-      within(mobileHeader).getByRole("button", { name: "URL・画像・商品名をAIに渡す" }),
+      within(mobileHeader).getByRole("button", { name: "AI検索" }),
     );
 
     await waitFor(() => {
       expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
-        "agent-hub",
+        "ai-search",
       );
     });
-    expect(container.querySelector("[data-mobile-agent-hub]")).not.toBeNull();
-    expect(screen.queryByRole("dialog", { name: "J-Planet AIエージェント" })).toBeNull();
-    expect(screen.getByPlaceholderText("URL・画像・商品名を送る")).toBeTruthy();
+    expect(screen.getByRole("search", { name: "AI検索" })).toBeTruthy();
+    expect(screen.getByPlaceholderText("商品名・キーワード・画像・URLで検索")).toBeTruthy();
   });
 
   it("opens the camera-capable picker from the mobile header camera button", async () => {
@@ -338,7 +362,7 @@ describe("SazoCommercePage shell", () => {
 
     await waitFor(() => {
       expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
-        "agent-hub",
+        "ai-search",
       );
       expect(click).toHaveBeenCalledTimes(1);
     });
@@ -395,6 +419,7 @@ describe("SazoCommercePage shell", () => {
   });
 
   it("groups the desktop AI search, icon actions, and navigation in one header card", async () => {
+    installDesktopHome();
     const { container } = await renderSazoCommercePage();
     const desktopShell = getShell(container, "desktop");
     const headerCard = desktopShell.querySelector<HTMLElement>(
@@ -408,13 +433,15 @@ describe("SazoCommercePage shell", () => {
     const navigation = within(headerCard).getByRole("navigation", {
       name: "メインメニュー",
     });
-    const search = within(header).getByRole("button", { name: "AI検索を開く" });
-    const login = within(header).getByRole("button", { name: "ログイン" });
+    const search = within(header).getByRole("search", { name: "AI検索" });
+    const cart = within(header).getByRole("button", { name: "カート" });
 
     expect(headerCard.contains(header)).toBe(true);
     expect(headerCard.contains(navigation)).toBe(true);
-    expect(search.querySelector(".lucide-search")).not.toBeNull();
-    expect(login.querySelector(".lucide-user-round")).not.toBeNull();
+    expect(
+      search.querySelector(".sazo-desktop-agent-search-submit .lucide-search"),
+    ).not.toBeNull();
+    expect(cart.querySelector(".lucide-shopping-cart")).not.toBeNull();
   });
 
   it("backs the centered desktop header card with a full-width band", async () => {
@@ -481,23 +508,23 @@ describe("SazoCommercePage shell", () => {
     const { container } = await renderSazoCommercePage();
     const mobileNav = getShell(container, "mobile").querySelector(".sazo-mobile-nav");
     const agent = within(mobileNav as HTMLElement).getByRole("button", {
-      name: "エージェント",
+      name: "AI検索",
     });
 
     fireEvent.click(agent);
 
     expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
-      "agent-hub",
+      "ai-search",
     );
     expect(agent.getAttribute("aria-pressed")).toBe("true");
     expect(screen.queryByRole("dialog", { name: "J-Planet AIエージェント" })).toBeNull();
   });
 
-  it("mounts the dedicated hub without the generic mobile header", async () => {
+  it("mounts the dedicated mobile AI search without the generic mobile header", async () => {
     window.history.replaceState({}, "", "/sazo-commerce-mock/?qa=1&view=agent-hub");
     const { container } = await renderSazoCommercePage();
 
-    expect(container.querySelector("[data-mobile-agent-hub]")).not.toBeNull();
+    expect(container.querySelector("[data-ai-search-view]")).not.toBeNull();
     expect(container.querySelector(".sazo-mobile-shell .sazo-mobile-header")).toBeNull();
     expect(container.querySelector(".sazo-mobile-nav")).not.toBeNull();
   });
@@ -512,9 +539,9 @@ describe("SazoCommercePage shell", () => {
   });
 
   it.each([
-    ["ja", "エージェント"],
-    ["en", "Agent"],
-    ["pt-BR", "Agente"],
+    ["ja", "AI検索"],
+    ["en", "AI search"],
+    ["pt-BR", "Busca por IA"],
   ] as const)("localizes the mobile agent navigation for %s", async (locale, label) => {
     const { container } = await renderSazoCommercePage(locale);
     const mobileNav = within(getShell(container, "mobile")).getByRole("navigation", {
@@ -551,15 +578,19 @@ describe("SazoCommercePage shell", () => {
     expect(chat.getAttribute("aria-expanded")).toBe("true");
   });
 
-  it.each(["ja", "en", "pt-BR"] as const)(
+  it.each([
+    ["ja", "AI検索"],
+    ["en", "AI search"],
+    ["pt-BR", "Busca por IA"],
+  ] as const)(
     "keeps the shared J-Planet desktop labels available for %s",
-    async (locale) => {
+    async (locale, searchLabel) => {
       const markup = await renderSazoCommerceMarkup(locale);
 
       expect(markup).toContain("J-Planet");
-      expect(markup).toContain("AI検索");
+      expect(markup).toContain(searchLabel);
       expect(markup).toContain("ブランド");
-      expect(markup).toContain("商品カテゴリー");
+      expect(markup).toContain("カテゴリー");
     },
   );
 });

@@ -26,6 +26,20 @@ async function renderHub({
   entryIntent?: AgentEntryIntent | null;
   scenario?: AgentHubScenario;
 } = {}) {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    value: (query: string): MediaQueryList => ({
+      addEventListener: vi.fn(),
+      addListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+      matches: false,
+      media: query,
+      onchange: null,
+      removeEventListener: vi.fn(),
+      removeListener: vi.fn(),
+    }),
+    writable: true,
+  });
   const i18n = await createI18n("ja");
 
   return {
@@ -46,10 +60,14 @@ describe("MobileAgentHubView", () => {
   it("renders the search entry, removable intents, two recent products, and the lower discovery sections", async () => {
     const { container } = await renderHub();
 
-    expect(container.querySelector('[data-mobile-agent-hub][data-scenario="normal"]')).not.toBeNull();
-    expect(screen.getByRole("heading", { name: "購入エージェント" })).toBeTruthy();
-    expect(screen.getByText("商品を送るだけで、購入判断まで。")).toBeTruthy();
-    expect(screen.getByPlaceholderText("URL・画像・商品名を送る")).toBeTruthy();
+    expect(container.querySelector("[data-desktop-agent-hub]")).not.toBeNull();
+    expect(screen.getByRole("heading", { name: "AIで商品を探す" })).toBeTruthy();
+    expect(
+      screen.getByText("商品名・キーワード・画像・URLから商品を探します。"),
+    ).toBeTruthy();
+    expect(
+      screen.getByPlaceholderText("商品名・キーワード・画像・URLで検索"),
+    ).toBeTruthy();
     expect(screen.getByText("URLは商品ページを直接開きます")).toBeTruthy();
     const composer = container.querySelector<HTMLElement>('[data-section="agent-search"]');
     if (composer === null) throw new Error("Agent composer section is missing");
@@ -62,7 +80,7 @@ describe("MobileAgentHubView", () => {
     expect(screen.getByRole("button", { name: "すべて見る（8件）" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "よく検索されるキーワード" })).toBeTruthy();
     expect(screen.getByRole("list", { name: "よく検索されるキーワード" }).children).toHaveLength(5);
-    expect(screen.getByRole("button", { name: "このエージェントの使い方" }).getAttribute("aria-expanded")).toBe("false");
+    expect(screen.getByRole("button", { name: "AI検索の使い方" }).getAttribute("aria-expanded")).toBe("false");
     expect(screen.getByTestId("agent-popular-products").querySelectorAll("[data-testid='home-dense-product-card']")).toHaveLength(4);
 
     expect(screen.queryByText("送信履歴")).toBeNull();
@@ -101,13 +119,13 @@ describe("MobileAgentHubView", () => {
   it("opens the usage steps on demand and resolves a common keyword through the shared product flow", async () => {
     const dispatch = createDispatch();
     await renderHub({ dispatch });
-    const howItWorks = screen.getByRole("button", { name: "このエージェントの使い方" });
+    const howItWorks = screen.getByRole("button", { name: "AI検索の使い方" });
 
     fireEvent.click(howItWorks);
     expect(howItWorks.getAttribute("aria-expanded")).toBe("true");
-    expect(screen.getByText("URLを貼る")).toBeTruthy();
-    expect(screen.getByText("画像を送る")).toBeTruthy();
-    expect(screen.getByText("商品名で探す")).toBeTruthy();
+    expect(screen.getByText("URLで検索")).toBeTruthy();
+    expect(screen.getByText("画像で検索")).toBeTruthy();
+    expect(screen.getByText("商品名で検索")).toBeTruthy();
 
     fireEvent.click(screen.getAllByRole("button", { name: "カメラ" })[0]!);
     expect(dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: "open-product" }));
@@ -124,8 +142,8 @@ describe("MobileAgentHubView", () => {
     expect(screen.getByRole("list", { name: "最近の検索" }).children).toHaveLength(0);
     expect(screen.getByText("まだ確認した商品はありません")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "すべて見る（8件）" })).toBeNull();
-    expect(screen.getByRole("button", { name: "このエージェントの使い方" }).getAttribute("aria-expanded")).toBe("true");
-    expect(screen.getByText("URLを貼る")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "AI検索の使い方" }).getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByText("URLで検索")).toBeTruthy();
   });
 
   it("opens the shared product-detail flow from a viewed-product CTA and directly from a search", async () => {
@@ -133,7 +151,7 @@ describe("MobileAgentHubView", () => {
     await renderHub({ dispatch });
 
     fireEvent.click(screen.getByRole("button", { name: "Sony α7C IIの商品を見る" }));
-    fireEvent.change(screen.getByPlaceholderText("URL・画像・商品名を送る"), {
+    fireEvent.change(screen.getByPlaceholderText("商品名・キーワード・画像・URLで検索"), {
       target: { value: "日本限定スニーカー" },
     });
     fireEvent.click(screen.getByRole("button", { name: "送信" }));
@@ -143,8 +161,12 @@ describe("MobileAgentHubView", () => {
       productId: "jplanet-sony-a7c-ii",
     });
     expect(dispatch).toHaveBeenNthCalledWith(2, {
-      type: "open-product",
-      productId: "jplanet-new-balance-9060",
+      type: "start-agent-search",
+      request: {
+        imageName: null,
+        imageResolution: false,
+        summary: "日本限定スニーカー",
+      },
     });
   });
 

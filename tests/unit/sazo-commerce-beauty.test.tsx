@@ -55,7 +55,7 @@ describe("J-Planet BEAUTY fixtures", () => {
     const dispatch = vi.fn();
     await renderBeauty(dispatch);
 
-    const input = screen.getByPlaceholderText("URL・画像・商品名をAIに渡す");
+    const input = screen.getByPlaceholderText("商品名・キーワード・画像・URLで検索");
     fireEvent.change(input, { target: { value: "美容液" } });
     const form = input.closest("form");
     expect(form).not.toBeNull();
@@ -91,14 +91,14 @@ describe("J-Planet BEAUTY fixtures", () => {
     fireEvent.click(screen.getByRole("button", { name: /高保湿ビタミンC美容液/ }));
     expect(dispatch).toHaveBeenCalledWith({ type: "open-product", productId: "p01" });
 
-    const input = screen.getByPlaceholderText("URL・画像・商品名をAIに渡す");
+    const input = screen.getByPlaceholderText("商品名・キーワード・画像・URLで検索");
     fireEvent.change(input, { target: { value: "__該当なし__" } });
     const form = input.closest("form");
     expect(form).not.toBeNull();
     if (form === null) return;
     fireEvent.submit(form);
     expect(screen.getByText("AIエージェントが商品を探し始めました")).toBeTruthy();
-    expect(screen.getByPlaceholderText("URL・画像・商品名をAIに渡す")).toBeTruthy();
+    expect(screen.getByPlaceholderText("商品名・キーワード・画像・URLで検索")).toBeTruthy();
   });
 
   it("renders the dedicated header, trends, focus action, and image fallback", async () => {
@@ -114,7 +114,9 @@ describe("J-Planet BEAUTY fixtures", () => {
 
     const searchAction = screen.getByRole("button", { name: "検索へ移動" });
     fireEvent.click(searchAction);
-    expect(document.activeElement).toBe(screen.getByPlaceholderText("URL・画像・商品名をAIに渡す"));
+    expect(document.activeElement).toBe(
+      screen.getByPlaceholderText("商品名・キーワード・画像・URLで検索"),
+    );
 
     const image = screen.getByRole("img", { name: "高保湿ビタミンC美容液" });
     fireEvent.error(image);

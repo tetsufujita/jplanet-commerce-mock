@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import {
+  useEffect,
   useRef,
   useState,
   type ChangeEvent,
@@ -93,6 +94,18 @@ export function AiSearchView({ dispatch, state }: AiSearchViewProps) {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const isComposingRef = useRef(false);
   const shouldAutoFocus = state.view === "agent-hub" && submittedQuery.length === 0;
+
+  useEffect(() => {
+    if (
+      state.view !== "agent-hub" ||
+      (state.agentEntryIntent !== "camera" && state.agentEntryIntent !== "image-picker")
+    ) {
+      return;
+    }
+
+    imageInputRef.current?.click();
+    dispatch({ type: "consume-agent-entry-intent" });
+  }, [dispatch, state.agentEntryIntent, state.view]);
 
   const searchText = (value: string) => {
     const normalized = value.trim();
@@ -237,6 +250,7 @@ export function AiSearchView({ dispatch, state }: AiSearchViewProps) {
           />
           <input
             accept="image/*"
+            aria-label="カメラ"
             capture="environment"
             data-ai-search-image-input
             data-testid="ai-search-image-input"

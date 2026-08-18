@@ -238,9 +238,10 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
   const { t } = useTranslation();
   const isMobileCategorySurface = useMobileCategorySurface();
   const mobileTitleRef = useRef<HTMLElement>(null);
-  const directoryEntries: readonly CategoryDirectoryEntry[] = isMobileCategorySurface
-    ? [...categoryDirectory, ...mobileCategoryDirectoryEntries]
-    : categoryDirectory;
+  const directoryEntries: readonly CategoryDirectoryEntry[] = [
+    ...categoryDirectory,
+    ...mobileCategoryDirectoryEntries,
+  ];
   const selected =
     directoryEntries.find(({ id }) => id === state.directoryCategory) ?? directoryEntries[0];
 
@@ -249,9 +250,7 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
   }
 
   const parentArtwork = homeCategoryItems.find(({ id }) => id === selected.id)?.image;
-  const visibleChildren = isMobileCategorySurface
-    ? (selected.mobileChildren ?? selected.children)
-    : selected.children.slice(0, 6);
+  const visibleChildren = selected.mobileChildren ?? selected.children;
 
   return (
     <div className="sazo-directory-view" data-view-content="categories">

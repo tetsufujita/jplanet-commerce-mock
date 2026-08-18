@@ -2090,98 +2090,13 @@ export function DesktopAgentSearchHistoryPopover({
 function DesktopAgentLens({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
   const [searchHistoryOpen, setSearchHistoryOpen] = useState(false);
-  const controlRef = useRef<HTMLDivElement>(null);
   const searchHistoryTriggerRef = useRef<HTMLInputElement>(null);
-  const controlHighlightFrameRef = useRef<number | null>(null);
-  const controlHighlightPositionRef = useRef({ x: 50, y: 42 });
-  const surfaceHighlightPositionRef = useRef({ x: 50, y: 50 });
-  const surfaceHighlightTargetRef = useRef<HTMLElement | null>(null);
   const evidence = [
     { icon: Search, id: "identify" },
     { icon: Store, id: "seller" },
     { icon: ShieldCheck, id: "customs" },
     { icon: Box, id: "estimate" },
   ] as const;
-
-  useEffect(() => {
-    return () => {
-      if (controlHighlightFrameRef.current !== null) {
-        window.cancelAnimationFrame(controlHighlightFrameRef.current);
-      }
-    };
-  }, []);
-
-  const updateControlHighlight = useCallback(() => {
-    controlHighlightFrameRef.current = null;
-    const control = controlRef.current;
-    if (!control) return;
-
-    control.style.setProperty("--agent-lens-glass-x", `${controlHighlightPositionRef.current.x}%`);
-    control.style.setProperty("--agent-lens-glass-y", `${controlHighlightPositionRef.current.y}%`);
-
-    const surface = surfaceHighlightTargetRef.current;
-    if (surface) {
-      surface.style.setProperty("--agent-lens-surface-x", `${surfaceHighlightPositionRef.current.x}%`);
-      surface.style.setProperty("--agent-lens-surface-y", `${surfaceHighlightPositionRef.current.y}%`);
-    }
-  }, []);
-
-  const handleControlPointerMove = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (
-        event.pointerType === "touch" ||
-        window.matchMedia("(pointer: coarse)").matches ||
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      ) {
-        return;
-      }
-
-      const rect = event.currentTarget.getBoundingClientRect();
-      controlHighlightPositionRef.current = {
-        x: Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100)),
-        y: Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100)),
-      };
-
-      const surface =
-        event.target instanceof Element
-          ? event.target.closest<HTMLElement>("[data-agent-lens-liquid-glass]")
-          : null;
-
-      if (surface && event.currentTarget.contains(surface)) {
-        if (surfaceHighlightTargetRef.current && surfaceHighlightTargetRef.current !== surface) {
-          surfaceHighlightTargetRef.current.style.setProperty("--agent-lens-surface-x", "50%");
-          surfaceHighlightTargetRef.current.style.setProperty("--agent-lens-surface-y", "50%");
-        }
-
-        const surfaceRect = surface.getBoundingClientRect();
-        surfaceHighlightTargetRef.current = surface;
-        surfaceHighlightPositionRef.current = {
-          x: Math.max(0, Math.min(100, ((event.clientX - surfaceRect.left) / surfaceRect.width) * 100)),
-          y: Math.max(0, Math.min(100, ((event.clientY - surfaceRect.top) / surfaceRect.height) * 100)),
-        };
-      }
-
-      if (controlHighlightFrameRef.current === null) {
-        controlHighlightFrameRef.current = window.requestAnimationFrame(updateControlHighlight);
-      }
-    },
-    [updateControlHighlight],
-  );
-
-  const resetControlHighlight = useCallback(() => {
-    controlHighlightPositionRef.current = { x: 50, y: 42 };
-    surfaceHighlightPositionRef.current = { x: 50, y: 50 };
-    controlRef.current
-      ?.querySelectorAll<HTMLElement>("[data-agent-lens-liquid-glass]")
-      .forEach((surface) => {
-        surface.style.setProperty("--agent-lens-surface-x", "50%");
-        surface.style.setProperty("--agent-lens-surface-y", "50%");
-      });
-    surfaceHighlightTargetRef.current = null;
-    if (controlHighlightFrameRef.current === null) {
-      controlHighlightFrameRef.current = window.requestAnimationFrame(updateControlHighlight);
-    }
-  }, [updateControlHighlight]);
 
   const handleBackdropAction = useCallback(
     (action: DesktopAgentLensBackdropBanner["action"]) => {
@@ -2214,12 +2129,7 @@ function DesktopAgentLens({ dispatch }: Pick<HomeViewProps, "dispatch">) {
         ))}
       </div>
 
-      <div
-        className="sazo-desktop-agent-lens-control"
-        onPointerLeave={resetControlHighlight}
-        onPointerMove={handleControlPointerMove}
-        ref={controlRef}
-      >
+      <div className="sazo-desktop-agent-lens-control">
         <h1>{t("sazo.desktopHome.lens.title")}</h1>
         <p>{t("sazo.desktopHome.lens.description")}</p>
         <DesktopAgentSearchForm

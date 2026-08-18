@@ -84,6 +84,12 @@ export function SazoCommercePage() {
     isMobileViewport && state.view === "agent-hub" ? "ai-search" : state.view;
 
   useEffect(() => {
+    if (!isMobileViewport && state.view === "ai-search") {
+      dispatch({ type: "navigate", view: "home" });
+    }
+  }, [isMobileViewport, state.view]);
+
+  useEffect(() => {
     const previousView = previousViewRef.current;
     const currentScrollTop = Math.max(
       window.scrollY,

@@ -47,7 +47,7 @@ describe("MobileAgentComposer", () => {
     expect(screen.queryByRole("button", { name: "商品名で相談" })).toBeNull();
     expect(screen.getByTestId("composer-ai-mark")).toBeTruthy();
     expect(
-      screen.getByRole("textbox", { name: "URL・画像・商品名をAIに渡す" }),
+      screen.getByRole("textbox", { name: "AI検索" }),
     ).toBeTruthy();
     expect(
       screen.getByRole<HTMLButtonElement>("button", { name: "送信" })
@@ -61,7 +61,7 @@ describe("MobileAgentComposer", () => {
     expect(screen.queryByRole("menuitem", { name: "商品名で相談" })).toBeNull();
 
     fireEvent.change(
-      screen.getByRole("textbox", { name: "URL・画像・商品名をAIに渡す" }),
+      screen.getByRole("textbox", { name: "AI検索" }),
       {
       target: { value: "日本限定スニーカー" },
       },
@@ -155,11 +155,10 @@ describe("MobileAgentComposer", () => {
     fireEvent.change(screen.getByLabelText("ギャラリー"), {
       target: { files: [firstFile] },
     });
-    fireEvent.click(screen.getByRole("button", { name: "画像を差し替える" }));
     fireEvent.change(screen.getByLabelText("ギャラリー"), {
       target: { files: [secondFile] },
     });
-    fireEvent.click(screen.getByRole("button", { name: "画像を削除" }));
+    fireEvent.click(screen.getByRole("button", { name: "添付画像を削除" }));
 
     expect(revoke.mock.calls).toEqual([["blob:first"], ["blob:second"]]);
   });
@@ -223,7 +222,7 @@ describe("MobileAgentComposer", () => {
 
     expect(
       screen.getByRole<HTMLTextAreaElement>("textbox", {
-        name: "URL・画像・商品名をAIに渡す",
+        name: "AI検索",
       }).value,
     ).toBe("日本限定スニーカー");
   });
@@ -234,7 +233,7 @@ describe("MobileAgentComposer", () => {
     await renderComposer();
 
     fireEvent.change(
-      screen.getByRole("textbox", { name: "URL・画像・商品名をAIに渡す" }),
+      screen.getByRole("textbox", { name: "AI検索" }),
       {
       target: { value: "日本限定スニーカー" },
       },

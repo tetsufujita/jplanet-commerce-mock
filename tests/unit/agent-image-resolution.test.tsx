@@ -76,35 +76,34 @@ describe("mobile image product identification", () => {
     expect(screen.queryByText("Nintendo Switch Proコントローラー")).toBeNull();
   });
 
-  it("keeps the mobile send page compact and places the composer before its two lists", async () => {
+  it("routes the retired mobile agent hub to the unified AI search", async () => {
     window.history.replaceState({}, "", "/sazo-commerce-mock/?qa=1&view=agent-hub");
     const { container } = await renderAgentView();
 
-    expect(screen.getByRole("heading", { name: "購入したい商品を送る" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "最近の相談" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "最近確認した商品" })).toBeTruthy();
-    expect(screen.getByText("このスニーカーを探して！")).toBeTruthy();
-    expect(screen.getByText("LOEWE Puzzle バッグ スモール")).toBeTruthy();
-    expect(container.querySelector("[data-agent-send-intro]")).toBeTruthy();
-    expect(container.querySelector("[data-agent-composer-dock]")).toBeNull();
+    expect(container.querySelector("[data-ai-search-view]")).not.toBeNull();
+    expect(screen.getByRole("search", { name: "AI検索" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "最近の検索" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "AI検索で商品を探してみよう！" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "今、人気の検索" })).toBeTruthy();
+    expect(container.querySelector("[data-mobile-agent-hub]")).toBeNull();
   });
 
   it("keeps URL submissions on the existing direct product route", async () => {
     window.history.replaceState({}, "", "/sazo-commerce-mock/?qa=1&view=agent-hub");
     const { container } = await renderAgentView();
-    const input = container.querySelector<HTMLTextAreaElement>(
-      "[data-mobile-agent-hub] textarea",
+    const input = container.querySelector<HTMLInputElement>(
+      "[data-ai-search-input]",
     );
-    const send = container.querySelector<HTMLButtonElement>(
-      '[data-mobile-agent-hub] button[aria-label="送信"]',
+    const form = container.querySelector<HTMLFormElement>(
+      "form.sazo-ai-search-form",
     );
 
     expect(input).toBeTruthy();
-    expect(send).toBeTruthy();
-    if (input === null || send === null) return;
+    expect(form).toBeTruthy();
+    if (input === null || form === null) return;
 
     fireEvent.change(input, { target: { value: "https://www.rakuten.co.jp/item/mock" } });
-    fireEvent.click(send);
+    fireEvent.submit(form);
 
     expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
       "product",
@@ -114,23 +113,24 @@ describe("mobile image product identification", () => {
   it("keeps product-name submission on the existing search flow until an image is selected", async () => {
     window.history.replaceState({}, "", "/sazo-commerce-mock/?qa=1&view=agent-hub");
     const { container } = await renderAgentView();
-    const input = container.querySelector<HTMLTextAreaElement>(
-      "[data-mobile-agent-hub] textarea",
+    const input = container.querySelector<HTMLInputElement>(
+      "[data-ai-search-input]",
     );
-    const send = container.querySelector<HTMLButtonElement>(
-      '[data-mobile-agent-hub] button[aria-label="送信"]',
+    const form = container.querySelector<HTMLFormElement>(
+      "form.sazo-ai-search-form",
     );
 
     expect(input).toBeTruthy();
-    expect(send).toBeTruthy();
-    if (input === null || send === null) return;
+    expect(form).toBeTruthy();
+    if (input === null || form === null) return;
 
     fireEvent.change(input, { target: { value: "白いスニーカー" } });
-    fireEvent.click(send);
+    fireEvent.submit(form);
 
     expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
-      "agent-searching",
+      "ai-search",
     );
+    expect(container.querySelector("[data-ai-search-results]")).not.toBeNull();
     expect(
       screen.queryByRole("heading", { name: "画像に近い商品を見つけました" }),
     ).toBeNull();
