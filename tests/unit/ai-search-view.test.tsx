@@ -12,26 +12,36 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-function renderAiSearch() {
+function renderAiSearch(state = createInitialSazoState()) {
   const dispatch = vi.fn();
-  const result = render(
-    <AiSearchView dispatch={dispatch} state={createInitialSazoState()} />,
-  );
+  const result = render(<AiSearchView dispatch={dispatch} state={state} />);
 
   return { dispatch, ...result };
 }
 
 describe("AiSearchView", () => {
-  it("shows the reference search hierarchy and supports individual history removal", () => {
-    vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
-      callback(0);
-      return 1;
-    });
+  it("autofocuses agent entry but keeps direct AI search idle", () => {
     renderAiSearch();
 
     const input = screen.getByPlaceholderText("商品名・キーワード・画像・URLで検索");
     expect(input).toBeTruthy();
-    expect(document.activeElement).toBe(input);
+    expect(document.activeElement).not.toBe(input);
+
+    cleanup();
+    renderAiSearch({
+      ...createInitialSazoState(),
+      agentEntryIntent: "compose",
+      view: "agent-hub",
+    });
+
+    expect(document.activeElement).toBe(
+      screen.getByPlaceholderText("商品名・キーワード・画像・URLで検索"),
+    );
+  });
+
+  it("shows the reference search hierarchy and supports individual history removal", () => {
+    renderAiSearch();
+
     expect(screen.queryByDisplayValue("AI検索")).toBeNull();
     expect(screen.getByText("最近の検索")).toBeTruthy();
     expect(screen.getByText("AI検索で商品を探してみよう！")).toBeTruthy();

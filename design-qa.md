@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-08-18 — モバイルホームからのAI検索フォーカス
+
+**Comparison input**
+
+- Source visual truth: `/tmp/codex-remote-attachments/01a00ffa-0dc4-76c3-92ee-08780f042fa8/247CC9B3-3C3C-4494-9545-3D1C7CA68166/1-写真1.jpg`（通常表示）と`2-写真2.jpg`（iOS Safariの入力拡大状態）。
+- Browser-rendered implementation: `/tmp/jplanet-ai-search-autofocus-341.png`、`/tmp/jplanet-ai-search-autofocus-390.png`、`/tmp/jplanet-ai-search-autofocus-440.png`。入力部を同じ幅へ正規化した比較入力は`/tmp/jplanet-ai-search-comparison.jpg`です。
+- State: モバイルホーム中央の検索パネルを押した直後。比較入力では左が通常表示、中央が問題の拡大表示、右が修正後です。
+
+**Comparison history and findings**
+
+- [P0 → fixed] 10pxの検索入力がiOS Safariの自動拡大条件に入っていました。入力本体を16pxへ変更し、ホーム中央からの遷移中に同期フォーカスすることで、キーボードを開きながらページ全体を拡大しない構成へ修正しました。
+- [P1 → fixed] 検索ピルが44px高で視認性が弱かったため、50px高、入力48px、カメラ操作36pxへ拡大しました。既存のネイビー、淡い背景、罫線、Lucideアイコンは維持しています。
+- P0/P1/P2: なし。341pxでも検索、カメラ、カートが一列に収まり、横オーバーフローはありません。
+
+**Interaction and responsive checks**
+
+- 341px / 390px / 440px: ホーム中央から開くと入力が`document.activeElement`になり、computed font-sizeは16px、入力高は48pxでした。
+- 390px: 下部ナビの`AI検索`から直接開いた場合だけ入力は非フォーカスです。
+- `pnpm typecheck`、`tests/unit/ai-search-view.test.tsx` 8件、`pnpm build`、`git diff --check`を通過しました。全Unitには今回と無関係な既存の契約テスト38件の失敗がclean HEADでも残るため、今回の完了根拠には使用していません。
+
+final result: passed
+
+---
+
 ## 2026-08-18 — PC Lens: 検索履歴パネルの幅と開閉モーション
 
 **Comparison input**

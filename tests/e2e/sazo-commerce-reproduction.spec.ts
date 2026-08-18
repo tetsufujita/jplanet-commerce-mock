@@ -1669,12 +1669,16 @@ test("opens the dedicated mobile AI search with distinct text, URL, and image pa
   for (const width of [341, 390, 440]) {
     await page.setViewportSize({ height: 844, width });
     await page.goto(routePath);
-    await page.locator("[data-shell-search-button]").click();
+    await page.locator("[data-mobile-agent-search]").click();
 
     const search = page.locator("[data-ai-search-view]");
     await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
     await expect(search).toBeVisible();
     await expect(search.locator("[data-ai-search-input]")).toBeFocused();
+    await expect(search.locator("[data-ai-search-input]")).toHaveCSS(
+      "font-size",
+      "16px",
+    );
     await expect(search.locator("[data-ai-search-input]")).toHaveAttribute(
       "placeholder",
       "商品名・キーワード・画像・URLで検索",
@@ -1781,7 +1785,7 @@ test("opens the dedicated mobile AI search with distinct text, URL, and image pa
     .getByRole("button", { exact: true, name: "AI検索" })
     .click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
-  await expect(page.locator("[data-ai-search-input]")).toBeFocused();
+  await expect(page.locator("[data-ai-search-input]")).not.toBeFocused();
 
   await page.goto(`${routePath}&view=agent-hub`);
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");

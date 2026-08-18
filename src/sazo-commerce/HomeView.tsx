@@ -7,7 +7,7 @@ import type {
   WheelEvent as ReactWheelEvent,
 } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import {
   ArrowRight,
   Box,
@@ -752,7 +752,12 @@ function HomeIntro() {
 function MobileAgentSearch({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
   const openAgent = () => {
-    dispatch({ type: "open-agent-hub", intent: "compose" });
+    flushSync(() => {
+      dispatch({ type: "open-agent-hub", intent: "compose" });
+    });
+    document
+      .querySelector<HTMLInputElement>("[data-ai-search-input]")
+      ?.focus({ preventScroll: true });
   };
 
   return (

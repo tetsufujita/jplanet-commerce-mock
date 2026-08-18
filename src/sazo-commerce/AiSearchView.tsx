@@ -10,7 +10,6 @@ import {
   X,
 } from "lucide-react";
 import {
-  useEffect,
   useRef,
   useState,
   type ChangeEvent,
@@ -93,16 +92,7 @@ export function AiSearchView({ dispatch, state }: AiSearchViewProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const isComposingRef = useRef(false);
-
-  useEffect(() => {
-    if (submittedQuery.length > 0) return undefined;
-
-    const frame = window.requestAnimationFrame(() => {
-      inputRef.current?.focus({ preventScroll: true });
-    });
-
-    return () => window.cancelAnimationFrame(frame);
-  }, [submittedQuery]);
+  const shouldAutoFocus = state.view === "agent-hub" && submittedQuery.length === 0;
 
   const searchText = (value: string) => {
     const normalized = value.trim();
@@ -225,6 +215,7 @@ export function AiSearchView({ dispatch, state }: AiSearchViewProps) {
           <input
             aria-label="AI検索"
             autoComplete="off"
+            autoFocus={shouldAutoFocus}
             data-ai-search-input
             enterKeyHint="search"
             onCompositionEnd={() => {
