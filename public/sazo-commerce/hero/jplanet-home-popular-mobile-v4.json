@@ -1,0 +1,23 @@
+{
+  "version": 4,
+  "purpose": "Mobile home carousel artwork for jplanet-home-popular",
+  "canvasPx": {
+    "width": 887,
+    "height": 852
+  },
+  "viewportScopeCssPx": {
+    "maxWidth": 767,
+    "verifiedWidths": [341, 390, 440]
+  },
+  "sourceArtwork": "jplanet-home-popular-mobile-v3.png",
+  "generation": {
+    "method": "Built-in image generation layout edit, targeted object-position edit, then deterministic crop and resize",
+    "conditions": "Preserve the existing white product scene while extending it edge-to-edge, moving supporting products below the shared copy area, and removing baked copy."
+  },
+  "constraints": [
+    "No text, logo, wordmark, price or factual claim is baked into the artwork.",
+    "Hero copy is rendered as real HTML text.",
+    "The existing desktop artwork remains unchanged."
+  ],
+  "assetSha256": "858b86b474208e528a4d09c6db2de3657216c1f8d264a73383d2e05f074ed05a"
+}

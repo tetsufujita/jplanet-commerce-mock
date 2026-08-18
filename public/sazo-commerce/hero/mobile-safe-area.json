@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "measuredAt": "2026-08-18",
+  "route": "/sazo-commerce-mock/?qa=1&view=home",
+  "sourceAssetPx": {
+    "width": 887,
+    "height": 852
+  },
+  "rendering": {
+    "heroViewportHeightCssPx": 320,
+    "objectFit": "cover",
+    "objectPosition": "50% 50%"
+  },
+  "fixedOverlayBoundsCssPx": {
+    "headerBottom": 56,
+    "agentPanelTop": 238,
+    "unobstructedBand": {
+      "top": 56,
+      "bottom": 238,
+      "height": 182
+    }
+  },
+  "recommendedSourceSafeAreaPx": {
+    "x": 70,
+    "y": 220,
+    "width": 747,
+    "height": 350,
+    "right": 817,
+    "bottom": 570
+  },
+  "hardCommonVisibleSourceYRangePx": {
+    "top": 210,
+    "bottom": 589
+  },
+  "testedViewportWidthsCssPx": [341, 390, 440],
+  "rules": [
+    "Keep all copy and focal illustrations inside recommendedSourceSafeAreaPx.",
+    "Use the top and bottom zones only for quiet, nonessential background.",
+    "Keep the desktop 1536 x 1024 artwork unchanged at 768 px and above."
+  ]
+}

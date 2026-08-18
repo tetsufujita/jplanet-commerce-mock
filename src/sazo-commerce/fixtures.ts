@@ -70,6 +70,7 @@ export interface HeroSlide {
   image: SazoImagePath;
   mobileHeight: number;
   mobileImage: SazoImagePath;
+  mobileTitleLines: readonly string[];
   mobileWidth: number;
 }
 
@@ -401,7 +402,8 @@ export const heroSlides = [
     subtitle: "日本からブラジルへのショッピング",
     image: "/sazo-commerce/hero/jplanet-home-japan-brazil-v2.png",
     mobileHeight: 852,
-    mobileImage: "/sazo-commerce/hero/jplanet-home-japan-brazil-mobile-v2.png",
+    mobileImage: "/sazo-commerce/hero/jplanet-home-japan-brazil-mobile-v4.png",
+    mobileTitleLines: ["日本の買い物を、", "もっと確かに。"],
     mobileWidth: 887,
   },
   {
@@ -409,27 +411,30 @@ export const heroSlides = [
     title: "ChatGPTから、J-Planetで買い物しよう！",
     subtitle: "会話から商品を探す",
     image: "/sazo-commerce/hero/jplanet-home-chatgpt-v2.png",
-    mobileHeight: 1024,
-    mobileImage: "/sazo-commerce/hero/jplanet-home-chatgpt-v2.png",
-    mobileWidth: 1536,
+    mobileHeight: 852,
+    mobileImage: "/sazo-commerce/hero/jplanet-home-chatgpt-mobile-v4.png",
+    mobileTitleLines: ["ChatGPTから、", "J-Planetで", "買い物しよう！"],
+    mobileWidth: 887,
   },
   {
     id: "jplanet-home-popular",
     title: "いま、人気の商品を見つけよう。",
     subtitle: "おすすめ商品",
     image: "/sazo-commerce/hero/jplanet-home-popular-v2.png",
-    mobileHeight: 1024,
-    mobileImage: "/sazo-commerce/hero/jplanet-home-popular-v2.png",
-    mobileWidth: 1536,
+    mobileHeight: 852,
+    mobileImage: "/sazo-commerce/hero/jplanet-home-popular-mobile-v4.png",
+    mobileTitleLines: ["いま、", "人気の商品を", "見つけよう。"],
+    mobileWidth: 887,
   },
   {
     id: "jplanet-home-service",
     title: "探す、確かめる、届けるまで。",
     subtitle: "サービス紹介",
     image: "/sazo-commerce/hero/jplanet-home-service-v2.png",
-    mobileHeight: 1024,
-    mobileImage: "/sazo-commerce/hero/jplanet-home-service-v2.png",
-    mobileWidth: 1536,
+    mobileHeight: 852,
+    mobileImage: "/sazo-commerce/hero/jplanet-home-service-mobile-v4.png",
+    mobileTitleLines: ["探す、確かめる、", "届けるまで。"],
+    mobileWidth: 887,
   },
 ] satisfies readonly HeroSlide[];
 

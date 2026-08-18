@@ -151,6 +151,110 @@ async function expectNoHorizontalPageOverflow(page: Page) {
   expect(geometry.scrollWidth).toBe(geometry.clientWidth);
 }
 
+test("fills every 440px mobile home hero with aligned artwork and real copy", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "mobile",
+    "The dedicated hero artwork is mobile-only below the 768px boundary.",
+  );
+
+  await page.setViewportSize({ height: 956, width: 440 });
+  const heroes = [
+    {
+      copy: "日本の買い物を、もっと確かに。",
+      id: "jplanet-home-japan-brazil",
+      image: "jplanet-home-japan-brazil-mobile-v4.png",
+    },
+    {
+      copy: "ChatGPTから、J-Planetで買い物しよう！",
+      id: "jplanet-home-chatgpt",
+      image: "jplanet-home-chatgpt-mobile-v4.png",
+    },
+    {
+      copy: "いま、人気の商品を見つけよう。",
+      id: "jplanet-home-popular",
+      image: "jplanet-home-popular-mobile-v4.png",
+    },
+    {
+      copy: "探す、確かめる、届けるまで。",
+      id: "jplanet-home-service",
+      image: "jplanet-home-service-mobile-v4.png",
+    },
+  ] as const;
+
+  for (const [index, hero] of heroes.entries()) {
+    await page.goto(`${routePath}&view=home&heroIndex=${String(index)}`);
+
+    const slide = page.locator(
+      `.sazo-hero-slide[data-active="true"][data-hero-slide="${hero.id}"]`,
+    );
+    const artwork = slide.locator(".sazo-hero-artwork");
+    const copy = slide.locator(".sazo-hero-copy");
+
+    await expect(slide).toBeVisible();
+    await expect(artwork).toBeVisible();
+    await artwork.evaluate(async (element) => {
+      await (element as HTMLImageElement).decode();
+    });
+    expect(await artwork.evaluate((element) => (element as HTMLImageElement).currentSrc)).toContain(
+      hero.image,
+    );
+    await expect(artwork).toHaveCSS("object-fit", "cover");
+    await expect(copy).toHaveText(hero.copy);
+
+    const geometry = await slide.evaluate((element) => {
+      const artworkElement = element.querySelector(".sazo-hero-artwork");
+      const copyElement = element.querySelector(".sazo-hero-copy");
+      if (artworkElement === null || copyElement === null) return null;
+      const slideRect = element.getBoundingClientRect();
+      const artworkRect = artworkElement.getBoundingClientRect();
+      const copyRect = copyElement.getBoundingClientRect();
+
+      return {
+        artwork: { height: artworkRect.height, width: artworkRect.width },
+        copy: {
+          right: copyRect.right,
+          top: copyRect.top,
+          width: copyRect.width,
+        },
+        slide: { height: slideRect.height, width: slideRect.width },
+      };
+    });
+
+    expect(geometry?.artwork).toEqual({ height: 320, width: 440 });
+    expect(geometry?.slide).toEqual({ height: 320, width: 440 });
+    expect(geometry?.copy.top).toBe(92);
+    expect(geometry?.copy.right).toBeCloseTo(422, 0);
+    expect(geometry?.copy.width).toBeCloseTo(194, 0);
+    await expectNoHorizontalPageOverflow(page);
+    await slide.screenshot({ path: testInfo.outputPath(`${hero.id}-440.png`) });
+  }
+});
+
+test("keeps the 767px ChatGPT hero on its existing non-cropped artwork fit", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "mobile",
+    "The ChatGPT hero artwork is mobile-only below the 768px boundary.",
+  );
+
+  await page.setViewportSize({ height: 956, width: 767 });
+  await page.goto(`${routePath}&view=home&heroIndex=1`);
+
+  const artwork = page.locator(
+    '.sazo-hero-slide[data-active="true"][data-hero-slide="jplanet-home-chatgpt"] .sazo-hero-artwork',
+  );
+
+  await expect(artwork).toBeVisible();
+  await artwork.evaluate(async (element) => {
+    await (element as HTMLImageElement).decode();
+  });
+  await expect(artwork).toHaveCSS("object-fit", "contain");
+  await expectNoHorizontalPageOverflow(page);
+});
+
 test("aligns the mobile Uniqlo discovery rail and identifies its source on every card", async ({
   page,
 }, testInfo) => {

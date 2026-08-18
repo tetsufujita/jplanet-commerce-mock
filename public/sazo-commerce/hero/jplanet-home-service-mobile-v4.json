@@ -1,0 +1,23 @@
+{
+  "version": 4,
+  "purpose": "Mobile home carousel artwork for jplanet-home-service",
+  "canvasPx": {
+    "width": 887,
+    "height": 852
+  },
+  "viewportScopeCssPx": {
+    "maxWidth": 767,
+    "verifiedWidths": [341, 390, 440]
+  },
+  "sourceArtwork": "jplanet-home-service-mobile-v3.png",
+  "generation": {
+    "method": "Built-in image generation layout edit, targeted object-position edit, then deterministic crop and resize",
+    "conditions": "Preserve the existing warm service scene while extending it edge-to-edge, moving the parcel and tracking card below the shared copy area, and removing baked copy."
+  },
+  "constraints": [
+    "No text, logo, wordmark, price or factual claim is baked into the artwork.",
+    "Hero copy is rendered as real HTML text.",
+    "The existing desktop artwork remains unchanged."
+  ],
+  "assetSha256": "34d73c1f0fff74f14ced7a81ea1236decc5e82b9cd9edd39e2fe717dbb6364bb"
+}

@@ -565,6 +565,11 @@ function HeroCarousel({ dispatch, state }: HomeViewProps) {
                   width={slide.mobileWidth}
                 />
               </picture>
+              <p aria-hidden className="sazo-hero-copy">
+                {slide.mobileTitleLines.map((line) => (
+                  <span key={line}>{line}</span>
+                ))}
+              </p>
               <span className="sazo-visually-hidden">
                 {slide.title} {slide.subtitle}
               </span>

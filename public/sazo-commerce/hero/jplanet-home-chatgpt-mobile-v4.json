@@ -1,0 +1,26 @@
+{
+  "version": 4,
+  "purpose": "Mobile home carousel artwork for jplanet-home-chatgpt",
+  "canvasPx": {
+    "width": 887,
+    "height": 852
+  },
+  "viewportScopeCssPx": {
+    "maxWidth": 767,
+    "verifiedWidths": [341, 390, 440]
+  },
+  "approvedVisual": {
+    "name": "chatgpt-hero-revision.png",
+    "sha256": "aa491c26b294d4c7be21a35754a1ad2896ebee074aedbcdc1e2e1a66817fb923"
+  },
+  "generation": {
+    "method": "Built-in image generation edit, then deterministic crop and resize",
+    "conditions": "Preserve the approved phone-led navy scene, sakura vase, parcel and shoe; inset every focal object; reserve upper-right copy space and a quiet lower overlap band."
+  },
+  "constraints": [
+    "No text, logo, wordmark, price or factual claim is baked into the artwork.",
+    "Hero copy is rendered as real HTML text.",
+    "The existing desktop artwork remains unchanged."
+  ],
+  "assetSha256": "d33cd6fe3c6ca4a1bc355a1d56d2cbc3ff50b153a23a32f2392b3fdd64e6d567"
+}

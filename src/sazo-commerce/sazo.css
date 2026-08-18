@@ -37460,3 +37460,68 @@
   }
 
 }
+
+/* Approved mobile art direction for all four home heroes. Real copy stays
+ * separate from the artwork, while tablet and desktop rendering remain intact. */
+.sazo-root .sazo-hero-copy {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .sazo-root[data-view="home"]
+    .sazo-hero-slide[data-hero-slide="jplanet-home-chatgpt"]
+    picture {
+    background: #061a35;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-hero-slide[data-hero-slide="jplanet-home-chatgpt"]
+    .sazo-hero-artwork {
+    object-fit: contain !important;
+    object-position: 50% 50% !important;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-hero-slide
+    .sazo-hero-copy {
+    position: absolute;
+    z-index: 3;
+    top: clamp(74px, 21vw, 92px);
+    right: clamp(14px, 4.1vw, 20px);
+    display: block;
+    width: clamp(154px, 44vw, 194px);
+    margin: 0;
+    color: #102c52;
+    font-size: clamp(18px, 5vw, 22px);
+    font-weight: 850;
+    line-height: 1.42;
+    letter-spacing: -0.055em;
+    text-shadow: none;
+    pointer-events: none;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-hero-slide:is(
+      [data-hero-slide="jplanet-home-japan-brazil"],
+      [data-hero-slide="jplanet-home-chatgpt"]
+    )
+    .sazo-hero-copy {
+    color: #fff;
+    text-shadow: 0 2px 16px rgb(0 12 34 / 72%);
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-hero-slide
+    .sazo-hero-copy
+    > span {
+    display: block;
+  }
+}
+
+@media (max-width: 440px) {
+  .sazo-root[data-view="home"]
+    .sazo-hero-slide[data-hero-slide]
+    .sazo-hero-artwork {
+    object-fit: cover !important;
+  }
+}

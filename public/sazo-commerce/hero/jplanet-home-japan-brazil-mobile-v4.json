@@ -1,0 +1,23 @@
+{
+  "version": 4,
+  "purpose": "Mobile home carousel artwork for jplanet-home-japan-brazil",
+  "canvasPx": {
+    "width": 887,
+    "height": 852
+  },
+  "viewportScopeCssPx": {
+    "maxWidth": 767,
+    "verifiedWidths": [341, 390, 440]
+  },
+  "sourceArtwork": "jplanet-home-japan-brazil-mobile-v3.png",
+  "generation": {
+    "method": "Built-in image generation layout edit, then deterministic crop and resize",
+    "conditions": "Preserve the existing teal Japan-to-Brazil scene while extending it edge-to-edge, removing baked copy, and reserving the shared upper-right HTML copy area."
+  },
+  "constraints": [
+    "No text, logo, wordmark, price or factual claim is baked into the artwork.",
+    "Hero copy is rendered as real HTML text.",
+    "The existing desktop artwork remains unchanged."
+  ],
+  "assetSha256": "9fbc5ad2caede40ab98d84c6f7f3d8723917f52392b6581764ab3b4a8734084a"
+}

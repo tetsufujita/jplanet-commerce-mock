@@ -1440,23 +1440,23 @@ describe("SAZO hero controls", () => {
     ).toEqual([
       {
         height: "852",
-        srcSet: "/sazo-commerce/hero/jplanet-home-japan-brazil-mobile-v2.png",
+        srcSet: "/sazo-commerce/hero/jplanet-home-japan-brazil-mobile-v4.png",
         width: "887",
       },
       {
-        height: "1024",
-        srcSet: "/sazo-commerce/hero/jplanet-home-chatgpt-v2.png",
-        width: "1536",
+        height: "852",
+        srcSet: "/sazo-commerce/hero/jplanet-home-chatgpt-mobile-v4.png",
+        width: "887",
       },
       {
-        height: "1024",
-        srcSet: "/sazo-commerce/hero/jplanet-home-popular-v2.png",
-        width: "1536",
+        height: "852",
+        srcSet: "/sazo-commerce/hero/jplanet-home-popular-mobile-v4.png",
+        width: "887",
       },
       {
-        height: "1024",
-        srcSet: "/sazo-commerce/hero/jplanet-home-service-v2.png",
-        width: "1536",
+        height: "852",
+        srcSet: "/sazo-commerce/hero/jplanet-home-service-mobile-v4.png",
+        width: "887",
       },
     ]);
   });
@@ -1465,6 +1465,30 @@ describe("SAZO hero controls", () => {
     const { container } = await renderHomePage();
 
     expect(container.querySelectorAll(".sazo-hero-artwork")).toHaveLength(4);
+  });
+
+  it("renders all approved mobile heroes with visible real text", async () => {
+    const { container } = await renderHomePage();
+    const expectedCopy = [
+      ["jplanet-home-japan-brazil", "日本の買い物を、もっと確かに。"],
+      ["jplanet-home-chatgpt", "ChatGPTから、J-Planetで買い物しよう！"],
+      ["jplanet-home-popular", "いま、人気の商品を見つけよう。"],
+      ["jplanet-home-service", "探す、確かめる、届けるまで。"],
+    ] as const;
+
+    expect(
+      expectedCopy.map(([id]) =>
+        container
+          .querySelector(`[data-hero-slide="${id}"] .sazo-hero-copy`)
+          ?.textContent?.trim(),
+      ),
+    ).toEqual(expectedCopy.map(([, copy]) => copy));
+    expect(
+      Array.from(container.querySelectorAll(".sazo-hero-copy")).every(
+        (copy) => copy.getAttribute("aria-hidden") === "true",
+      ),
+    ).toBe(true);
+    expect(container.querySelectorAll(".sazo-hero-copy")).toHaveLength(4);
   });
 });
 
