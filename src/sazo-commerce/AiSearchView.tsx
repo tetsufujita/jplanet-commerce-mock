@@ -21,6 +21,8 @@ import {
   aiSearchGuideSteps,
   aiSearchInitialRecentItems,
   aiSearchPopularItems,
+  genericSearchGroups,
+  genericSearchKeywords,
   newBalanceSearchGroups,
   newBalanceSearchKeywords,
   newBalanceSearchTabs,
@@ -63,11 +65,12 @@ const isTonerQuery = (value: string) => {
   );
 };
 const isJapaneseTonerQuery = (value: string) => value.includes("化粧水");
-type AiSearchResultKind = "new-balance-9060" | "toner";
+type AiSearchResultKind = "generic" | "new-balance-9060" | "toner";
 const getAiSearchResultKind = (value: string): AiSearchResultKind | null => {
+  if (value.trim().length === 0) return null;
   if (isNewBalance9060Query(value)) return "new-balance-9060";
   if (isTonerQuery(value)) return "toner";
-  return null;
+  return "generic";
 };
 
 const readInitialQuery = () => {
@@ -112,16 +115,10 @@ export function AiSearchView({ dispatch, state }: AiSearchViewProps) {
       return;
     }
 
-    if (getAiSearchResultKind(normalized) !== null) {
-      setQuery(normalized);
-      setSubmittedQuery(normalized);
-      setActiveGroup("all");
-      setActiveKeyword(null);
-      return;
-    }
-
-    // Keyword and product-name searches stay in the existing list surface.
-    dispatch({ type: "navigate", view: "ranking" });
+    setQuery(normalized);
+    setSubmittedQuery(normalized);
+    setActiveGroup("all");
+    setActiveKeyword(null);
   };
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -153,9 +150,17 @@ export function AiSearchView({ dispatch, state }: AiSearchViewProps) {
   const resultKind = getAiSearchResultKind(submittedQuery);
   const showResults = resultKind !== null;
   const resultGroups =
-    resultKind === "toner" ? tonerSearchGroups : newBalanceSearchGroups;
+    resultKind === "toner"
+      ? tonerSearchGroups
+      : resultKind === "new-balance-9060"
+        ? newBalanceSearchGroups
+        : genericSearchGroups;
   const resultKeywords =
-    resultKind === "toner" ? tonerSearchKeywords : newBalanceSearchKeywords;
+    resultKind === "toner"
+      ? tonerSearchKeywords
+      : resultKind === "new-balance-9060"
+        ? newBalanceSearchKeywords
+        : genericSearchKeywords;
   const visibleGroups =
     activeGroup === "all"
       ? resultGroups
@@ -175,6 +180,11 @@ export function AiSearchView({ dispatch, state }: AiSearchViewProps) {
   const openSearchResultProduct = () => {
     if (resultKind === "toner") {
       dispatch({ type: "navigate", view: "skincare-catalog" });
+      return;
+    }
+
+    if (resultKind === "generic") {
+      dispatch({ type: "open-product", productId: JPLANET_PRODUCT_DETAIL_ID });
       return;
     }
 
@@ -293,14 +303,18 @@ export function AiSearchView({ dispatch, state }: AiSearchViewProps) {
                   </>
                 )}
               </p>
-            ) : (
+            ) : resultKind === "new-balance-9060" ? (
               <p>海外ショップも含めて検索しました。</p>
+            ) : (
+              <p>「{submittedQuery}」で検索しました。</p>
             )}
             <button
               aria-label={
                 resultKind === "toner"
                   ? "日本語への翻訳検索について"
-                  : "海外ショップ検索について"
+                  : resultKind === "new-balance-9060"
+                    ? "海外ショップ検索について"
+                    : "キーワード検索について"
               }
               type="button"
             >

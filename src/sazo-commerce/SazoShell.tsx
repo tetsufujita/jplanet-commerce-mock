@@ -52,7 +52,7 @@ const desktopHomeNavigation = [
   { label: "ブランド", translationKey: "sazo.navigation.brands", view: "brands" },
   { translationKey: "sazo.agent.navigation", view: "agent-hub" },
   { translationKey: "sazo.navigation.categories", view: "categories" },
-  { translationKey: "sazo.desktopHome.navigation.popular", view: "ranking" },
+  { translationKey: "sazo.desktopHome.navigation.popular", view: "ai-search" },
   { translationKey: "sazo.desktopHome.navigation.delivery", view: "service" },
 ] satisfies readonly NavigationItem[];
 

@@ -6,59 +6,7 @@ import {
   purchaseExperienceReviews,
   purchaseExperienceReviewFeed,
   purchaseReviewFilters,
-  rankingInventories,
 } from "@/sazo-commerce/fixtures";
-import { ProductCard } from "@/sazo-commerce/ProductCard";
-
-export function RankingView({ dispatch, state }: StatefulViewProps) {
-  const { t } = useTranslation();
-  const rankingProducts = rankingInventories[state.rankingMetric];
-
-  return (
-    <div className="sazo-editorial-view" data-view-content="ranking">
-      <ViewHeader dispatch={dispatch} title={t("sazo.views.ranking.title")} />
-      <section className="sazo-ranking-view-content">
-        <div className="sazo-editorial-heading">
-          <h1>{t("sazo.views.ranking.title")}</h1>
-          <div className="sazo-ranking-view-controls">
-            <button
-              aria-pressed={state.rankingMetric === "purchases"}
-              onClick={() => {
-                dispatch({ type: "select-ranking-metric", metric: "purchases" });
-              }}
-              type="button"
-            >
-              {t("sazo.views.ranking.purchaseCount")}
-            </button>
-            <button
-              aria-pressed={state.rankingMetric === "views"}
-              onClick={() => {
-                dispatch({ type: "select-ranking-metric", metric: "views" });
-              }}
-              type="button"
-            >
-              {t("sazo.views.ranking.viewCount")}
-            </button>
-            <span>{t("sazo.views.ranking.week")}</span>
-          </div>
-        </div>
-        <div className="sazo-ranking-product-grid">
-          {rankingProducts.map((product, index) => (
-            <div className="sazo-ranked-product" key={product.id}>
-              <strong aria-hidden>{index + 1}</strong>
-              <ProductCard
-                onOpen={(productId) => {
-                  dispatch({ type: "open-product", productId });
-                }}
-                product={product}
-              />
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
-  );
-}
 
 export function ReviewsView({ dispatch, state }: StatefulViewProps) {
   const { t } = useTranslation();

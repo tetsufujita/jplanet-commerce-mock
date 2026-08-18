@@ -432,9 +432,8 @@ describe("SAZO home composition", () => {
     expect(
       within(agentLens).getByRole("search", { name: "AI検索" }),
     ).not.toBeNull();
-    expect(
-      within(agentLens).getAllByRole("tab").map((tab) => tab.textContent),
-    ).toEqual(["URLで検索", "画像で検索", "商品名で検索"]);
+    expect(within(agentLens).queryByRole("tablist")).toBeNull();
+    expect(within(agentLens).queryAllByRole("tab")).toHaveLength(0);
     expect(within(agentLens).getByText("商品特定")).not.toBeNull();
     expect(within(agentLens).getByText("BRL総額・到着目安")).not.toBeNull();
     const openChatGpt = vi.spyOn(window, "open").mockImplementation(() => null);
@@ -517,13 +516,6 @@ describe("SAZO home composition", () => {
       within(desktopCategoryProducts).getByRole("heading", { name: "あなたへのおすすめ" }),
     ).toBeTruthy();
     expect(container.querySelector(".sazo-desktop-home-hero-search")).toBeNull();
-    fireEvent.click(within(agentLens).getByRole("tab", { name: "画像で検索" }));
-    expect(
-      within(agentLens).getByRole("tab", { name: "画像で検索" }).getAttribute(
-        "aria-selected",
-      ),
-    ).toBe("true");
-
     const agentInput = within(agentLens).getByRole("textbox", {
       name: "商品名・キーワード・画像・URLで検索",
     });
@@ -619,7 +611,7 @@ describe("SAZO home composition", () => {
     fireEvent.click(
       within(desktopCategoryProducts).getByRole("button", { name: "もっと見る" }),
     );
-    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "ranking" });
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "catalog" });
 
     fireEvent.click(
       screen.getAllByRole("button", {
@@ -944,7 +936,7 @@ describe("SAZO home composition", () => {
     expect(within(cards[3]!).queryByText(/OFF/)).toBeNull();
   });
 
-  it("opens the product ranking from the Uniqlo discovery rail more link", async () => {
+  it("opens the product catalog from the Uniqlo discovery rail more link", async () => {
     const dispatch = vi.fn();
 
     await renderHomePage("ja", dispatch);
@@ -954,7 +946,7 @@ describe("SAZO home composition", () => {
       within(uniqloDiscovery).getByRole("button", { name: "もっと見る" }),
     );
 
-    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "ranking" });
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "catalog" });
   });
 
   it("opens the full category directory from the existing mobile shortcut", async () => {

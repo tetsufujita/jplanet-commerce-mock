@@ -405,12 +405,12 @@ describe("sazoReducer", () => {
 
   it("keeps the original return view when another recommendation is opened", () => {
     const first = sazoReducer(
-      { ...createInitialSazoState(), view: "ranking" },
+      { ...createInitialSazoState(), view: "catalog" },
       { type: "open-product", productId: "p01" },
     );
     const second = sazoReducer(first, { type: "open-product", productId: "p02" });
 
-    expect(second.productReturnView).toBe("ranking");
+    expect(second.productReturnView).toBe("catalog");
     expect(second.selectedProductId).toBe("jplanet-nintendo-pro-controller");
   });
 
@@ -481,6 +481,7 @@ describe("sazoReducer", () => {
   it("opens every commerce view and auth page only through QA parameters", () => {
     expect(createInitialSazoState("?qa=1&view=service").view).toBe("service");
     expect(createInitialSazoState("?qa=1&view=cards").view).toBe("cards");
+    expect(createInitialSazoState("?qa=1&view=ranking").view).toBe("ai-search");
     expect(createInitialSazoState("?qa=1&auth=phone").authStep).toBe("phone");
     expect(createInitialSazoState("?qa=1&view=unknown").view).toBe("home");
     expect(createInitialSazoState("?qa=1&auth=unknown").authStep).toBe("provider");
@@ -524,9 +525,9 @@ describe("sazoReducer", () => {
           ? sazoReducer(createInitialSazoState(), { type: "open-login" })
           : sazoReducer(createInitialSazoState(), { type: "open-chat" });
 
-      const navigated = sazoReducer(state, { type: "navigate", view: "ranking" });
+      const navigated = sazoReducer(state, { type: "navigate", view: "ai-search" });
 
-      expect(navigated).toMatchObject({ view: "ranking", overlay: "none" });
+      expect(navigated).toMatchObject({ view: "ai-search", overlay: "none" });
     },
   );
 
@@ -633,7 +634,7 @@ describe("sazoReducer", () => {
     });
   });
 
-  it("keeps brand, review, and ranking controls in dedicated state fields", () => {
+  it("keeps brand and review controls in dedicated state fields", () => {
     let state = sazoReducer(createInitialSazoState(), {
       type: "select-brand-filter",
       filter: "gadgets",
@@ -642,15 +643,9 @@ describe("sazoReducer", () => {
       type: "select-review-category",
       category: "idol",
     });
-    state = sazoReducer(state, {
-      type: "select-ranking-metric",
-      metric: "views",
-    });
-
     expect(state).toMatchObject({
       brandFilter: "gadgets",
       reviewCategory: "idol",
-      rankingMetric: "views",
     });
   });
 
@@ -690,11 +685,6 @@ describe("sazoReducer", () => {
       type: "select-review-category",
       category: "beauty",
     });
-    state = sazoReducer(state, {
-      type: "select-ranking-metric",
-      metric: "views",
-    });
-
     expect(sazoReducer(state, { type: "reset" })).toEqual(createInitialSazoState());
   });
 });

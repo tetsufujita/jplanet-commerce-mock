@@ -76,6 +76,14 @@ export const tonerSearchKeywords = [
   "保湿",
 ] as const;
 
+export const genericSearchKeywords = [
+  "人気商品",
+  "日本公式",
+  "限定",
+  "フリマ",
+  "日本から直送",
+] as const;
+
 export const newBalanceSearchTabs: readonly {
   id: AiSearchResultGroupId;
   label: string;
@@ -259,6 +267,101 @@ export const tonerSearchGroups: readonly AiSearchResultGroup[] = [
         name: "アルビオン\nフローラドリップ 未開封",
         price: "R$ 305",
         supportingText: "未開封確認",
+      },
+    ],
+  },
+] as const;
+
+/**
+ * Generic keyword results keep arbitrary text searches inside the existing
+ * AI-search result surface instead of falling through to the retired ranking
+ * page. The products reuse assets and purchase paths already present in this
+ * mock and intentionally avoid claiming live ranking data.
+ */
+export const genericSearchGroups: readonly AiSearchResultGroup[] = [
+  {
+    count: 3,
+    id: "general",
+    title: "一般・すぐ買える",
+    products: [
+      {
+        id: "generic-nintendo-switch-oled",
+        image: "/sazo-commerce/reference/nintendo-switch-oled.png",
+        name: "Nintendo Switch OLED\nホワイト",
+        price: "R$ 2,184",
+        supportingText: "日本から直送",
+      },
+      {
+        id: "generic-nintendo-controller",
+        image: "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
+        name: "Nintendo Switch\nProコントローラー",
+        price: "R$ 429",
+        supportingText: "日本から直送",
+      },
+      {
+        id: "generic-new-balance-9060",
+        image: "/sazo-commerce/reference/new-balance-9060.png",
+        name: "New Balance 9060\nホワイト グリーン",
+        price: "R$ 748",
+        supportingText: "日本から直送",
+      },
+    ],
+  },
+  {
+    count: 3,
+    id: "limited",
+    infoLabel: "購入前に最終金額と納期を確認",
+    title: "限定・ハイブランド",
+    products: [
+      {
+        id: "generic-loewe-puzzle",
+        image: "/sazo-commerce/reference/handbag.png",
+        name: "LOEWE Puzzle バッグ\nスモール",
+        price: "R$ 684",
+        supportingText: "見積確認",
+      },
+      {
+        id: "generic-sk-ii-essence",
+        image: "/sazo-commerce/beauty/skincare-01.webp",
+        name: "SK-II フェイシャル\nトリートメント エッセンス",
+        price: "R$ 895",
+        supportingText: "見積確認",
+      },
+      {
+        id: "generic-anessa-sunscreen",
+        image: "/sazo-commerce/categories/beauty-uv-care.png",
+        name: "アネッサ パーフェクトUV\nスキンケアミルク N",
+        price: "R$ 174",
+        supportingText: "見積確認",
+      },
+    ],
+  },
+  {
+    count: 3,
+    id: "flea",
+    infoLabel: "状態・付属品・出品者評価を確認",
+    title: "フリマ・中古",
+    products: [
+      {
+        id: "generic-pokemon-keyring",
+        image: "/sazo-commerce/ranking/04.webp",
+        name: "ポケモン キーリング\nピカチュウ",
+        price: "R$ 714",
+        supportingText: "状態確認",
+      },
+      {
+        id: "generic-uniqlo-bag",
+        image: "/sazo-commerce/products/08.webp",
+        name: "ユニクロ\nラウンドミニショルダーバッグ",
+        price: "R$ 168",
+        supportingText: "状態確認",
+      },
+      {
+        id: "generic-refa-hair-iron",
+        image: "/sazo-commerce/categories/beauty-haircare.png",
+        name: "ReFa\nストレートアイロン プロ",
+        price: "R$ 522",
+        supportingText: "状態確認",
       },
     ],
   },

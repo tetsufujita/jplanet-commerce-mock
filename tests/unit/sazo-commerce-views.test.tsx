@@ -11,7 +11,7 @@ import { createI18n } from "@/i18n/createI18n";
 import { CatalogView } from "@/sazo-commerce/CatalogView";
 import { CampaignView } from "@/sazo-commerce/CampaignView";
 import { CategoriesView, BrandsView } from "@/sazo-commerce/DirectoryViews";
-import { RankingView, ReviewsView } from "@/sazo-commerce/EditorialViews";
+import { ReviewsView } from "@/sazo-commerce/EditorialViews";
 import { MobileAgentHubView } from "@/sazo-commerce/MobileAgentHubView";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 import { SazoCommercePage } from "@/sazo-commerce/SazoCommercePage";
@@ -371,11 +371,6 @@ describe("SAZO captured view contracts", () => {
       "catalog",
       "全体 86個",
       <CatalogView dispatch={noDispatch} state={stateWithCatalogMode("list")} />,
-    ],
-    [
-      "ranking",
-      "J-Planet RANKING",
-      <RankingView dispatch={noDispatch} state={createInitialSazoState()} />,
     ],
     [
       "reviews",
@@ -909,23 +904,6 @@ describe("SAZO captured view contracts", () => {
     expect(
       screen.getByRole("button", { name: "すべて" }).getAttribute("aria-pressed"),
     ).toBe("true");
-  });
-
-  it("renders the captured ranking inventory without relying on retired home navigation", async () => {
-    const { container } = await renderWithI18n(
-      <RankingView
-        dispatch={noDispatch}
-        state={{ ...createInitialSazoState(), view: "ranking" }}
-      />,
-    );
-    const firstRankingName = () =>
-      container.querySelector(".sazo-ranked-product h3")?.textContent;
-
-    expect(firstRankingName()).toContain("プチプチ犬ヘッドピン");
-    expect(container.querySelector(".sazo-ranked-product img")?.getAttribute("src")).toBe(
-      "/sazo-commerce/ranking/01.webp",
-    );
-    expect(screen.getByRole("button", { name: "閲覧数" })).toBeTruthy();
   });
 
   it("uses purchase decision axes to filter review cards", async () => {

@@ -26,7 +26,7 @@ import { CheckoutView } from "@/sazo-commerce/CheckoutView";
 import { CampaignView } from "@/sazo-commerce/CampaignView";
 import { ChatPanel } from "@/sazo-commerce/ChatPanel";
 import { CategoriesView } from "@/sazo-commerce/DirectoryViews";
-import { RankingView, ReviewsView } from "@/sazo-commerce/EditorialViews";
+import { ReviewsView } from "@/sazo-commerce/EditorialViews";
 import { HomeView } from "@/sazo-commerce/HomeView";
 import { SkincareCatalogView } from "@/sazo-commerce/SkincareCatalogView";
 import { MobileAgentHubView } from "@/sazo-commerce/MobileAgentHubView";
@@ -264,9 +264,6 @@ export function SazoCommercePage() {
           ) : null}
           {state.view === "gram-detail" ? (
             <GramDetailView dispatch={dispatch} state={state} />
-          ) : null}
-          {state.view === "ranking" ? (
-            <RankingView dispatch={dispatch} state={state} />
           ) : null}
           {state.view === "reviews" ? (
             <ReviewsView dispatch={dispatch} state={state} />

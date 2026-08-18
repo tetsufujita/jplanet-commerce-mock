@@ -29,7 +29,6 @@ export type SazoView =
   | "catalog"
   | "campaign"
   | "reviews"
-  | "ranking"
   | "product"
   | "gram"
   | "gram-detail"
@@ -143,8 +142,6 @@ export type ReviewDecisionAxisId =
   | "shipping-customs"
   | "support";
 export type ReviewFilterId = ReviewCategoryId | ReviewDecisionAxisId;
-export type RankingMetric = "purchases" | "views";
-
 export interface SazoState {
   view: SazoView;
   overlay: SazoOverlay;
@@ -159,7 +156,6 @@ export interface SazoState {
   directoryCategory: DirectoryCategoryId;
   brandFilter: BrandFilterId;
   reviewCategory: ReviewFilterId;
-  rankingMetric: RankingMetric;
   heroFeed: SazoHeroFeed;
   heroIndex: number;
   heroPaused: boolean;
@@ -227,7 +223,6 @@ export type SazoAction =
   | { type: "select-catalog-tab"; tab: CatalogTabId }
   | { type: "select-catalog-chip"; chip: string | null }
   | { type: "select-review-category"; category: ReviewFilterId }
-  | { type: "select-ranking-metric"; metric: RankingMetric }
   | { type: "open-product"; productId: string }
   | { type: "open-image-search-product"; productId: string }
   | { type: "close-product" }
@@ -288,7 +283,6 @@ const qaViews = new Set<SazoView>([
   "catalog",
   "campaign",
   "reviews",
-  "ranking",
   "mypage",
   "favorites",
   "profile",
@@ -332,7 +326,6 @@ export function createInitialSazoState(search = ""): SazoState {
     directoryCategory: "beauty",
     brandFilter: "all",
     reviewCategory: "all",
-    rankingMetric: "purchases",
     heroFeed: "natural",
     heroIndex: 0,
     heroPaused: false,
@@ -390,7 +383,8 @@ export function createInitialSazoState(search = ""): SazoState {
   const reviewFeed = parameters.get("reviewFeed") as SazoReviewFeed | null;
   const favoriteTab = parameters.get("favoriteTab") as SazoFavoriteTab | null;
   const agentHubScenario = parameters.get("agentScenario") as AgentHubScenario | null;
-  const view = parameters.get("view") as SazoView | null;
+  const requestedView = parameters.get("view");
+  const view = requestedView as SazoView | null;
   const authStep = parameters.get("auth") as SazoAuthStep | null;
   const heroIndex = Number(parameters.get("heroIndex"));
   const couponWallet = parameters.get("couponWallet");
@@ -416,7 +410,11 @@ export function createInitialSazoState(search = ""): SazoState {
     state.agentHubScenario = agentHubScenario;
   }
 
-  if (view === "beauty") {
+  if (requestedView === "ranking") {
+    // The standalone ranking screen was retired. Old QA links now open the
+    // keyword-search surface that replaced it.
+    state.view = "ai-search";
+  } else if (view === "beauty") {
     // The dedicated BEAUTY landing was removed. Preserve old QA links by
     // opening the supported skincare catalog instead of rendering the former page.
     state.view = "skincare-catalog";
@@ -586,8 +584,6 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
       return { ...state, catalogChip: action.chip };
     case "select-review-category":
       return { ...state, reviewCategory: action.category };
-    case "select-ranking-metric":
-      return { ...state, rankingMetric: action.metric };
     case "open-product":
       return {
         ...state,

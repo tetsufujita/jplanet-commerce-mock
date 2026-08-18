@@ -2,7 +2,6 @@ import type {
   BrandFilterId,
   CatalogTabId,
   DirectoryCategoryId,
-  RankingMetric,
   ReviewCategoryId,
   ReviewDecisionAxisId,
   SazoHeroFeed,
@@ -270,8 +269,6 @@ export interface CatalogInventoryEntry {
   chipIds: readonly string[];
 }
 
-export type RankingProduct = Product;
-
 export interface ReviewCategory {
   id: ReviewCategoryId;
   label: string;
@@ -489,7 +486,7 @@ export const homeShortcutItems: readonly HomeShortcutItem[] = [
 
 export const desktopHomeShortcutItems = [
   { id: "feature", labelKey: "feature", view: "home" },
-  { id: "limited", labelKey: "limited", view: "ranking" },
+  { id: "limited", labelKey: "limited", view: "catalog" },
   { id: "brands", labelKey: "brands", view: "brands" },
   { id: "game", labelKey: "game", view: "categories" },
   { id: "figure", labelKey: "figure", view: "categories" },
@@ -2050,89 +2047,6 @@ export const serviceSteps = [
   { id: "02", image: "/sazo-commerce/service-lp/jplanet-how-to-use-2.svg" },
   { id: "03", image: "/sazo-commerce/service-lp/jplanet-how-to-use-3.svg" },
 ] satisfies readonly ServiceStep[];
-
-const rankingHairpin = {
-  id: "ranking-hairpin",
-  brand: "NAVER",
-  name: "プチプチ犬ヘッドピン 大リボンボンドピン",
-  price: "¥806",
-  badge: "13%",
-  image: "/sazo-commerce/ranking/01.webp",
-} satisfies RankingProduct;
-const rankingMask = {
-  id: "ranking-mask",
-  brand: "11D",
-  name: "高濃縮アンプルマスクパック 6種30枚",
-  price: "¥1,578",
-  image: "/sazo-commerce/ranking/02.webp",
-} satisfies RankingProduct;
-const rankingYarn = {
-  id: "ranking-yarn",
-  brand: "NAVER",
-  name: "優しい人形室 手編みマカロン綿糸",
-  price: "¥104",
-  image: "/sazo-commerce/ranking/03.webp",
-} satisfies RankingProduct;
-const rankingPokemon = {
-  id: "ranking-pokemon",
-  brand: "NAVER",
-  name: "ポケモンキーリング人形 ピカチュウミュウ",
-  price: "¥714",
-  badge: "32%",
-  image: "/sazo-commerce/ranking/04.webp",
-} satisfies RankingProduct;
-const rankingSaltKeyring = {
-  id: "ranking-salt-keyring",
-  brand: "KREAM",
-  name: "TENTSEOUL Five Elements Salt Keyring",
-  price: "¥2,522",
-  badge: "21%",
-  image: "/sazo-commerce/ranking/05.webp",
-} satisfies RankingProduct;
-const rankingReina = {
-  id: "ranking-reina",
-  brand: "NAVER",
-  name: "レイナ",
-  price: "¥403",
-  image: "/sazo-commerce/ranking/06.webp",
-} satisfies RankingProduct;
-const rankingMagikarp = {
-  id: "ranking-magikarp",
-  brand: "POKÉMON",
-  name: "Pokémon TCG Mega Festa 2026 Promo Card Magikarp",
-  price: "¥8,894",
-  image: "/sazo-commerce/ranking/07.webp",
-} satisfies RankingProduct;
-const rankingPreorder = {
-  id: "ranking-preorder",
-  brand: "JORDAN",
-  name: "予約購入 ジョーダン コラボラインエディション",
-  price: "¥13,701",
-  image: "/sazo-commerce/ranking/08.webp",
-} satisfies RankingProduct;
-
-export const rankingInventories = {
-  purchases: [
-    rankingHairpin,
-    rankingMask,
-    rankingYarn,
-    rankingPokemon,
-    rankingSaltKeyring,
-    rankingReina,
-    rankingMagikarp,
-    rankingPreorder,
-  ],
-  views: [
-    rankingPokemon,
-    rankingHairpin,
-    rankingMagikarp,
-    rankingMask,
-    rankingYarn,
-    rankingSaltKeyring,
-    rankingPreorder,
-    rankingReina,
-  ],
-} satisfies Record<RankingMetric, readonly RankingProduct[]>;
 
 export const editorialReviews = [
   {

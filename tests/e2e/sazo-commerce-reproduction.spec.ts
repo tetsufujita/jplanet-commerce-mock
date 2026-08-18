@@ -1651,7 +1651,14 @@ test("renders the AI search as a direct product-search entry at mobile widths", 
   }
 
   await search.getByRole("button", { name: "Nintendo Switch" }).click();
-  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ranking");
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
+  await expect(search.locator("[data-ai-search-results]")).toBeVisible();
+  await expect(search.locator("[data-ai-search-input]")).toHaveValue("Nintendo Switch");
+  await expect(search.getByText("「Nintendo Switch」で検索しました。")).toBeVisible();
+
+  await page.goto(`${routePath}&view=ranking`);
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
+  await expect(page.getByText("J-Planet RANKING")).toHaveCount(0);
 });
 
 test("opens the dedicated mobile AI search with distinct text, URL, and image paths", async ({
@@ -2653,7 +2660,7 @@ test("keeps the selected agentic-commerce home responsive and interactive on des
     .getByTestId("desktop-home-category-products")
     .getByRole("button", { name: "もっと見る" })
     .click();
-  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ranking");
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "catalog");
 });
 
 test("keeps desktop product actions in the purchase column without changing mobile", async ({

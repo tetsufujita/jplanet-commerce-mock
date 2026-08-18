@@ -1109,7 +1109,7 @@ function UniqloDiscoveryRail({
       headingBrandSource={showBrandSource ? "uniqlo" : undefined}
       layout="rail"
       onMore={() => {
-        dispatch({ type: "navigate", view: "ranking" });
+        dispatch({ type: "navigate", view: "catalog" });
       }}
       products={showImageBadgeIcon ? desktopUniqloDiscoveryProducts : uniqloDiscoveryProducts}
       productPresentation="media-rail"
@@ -1227,7 +1227,7 @@ function DesktopHomeCategoryProductCatalog({
       <button
         className="sazo-desktop-home-category-products-more"
         onClick={() => {
-          dispatch({ type: "navigate", view: "ranking" });
+          dispatch({ type: "navigate", view: "catalog" });
         }}
         type="button"
       >
@@ -1415,10 +1415,9 @@ function DesktopHomeCommunity({ dispatch, state }: HomeViewProps) {
   );
 }
 
-const desktopAgentLensModes = ["url", "image", "product"] as const;
 const desktopAgentLensRoutes = [
   { icon: PackageCheck, id: "recent", view: undefined },
-  { icon: Search, id: "popular", view: "ranking" },
+  { icon: Search, id: "popular", view: "ai-search" },
   { icon: Star, id: "reviews", view: "reviews" },
 ] as const;
 
@@ -2085,7 +2084,6 @@ export function DesktopAgentSearchHistoryPopover({
 
 function DesktopAgentLens({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
-  const [mode, setMode] = useState<(typeof desktopAgentLensModes)[number]>("url");
   const [searchHistoryOpen, setSearchHistoryOpen] = useState(false);
   const controlRef = useRef<HTMLDivElement>(null);
   const searchHistoryTriggerRef = useRef<HTMLInputElement>(null);
@@ -2217,27 +2215,6 @@ function DesktopAgentLens({ dispatch }: Pick<HomeViewProps, "dispatch">) {
         onPointerMove={handleControlPointerMove}
         ref={controlRef}
       >
-        <div
-          aria-label={t("sazo.desktopHome.lens.inputModes")}
-          className="sazo-desktop-agent-lens-tabs"
-          data-agent-lens-liquid-glass="tabs"
-          role="tablist"
-        >
-          {desktopAgentLensModes.map((item) => (
-            <button
-              aria-selected={mode === item}
-              id={`desktop-agent-lens-${item}-tab`}
-              key={item}
-              onClick={() => {
-                setMode(item);
-              }}
-              role="tab"
-              type="button"
-            >
-              {t(`sazo.desktopHome.lens.tabs.${item}`)}
-            </button>
-          ))}
-        </div>
         <h1>{t("sazo.desktopHome.lens.title")}</h1>
         <p>{t("sazo.desktopHome.lens.description")}</p>
         <DesktopAgentSearchForm
@@ -2247,7 +2224,6 @@ function DesktopAgentLens({ dispatch }: Pick<HomeViewProps, "dispatch">) {
           historyExpanded={searchHistoryOpen}
           inputRef={searchHistoryTriggerRef}
           liquidGlass
-          mode={mode}
           onInputActivate={() => setSearchHistoryOpen(true)}
         />
         <div
@@ -2325,7 +2301,7 @@ function DesktopHomeView({ dispatch, state }: HomeViewProps) {
             <h2>{t("sazo.desktopHome.productsTitle")}</h2>
             <button
               onClick={() => {
-                dispatch({ type: "navigate", view: "ranking" });
+                dispatch({ type: "navigate", view: "catalog" });
               }}
               type="button"
             >
@@ -2554,7 +2530,7 @@ function ProductDiscovery({ dispatch, state }: HomeViewProps) {
       <section className="sazo-home-section sazo-ranking-section">
         <SectionHeading
           onMore={() => {
-            dispatch({ type: "navigate", view: "ranking" });
+            dispatch({ type: "navigate", view: "catalog" });
           }}
           title={t("sazo.home.rankingTitle")}
         />

@@ -170,7 +170,7 @@ describe("AiSearchView", () => {
     expect(screen.getByText("全体 1726件")).toBeTruthy();
   });
 
-  it("does not submit blank text and sends a popular search to the results list", () => {
+  it("does not submit blank text and keeps a popular keyword search in AI results", () => {
     const { dispatch } = renderAiSearch();
     const input = screen.getByPlaceholderText("商品名・キーワード・画像・URLで検索");
 
@@ -178,7 +178,10 @@ describe("AiSearchView", () => {
     expect(dispatch).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: "Nintendo Switch" }));
-    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "ranking" });
+    expect(dispatch).not.toHaveBeenCalled();
+    expect((input as HTMLInputElement).value).toBe("Nintendo Switch");
+    expect(screen.getByText("「Nintendo Switch」で検索しました。")).toBeTruthy();
+    expect(screen.getByText("全体 9件")).toBeTruthy();
   });
 
   it("shows ten ranked popular searches and keeps every row actionable", () => {
@@ -207,7 +210,9 @@ describe("AiSearchView", () => {
     ]);
 
     fireEvent.click(popularSearches[9]!);
-    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "ranking" });
+    expect(dispatch).not.toHaveBeenCalled();
+    expect(screen.getByText("「資生堂 スキンケア」で検索しました。")).toBeTruthy();
+    expect(screen.getByText("全体 9件")).toBeTruthy();
   });
 
   it("returns to home and preserves the shared cart action", () => {
