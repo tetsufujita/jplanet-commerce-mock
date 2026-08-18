@@ -20,6 +20,7 @@ export interface AgentComposerSeedRequest {
 
 export interface AgentComposerSubmission {
   imageName: string | null;
+  imageResolution?: boolean;
   summary: string;
 }
 
@@ -27,7 +28,8 @@ export interface MobileAgentComposerProps {
   entryIntent: AgentEntryIntent | null;
   onEntryIntentConsumed: () => void;
   onSubmitted?: (submission: AgentComposerSubmission) => void;
-  presentation?: "default" | "agent-hub";
+  placeholder?: string;
+  presentation?: "default" | "agent-hub" | "agent-page";
   seedRequest: AgentComposerSeedRequest | null;
   showHeader?: boolean;
 }
@@ -43,6 +45,7 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
       entryIntent,
       onEntryIntentConsumed,
       onSubmitted,
+      placeholder,
       presentation = "default",
       seedRequest,
       showHeader = true,
@@ -152,7 +155,7 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
       event.target.value = "";
     };
 
-    const submit = (event: SyntheticEvent<HTMLFormElement>) => {
+    const submit = (event: SyntheticEvent<HTMLFormElement | HTMLButtonElement>) => {
       event.preventDefault();
       if (!canSubmit) {
         return;
@@ -161,6 +164,7 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
       setSubmitted(true);
       onSubmitted?.({
         imageName: imageFile?.name ?? null,
+        imageResolution: imageFile !== null,
         summary: draft.trim() || imageFile?.name || "画像の商品",
       });
     };
@@ -172,6 +176,8 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
     return (
       <div
         className="sazo-mobile-agent-composer"
+        data-can-submit={canSubmit || undefined}
+        data-has-attachment={imageFile !== null || undefined}
         data-presentation={presentation}
         ref={forwardedRef}
       >
@@ -226,20 +232,18 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
           </label>
 
           <div className="sazo-mobile-agent-composer-input-shell">
-            {presentation === "agent-hub" ? null : (
-              <button
-                aria-expanded={menuOpen}
-                aria-haspopup="menu"
-                aria-label={t("sazo.agentHub.composer.menuLabel")}
-                className="sazo-mobile-agent-composer-plus"
-                onClick={() => {
-                  setMenuOpen((open) => !open);
-                }}
-                type="button"
-              >
-                <Plus aria-hidden="true" size={21} />
-              </button>
-            )}
+            <button
+              aria-expanded={menuOpen}
+              aria-haspopup="menu"
+              aria-label={t("sazo.agentHub.composer.menuLabel")}
+              className="sazo-mobile-agent-composer-plus"
+              onClick={() => {
+                setMenuOpen((open) => !open);
+              }}
+              type="button"
+            >
+              <Plus aria-hidden="true" size={21} />
+            </button>
             <label className="sazo-visually-hidden" htmlFor={textInputId}>
               {t("sazo.agentHub.composer.draftLabel")}
             </label>
@@ -250,15 +254,16 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
                 setSubmitted(false);
               }}
               placeholder={
-                presentation === "agent-hub"
+                placeholder ??
+                (presentation === "agent-hub" || presentation === "agent-page"
                   ? t("sazo.agentHub.composer.agentHubPlaceholder")
-                  : t("sazo.agentHub.composer.inputPlaceholder")
+                  : t("sazo.agentHub.composer.inputPlaceholder"))
               }
               ref={textInputRef}
               rows={1}
               value={draft}
             />
-            {presentation === "agent-hub" ? (
+            {presentation === "agent-hub" || presentation === "agent-page" ? (
               <button
                 aria-label={t("sazo.agentHub.composer.takePhoto")}
                 className="sazo-mobile-agent-composer-camera"
@@ -272,7 +277,8 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
               aria-label={t("sazo.agentHub.composer.send")}
               className="sazo-mobile-agent-composer-submit"
               disabled={!canSubmit}
-              type="submit"
+              onClick={submit}
+              type="button"
             >
               <ArrowRight
                 aria-hidden="true"
@@ -281,7 +287,11 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
                 size={18}
                 strokeWidth={2.8}
               />
-              <span>{t("sazo.agentHub.composer.send")}</span>
+              <span>
+                {presentation === "agent-hub" && canSubmit
+                  ? "候補を探す"
+                  : t("sazo.agentHub.composer.send")}
+              </span>
             </button>
           </div>
 
@@ -319,29 +329,32 @@ export const MobileAgentComposer = forwardRef<HTMLDivElement, MobileAgentCompose
           ) : null}
 
           {imageUrl !== null && imageFile !== null ? (
-            <div className="sazo-mobile-agent-composer-image">
+            <div className="sazo-mobile-agent-composer-image" data-selected-image>
               <img
                 alt={t("sazo.agentHub.composer.selectedImageAlt", {
                   name: imageFile.name,
                 })}
                 src={imageUrl}
               />
-              <p>{imageFile.name}</p>
-              <button onClick={openImagePicker} type="button">
-                {t("sazo.agentHub.composer.replaceImage")}
-              </button>
-              <button
-                onClick={() => {
-                  replaceImage(null);
-                  setMode("text");
-                  setError(null);
-                  setSubmitted(false);
-                }}
-                type="button"
-              >
-                <X aria-hidden="true" size={17} />
-                {t("sazo.agentHub.composer.removeImage")}
-              </button>
+              <div className="sazo-mobile-agent-composer-image-copy">
+                <p>{imageFile.name}</p>
+                <span>画像から近い商品候補を探します</span>
+              </div>
+              <div className="sazo-mobile-agent-composer-image-actions">
+                <button
+                  aria-label="添付画像を削除"
+                  className="sazo-mobile-agent-composer-image-remove"
+                  onClick={() => {
+                    replaceImage(null);
+                    setMode("text");
+                    setError(null);
+                    setSubmitted(false);
+                  }}
+                  type="button"
+                >
+                  <X aria-hidden="true" size={15} />
+                </button>
+              </div>
             </div>
           ) : null}
 

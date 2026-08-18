@@ -109,6 +109,30 @@ const categoryAgentCopy: Record<DirectoryCategoryId, CategoryAgentCopy> = {
     nav: ["ゲーム", "家電", "お知らせ"],
     wordmark: "GAME",
   },
+  sports: {
+    badge: "J-Sports",
+    description: "日本で人気のスポーツアイテムを、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本のスポーツショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、スポーツ商品をリアルタイム検索！",
+    nav: ["スポーツ", "アウトドア", "お知らせ"],
+    wordmark: "SPORTS",
+  },
+  characters: {
+    badge: "J-Character",
+    description: "日本で人気のキャラクターアイテムを、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本のキャラクターショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、キャラクター商品をリアルタイム検索！",
+    nav: ["キャラクター", "限定", "お知らせ"],
+    wordmark: "CHARACTER",
+  },
+  kpop: {
+    badge: "J-KPOP",
+    description: "日本で人気のK-POPアイテムを、今すぐ見つけて注文しよう！",
+    discoveryTitle: "日本のK-POPショップで欲しい商品を探してみよう！",
+    guidance: "J-Planetで、K-POP商品をリアルタイム検索！",
+    nav: ["K-POP", "公式グッズ", "お知らせ"],
+    wordmark: "K-POP",
+  },
 };
 
 export interface BeautyViewProps {

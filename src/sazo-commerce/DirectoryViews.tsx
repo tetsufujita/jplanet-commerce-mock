@@ -1,23 +1,33 @@
-import { useState, type Dispatch } from "react";
+import { useEffect, useRef, useState, type Dispatch } from "react";
 import {
   ArrowLeft,
   Bookmark,
+  Brush,
+  CircleDot,
   ChevronRight,
+  Gift,
   Heart,
   Home,
+  Paintbrush,
   Plane,
+  Pipette,
   Search,
   ShoppingCart,
+  SunMedium,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   brands,
   catalogInventory,
   categoryDirectory,
   homeCategoryItems,
+  mobileCategoryDirectoryEntries,
   type Brand,
+  type CategoryDirectoryEntry,
 } from "@/sazo-commerce/fixtures";
 import { MobileAgentComposer } from "@/sazo-commerce/MobileAgentComposer";
+import { ProductMediaHeader } from "@/sazo-commerce/ProductDetailView";
 import type { BrandFilterId, SazoAction, SazoState } from "@/sazo-commerce/model";
 
 export interface ViewDispatchProps {
@@ -30,6 +40,37 @@ export interface StatefulViewProps extends ViewDispatchProps {
 
 interface ViewHeaderProps extends ViewDispatchProps {
   title: string;
+}
+
+const categoryChildIcons: Record<string, LucideIcon> = {
+  skincare: Pipette,
+  "base-makeup": CircleDot,
+  "point-makeup": Brush,
+  sets: Gift,
+  tools: Paintbrush,
+  "uv-care": SunMedium,
+};
+
+function useMobileCategorySurface() {
+  const readMatch = () =>
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia("(max-width: 767px)").matches
+      : false;
+  const [isMobile, setIsMobile] = useState(readMatch);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return undefined;
+    }
+
+    const media = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  return isMobile;
 }
 
 export function ViewHeader({ dispatch, title }: ViewHeaderProps) {
@@ -195,33 +236,74 @@ export function BrandsView({ dispatch, state }: BrandsViewProps) {
 
 export function CategoriesView({ dispatch, state }: StatefulViewProps) {
   const { t } = useTranslation();
+  const isMobileCategorySurface = useMobileCategorySurface();
+  const mobileTitleRef = useRef<HTMLElement>(null);
+  const directoryEntries: readonly CategoryDirectoryEntry[] = isMobileCategorySurface
+    ? [...categoryDirectory, ...mobileCategoryDirectoryEntries]
+    : categoryDirectory;
   const selected =
-    categoryDirectory.find(({ id }) => id === state.directoryCategory) ??
-    categoryDirectory[0];
+    directoryEntries.find(({ id }) => id === state.directoryCategory) ?? directoryEntries[0];
 
   if (selected === undefined) {
     throw new Error("Missing SAZO category directory fixture");
   }
 
   const parentArtwork = homeCategoryItems.find(({ id }) => id === selected.id)?.image;
+  const visibleChildren = isMobileCategorySurface
+    ? (selected.mobileChildren ?? selected.children)
+    : selected.children.slice(0, 6);
 
   return (
     <div className="sazo-directory-view" data-view-content="categories">
-      <ViewHeader dispatch={dispatch} title={t("sazo.views.categories.title")} />
-      <section
-        className="sazo-directory-agent sazo-category-agent"
-        data-apple-surface="true"
-        data-testid="category-agent-entry"
-      >
-        <MobileAgentComposer
-          entryIntent={null}
-          onEntryIntentConsumed={() => undefined}
-          onSubmitted={(request) => {
-            dispatch({ type: "start-agent-search", request });
-          }}
-          seedRequest={null}
-        />
-      </section>
+      {isMobileCategorySurface ? (
+        <>
+          <ProductMediaHeader
+            dispatch={dispatch}
+            onBack={() => {
+              dispatch({ type: "navigate", view: "home" });
+            }}
+            productInfoRef={mobileTitleRef}
+            productName={t("sazo.views.categories.title")}
+          />
+          <section className="sazo-mobile-category-title" ref={mobileTitleRef}>
+            <h1>{t("sazo.views.categories.title")}</h1>
+          </section>
+        </>
+      ) : (
+        <>
+          <ViewHeader dispatch={dispatch} title={t("sazo.views.categories.title")} />
+          <section
+            className="sazo-directory-agent sazo-category-agent"
+            data-apple-surface="true"
+            data-testid="category-agent-entry"
+          >
+            <div className="sazo-category-agent-entry">
+              <img
+                alt=""
+                aria-hidden="true"
+                className="sazo-category-agent-mark"
+                height={32}
+                src="/sazo-commerce/jplanet-sakura-mark.png"
+                width={32}
+              />
+              <MobileAgentComposer
+                entryIntent={null}
+                onEntryIntentConsumed={() => undefined}
+                onSubmitted={(request) => {
+                  dispatch({ type: "start-agent-search", request });
+                }}
+                placeholder={t("sazo.views.categories.agentPlaceholder")}
+                presentation="agent-hub"
+                seedRequest={null}
+                showHeader={false}
+              />
+            </div>
+            <p className="sazo-category-agent-helper">
+              {t("sazo.views.categories.agentHelper")}
+            </p>
+          </section>
+        </>
+      )}
       {state.loadingSurface === "directory" ? (
         <div
           aria-label="カテゴリーを読み込んでいます"
@@ -236,6 +318,9 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
       ) : (
         <>
           <div className="sazo-category-tabs" role="tablist">
+            <button aria-selected="true" role="tab" type="button">
+              {t("sazo.views.categories.categoriesTab")}
+            </button>
             <button
               aria-selected="false"
               onClick={() => {
@@ -246,16 +331,13 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
             >
               {t("sazo.views.categories.brandsTab")}
             </button>
-            <button aria-selected="true" role="tab" type="button">
-              {t("sazo.views.categories.categoriesTab")}
-            </button>
           </div>
           <div className="sazo-category-layout" data-apple-layout="category">
             <nav
               aria-label={t("sazo.views.categories.title")}
               className="sazo-category-parent-list"
             >
-              {categoryDirectory.map((category) => (
+              {directoryEntries.map((category) => (
                 <button
                   aria-current={selected.id === category.id ? "page" : undefined}
                   key={category.id}
@@ -274,43 +356,60 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
             <section className="sazo-category-children">
               <div className="sazo-category-children-heading">
                 <h2>{selected.name}</h2>
-                <button type="button">{t("sazo.views.categories.more")}</button>
               </div>
               <div className="sazo-category-child-list">
-                {selected.children.map((child) => (
-                  <button
-                    aria-label={child.label}
-                    className="sazo-category-child-card"
-                    key={child.id}
-                    onClick={() => {
-                      dispatch({
-                        type: "select-directory-category",
-                        category: selected.id,
-                      });
-                      dispatch({ type: "navigate", view: "beauty" });
-                    }}
-                    type="button"
-                  >
-                    <span className="sazo-category-child-image">
-                      <img
-                        alt=""
-                        aria-hidden
-                        decoding="async"
-                        src={
-                          catalogInventory.find(({ tabIds }) =>
-                            tabIds.some((tabId) => tabId === child.targetCatalogId),
-                          )?.product.image ??
-                          parentArtwork ??
-                          "/sazo-commerce/jplanet-sakura-mark.png"
-                        }
-                      />
-                    </span>
-                    <span className="sazo-category-child-copy">
-                      <span>{child.label}</span>
-                      <ChevronRight aria-hidden size={18} />
-                    </span>
-                  </button>
-                ))}
+                {visibleChildren.map((child) => {
+                  const ChildIcon = categoryChildIcons[child.id] ?? CircleDot;
+                  const childImage =
+                    ("image" in child && typeof child.image === "string"
+                      ? child.image
+                      : undefined) ??
+                    catalogInventory.find(({ tabIds }) =>
+                      tabIds.some((tabId) => tabId === child.targetCatalogId),
+                    )?.product.image ??
+                    parentArtwork ??
+                    "/sazo-commerce/jplanet-sakura-mark.png";
+
+                  return (
+                    <button
+                      aria-label={child.label}
+                      className="sazo-category-child-card"
+                      key={child.id}
+                      onClick={() => {
+                        dispatch({
+                          type: "select-directory-category",
+                          category: selected.id,
+                        });
+                        dispatch({
+                          type: "navigate",
+                          view: "skincare-catalog",
+                        });
+                      }}
+                      type="button"
+                    >
+                      <span className="sazo-category-child-image">
+                        {!isMobileCategorySurface ? (
+                          <ChildIcon
+                            aria-hidden="true"
+                            className="sazo-category-child-icon"
+                            size={44}
+                            strokeWidth={1.75}
+                          />
+                        ) : null}
+                        <img
+                          alt=""
+                          aria-hidden
+                          decoding="async"
+                          src={childImage}
+                        />
+                      </span>
+                      <span className="sazo-category-child-copy">
+                        <span>{child.label}</span>
+                        <ChevronRight aria-hidden size={18} />
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </section>
           </div>

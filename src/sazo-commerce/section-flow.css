@@ -1,0 +1,57 @@
+/* Mobile section continuity: generic gray section bands add visual breaks
+   without helping a buyer scan. Keep structural 1px lines on cards, inputs,
+   tabs, and checkout groups; only remove the broad spacer bands and reclaim
+   their vertical space. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="home"]
+    :is(
+      .sazo-mobile-editorial-section,
+      .sazo-mobile-gram-section,
+      .sazo-mobile-picks-section,
+      .sazo-mobile-category-section,
+      .sazo-mobile-support-footer
+    ) {
+    border-top: 0 !important;
+    padding-top: 20px !important;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-home-uniqlo-discovery {
+    padding-bottom: 16px !important;
+  }
+
+  .sazo-root[data-view="home"] .sazo-home-dense-picks {
+    border-top: 0 !important;
+    padding-top: 16px !important;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-register {
+    padding-bottom: 14px !important;
+    border-bottom: 0 !important;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-register + .sazo-coupon-count {
+    padding-top: 16px !important;
+  }
+
+  .sazo-root[data-view="points"] .sazo-points-summary {
+    padding-bottom: 16px !important;
+    border-bottom: 0 !important;
+  }
+
+  .sazo-root[data-view="support"] .sazo-support-section {
+    padding: 18px 0 !important;
+    border-top: 0 !important;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-scroll-section {
+    margin: 24px -18px 0 !important;
+    padding: 20px 22px 0 !important;
+    border-top: 0 !important;
+  }
+
+  .sazo-root[data-view="favorites"] .sazo-favorites-reference-section--pending {
+    margin-top: 0 !important;
+    padding-top: 16px !important;
+    border-top: 0 !important;
+  }
+}

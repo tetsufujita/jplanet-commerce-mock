@@ -3,8 +3,11 @@ import type {
   Dispatch,
   MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
+  RefObject,
+  WheelEvent as ReactWheelEvent,
 } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowRight,
   Box,
@@ -30,10 +33,19 @@ import {
   Store,
   Tags,
   ThumbsUp,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { DesktopAgentSearchForm } from "@/sazo-commerce/DesktopAgentSearchForm";
 import {
+  agentRecentSearches,
+  agentRecentViewedProducts,
+  type AgentRecentSearch,
+  type AgentRecentViewedProduct,
+} from "@/sazo-commerce/agentHubFixtures";
+import {
+  desktopAgentLensBackdropBanners,
   getHeroSlidesForFeed,
   desktopHomeCategoryItems,
   desktopHomeGramEntries,
@@ -84,14 +96,14 @@ interface SectionHeadingProps {
   title: string;
 }
 
-interface HomeDenseProduct {
-  discount: string;
+export interface HomeDenseProduct {
+  discount?: string;
   id: string;
   image: string;
   label: string;
   mediaAspect: "portrait" | "square" | "wide";
   name: string;
-  originalPrice: string;
+  originalPrice?: string;
   price: string;
   salesCount: string;
 }
@@ -274,6 +286,36 @@ const homeDenseProducts: readonly HomeDenseProduct[] = [
     salesCount: "2,160件販売",
   },
 ];
+
+const uniqloDiscoveryProductIds = new Set([
+  "new-balance",
+  "air-jordan",
+  "shopper-tote",
+  "black-sandal",
+]);
+
+const desktopUniqloDiscoveryProductIds = new Set([
+  ...uniqloDiscoveryProductIds,
+  "handbag",
+  "gift-accessory",
+]);
+
+const uniqloDiscoveryRegularPriceProductIds = new Set(["air-jordan", "black-sandal"]);
+
+function getUniqloDiscoveryProducts(productIds: ReadonlySet<string>) {
+  return homeDenseProducts
+    .filter(({ id }) => productIds.has(id))
+    .map((product) =>
+      uniqloDiscoveryRegularPriceProductIds.has(product.id)
+        ? { ...product, discount: undefined, originalPrice: undefined }
+        : product,
+    );
+}
+
+const uniqloDiscoveryProducts = getUniqloDiscoveryProducts(uniqloDiscoveryProductIds);
+const desktopUniqloDiscoveryProducts = getUniqloDiscoveryProducts(
+  desktopUniqloDiscoveryProductIds,
+);
 
 const homeDenseProductFeedMultiplier = 3;
 const homeDenseProductFeed = Array.from(
@@ -732,8 +774,7 @@ function MobileAgentSearch({ dispatch }: Pick<HomeViewProps, "dispatch">) {
             width={28}
           />
           <div>
-            <strong>購入エージェント</strong>
-            <span>商品を送るだけで、購入判断まで。</span>
+            <strong>{t("sazo.agentHub.composer.purchaseTitle")}</strong>
           </div>
         </header>
         <button
@@ -743,7 +784,7 @@ function MobileAgentSearch({ dispatch }: Pick<HomeViewProps, "dispatch">) {
           onClick={openAgent}
           type="button"
         >
-          <span>URL・画像・商品名を送る</span>
+          <span>{t("sazo.agentHub.composer.inputPlaceholder")}</span>
           <Camera
             aria-hidden
             className="sazo-home-agent-camera"
@@ -833,20 +874,50 @@ function MobileGramGrid({ dispatch }: Pick<HomeViewProps, "dispatch">) {
 }
 
 interface JplanetRecommendationGridProps extends Pick<HomeViewProps, "dispatch"> {
+  brandSource?: "uniqlo";
   heading?: string;
+  headingBrandSource?: "uniqlo";
   layout?: "grid" | "rail";
+  moreLabel?: string;
+  onMore?: () => void;
   products?: readonly HomeDenseProduct[];
   productLimit?: number;
+  productPresentation?: "media-rail";
   sectionClassName?: string;
+  showImageBadgeIcon?: boolean;
   testId?: string;
 }
 
 interface HomeDenseProductCardProps {
+  brandSource?: "uniqlo";
   onOpen: () => void;
   product: HomeDenseProduct;
+  showImageBadgeIcon?: boolean;
 }
 
-function HomeDenseProductCard({ onOpen, product }: HomeDenseProductCardProps) {
+function HomeDenseProductCard({
+  brandSource,
+  onOpen,
+  product,
+  showImageBadgeIcon = false,
+}: HomeDenseProductCardProps) {
+  const hasDiscount = product.discount !== undefined && product.originalPrice !== undefined;
+  const badgeTone = product.label.includes("人気")
+    ? "popular"
+    : product.label.includes("公式")
+      ? "official"
+      : product.label.includes("限定")
+        ? "limited"
+        : "select";
+  const BadgeIcon =
+    badgeTone === "popular"
+      ? Star
+      : badgeTone === "official"
+        ? ShieldCheck
+        : badgeTone === "limited"
+          ? Sparkles
+          : PackageCheck;
+
   return (
     <article
       className="sazo-home-dense-product"
@@ -868,7 +939,14 @@ function HomeDenseProductCard({ onOpen, product }: HomeDenseProductCardProps) {
             src={product.image}
             width={640}
           />
-          <em>{product.label}</em>
+          {showImageBadgeIcon && brandSource === undefined ? (
+            <em data-badge-tone={badgeTone}>
+              <BadgeIcon aria-hidden size={11} strokeWidth={2.5} />
+              <span>{product.label}</span>
+            </em>
+          ) : brandSource === undefined ? (
+            <em>{product.label}</em>
+          ) : null}
         </button>
         <button
           aria-label={`${product.name}の購入オプションを選ぶ`}
@@ -891,10 +969,29 @@ function HomeDenseProductCard({ onOpen, product }: HomeDenseProductCardProps) {
         onClick={onOpen}
         type="button"
       >
-        <strong>{product.name}</strong>
-        <span className="sazo-home-dense-product-price-before">
-          <em>{product.discount}</em>
-          <s>{product.originalPrice}</s>
+        {brandSource === "uniqlo" ? (
+          <span className="sazo-home-dense-product-title-row">
+            <img
+              alt="UNIQLO"
+              className="sazo-home-dense-product-brand-source"
+              data-brand-source="uniqlo"
+              decoding="async"
+              height={420}
+              src="/sazo-commerce/reference/uniqlo-logo.svg"
+              width={414}
+            />
+            <strong>{product.name}</strong>
+          </span>
+        ) : (
+          <strong>{product.name}</strong>
+        )}
+        <span
+          aria-hidden={hasDiscount ? undefined : true}
+          className="sazo-home-dense-product-price-before"
+          data-price-state={hasDiscount ? "discounted" : "regular"}
+        >
+          {hasDiscount ? <em>{product.discount}</em> : null}
+          {hasDiscount ? <s>{product.originalPrice}</s> : null}
         </span>
         <span className="sazo-home-dense-product-price-row">
           <b>{product.price}</b>
@@ -907,14 +1004,21 @@ function HomeDenseProductCard({ onOpen, product }: HomeDenseProductCardProps) {
 }
 
 export function JplanetRecommendationGrid({
+  brandSource,
   dispatch,
   heading = "おすすめ商品",
+  headingBrandSource,
   layout = "grid",
+  moreLabel,
+  onMore,
   products: productFeed = homeDenseProducts,
   productLimit,
+  productPresentation,
   sectionClassName = "sazo-home-dense-picks",
+  showImageBadgeIcon = false,
   testId,
 }: JplanetRecommendationGridProps) {
+  const { t } = useTranslation();
   const columnCount = useHomeDenseColumnCount();
   const visibleProducts =
     productLimit === undefined ? productFeed : productFeed.slice(0, productLimit);
@@ -933,10 +1037,30 @@ export function JplanetRecommendationGrid({
       data-mobile-picks-grid={
         sectionClassName === "sazo-home-dense-picks" ? true : undefined
       }
+      data-product-presentation={productPresentation}
       data-testid={testId}
     >
       <div className="sazo-home-dense-picks-heading">
-        <h2>{heading}</h2>
+        <h2 className={headingBrandSource === "uniqlo" ? "sazo-uniqlo-discovery-heading" : undefined}>
+          {headingBrandSource === "uniqlo" ? (
+            <img
+              alt=""
+              aria-hidden="true"
+              className="sazo-uniqlo-discovery-heading-mark"
+              data-brand-source="uniqlo"
+              decoding="async"
+              height={420}
+              src="/sazo-commerce/reference/uniqlo-logo.svg"
+              width={414}
+            />
+          ) : null}
+          <span>{heading}</span>
+        </h2>
+        {onMore ? (
+          <button className="sazo-more-link" onClick={onMore} type="button">
+            {moreLabel ?? t("sazo.home.more")}
+          </button>
+        ) : null}
       </div>
       <div
         className="sazo-home-dense-product-grid"
@@ -948,15 +1072,52 @@ export function JplanetRecommendationGrid({
           <div className="sazo-home-dense-product-column" key={columnIndex}>
             {column.map((product) => (
               <HomeDenseProductCard
+                brandSource={brandSource}
                 key={product.id}
                 onOpen={openProduct}
                 product={product}
+                showImageBadgeIcon={showImageBadgeIcon}
               />
             ))}
           </div>
         ))}
       </div>
     </section>
+  );
+}
+
+interface UniqloDiscoveryRailProps extends Pick<HomeViewProps, "dispatch"> {
+  sectionClassName: string;
+  showImageBadgeIcon?: boolean;
+  showBrandSource?: boolean;
+  testId: string;
+}
+
+function UniqloDiscoveryRail({
+  dispatch,
+  sectionClassName,
+  showImageBadgeIcon = false,
+  showBrandSource = false,
+  testId,
+}: UniqloDiscoveryRailProps) {
+  const { t } = useTranslation();
+
+  return (
+    <JplanetRecommendationGrid
+      dispatch={dispatch}
+      heading={t("sazo.home.uniqloDiscoveryTitle")}
+      headingBrandSource={showBrandSource ? "uniqlo" : undefined}
+      layout="rail"
+      onMore={() => {
+        dispatch({ type: "navigate", view: "ranking" });
+      }}
+      products={showImageBadgeIcon ? desktopUniqloDiscoveryProducts : uniqloDiscoveryProducts}
+      productPresentation="media-rail"
+      sectionClassName={sectionClassName}
+      brandSource={showBrandSource || showImageBadgeIcon ? "uniqlo" : undefined}
+      showImageBadgeIcon={showImageBadgeIcon}
+      testId={testId}
+    />
   );
 }
 
@@ -1055,7 +1216,12 @@ function DesktopHomeCategoryProductCatalog({
       </div>
       <div className="sazo-desktop-home-category-product-grid">
         {desktopHomeCatalogProducts.map((product) => (
-          <HomeDenseProductCard key={product.id} onOpen={openProduct} product={product} />
+          <HomeDenseProductCard
+            key={product.id}
+            onOpen={openProduct}
+            product={product}
+            showImageBadgeIcon
+          />
         ))}
       </div>
       <button
@@ -1249,152 +1415,948 @@ function DesktopHomeCommunity({ dispatch, state }: HomeViewProps) {
   );
 }
 
-function DesktopHomeView({ dispatch, state }: HomeViewProps) {
-  const { t } = useTranslation();
-  const heroSlides = getHeroSlidesForFeed(state.heroFeed);
-  const activeSlide = heroSlides[state.heroIndex] ?? heroSlides[0];
-  const activeImage =
-    state.heroIndex === 0
-      ? "/sazo-commerce/reference/japan-brazil-hero.png"
-      : activeSlide?.image;
-  const heroCount = heroSlides.length;
+const desktopAgentLensModes = ["url", "image", "product"] as const;
+const desktopAgentLensRoutes = [
+  { icon: PackageCheck, id: "recent", view: undefined },
+  { icon: Search, id: "popular", view: "ranking" },
+  { icon: Star, id: "reviews", view: "reviews" },
+] as const;
 
-  const goPrevious = () => {
-    for (let index = 1; index < heroCount; index += 1) {
-      dispatch({ type: "hero-next" });
+type DesktopAgentLensBackdropBanner = (typeof desktopAgentLensBackdropBanners)[number];
+
+interface DesktopAgentLensBackdropTileProps {
+  banner: DesktopAgentLensBackdropBanner;
+  onAction: () => void;
+}
+
+interface DesktopAgentLensBackdropTileMotion {
+  animationFrame: number | null;
+  currentX: number;
+  currentY: number;
+  targetX: number;
+  targetY: number;
+}
+
+const agentLensPointerSmoothing = 0.22;
+const agentLensPointerMaximumOffset = 2.6;
+const agentLensPointerMaximumTilt = 0.56;
+
+function DesktopAgentLensBackdropTile({
+  banner,
+  onAction,
+}: DesktopAgentLensBackdropTileProps) {
+  const tileRef = useRef<HTMLButtonElement>(null);
+  const motionRef = useRef<DesktopAgentLensBackdropTileMotion>({
+    animationFrame: null,
+    currentX: 0,
+    currentY: 0,
+    targetX: 0,
+    targetY: 0,
+  });
+
+  const supportsPointerMotion = (event: ReactPointerEvent<HTMLButtonElement>) =>
+    event.pointerType === "mouse" &&
+    window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const applyMotion = (tile: HTMLButtonElement, motion: DesktopAgentLensBackdropTileMotion) => {
+    tile.style.setProperty("--agent-lens-tile-pointer-x", `${motion.currentX.toFixed(2)}px`);
+    tile.style.setProperty("--agent-lens-tile-pointer-y", `${motion.currentY.toFixed(2)}px`);
+    tile.style.setProperty(
+      "--agent-lens-tile-rotate-x",
+      `${(-motion.currentY / agentLensPointerMaximumOffset) * agentLensPointerMaximumTilt}deg`,
+    );
+    tile.style.setProperty(
+      "--agent-lens-tile-rotate-y",
+      `${(motion.currentX / agentLensPointerMaximumOffset) * agentLensPointerMaximumTilt}deg`,
+    );
+  };
+
+  function animateMotion() {
+    const tile = tileRef.current;
+    const motion = motionRef.current;
+    if (!tile) {
+      motion.animationFrame = null;
+      return;
+    }
+
+    motion.currentX += (motion.targetX - motion.currentX) * agentLensPointerSmoothing;
+    motion.currentY += (motion.targetY - motion.currentY) * agentLensPointerSmoothing;
+    applyMotion(tile, motion);
+
+    const settled =
+      Math.abs(motion.targetX - motion.currentX) < 0.03 &&
+      Math.abs(motion.targetY - motion.currentY) < 0.03;
+
+    if (settled) {
+      motion.currentX = motion.targetX;
+      motion.currentY = motion.targetY;
+      applyMotion(tile, motion);
+      motion.animationFrame = null;
+      if (motion.targetX === 0 && motion.targetY === 0) {
+        tile.removeAttribute("data-agent-lens-pointer-active");
+      }
+      return;
+    }
+
+    motion.animationFrame = window.requestAnimationFrame(animateMotion);
+  }
+
+  const queueMotion = () => {
+    const motion = motionRef.current;
+    if (motion.animationFrame === null) {
+      motion.animationFrame = window.requestAnimationFrame(animateMotion);
     }
   };
 
+  const resetPointerMotion = () => {
+    const motion = motionRef.current;
+    motion.targetX = 0;
+    motion.targetY = 0;
+    queueMotion();
+  };
+
+  useEffect(() => {
+    return () => {
+      const motion = motionRef.current;
+      if (motion.animationFrame !== null) {
+        window.cancelAnimationFrame(motion.animationFrame);
+      }
+    };
+  }, []);
+
+  return (
+    <button
+      aria-label={banner.ariaLabel}
+      className={`sazo-desktop-agent-lens-backdrop-card sazo-desktop-agent-lens-backdrop-card--${banner.position} sazo-desktop-agent-lens-backdrop-card--${banner.id}`}
+      data-agent-lens-banner={banner.id}
+      onClick={onAction}
+      onPointerEnter={(event) => {
+        if (!supportsPointerMotion(event)) return;
+        event.currentTarget.setAttribute("data-agent-lens-pointer-active", "true");
+      }}
+      onPointerLeave={(event) => {
+        if (!supportsPointerMotion(event)) return;
+        resetPointerMotion();
+      }}
+      onPointerMove={(event) => {
+        if (!supportsPointerMotion(event)) return;
+
+        const rect = event.currentTarget.getBoundingClientRect();
+        const relativeX = Math.max(-1, Math.min(1, ((event.clientX - rect.left) / rect.width) * 2 - 1));
+        const relativeY = Math.max(-1, Math.min(1, ((event.clientY - rect.top) / rect.height) * 2 - 1));
+        const motion = motionRef.current;
+        motion.targetX = relativeX * agentLensPointerMaximumOffset;
+        motion.targetY = relativeY * agentLensPointerMaximumOffset;
+        event.currentTarget.setAttribute("data-agent-lens-pointer-active", "true");
+        queueMotion();
+      }}
+      ref={tileRef}
+      type="button"
+    >
+      <img
+        alt=""
+        aria-hidden="true"
+        className="sazo-desktop-agent-lens-backdrop-media"
+        decoding="async"
+        src={banner.image}
+      />
+      {banner.id === "coupon" ? (
+        <span aria-hidden="true" className="sazo-desktop-agent-lens-backdrop-coupon-copy">
+          <span className="sazo-desktop-agent-lens-backdrop-coupon-intro">
+            <strong>WELCOME COUPONS</strong>
+            <small>日本の商品をブラジルへ。8月31日まで。</small>
+          </span>
+          <span className="sazo-desktop-agent-lens-backdrop-coupon-tickets">
+            <span>
+              <small>商品クーポン</small>
+              <strong>R$ 20</strong>
+              <em>初回購入限定</em>
+            </span>
+            <span>
+              <small>配送料クーポン</small>
+              <strong>5%</strong>
+              <em>全ユーザー対象</em>
+            </span>
+          </span>
+        </span>
+      ) : null}
+      {banner.id === "chatgpt" ? (
+        <span aria-hidden="true" className="sazo-desktop-agent-lens-backdrop-openai-lockup">
+          <span className="sazo-desktop-agent-lens-backdrop-openai-brand">
+            <img alt="" className="sazo-desktop-agent-lens-backdrop-openai-blossom" src="/sazo-commerce/brand/openai-blossom-black.svg" />
+            <img alt="" className="sazo-desktop-agent-lens-backdrop-openai-wordmark" src="/sazo-commerce/brand/openai-wordmark-black.svg" />
+          </span>
+          <small>{banner.supportingCopy}</small>
+        </span>
+      ) : null}
+      {banner.id === "search" ? (
+        <span aria-hidden="true" className="sazo-desktop-agent-lens-backdrop-story-copy">
+          <strong>URL・画像で探す</strong>
+          <small>カメラで商品を確認</small>
+        </span>
+      ) : null}
+      {banner.id === "summer" ? (
+        <span aria-hidden="true" className="sazo-desktop-agent-lens-summer-copy">
+          <small>J-PLANET</small>
+          <strong>SUMMER<br />SALE</strong>
+          <em>人気商品がお得に!</em>
+        </span>
+      ) : null}
+      <span aria-hidden="true" className="sazo-desktop-agent-lens-backdrop-caption">
+        {banner.label}
+      </span>
+    </button>
+  );
+}
+
+interface DesktopRecentProductsPopoverProps extends Pick<HomeViewProps, "dispatch"> {
+  onClose: () => void;
+  open: boolean;
+  triggerRef: RefObject<HTMLButtonElement | null>;
+}
+
+function DesktopRecentProductsPopover({
+  dispatch,
+  onClose,
+  open,
+  triggerRef,
+}: DesktopRecentProductsPopoverProps) {
+  const [products, setProducts] = useState<AgentRecentViewedProduct[]>(() => [
+    ...agentRecentViewedProducts,
+  ]);
+  const [shouldRender, setShouldRender] = useState(open);
+  const [phase, setPhase] = useState<"entering" | "open" | "closing">(
+    open ? "open" : "closing",
+  );
+  const [hasOverflow, setHasOverflow] = useState(false);
+  const [panelTop, setPanelTop] = useState(104);
+  const panelRef = useRef<HTMLElement>(null);
+  const railRef = useRef<HTMLOListElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
+  const dragRef = useRef<{
+    pointerId: number;
+    startScrollLeft: number;
+    startX: number;
+  } | null>(null);
+  const suppressProductOpenRef = useRef(false);
+
+  useEffect(() => {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+
+    if (open) {
+      setShouldRender(true);
+      setPhase("entering");
+      const frame = window.requestAnimationFrame(() => setPhase("open"));
+      return () => window.cancelAnimationFrame(frame);
+    }
+
+    if (!shouldRender) return undefined;
+
+    setPhase("closing");
+    closeTimerRef.current = window.setTimeout(() => {
+      setShouldRender(false);
+      closeTimerRef.current = null;
+      triggerRef.current?.focus();
+    }, 190);
+
+    return () => {
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
+    };
+  }, [open, shouldRender, triggerRef]);
+
+  useEffect(() => {
+    if (!shouldRender || phase !== "open") return undefined;
+
+    const frame = window.requestAnimationFrame(() => panelRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [phase, shouldRender]);
+
+  useEffect(() => {
+    if (!shouldRender || phase === "closing") return undefined;
+
+    const closeWhenOutside = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (panelRef.current?.contains(target) || triggerRef.current?.contains(target)) return;
+      onClose();
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.addEventListener("pointerdown", closeWhenOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeWhenOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [onClose, phase, shouldRender, triggerRef]);
+
+  useEffect(() => {
+    if (!shouldRender) return undefined;
+
+    const updatePanelTop = () => {
+      const header = document.querySelector<HTMLElement>(".sazo-desktop-header");
+      setPanelTop(header ? Math.round(header.getBoundingClientRect().bottom + 16) : 104);
+    };
+
+    updatePanelTop();
+    window.addEventListener("resize", updatePanelTop);
+    return () => window.removeEventListener("resize", updatePanelTop);
+  }, [shouldRender]);
+
+  useEffect(() => {
+    if (!shouldRender) return undefined;
+
+    const rail = railRef.current;
+    if (!rail) return undefined;
+
+    const syncOverflow = () => setHasOverflow(rail.scrollWidth > rail.clientWidth + 1);
+    syncOverflow();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(syncOverflow);
+    observer?.observe(rail);
+    window.addEventListener("resize", syncOverflow);
+
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", syncOverflow);
+    };
+  }, [products, shouldRender]);
+
+  const handleRailWheel = useCallback((event: ReactWheelEvent<HTMLOListElement>) => {
+    const rail = event.currentTarget;
+    if (rail.scrollWidth <= rail.clientWidth || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) {
+      return;
+    }
+
+    rail.scrollLeft += event.deltaY;
+    event.preventDefault();
+  }, []);
+
+  const handleRailPointerDown = useCallback((event: ReactPointerEvent<HTMLOListElement>) => {
+    const rail = event.currentTarget;
+    if (
+      event.pointerType === "touch" ||
+      rail.scrollWidth <= rail.clientWidth ||
+      (event.target as HTMLElement).closest("button")
+    ) {
+      return;
+    }
+
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startScrollLeft: rail.scrollLeft,
+      startX: event.clientX,
+    };
+    suppressProductOpenRef.current = false;
+    rail.setPointerCapture(event.pointerId);
+  }, []);
+
+  const handleRailPointerMove = useCallback((event: ReactPointerEvent<HTMLOListElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    const offset = event.clientX - drag.startX;
+    if (Math.abs(offset) > 4) suppressProductOpenRef.current = true;
+    event.currentTarget.scrollLeft = drag.startScrollLeft - offset;
+  }, []);
+
+  const stopRailDrag = useCallback((event: ReactPointerEvent<HTMLOListElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    dragRef.current = null;
+  }, []);
+
+  if (!shouldRender || typeof document === "undefined") return null;
+
+  return createPortal(
+    <section
+      aria-labelledby="desktop-recent-products-title"
+      aria-modal="false"
+      className="sazo-desktop-recent-products-popover"
+      data-overflow={hasOverflow ? "true" : "false"}
+      data-state={phase}
+      id="desktop-recent-products-popover"
+      ref={panelRef}
+      role="dialog"
+      style={{ "--sazo-recent-products-top": `${panelTop}px` } as CSSProperties}
+      tabIndex={-1}
+    >
+      <header className="sazo-desktop-recent-products-popover-header">
+        <h2 id="desktop-recent-products-title">最近見た商品</h2>
+        <button
+          aria-label="最近見た商品をすべて削除"
+          disabled={products.length === 0}
+          onClick={() => setProducts([])}
+          type="button"
+        >
+          削除
+        </button>
+      </header>
+
+      {products.length > 0 ? (
+        <ol
+          aria-label="最近見た商品"
+          className="sazo-desktop-recent-products-popover-rail"
+          onPointerCancel={stopRailDrag}
+          onPointerDown={handleRailPointerDown}
+          onPointerMove={handleRailPointerMove}
+          onPointerUp={stopRailDrag}
+          onWheel={handleRailWheel}
+          ref={railRef}
+        >
+          {products.map((product) => (
+            <li key={product.id}>
+              <button
+                aria-label={`${product.name}の商品を見る`}
+                className="sazo-desktop-recent-products-popover-card"
+                onClick={() => {
+                  if (suppressProductOpenRef.current) {
+                    suppressProductOpenRef.current = false;
+                    return;
+                  }
+                  onClose();
+                  dispatch({ type: "open-product", productId: product.id });
+                }}
+                type="button"
+              >
+                <span className="sazo-desktop-recent-products-popover-media">
+                  <img alt="" decoding="async" src={product.image} />
+                </span>
+                <strong>{product.name}</strong>
+                <em>{product.price}</em>
+              </button>
+              <button
+                aria-label={`${product.name}を最近見た商品から削除`}
+                className="sazo-desktop-recent-products-popover-remove"
+                onClick={() =>
+                  setProducts((items) => items.filter((item) => item.id !== product.id))
+                }
+                type="button"
+              >
+                <X aria-hidden size={17} strokeWidth={2.3} />
+              </button>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className="sazo-desktop-recent-products-popover-empty">最近見た商品はありません</p>
+      )}
+    </section>,
+    document.body,
+  );
+}
+
+export interface DesktopAgentSearchHistoryPopoverProps extends Pick<HomeViewProps, "dispatch"> {
+  id?: string;
+  onClose: () => void;
+  open: boolean;
+  presentation?: "header" | "lens";
+  triggerRef: RefObject<HTMLInputElement | null>;
+}
+
+/**
+ * The central Lens search keeps its history in an independent portal so that
+ * its content never changes the oval's dimensions or gets clipped by the Lens.
+ */
+export function DesktopAgentSearchHistoryPopover({
+  dispatch,
+  id = "desktop-agent-search-history-popover",
+  onClose,
+  open,
+  presentation = "lens",
+  triggerRef,
+}: DesktopAgentSearchHistoryPopoverProps) {
+  const [searches, setSearches] = useState<AgentRecentSearch[]>(() => [...agentRecentSearches]);
+  const [products, setProducts] = useState<AgentRecentViewedProduct[]>(() => [
+    ...agentRecentViewedProducts,
+  ]);
+  const [shouldRender, setShouldRender] = useState(open);
+  const [phase, setPhase] = useState<"entering" | "open" | "closing">(
+    open ? "open" : "closing",
+  );
+  const [position, setPosition] = useState({ left: 50, top: 0, width: 640 });
+  const panelRef = useRef<HTMLElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+
+    if (open) {
+      setShouldRender(true);
+      setPhase("entering");
+      const frame = window.requestAnimationFrame(() => setPhase("open"));
+      return () => window.cancelAnimationFrame(frame);
+    }
+
+    if (!shouldRender) return undefined;
+
+    setPhase("closing");
+    closeTimerRef.current = window.setTimeout(() => {
+      setShouldRender(false);
+      closeTimerRef.current = null;
+    }, 220);
+
+    return () => {
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
+    };
+  }, [open, shouldRender]);
+
+  useEffect(() => {
+    if (!shouldRender || phase === "closing") return undefined;
+
+    const closeWhenOutside = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (panelRef.current?.contains(target) || triggerRef.current?.contains(target)) return;
+      onClose();
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.addEventListener("pointerdown", closeWhenOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeWhenOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [onClose, phase, shouldRender, triggerRef]);
+
+  useEffect(() => {
+    if (!shouldRender) return undefined;
+
+    const updatePosition = () => {
+      const trigger = triggerRef.current;
+      if (!trigger) return;
+      // The visible search field includes the input, camera, and submit
+      // controls.  Positioning against the form (rather than its text input)
+      // keeps the history panel centered and as wide as that complete field.
+      const anchor = trigger.closest("form") ?? trigger;
+      const rect = anchor.getBoundingClientRect();
+      setPosition({
+        left: Math.round(rect.left + rect.width / 2),
+        top: Math.round(rect.bottom + 12),
+        width: Math.round(rect.width),
+      });
+    };
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [shouldRender, triggerRef]);
+
+  if (!shouldRender || typeof document === "undefined") return null;
+
+  const titleId = `${id}-title`;
+
+  return createPortal(
+    <section
+      aria-labelledby={titleId}
+      aria-modal="false"
+      className="sazo-desktop-agent-search-history-popover"
+      data-presentation={presentation}
+      data-state={phase}
+      id={id}
+      ref={panelRef}
+      role="dialog"
+      style={
+        {
+          "--sazo-agent-search-history-left": `${position.left}px`,
+          "--sazo-agent-search-history-top": `${position.top}px`,
+          "--sazo-agent-search-history-width": `${position.width}px`,
+        } as CSSProperties
+      }
+    >
+      <div className="sazo-desktop-agent-search-history-section">
+        <header className="sazo-desktop-agent-search-history-header">
+          <h2 id={titleId}>最近の検索</h2>
+          <button
+            aria-label="検索履歴をすべて削除"
+            disabled={searches.length === 0}
+            onClick={() => setSearches([])}
+            type="button"
+          >
+            履歴を削除
+          </button>
+        </header>
+        {searches.length > 0 ? (
+          <ul aria-label="最近の検索" className="sazo-desktop-agent-search-history-chips">
+            {searches.map((search) => (
+              <li key={search.id}>
+                <button
+                  onClick={() => {
+                    onClose();
+                    dispatch({
+                      type: "start-agent-search",
+                      request: { imageName: null, summary: search.label },
+                    });
+                  }}
+                  type="button"
+                >
+                  <Search aria-hidden size={16} strokeWidth={2.2} />
+                  {search.label}
+                </button>
+                <button
+                  aria-label={`${search.label}を検索履歴から削除`}
+                  className="sazo-desktop-agent-search-history-chip-remove"
+                  onClick={() => setSearches((items) => items.filter((item) => item.id !== search.id))}
+                  type="button"
+                >
+                  <X aria-hidden size={14} strokeWidth={2.35} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="sazo-desktop-agent-search-history-empty">検索履歴はありません</p>
+        )}
+      </div>
+
+      <div className="sazo-desktop-agent-search-history-section sazo-desktop-agent-search-history-products">
+        <header className="sazo-desktop-agent-search-history-header">
+          <h2>最近見た商品</h2>
+          <button
+            aria-label="最近見た商品をすべて削除"
+            disabled={products.length === 0}
+            onClick={() => setProducts([])}
+            type="button"
+          >
+            削除
+          </button>
+        </header>
+        {products.length > 0 ? (
+          <ol aria-label="最近見た商品" className="sazo-desktop-agent-search-history-products-rail">
+            {products.map((product) => (
+              <li key={product.id}>
+                <button
+                  aria-label={`${product.name}の商品を見る`}
+                  className="sazo-desktop-agent-search-history-product"
+                  onClick={() => {
+                    onClose();
+                    dispatch({ type: "open-product", productId: product.id });
+                  }}
+                  type="button"
+                >
+                  <span>
+                    <img alt="" decoding="async" src={product.image} />
+                  </span>
+                  <strong>{product.name}</strong>
+                  <em>{product.price}</em>
+                </button>
+                <button
+                  aria-label={`${product.name}を最近見た商品から削除`}
+                  className="sazo-desktop-agent-search-history-product-remove"
+                  onClick={() => setProducts((items) => items.filter((item) => item.id !== product.id))}
+                  type="button"
+                >
+                  <X aria-hidden size={15} strokeWidth={2.3} />
+                </button>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="sazo-desktop-agent-search-history-empty">最近見た商品はありません</p>
+        )}
+      </div>
+    </section>,
+    document.body,
+  );
+}
+
+function DesktopAgentLens({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+  const { t } = useTranslation();
+  const [mode, setMode] = useState<(typeof desktopAgentLensModes)[number]>("url");
+  const [searchHistoryOpen, setSearchHistoryOpen] = useState(false);
+  const controlRef = useRef<HTMLDivElement>(null);
+  const searchHistoryTriggerRef = useRef<HTMLInputElement>(null);
+  const controlHighlightFrameRef = useRef<number | null>(null);
+  const controlHighlightPositionRef = useRef({ x: 50, y: 42 });
+  const surfaceHighlightPositionRef = useRef({ x: 50, y: 50 });
+  const surfaceHighlightTargetRef = useRef<HTMLElement | null>(null);
+  const evidence = [
+    { icon: Search, id: "identify" },
+    { icon: Store, id: "seller" },
+    { icon: ShieldCheck, id: "customs" },
+    { icon: Box, id: "estimate" },
+  ] as const;
+
+  useEffect(() => {
+    return () => {
+      if (controlHighlightFrameRef.current !== null) {
+        window.cancelAnimationFrame(controlHighlightFrameRef.current);
+      }
+    };
+  }, []);
+
+  const updateControlHighlight = useCallback(() => {
+    controlHighlightFrameRef.current = null;
+    const control = controlRef.current;
+    if (!control) return;
+
+    control.style.setProperty("--agent-lens-glass-x", `${controlHighlightPositionRef.current.x}%`);
+    control.style.setProperty("--agent-lens-glass-y", `${controlHighlightPositionRef.current.y}%`);
+
+    const surface = surfaceHighlightTargetRef.current;
+    if (surface) {
+      surface.style.setProperty("--agent-lens-surface-x", `${surfaceHighlightPositionRef.current.x}%`);
+      surface.style.setProperty("--agent-lens-surface-y", `${surfaceHighlightPositionRef.current.y}%`);
+    }
+  }, []);
+
+  const handleControlPointerMove = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (
+        event.pointerType === "touch" ||
+        window.matchMedia("(pointer: coarse)").matches ||
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        return;
+      }
+
+      const rect = event.currentTarget.getBoundingClientRect();
+      controlHighlightPositionRef.current = {
+        x: Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100)),
+        y: Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100)),
+      };
+
+      const surface =
+        event.target instanceof Element
+          ? event.target.closest<HTMLElement>("[data-agent-lens-liquid-glass]")
+          : null;
+
+      if (surface && event.currentTarget.contains(surface)) {
+        if (surfaceHighlightTargetRef.current && surfaceHighlightTargetRef.current !== surface) {
+          surfaceHighlightTargetRef.current.style.setProperty("--agent-lens-surface-x", "50%");
+          surfaceHighlightTargetRef.current.style.setProperty("--agent-lens-surface-y", "50%");
+        }
+
+        const surfaceRect = surface.getBoundingClientRect();
+        surfaceHighlightTargetRef.current = surface;
+        surfaceHighlightPositionRef.current = {
+          x: Math.max(0, Math.min(100, ((event.clientX - surfaceRect.left) / surfaceRect.width) * 100)),
+          y: Math.max(0, Math.min(100, ((event.clientY - surfaceRect.top) / surfaceRect.height) * 100)),
+        };
+      }
+
+      if (controlHighlightFrameRef.current === null) {
+        controlHighlightFrameRef.current = window.requestAnimationFrame(updateControlHighlight);
+      }
+    },
+    [updateControlHighlight],
+  );
+
+  const resetControlHighlight = useCallback(() => {
+    controlHighlightPositionRef.current = { x: 50, y: 42 };
+    surfaceHighlightPositionRef.current = { x: 50, y: 50 };
+    controlRef.current
+      ?.querySelectorAll<HTMLElement>("[data-agent-lens-liquid-glass]")
+      .forEach((surface) => {
+        surface.style.setProperty("--agent-lens-surface-x", "50%");
+        surface.style.setProperty("--agent-lens-surface-y", "50%");
+      });
+    surfaceHighlightTargetRef.current = null;
+    if (controlHighlightFrameRef.current === null) {
+      controlHighlightFrameRef.current = window.requestAnimationFrame(updateControlHighlight);
+    }
+  }, [updateControlHighlight]);
+
+  const handleBackdropAction = useCallback(
+    (action: DesktopAgentLensBackdropBanner["action"]) => {
+      if (action === "campaign") {
+        dispatch({ type: "open-campaign" });
+        return;
+      }
+      if (action === "chatgpt") {
+        window.open("https://chatgpt.com/", "_blank", "noopener,noreferrer");
+        return;
+      }
+      dispatch({ type: "navigate", view: action === "coupons" ? "coupons" : "categories" });
+    },
+    [dispatch],
+  );
+
+  return (
+    <section
+      aria-label={t("sazo.desktopHome.lens.label")}
+      className="sazo-desktop-agent-lens"
+      data-testid="desktop-agent-lens"
+    >
+      <div className="sazo-desktop-agent-lens-backdrop">
+        {desktopAgentLensBackdropBanners.map((banner) => (
+          <DesktopAgentLensBackdropTile
+            banner={banner}
+            key={banner.id}
+            onAction={() => handleBackdropAction(banner.action)}
+          />
+        ))}
+      </div>
+
+      <div
+        className="sazo-desktop-agent-lens-control"
+        onPointerLeave={resetControlHighlight}
+        onPointerMove={handleControlPointerMove}
+        ref={controlRef}
+      >
+        <div
+          aria-label={t("sazo.desktopHome.lens.inputModes")}
+          className="sazo-desktop-agent-lens-tabs"
+          data-agent-lens-liquid-glass="tabs"
+          role="tablist"
+        >
+          {desktopAgentLensModes.map((item) => (
+            <button
+              aria-selected={mode === item}
+              id={`desktop-agent-lens-${item}-tab`}
+              key={item}
+              onClick={() => {
+                setMode(item);
+              }}
+              role="tab"
+              type="button"
+            >
+              {t(`sazo.desktopHome.lens.tabs.${item}`)}
+            </button>
+          ))}
+        </div>
+        <h1>{t("sazo.desktopHome.lens.title")}</h1>
+        <p>{t("sazo.desktopHome.lens.description")}</p>
+        <DesktopAgentSearchForm
+          className="sazo-desktop-agent-lens-search"
+          dispatch={dispatch}
+          historyControls="desktop-agent-search-history-popover"
+          historyExpanded={searchHistoryOpen}
+          inputRef={searchHistoryTriggerRef}
+          liquidGlass
+          mode={mode}
+          onInputActivate={() => setSearchHistoryOpen(true)}
+        />
+        <div
+          aria-label={t("sazo.desktopHome.lens.evidenceLabel")}
+          className="sazo-desktop-agent-lens-evidence"
+          data-agent-lens-liquid-glass="evidence"
+        >
+          {evidence.map(({ icon: Icon, id }) => (
+            <span key={id}>
+              <Icon aria-hidden size={17} strokeWidth={2} />
+              {t(`sazo.desktopHome.lens.evidence.${id}`)}
+            </span>
+          ))}
+        </div>
+        <small>{t("sazo.desktopHome.lens.note")}</small>
+      </div>
+      <DesktopAgentSearchHistoryPopover
+        dispatch={dispatch}
+        onClose={() => setSearchHistoryOpen(false)}
+        open={searchHistoryOpen}
+        presentation="lens"
+        triggerRef={searchHistoryTriggerRef}
+      />
+
+    </section>
+  );
+}
+
+function DesktopHomeView({ dispatch, state }: HomeViewProps) {
+  const { t } = useTranslation();
+  const [recentProductsOpen, setRecentProductsOpen] = useState(false);
+  const recentProductsTriggerRef = useRef<HTMLButtonElement>(null);
+
   return (
     <div className="sazo-desktop-home" data-desktop-home-view>
-      <section
-        aria-label={t("sazo.desktopHome.heroLabel")}
-        className="sazo-desktop-home-stage"
-      >
-        <aside
-          aria-hidden
-          className="sazo-desktop-home-neighbor sazo-desktop-home-neighbor--left"
-        >
-          <span>{t("sazo.desktopHome.sideBanner")}</span>
-          <b>{t("sazo.desktopHome.sideBannerEmphasis")}</b>
-        </aside>
+      <DesktopAgentLens dispatch={dispatch} />
 
-        <article
-          className="sazo-desktop-home-hero"
-          data-active-hero={activeSlide?.id}
-          data-primary-hero={state.heroIndex === 0}
-        >
-          {activeImage === undefined ? null : (
-            <img alt="" aria-hidden decoding="async" src={activeImage} />
-          )}
-          <div className="sazo-desktop-home-hero-copy">
-            <span>{t("sazo.desktopHome.heroEyebrow")}</span>
-            <h1>{t("sazo.desktopHome.heroTitle")}</h1>
-            <p>{t("sazo.desktopHome.heroBody")}</p>
-          </div>
-          <button
-            aria-label={t("sazo.home.previousBanner")}
-            className="sazo-desktop-home-hero-arrow sazo-desktop-home-hero-arrow--previous"
-            onClick={goPrevious}
-            type="button"
-          >
-            <ChevronLeft aria-hidden size={24} strokeWidth={2.3} />
-          </button>
-          <button
-            aria-label={t("sazo.home.nextBanner")}
-            className="sazo-desktop-home-hero-arrow sazo-desktop-home-hero-arrow--next"
-            onClick={() => {
-              dispatch({ type: "hero-next" });
-            }}
-            type="button"
-          >
-            <ChevronRight aria-hidden size={24} strokeWidth={2.3} />
-          </button>
-          <div
-            aria-label={t("sazo.desktopHome.carouselStatus")}
-            className="sazo-desktop-home-hero-dots"
-          >
-            {heroSlides.map((slide, index) => (
-              <span aria-current={index === state.heroIndex} key={slide.id} />
-            ))}
-          </div>
-        </article>
+      <div className="sazo-desktop-home-ec-content">
+        <section aria-label={t("sazo.desktopHome.lens.routesLabel")} className="sazo-desktop-agent-lens-routes">
+          {desktopAgentLensRoutes.map(({ icon: Icon, id, view }) => (
+            <button
+              aria-controls={id === "recent" ? "desktop-recent-products-popover" : undefined}
+              aria-expanded={id === "recent" ? recentProductsOpen : undefined}
+              aria-haspopup={id === "recent" ? "dialog" : undefined}
+              key={id}
+              onClick={() => {
+                if (id === "recent") {
+                  setRecentProductsOpen((open) => !open);
+                  return;
+                }
+                if (view) dispatch({ type: "navigate", view });
+              }}
+              ref={id === "recent" ? recentProductsTriggerRef : undefined}
+              type="button"
+            >
+              <Icon aria-hidden size={21} strokeWidth={2} />
+              <span>
+                <strong>{t(`sazo.desktopHome.lens.routes.${id}.title`)}</strong>
+                <small>{t(`sazo.desktopHome.lens.routes.${id}.body`)}</small>
+              </span>
+              <ChevronRight aria-hidden size={19} strokeWidth={2.1} />
+            </button>
+          ))}
+        </section>
 
-        <aside className="sazo-desktop-home-evidence">
-          <button
-            aria-label={t("sazo.desktopHome.couponBannerCta")}
-            className="sazo-desktop-home-coupon-banner"
-            data-testid="desktop-home-coupon-banner"
-            onClick={() => {
-              dispatch({ type: "navigate", view: "coupons" });
-            }}
-            type="button"
-          >
-            <img
-              alt=""
-              aria-hidden
-              decoding="async"
-              src="/sazo-commerce/campaign/jplanet-coupon-banner.svg"
-            />
-          </button>
-          <button
-            aria-label={t("sazo.desktopHome.agentCta")}
-            className="sazo-desktop-home-agent-cta"
-            data-testid="desktop-home-agent-cta"
-            onClick={() => {
-              dispatch({ type: "open-agent-hub", intent: "compose" });
-            }}
-            type="button"
-          >
-            <Sparkles aria-hidden size={30} strokeWidth={1.8} />
-            <span>
-              <strong>{t("sazo.desktopHome.agentCta")}</strong>
-              <small>{t("sazo.desktopHome.agentCtaBody")}</small>
-            </span>
-            <ChevronRight aria-hidden size={21} strokeWidth={2} />
-          </button>
-        </aside>
-
-        <aside
-          aria-hidden
-          className="sazo-desktop-home-neighbor sazo-desktop-home-neighbor--right"
-        >
-          <span>{t("sazo.desktopHome.sideBannerGuide")}</span>
-          <b>{t("sazo.desktopHome.sideBannerGuideEmphasis")}</b>
-          <ChevronRight aria-hidden size={18} strokeWidth={2.1} />
-        </aside>
-      </section>
-
-      <DesktopHomeShortcutRow dispatch={dispatch} />
-
-      <section className="sazo-desktop-home-products">
-        <div className="sazo-desktop-home-products-heading">
-          <h2>{t("sazo.desktopHome.productsTitle")}</h2>
-          <button
-            onClick={() => {
-              dispatch({ type: "navigate", view: "ranking" });
-            }}
-            type="button"
-          >
-            {t("sazo.home.more")}
-            <ChevronRight aria-hidden size={18} strokeWidth={2.2} />
-          </button>
-        </div>
-        <JplanetRecommendationGrid
+        <DesktopRecentProductsPopover
           dispatch={dispatch}
-          heading={t("sazo.desktopHome.productsTitle")}
-          layout="rail"
-          productLimit={6}
-          sectionClassName="sazo-desktop-home-product-rail"
-          testId="desktop-home-product-rail"
+          onClose={() => setRecentProductsOpen(false)}
+          open={recentProductsOpen}
+          triggerRef={recentProductsTriggerRef}
         />
-      </section>
 
-      <DesktopHomeCommunity dispatch={dispatch} state={state} />
+        <section className="sazo-desktop-home-products">
+          <div className="sazo-desktop-home-products-heading">
+            <h2>{t("sazo.desktopHome.productsTitle")}</h2>
+            <button
+              onClick={() => {
+                dispatch({ type: "navigate", view: "ranking" });
+              }}
+              type="button"
+            >
+              {t("sazo.home.more")}
+              <ChevronRight aria-hidden size={18} strokeWidth={2.2} />
+            </button>
+          </div>
+          <JplanetRecommendationGrid
+            dispatch={dispatch}
+            heading={t("sazo.desktopHome.productsTitle")}
+            layout="rail"
+            productLimit={6}
+            sectionClassName="sazo-desktop-home-product-rail"
+            showImageBadgeIcon
+            testId="desktop-home-product-rail"
+          />
+        </section>
 
-      <DesktopHomeCategoryGrid dispatch={dispatch} />
+        <DesktopHomeCommunity dispatch={dispatch} state={state} />
 
-      <DesktopHomeCategoryProductCatalog dispatch={dispatch} />
+        <UniqloDiscoveryRail
+          dispatch={dispatch}
+          sectionClassName="sazo-desktop-home-uniqlo-discovery"
+          showImageBadgeIcon
+          testId="desktop-home-uniqlo-discovery"
+        />
+
+        <DesktopHomeCategoryGrid dispatch={dispatch} />
+
+        <DesktopHomeCategoryProductCatalog dispatch={dispatch} />
+      </div>
     </div>
   );
 }
@@ -1667,7 +2629,11 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
   const mobileHome = useMobileHome();
 
   return (
-    <div className="sazo-home" data-home-view>
+    <div
+      className="sazo-home sazo-home-polish--motion"
+      data-home-polish="option-two"
+      data-home-view
+    >
       {mobileHome ? (
         <>
           <HeroCarousel
@@ -1679,6 +2645,12 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
           <MobileCouponBanner dispatch={dispatch} />
           <ReviewStrip dispatch={dispatch} state={state} title="利用者レビュー" />
           <MobileGramGrid dispatch={dispatch} />
+          <UniqloDiscoveryRail
+            dispatch={dispatch}
+            sectionClassName="sazo-mobile-home-uniqlo-discovery"
+            showBrandSource
+            testId="mobile-home-uniqlo-discovery"
+          />
           <JplanetRecommendationGrid
             dispatch={dispatch}
             products={homeDenseProductFeed}

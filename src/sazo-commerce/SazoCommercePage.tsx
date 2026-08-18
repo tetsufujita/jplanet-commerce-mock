@@ -25,21 +25,50 @@ import { CartView } from "@/sazo-commerce/CartView";
 import { CheckoutView } from "@/sazo-commerce/CheckoutView";
 import { CampaignView } from "@/sazo-commerce/CampaignView";
 import { ChatPanel } from "@/sazo-commerce/ChatPanel";
-import { BeautyView } from "@/sazo-commerce/BeautyView";
 import { CategoriesView } from "@/sazo-commerce/DirectoryViews";
 import { RankingView, ReviewsView } from "@/sazo-commerce/EditorialViews";
 import { HomeView } from "@/sazo-commerce/HomeView";
+import { SkincareCatalogView } from "@/sazo-commerce/SkincareCatalogView";
 import { MobileAgentHubView } from "@/sazo-commerce/MobileAgentHubView";
 import { AgentSearchLoadingView } from "@/sazo-commerce/AgentSearchLoadingView";
+import { AgentImageResolutionView } from "@/sazo-commerce/AgentImageResolutionView";
+import { AiSearchView } from "@/sazo-commerce/AiSearchView";
 import { GramCatalogView, GramDetailView } from "@/sazo-commerce/GramView";
+import { ImageResolvedNewBalanceDetail } from "@/sazo-commerce/ImageResolvedNewBalanceDetail";
 import { ProductDetailView } from "@/sazo-commerce/ProductDetailView";
+import { imageSearchResolvedNewBalanceProductId } from "@/sazo-commerce/imageProductResolutionFixtures";
 import { JplanetBrandDetailView, JplanetBrandsView } from "@/sazo-commerce/JplanetBrandViews";
 import { SazoShell } from "@/sazo-commerce/SazoShell";
 import { ServiceView } from "@/sazo-commerce/ServiceView";
 import { createInitialSazoState, sazoReducer } from "@/sazo-commerce/model";
 import "@/sazo-commerce/coupons.css";
 import "@/sazo-commerce/sazo.css";
+import "@/sazo-commerce/section-flow.css";
 import "@/sazo-commerce/responsive.css";
+
+function useMobileViewport() {
+  const readMatch = () => {
+    if (typeof window === "undefined") return false;
+    // JSDOM does not expose matchMedia; tests exercise the mobile-only route.
+    if (typeof window.matchMedia !== "function") return true;
+    return window.matchMedia("(max-width: 767px)").matches;
+  };
+  const [isMobileViewport, setIsMobileViewport] = useState(readMatch);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return undefined;
+    }
+
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobileViewport(mediaQuery.matches);
+    update();
+    mediaQuery.addEventListener("change", update);
+    return () => mediaQuery.removeEventListener("change", update);
+  }, []);
+
+  return isMobileViewport;
+}
 
 export function SazoCommercePage() {
   const [state, dispatch] = useReducer(sazoReducer, undefined, () =>
@@ -50,6 +79,9 @@ export function SazoCommercePage() {
   const brandDetailScrollTopRef = useRef<number | null>(null);
   const previousViewRef = useRef(state.view);
   const authPageActive = state.authStep !== "provider" && state.view === "home";
+  const isMobileViewport = useMobileViewport();
+  const renderedView =
+    isMobileViewport && state.view === "agent-hub" ? "ai-search" : state.view;
 
   useEffect(() => {
     const previousView = previousViewRef.current;
@@ -161,25 +193,40 @@ export function SazoCommercePage() {
       data-loading-surface={state.loadingSurface}
       data-overlay={state.overlay}
       data-review-feed={state.reviewFeed}
-      data-view={state.view}
+      data-view={renderedView}
     >
       {authPageActive ? (
         <AuthFlow authStep={state.authStep} dispatch={dispatch} />
       ) : (
-        <SazoShell dispatch={dispatch} state={state}>
+        <SazoShell
+          dispatch={dispatch}
+          isMobileViewport={isMobileViewport}
+          state={state}
+        >
           {state.view === "home" ? <HomeView dispatch={dispatch} state={state} /> : null}
-          {state.view === "beauty" ? (
-            <BeautyView categoryId={state.directoryCategory} dispatch={dispatch} />
-          ) : null}
           {state.view === "agent-hub" ? (
-            <MobileAgentHubView
-              dispatch={dispatch}
-              entryIntent={state.agentEntryIntent}
-              scenario={state.agentHubScenario}
-            />
+            isMobileViewport ? (
+              <AiSearchView dispatch={dispatch} state={state} />
+            ) : (
+              <MobileAgentHubView
+                dispatch={dispatch}
+                entryIntent={state.agentEntryIntent}
+                scenario={state.agentHubScenario}
+              />
+            )
+          ) : null}
+          {state.view === "ai-search" && isMobileViewport ? (
+            <AiSearchView dispatch={dispatch} state={state} />
           ) : null}
           {state.view === "agent-searching" && state.agentSearchRequest !== null ? (
             <AgentSearchLoadingView dispatch={dispatch} request={state.agentSearchRequest} />
+          ) : null}
+          {state.view === "agent-image-resolution" && state.agentSearchRequest !== null ? (
+            isMobileViewport ? (
+              <AgentImageResolutionView dispatch={dispatch} request={state.agentSearchRequest} />
+            ) : (
+              <AgentSearchLoadingView dispatch={dispatch} request={state.agentSearchRequest} />
+            )
           ) : null}
           {state.view === "agent-designs" ? <AgentDesignCandidatesView /> : null}
           {state.view === "agent-first" ? <AgentFirstPrototypeView /> : null}
@@ -195,6 +242,9 @@ export function SazoCommercePage() {
           ) : null}
           {state.view === "categories" ? (
             <CategoriesView dispatch={dispatch} state={state} />
+          ) : null}
+          {state.view === "skincare-catalog" ? (
+            <SkincareCatalogView dispatch={dispatch} />
           ) : null}
           {state.view === "catalog" ? (
             <CatalogView dispatch={dispatch} state={state} />
@@ -222,11 +272,16 @@ export function SazoCommercePage() {
             <ReviewsView dispatch={dispatch} state={state} />
           ) : null}
           {state.view === "product" ? (
-            <ProductDetailView
-              dispatch={dispatch}
-              key={state.selectedProductId ?? "default-product"}
-              productId={state.selectedProductId}
-            />
+            state.selectedProductId === imageSearchResolvedNewBalanceProductId &&
+            isMobileViewport ? (
+              <ImageResolvedNewBalanceDetail dispatch={dispatch} />
+            ) : (
+              <ProductDetailView
+                dispatch={dispatch}
+                key={state.selectedProductId ?? "default-product"}
+                productId={state.selectedProductId}
+              />
+            )
           ) : null}
           {state.view === "mypage" ? (
             <MyPageView couponCount={state.couponOwnedIds.length} dispatch={dispatch} />

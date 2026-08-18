@@ -68,3 +68,7 @@ design/reproductions/**/*-dom.html
 design/reference/higgsfield-req/
 design/reproductions/sazo-commerce/qa/actual/
 design/reproductions/sazo-commerce/qa/compare/
+
+# Xcode user-specific files
+ios/**/xcuserdata/
+ios/**/*.xcuserstate

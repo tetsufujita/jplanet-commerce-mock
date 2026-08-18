@@ -12,12 +12,15 @@ import { CatalogView } from "@/sazo-commerce/CatalogView";
 import { CampaignView } from "@/sazo-commerce/CampaignView";
 import { CategoriesView, BrandsView } from "@/sazo-commerce/DirectoryViews";
 import { RankingView, ReviewsView } from "@/sazo-commerce/EditorialViews";
+import { MobileAgentHubView } from "@/sazo-commerce/MobileAgentHubView";
 import { ProductCard } from "@/sazo-commerce/ProductCard";
 import { SazoCommercePage } from "@/sazo-commerce/SazoCommercePage";
+import { SkincareCatalogView } from "@/sazo-commerce/SkincareCatalogView";
 import { products } from "@/sazo-commerce/fixtures";
 import {
   createInitialSazoState,
   type CatalogMode,
+  type SazoAction,
   type SazoState,
 } from "@/sazo-commerce/model";
 import { ServiceView } from "@/sazo-commerce/ServiceView";
@@ -66,7 +69,42 @@ function openCatalogFromCategoryDirectory(category: string) {
   fireEvent.click(screen.getByRole("button", { name: category }));
 }
 
+function MobileCategoryDirectoryHarness() {
+  const [state, setState] = React.useState<SazoState>({
+    ...createInitialSazoState(),
+    view: "categories",
+  });
+
+  const dispatch = (action: SazoAction) => {
+    if (action.type === "select-directory-category") {
+      setState((current) => ({ ...current, directoryCategory: action.category }));
+    }
+  };
+
+  return <CategoriesView dispatch={dispatch} state={state} />;
+}
+
 describe("SAZO captured view contracts", () => {
+  it("removes generic mobile divider bands without changing cart checkout boundaries", () => {
+    const css = readFileSync(
+      join(process.cwd(), "src/sazo-commerce/section-flow.css"),
+      "utf8",
+    );
+    const cleanupStart = css.lastIndexOf("/* Mobile section continuity:");
+    const cleanup = css.slice(cleanupStart);
+
+    expect(cleanupStart).toBeGreaterThanOrEqual(0);
+    expect(cleanup).toContain(
+      '.sazo-root[data-view="product"] .sazo-reference-nintendo-scroll-section',
+    );
+    expect(cleanup).toContain(
+      '.sazo-root[data-view="favorites"] .sazo-favorites-reference-section--pending',
+    );
+    expect(cleanup).toContain('.sazo-root[data-view="support"] .sazo-support-section');
+    expect(cleanup).toContain("border-bottom: 0 !important;");
+    expect(cleanup).not.toContain('data-view="cart"');
+  });
+
   it("renders the catalog search state without populated product cards", async () => {
     const state = {
       ...stateWithCatalogMode("list"),
@@ -108,7 +146,7 @@ describe("SAZO captured view contracts", () => {
     expect(
       container.querySelector('[data-testid="category-agent-entry"]'),
     ).not.toBeNull();
-    expect(screen.getByPlaceholderText("URL・画像・商品名をAIに渡す")).toBeTruthy();
+    expect(screen.getByPlaceholderText("見つからない商品を送る")).toBeTruthy();
 
     cleanup();
     const { container: catalogContainer } = await renderWithI18n(
@@ -119,6 +157,143 @@ describe("SAZO captured view contracts", () => {
       catalogContainer.querySelector('[data-testid="catalog-agent-entry"]'),
     ).not.toBeNull();
     expect(screen.getByPlaceholderText("URL・画像・商品名をAIに渡す")).toBeTruthy();
+  });
+
+  it("puts categories before brands and keeps the landing grid to six quick-entry tiles", async () => {
+    const { container } = await renderWithI18n(
+      <CategoriesView dispatch={noDispatch} state={createInitialSazoState()} />,
+    );
+
+    expect(
+      screen.getAllByRole("tab").map((tab) => tab.textContent?.trim()),
+    ).toEqual(["カテゴリー", "人気ブランド"]);
+    expect(container.querySelectorAll(".sazo-category-child-card")).toHaveLength(6);
+    expect(container.querySelectorAll(".sazo-category-child-icon")).toHaveLength(6);
+  });
+
+  it("shows nine circular cosmetics categories and switches the mobile parent pane", async () => {
+    installMobileHome();
+    const { container } = await renderWithI18n(<MobileCategoryDirectoryHarness />);
+    const childList = container.querySelector(".sazo-category-child-list");
+
+    expect(screen.getByRole("heading", { name: "カテゴリー" })).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "カテゴリー" }).getAttribute("aria-selected")).toBe(
+      "true",
+    );
+    expect(screen.getByRole("tab", { name: "人気ブランド" }).getAttribute("aria-selected")).toBe(
+      "false",
+    );
+    expect(
+      screen.getByRole("button", { name: /^化粧品$/ }).getAttribute("aria-current"),
+    ).toBe("page");
+    expect(childList?.querySelectorAll(".sazo-category-child-card")).toHaveLength(9);
+    expect(childList?.querySelectorAll("img")).toHaveLength(9);
+    expect(container.querySelectorAll(".sazo-category-child-icon")).toHaveLength(0);
+    expect(
+      container.querySelectorAll(".sazo-category-parent-list button"),
+    ).toHaveLength(14);
+    expect(screen.getByRole("button", { name: "PC・ゲーム" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "クレンジング" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "ヘアケア" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "ボディケア" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: /^レディース$/ }));
+    expect(screen.getByRole("heading", { name: "レディース" })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: /^レディース$/ }).getAttribute("aria-current"),
+    ).toBe("page");
+    expect(screen.getByRole("button", { name: /^トップス$/ })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "PC・ゲーム" }));
+    expect(screen.getByRole("heading", { name: "PC・ゲーム" })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "PC・ゲーム" }).getAttribute("aria-current"),
+    ).toBe("page");
+  });
+
+  it("routes every mobile beauty child category to the shared skincare catalog", async () => {
+    installMobileHome();
+    const dispatch = vi.fn();
+    await renderWithI18n(
+      <CategoriesView dispatch={dispatch} state={createInitialSazoState()} />,
+    );
+
+    const beautyChildLabels = [
+      "スキンケア",
+      "ベースメイク",
+      "ポイントメイク",
+      "セット商品",
+      "メイク小物",
+      "UVケア",
+      "クレンジング",
+      "ヘアケア",
+      "ボディケア",
+    ];
+    for (const label of beautyChildLabels) {
+      fireEvent.click(screen.getByRole("button", { name: label }));
+    }
+
+    expect(dispatch).toHaveBeenCalledTimes(beautyChildLabels.length * 2);
+    expect(
+      dispatch.mock.calls.filter(
+        ([action]) => action.type === "navigate" && action.view === "skincare-catalog",
+      ),
+    ).toHaveLength(beautyChildLabels.length);
+
+    fireEvent.click(screen.getByRole("tab", { name: "人気ブランド" }));
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "brands" });
+  });
+
+  it("uses data-driven middle and small category rails above home cards in the mobile skincare catalog", async () => {
+    installMobileHome();
+    const dispatch = vi.fn();
+    const { container } = await renderWithI18n(<SkincareCatalogView dispatch={dispatch} />);
+
+    expect(screen.getAllByText("スキンケア").length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: "AIに探してもらう" })).toBeTruthy();
+    expect(screen.getByPlaceholderText("肌悩み・商品名・画像を送る")).toBeTruthy();
+    expect(container.querySelector(".sazo-skincare-catalog-breadcrumb")).toBeNull();
+
+    const recommendations = screen.getByTestId("skincare-recommendation-grid");
+    expect(within(recommendations).getByRole("heading", { name: "あなたへのおすすめ" })).toBeTruthy();
+    expect(within(recommendations).queryByRole("button", { name: "すべて見る" })).toBeNull();
+    expect(within(recommendations).getAllByTestId("home-dense-product-card")).toHaveLength(6);
+    expect(
+      container.querySelectorAll(".sazo-home-dense-product-column"),
+    ).toHaveLength(2);
+
+    const categoryRail = screen.getByTestId("skincare-category-rail");
+    expect(within(categoryRail).getAllByRole("tab")).toHaveLength(6);
+    expect(
+      within(categoryRail).getByRole("tab", { name: "スキンケア" }).getAttribute("aria-selected"),
+    ).toBe("true");
+    expect(within(categoryRail).getByRole("button", { name: "化粧水" })).toBeTruthy();
+
+    fireEvent.click(within(categoryRail).getByRole("tab", { name: "ベースメイク" }));
+    expect(
+      within(categoryRail).getByRole("tab", { name: "ベースメイク" }).getAttribute("aria-selected"),
+    ).toBe("true");
+    expect(within(categoryRail).getByRole("button", { name: "BBクリーム" })).toBeTruthy();
+    expect(within(recommendations).getAllByTestId("home-dense-product-card")).toHaveLength(2);
+
+    fireEvent.click(within(categoryRail).getByRole("button", { name: "BBクリーム" }));
+    expect(
+      within(categoryRail).getByRole("button", { name: "BBクリーム" }).getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(within(recommendations).getAllByTestId("home-dense-product-card")).toHaveLength(1);
+
+    fireEvent.click(
+      screen.getAllByRole("button", {
+        name: /クッションファンデーション ナチュラルの商品詳細を見る/,
+      })[0]!,
+    );
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "open-product",
+      productId: "jplanet-nintendo-pro-controller",
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "戻る" }));
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "categories" });
   });
 
   it("exposes the shared Apple-style category layout contract", async () => {
@@ -517,7 +692,7 @@ describe("SAZO captured view contracts", () => {
     },
   );
 
-  it("renders only the active category landing across directory navigation", async () => {
+  it("opens the shared skincare catalog from directory category children", async () => {
     const { container } = await renderWithI18n(<SazoCommercePage />);
     const desktopNav = within(
       container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
@@ -525,17 +700,15 @@ describe("SAZO captured view contracts", () => {
 
     openCatalogFromCategoryDirectory("ベースメイク");
     expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(0);
-    expect(
-      container.querySelector('[data-beauty-view][data-category-id="beauty"]'),
-    ).not.toBeNull();
+    expect(container.querySelector('[data-beauty-view]')).toBeNull();
+    expect(container.querySelector('[data-testid="skincare-catalog-view"]')).not.toBeNull();
 
     fireEvent.click(within(desktopNav).getByRole("button", { name: "ホーム" }));
     openCatalogFromCategoryDirectory("ベースメイク");
 
     expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(0);
-    expect(
-      container.querySelector('[data-beauty-view][data-category-id="beauty"]'),
-    ).not.toBeNull();
+    expect(container.querySelector('[data-beauty-view]')).toBeNull();
+    expect(container.querySelector('[data-testid="skincare-catalog-view"]')).not.toBeNull();
   });
 
   it("uses home shortcuts with bottom Home and renders the video-matched top bar", async () => {
@@ -628,6 +801,20 @@ describe("SAZO captured view contracts", () => {
     expect(screen.getByRole("heading", { name: "購入エージェント" })).toBeTruthy();
   });
 
+  it("uses one content rail for the agent activity sections", async () => {
+    const { container } = await renderWithI18n(
+      <MobileAgentHubView dispatch={noDispatch} entryIntent={null} />,
+    );
+
+    expect(
+      ["recent-searches", "recent-products", "common-searches"].map((section) =>
+        container
+          .querySelector<HTMLElement>(`[data-section="${section}"]`)
+          ?.classList.contains("sazo-agent-hub-content-rail"),
+      ),
+    ).toEqual([true, true, true]);
+  });
+
   it("filters the shared J-Planet brand inventory from its active control", async () => {
     const { container } = await renderWithI18n(<SazoCommercePage />);
     const desktopNav = within(
@@ -653,7 +840,7 @@ describe("SAZO captured view contracts", () => {
     expect(new Set(logos.map((logo) => logo.getAttribute("src"))).size).toBe(8);
   });
 
-  it("opens the category landing instead of a raw product list", async () => {
+  it("opens the shared skincare catalog instead of the retired category landing", async () => {
     const { container } = await renderWithI18n(<SazoCommercePage />);
     const desktopNav = within(
       container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
@@ -663,18 +850,11 @@ describe("SAZO captured view contracts", () => {
     fireEvent.click(screen.getByRole("button", { name: "ベースメイク" }));
 
     expect(container.querySelectorAll('[data-view-content="catalog"]')).toHaveLength(0);
-    expect(
-      container.querySelector('[data-beauty-view][data-category-id="beauty"]'),
-    ).not.toBeNull();
-    expect(
-      screen.getByRole("heading", { name: /これからは.*J-Planetで探す/s }),
-    ).toBeTruthy();
-    expect(
-      screen.getByText("日本のビューティーショップで欲しい商品を探してみよう！"),
-    ).toBeTruthy();
+    expect(container.querySelector('[data-beauty-view]')).toBeNull();
+    expect(container.querySelector('[data-testid="skincare-catalog-view"]')).not.toBeNull();
   });
 
-  it("uses the same landing layout for non-beauty category children", async () => {
+  it("does not revive the retired landing for non-beauty category children", async () => {
     const { container } = await renderWithI18n(<SazoCommercePage />);
     const desktopNav = within(
       container.querySelector<HTMLElement>('[data-shell="desktop"]') ?? container,
@@ -684,15 +864,8 @@ describe("SAZO captured view contracts", () => {
     fireEvent.click(screen.getByRole("button", { name: "レディース" }));
     fireEvent.click(screen.getByRole("button", { name: "トップス" }));
 
-    expect(
-      container.querySelector('[data-beauty-view][data-category-id="ladies"]'),
-    ).not.toBeNull();
-    expect(
-      screen.getByRole("heading", { name: /これからは.*J-Planetで探す/s }),
-    ).toBeTruthy();
-    expect(
-      screen.getByText("日本のファッションショップで欲しい商品を探してみよう！"),
-    ).toBeTruthy();
+    expect(container.querySelector('[data-beauty-view]')).toBeNull();
+    expect(container.querySelector('[data-testid="skincare-catalog-view"]')).not.toBeNull();
   });
 
   it("filters catalog products with an active chip", async () => {

@@ -25,6 +25,7 @@ export type SazoView =
   | "brands"
   | "brand-detail"
   | "categories"
+  | "skincare-catalog"
   | "catalog"
   | "campaign"
   | "reviews"
@@ -33,7 +34,9 @@ export type SazoView =
   | "gram"
   | "gram-detail"
   | "agent-hub"
+  | "ai-search"
   | "agent-searching"
+  | "agent-image-resolution"
   | "agent-designs"
   | "agent-first"
   | "beauty"
@@ -48,6 +51,12 @@ export type AgentEntryIntent = "camera" | "compose" | "image-picker";
 export type AgentHubScenario = "normal" | "customs-action" | "empty";
 export interface AgentSearchRequest {
   imageName: string | null;
+  /** Set only by the mobile composer when a local image was selected. */
+  imageResolution?: boolean;
+  /** A non-URL mobile query first identifies a candidate before purchase. */
+  candidateResolution?: boolean;
+  /** Opens the mobile-only condition form from a product purchase sheet. */
+  refineConditions?: boolean;
   summary: string;
 }
 export type SazoAuthStep = "provider" | "google" | "birthday" | "phone";
@@ -79,7 +88,10 @@ export type DirectoryCategoryId =
   | "appliances"
   | "hobby"
   | "shoes"
-  | "electronics";
+  | "electronics"
+  | "sports"
+  | "characters"
+  | "kpop";
 export type CatalogTabId =
   | "skincare"
   | "base-makeup"
@@ -217,6 +229,7 @@ export type SazoAction =
   | { type: "select-review-category"; category: ReviewFilterId }
   | { type: "select-ranking-metric"; metric: RankingMetric }
   | { type: "open-product"; productId: string }
+  | { type: "open-image-search-product"; productId: string }
   | { type: "close-product" }
   | { type: "select-gram-category"; category: GramCategoryId }
   | { type: "gram-loaded"; token: number }
@@ -271,6 +284,7 @@ const qaViews = new Set<SazoView>([
   "brands",
   "brand-detail",
   "categories",
+  "skincare-catalog",
   "catalog",
   "campaign",
   "reviews",
@@ -293,10 +307,11 @@ const qaViews = new Set<SazoView>([
   "gram",
   "gram-detail",
   "agent-hub",
+  "ai-search",
   "agent-searching",
+  "agent-image-resolution",
   "agent-designs",
   "agent-first",
-  "beauty",
   "cart",
   "checkout",
 ]);
@@ -401,7 +416,11 @@ export function createInitialSazoState(search = ""): SazoState {
     state.agentHubScenario = agentHubScenario;
   }
 
-  if (view !== null && qaViews.has(view)) {
+  if (view === "beauty") {
+    // The dedicated BEAUTY landing was removed. Preserve old QA links by
+    // opening the supported skincare catalog instead of rendering the former page.
+    state.view = "skincare-catalog";
+  } else if (view !== null && qaViews.has(view)) {
     state.view = view;
 
     if (view === "product") {
@@ -414,9 +433,10 @@ export function createInitialSazoState(search = ""): SazoState {
       state.selectedGramPostId = parameters.get("gramPost");
     }
 
-    if (view === "agent-searching") {
+    if (view === "agent-searching" || view === "agent-image-resolution") {
       state.agentSearchRequest = {
-        imageName: null,
+        imageName: view === "agent-image-resolution" ? "mock-image-search.png" : null,
+        imageResolution: view === "agent-image-resolution",
         summary: "日本限定スニーカー",
       };
     }
@@ -444,16 +464,22 @@ export function createInitialSazoState(search = ""): SazoState {
 export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
   switch (action.type) {
     case "navigate":
-      return {
-        ...state,
-        agentEntryIntent: null,
-        brandLoading: action.view === "brand-detail",
-        gramLoading: false,
-        overlay: "none",
-        selectedGramPostId:
-          action.view === "gram-detail" ? state.selectedGramPostId : null,
-        view: action.view,
-      };
+      // A few historical fixtures can still issue this legacy action. Keep
+      // those flows usable without allowing the retired BEAUTY landing back.
+      {
+        const view = action.view === "beauty" ? "skincare-catalog" : action.view;
+
+        return {
+          ...state,
+          agentEntryIntent: null,
+          brandLoading: view === "brand-detail",
+          gramLoading: false,
+          overlay: "none",
+          selectedGramPostId:
+            view === "gram-detail" ? state.selectedGramPostId : null,
+          view,
+        };
+      }
     case "open-favorites":
       return {
         ...state,
@@ -484,7 +510,11 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
               ? "home"
               : state.view,
         overlay: "none",
-        view: "agent-searching",
+        view:
+          action.request.candidateResolution === true ||
+          (action.request.imageName !== null && action.request.imageResolution === true)
+            ? "agent-image-resolution"
+            : "agent-searching",
       };
     case "cancel-agent-search":
       return {
@@ -565,6 +595,16 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
         productReturnView:
           state.view === "product" ? state.productReturnView : state.view,
         selectedProductId: normalizeJplanetProductDetailId(action.productId),
+        view: "product",
+      };
+    case "open-image-search-product":
+      return {
+        ...state,
+        agentSearchRequest: null,
+        overlay: "none",
+        productReturnView:
+          state.view === "product" ? state.productReturnView : state.view,
+        selectedProductId: action.productId,
         view: "product",
       };
     case "close-product":

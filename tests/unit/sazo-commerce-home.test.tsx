@@ -140,6 +140,32 @@ describe("SAZO home composition", () => {
     ).not.toBeNull();
   });
 
+  it("marks the selected soft-surface home polish and honors reduced motion", async () => {
+    const { container } = await renderHomePage();
+    const css = readFileSync(resolve("src/sazo-commerce/sazo.css"), "utf8");
+
+    expect(container.querySelector('[data-home-view][data-home-polish="option-two"]')).not.toBeNull();
+    expect(css).toContain('[data-home-view][data-home-polish="option-two"]');
+    expect(css).toContain("--jplanet-home-surface-radius: 20px;");
+    expect(css).toContain("--jplanet-home-control-radius: 16px;");
+    expect(css).toContain(".sazo-home-polish--motion");
+    expect(css).toContain(
+      ".sazo-root[data-view=\"home\"] [data-home-view][data-home-polish=\"option-two\"].sazo-home-polish--motion",
+    );
+  });
+
+  it("uses one whole-tile control for each desktop Lens banner without animating images", () => {
+    const css = readFileSync(resolve("src/sazo-commerce/sazo.css"), "utf8");
+    const interactionStart = css.lastIndexOf("PC Lens banner interaction");
+    const interaction = css.slice(interactionStart);
+
+    expect(interactionStart).toBeGreaterThanOrEqual(0);
+    expect(interaction).toContain("--agent-lens-tile-pointer-x: 0px;");
+    expect(interaction).toContain("scale(1.009);");
+    expect(interaction).toContain("transform: none !important;");
+    expect(interaction).toContain("@media (min-width: 768px) and (prefers-reduced-motion: reduce)");
+  });
+
   it("defines the mobile shortcut and photo-category fixture contracts", async () => {
     expectTypeOf<readonly HomeShortcutItem[]>().toExtend<typeof homeShortcutItems>();
     expectTypeOf<readonly HomeCategoryItem[]>().toExtend<typeof homeCategoryItems>();
@@ -194,7 +220,7 @@ describe("SAZO home composition", () => {
     }
 
     await renderHomePage();
-    expect(screen.getByText("URL・画像・商品名を送る")).toBeTruthy();
+    expect(screen.getAllByText("商品名・キーワード・画像・URLで検索").length).toBeGreaterThan(0);
   });
 
   it("summarizes concrete Japan-to-Brazil buying checks in the agent entry", async () => {
@@ -230,6 +256,23 @@ describe("SAZO home composition", () => {
     expect(assuranceContentRule).toContain("padding-inline: 0;");
   });
 
+  it("keeps mobile home sections continuous without thick gray divider bands", () => {
+    const css = readFileSync(
+      resolve("src/sazo-commerce/section-flow.css"),
+      "utf8",
+    );
+    const cleanupStart = css.lastIndexOf("/* Mobile section continuity:");
+    const cleanup = css.slice(cleanupStart);
+
+    expect(cleanupStart).toBeGreaterThanOrEqual(0);
+    expect(cleanup).toContain(
+      '.sazo-root[data-view="home"] .sazo-home-dense-picks',
+    );
+    expect(cleanup).toContain(".sazo-mobile-home-uniqlo-discovery");
+    expect(cleanup).toContain("border-top: 0 !important;");
+    expect(cleanup).toContain("padding-top: 16px !important;");
+  });
+
   it("keeps the dense product grid independent from retired keyword loading states", async () => {
     const i18n = await createI18n("ja");
     const state = {
@@ -241,7 +284,9 @@ describe("SAZO home composition", () => {
         <HomeView dispatch={() => undefined} state={state} />
       </I18nextProvider>,
     );
-    const denseGrid = container.querySelector("[data-home-dense-product-grid]");
+    const denseGrid = container.querySelector(
+      "[data-mobile-picks-grid] [data-home-dense-product-grid]",
+    );
 
     expect(
       denseGrid?.querySelectorAll("[data-testid='home-dense-product-card']"),
@@ -260,13 +305,17 @@ describe("SAZO home composition", () => {
         <HomeView dispatch={() => undefined} state={state} />
       </I18nextProvider>,
     );
-    const cards = container.querySelectorAll("[data-testid='home-dense-product-card']");
+    const cards = container.querySelectorAll(
+      "[data-mobile-picks-grid] [data-testid='home-dense-product-card']",
+    );
 
     expect(cards).toHaveLength(48);
     expect(Array.from(cards).every((card) => card.querySelector("img") !== null)).toBe(
       true,
     );
-    expect(container.querySelectorAll(".sazo-home-dense-product-column")).toHaveLength(2);
+    expect(
+      container.querySelectorAll("[data-mobile-picks-grid] .sazo-home-dense-product-column"),
+    ).toHaveLength(2);
     expect(
       Array.from(cards).every(
         (card) => card.querySelector(".sazo-home-dense-product-add") !== null,
@@ -279,7 +328,8 @@ describe("SAZO home composition", () => {
     expect(container.textContent).toContain("日本から直送");
     expect(container.textContent).not.toContain("購入済み");
     expect(
-      container.querySelector("[data-home-dense-product-grid]")?.textContent,
+      container.querySelector("[data-mobile-picks-grid] [data-home-dense-product-grid]")
+        ?.textContent,
     ).not.toContain("関税込み");
     expect(container.querySelector(".sazo-search-discovery")).toBeNull();
     expect(container.textContent).not.toContain("¥");
@@ -289,7 +339,7 @@ describe("SAZO home composition", () => {
     const dispatch = vi.fn<(action: SazoAction) => void>();
     const { container } = await renderHomePage("ja", dispatch);
     const firstCard = container.querySelector<HTMLElement>(
-      "[data-testid='home-dense-product-card']",
+      "[data-mobile-picks-grid] [data-testid='home-dense-product-card']",
     );
 
     if (firstCard === null) {
@@ -319,7 +369,7 @@ describe("SAZO home composition", () => {
 
     includesInOrder(markup, [
       "日本の買い物を、もっと確かに。",
-      "購入エージェント",
+      "AIで商品を探す",
       "利用者レビュー",
       "J-Planet GRAM",
       "おすすめ商品",
@@ -375,9 +425,39 @@ describe("SAZO home composition", () => {
     );
 
     expect(container.querySelector("[data-desktop-home-view]")).not.toBeNull();
+    const agentLens = screen.getByTestId("desktop-agent-lens");
     expect(
-      screen.getByRole("heading", { name: "日本の商品を、ブラジルへ。" }),
+      within(agentLens).getByRole("heading", { name: "AIで商品を探す" }),
     ).not.toBeNull();
+    expect(
+      within(agentLens).getByRole("search", { name: "AI検索" }),
+    ).not.toBeNull();
+    expect(
+      within(agentLens).getAllByRole("tab").map((tab) => tab.textContent),
+    ).toEqual(["URLで検索", "画像で検索", "商品名で検索"]);
+    expect(within(agentLens).getByText("商品特定")).not.toBeNull();
+    expect(within(agentLens).getByText("BRL総額・到着目安")).not.toBeNull();
+    const openChatGpt = vi.spyOn(window, "open").mockImplementation(() => null);
+    expect(
+      [
+        "初回クーポンを見る",
+        "J-PlanetをChatGPTから使う",
+        "おすすめの検索先を見る",
+        "サマーセールを見る",
+      ].map((name) => within(agentLens).getByRole("button", { name }).tagName),
+    ).toEqual(["BUTTON", "BUTTON", "BUTTON", "BUTTON"]);
+    expect(agentLens.querySelectorAll("[data-agent-lens-banner] button")).toHaveLength(0);
+    fireEvent.click(
+      within(agentLens).getByRole("button", { name: "J-PlanetをChatGPTから使う" }),
+    );
+    expect(openChatGpt).toHaveBeenCalledWith(
+      "https://chatgpt.com/",
+      "_blank",
+      "noopener,noreferrer",
+    );
+    expect(dispatch).not.toHaveBeenCalledWith({ type: "open-chat" });
+    expect(screen.queryByTestId("desktop-home-hero-composer")).toBeNull();
+    expect(screen.queryByTestId("desktop-home-promo-stack")).toBeNull();
     expect(
       within(screen.getByTestId("desktop-home-product-rail")).getAllByTestId(
         "home-dense-product-card",
@@ -385,6 +465,9 @@ describe("SAZO home composition", () => {
     ).toHaveLength(6);
     const desktopReviews = screen.getByTestId("desktop-home-reviews");
     const desktopGram = screen.getByTestId("desktop-home-gram");
+    const desktopUniqloDiscovery = screen.getByTestId(
+      "desktop-home-uniqlo-discovery",
+    );
     const desktopCategories = screen.getByTestId("desktop-home-category-grid");
     const desktopCategoryProducts = screen.getByTestId(
       "desktop-home-category-products",
@@ -393,6 +476,17 @@ describe("SAZO home composition", () => {
       desktopReviews.querySelectorAll(".sazo-desktop-home-review-card"),
     ).toHaveLength(6);
     expect(desktopGram.querySelectorAll(".sazo-desktop-home-gram-card")).toHaveLength(5);
+    expect(
+      within(desktopUniqloDiscovery).getAllByTestId("home-dense-product-card"),
+    ).toHaveLength(6);
+    expect(
+      desktopUniqloDiscovery.querySelectorAll(
+        'img[data-brand-source="uniqlo"][src="/sazo-commerce/reference/uniqlo-logo.svg"]',
+      ),
+    ).toHaveLength(6);
+    expect(
+      desktopUniqloDiscovery.querySelectorAll(".sazo-home-dense-product-media-open em"),
+    ).toHaveLength(0);
     expect(
       within(desktopReviews).getByRole("button", { name: "次のレビューを表示" }),
     ).toBeTruthy();
@@ -405,7 +499,11 @@ describe("SAZO home composition", () => {
         .compareDocumentPosition(desktopReviews) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(
-      desktopGram.compareDocumentPosition(desktopCategories) &
+      desktopGram.compareDocumentPosition(desktopUniqloDiscovery) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      desktopUniqloDiscovery.compareDocumentPosition(desktopCategories) &
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(
@@ -415,8 +513,102 @@ describe("SAZO home composition", () => {
     expect(
       within(desktopCategoryProducts).getAllByTestId("home-dense-product-card"),
     ).toHaveLength(60);
+    expect(
+      within(desktopCategoryProducts).getByRole("heading", { name: "あなたへのおすすめ" }),
+    ).toBeTruthy();
     expect(container.querySelector(".sazo-desktop-home-hero-search")).toBeNull();
-    expect(screen.queryByRole("search", { name: "購入エージェント検索" })).toBeNull();
+    fireEvent.click(within(agentLens).getByRole("tab", { name: "画像で検索" }));
+    expect(
+      within(agentLens).getByRole("tab", { name: "画像で検索" }).getAttribute(
+        "aria-selected",
+      ),
+    ).toBe("true");
+
+    const agentInput = within(agentLens).getByRole("textbox", {
+      name: "商品名・キーワード・画像・URLで検索",
+    });
+    expect(agentInput.getAttribute("aria-controls")).toBe(
+      "desktop-agent-search-history-popover",
+    );
+    expect(agentInput.getAttribute("aria-expanded")).toBe("false");
+
+    fireEvent.click(agentInput);
+    const searchHistoryPopover = screen.getByRole("dialog", { name: "最近の検索" });
+    expect(agentInput.getAttribute("aria-expanded")).toBe("true");
+    expect(agentLens.contains(searchHistoryPopover)).toBe(false);
+    expect(
+      within(searchHistoryPopover).getByRole("list", { name: "最近の検索" }),
+    ).toBeTruthy();
+    expect(
+      within(searchHistoryPopover).getAllByRole("button", { name: /の商品を見る$/ }),
+    ).toHaveLength(8);
+
+    fireEvent.pointerDown(document.body);
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog", { name: "最近の検索" })).toBeNull(),
+    );
+    expect(agentInput.getAttribute("aria-expanded")).toBe("false");
+
+    fireEvent.click(agentInput);
+    expect(screen.getByRole("dialog", { name: "最近の検索" })).toBeTruthy();
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog", { name: "最近の検索" })).toBeNull(),
+    );
+    expect(agentInput.getAttribute("aria-expanded")).toBe("false");
+
+    const recentProductsTrigger = screen.getByRole("button", {
+      name: "最近確認した商品 続きからすぐに確認できます",
+    });
+    expect(recentProductsTrigger.getAttribute("aria-controls")).toBe(
+      "desktop-recent-products-popover",
+    );
+    expect(recentProductsTrigger.getAttribute("aria-expanded")).toBe("false");
+
+    fireEvent.click(recentProductsTrigger);
+    const recentProductsPopover = screen.getByRole("dialog", { name: "最近見た商品" });
+    expect(recentProductsTrigger.getAttribute("aria-expanded")).toBe("true");
+    expect(agentLens.contains(recentProductsPopover)).toBe(false);
+    expect(
+      within(recentProductsPopover).getAllByRole("button", { name: /の商品を見る$/ }),
+    ).toHaveLength(8);
+
+    fireEvent.click(
+      within(recentProductsPopover).getByRole("button", {
+        name: "New Balance 9060の商品を見る",
+      }),
+    );
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "open-product",
+      productId: "jplanet-new-balance-9060",
+    });
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog", { name: "最近見た商品" })).toBeNull(),
+    );
+
+    fireEvent.click(recentProductsTrigger);
+    const reopenedRecentProductsPopover = screen.getByRole("dialog", {
+      name: "最近見た商品",
+    });
+    fireEvent.click(
+      within(reopenedRecentProductsPopover).getByRole("button", {
+        name: "Sony α7C IIを最近見た商品から削除",
+      }),
+    );
+    expect(
+      within(reopenedRecentProductsPopover).getAllByRole("button", { name: /の商品を見る$/ }),
+    ).toHaveLength(7);
+    fireEvent.click(
+      within(reopenedRecentProductsPopover).getByRole("button", {
+        name: "最近見た商品をすべて削除",
+      }),
+    );
+    expect(within(reopenedRecentProductsPopover).getByText("最近見た商品はありません")).toBeTruthy();
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog", { name: "最近見た商品" })).toBeNull(),
+    );
+    expect(recentProductsTrigger.getAttribute("aria-expanded")).toBe("false");
 
     fireEvent.click(within(desktopReviews).getByRole("button", { name: "もっと見る" }));
     expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "reviews" });
@@ -474,11 +666,12 @@ describe("SAZO home composition", () => {
     expect(shortcutGrid?.dataset.layout).toBe("horizontal-menu");
     expect(shortcutGrid?.dataset.pageSize).toBe("9");
     includesInOrder(home?.textContent ?? "", [
-      "購入エージェント",
+      "AIで商品を探す",
       "J-Planet特集",
       "クーポンを受け取る",
       "利用者レビュー",
       "J-Planet GRAM",
+      "ユニクロをお探しですか？",
       "おすすめ商品",
     ]);
     expect(screen.queryByTestId("mobile-category-rail")).toBeNull();
@@ -520,7 +713,7 @@ describe("SAZO home composition", () => {
     expect(home?.textContent).not.toContain("MY GIFT FAIR");
 
     const denseProductGrid = home?.querySelector<HTMLElement>(
-      "[data-home-dense-product-grid]",
+      "[data-mobile-picks-grid] [data-home-dense-product-grid]",
     );
     expect(denseProductGrid).not.toBeNull();
     expect(
@@ -539,7 +732,7 @@ describe("SAZO home composition", () => {
     expect(container.querySelector("[data-mobile-agent-image-entry]")).toBeNull();
 
     const launcher = screen.getByRole("button", {
-      name: "URL・画像・商品名をAIに渡す",
+      name: "AI検索",
     });
     expect(launcher).toBeTruthy();
     fireEvent.click(launcher);
@@ -548,12 +741,18 @@ describe("SAZO home composition", () => {
       intent: "compose",
     });
 
-    expect(screen.getByText("URL・画像・商品名を送る")).toBeTruthy();
+    expect(screen.getByText("AIで商品を探す")).toBeTruthy();
+    expect(screen.getByText("商品名・キーワード・画像・URLで検索")).toBeTruthy();
     expect(screen.queryByText("何を確認しますか？")).toBeNull();
     expect(launcher.querySelector(".sazo-home-agent-camera")).not.toBeNull();
     expect(launcher.querySelector(".sazo-home-agent-send")).not.toBeNull();
     expect(launcher.querySelector(".lucide-search")).toBeNull();
-    expect(screen.getByText("商品を送るだけで、購入判断まで。")).toBeTruthy();
+    expect(
+      container.querySelector("[data-home-agent-entry] .sazo-home-agent-card-header span"),
+    ).toBeNull();
+    expect(
+      screen.queryByText("商品名・キーワード・画像・URLから商品を探します。"),
+    ).toBeNull();
     expect(screen.queryByRole("button", { name: /商品を確認/ })).toBeNull();
     expect(screen.queryByRole("button", { name: /総額を確認/ })).toBeNull();
     expect(screen.queryByRole("button", { name: /希望から相談/ })).toBeNull();
@@ -673,15 +872,89 @@ describe("SAZO home composition", () => {
 
     const coupon = screen.getByTestId("mobile-coupon-banner");
     const gram = screen.getByTestId("mobile-gram-section");
+    const uniqloDiscovery = screen.getByTestId("mobile-home-uniqlo-discovery");
 
     expect(coupon).not.toBeNull();
     expect(screen.queryByText("ブラジル最大級 日本直輸入ショップ")).toBeNull();
     expect(screen.queryByTestId("mobile-category-rail")).toBeNull();
-    expect(gram.nextElementSibling?.hasAttribute("data-mobile-picks-grid")).toBe(true);
+    expect(
+      within(uniqloDiscovery).getByRole("heading", { name: "ユニクロをお探しですか？" }),
+    ).toBeTruthy();
+    expect(
+      within(uniqloDiscovery).getAllByTestId("home-dense-product-card"),
+    ).toHaveLength(4);
+    expect(
+      uniqloDiscovery.querySelectorAll(
+        'img[data-brand-source="uniqlo"][src="/sazo-commerce/reference/uniqlo-logo.svg"]',
+      ),
+    ).toHaveLength(5);
+    expect(
+      uniqloDiscovery.querySelectorAll(".sazo-uniqlo-discovery-heading-mark"),
+    ).toHaveLength(1);
+    expect(
+      uniqloDiscovery.querySelectorAll(".sazo-home-dense-product-title-row"),
+    ).toHaveLength(4);
+    expect(gram.nextElementSibling).toBe(uniqloDiscovery);
+    expect(uniqloDiscovery.nextElementSibling?.hasAttribute("data-mobile-picks-grid")).toBe(
+      true,
+    );
+
+    fireEvent.click(
+      within(uniqloDiscovery).getAllByRole("button", {
+        name: "New Balance 9060の商品詳細を見る",
+      })[0]!,
+    );
+
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "open-product",
+      productId: "jplanet-nintendo-pro-controller",
+    });
 
     fireEvent.click(screen.getByRole("button", { name: /クーポン/ }));
 
     expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "coupons" });
+  });
+
+  it("uses the frameless media treatment only for the Uniqlo discovery rail", async () => {
+    const dispatch = vi.fn();
+    const { container } = await renderHomePage("ja", dispatch);
+
+    const uniqloDiscovery = screen.getByTestId("mobile-home-uniqlo-discovery");
+    const standardDenseGrid = container.querySelector("[data-mobile-picks-grid]");
+
+    expect(uniqloDiscovery.getAttribute("data-product-presentation")).toBe(
+      "media-rail",
+    );
+    expect(standardDenseGrid?.getAttribute("data-product-presentation")).toBeNull();
+  });
+
+  it("keeps regular-price products free of discount badges in the Uniqlo discovery rail", async () => {
+    const dispatch = vi.fn();
+
+    await renderHomePage("ja", dispatch);
+
+    const cards = within(screen.getByTestId("mobile-home-uniqlo-discovery")).getAllByTestId(
+      "home-dense-product-card",
+    );
+
+    expect(cards).toHaveLength(4);
+    expect(within(cards[0]!).getByText("14% OFF")).toBeTruthy();
+    expect(within(cards[1]!).queryByText(/OFF/)).toBeNull();
+    expect(within(cards[2]!).getByText("10% OFF")).toBeTruthy();
+    expect(within(cards[3]!).queryByText(/OFF/)).toBeNull();
+  });
+
+  it("opens the product ranking from the Uniqlo discovery rail more link", async () => {
+    const dispatch = vi.fn();
+
+    await renderHomePage("ja", dispatch);
+
+    const uniqloDiscovery = screen.getByTestId("mobile-home-uniqlo-discovery");
+    fireEvent.click(
+      within(uniqloDiscovery).getByRole("button", { name: "もっと見る" }),
+    );
+
+    expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "ranking" });
   });
 
   it("opens the full category directory from the existing mobile shortcut", async () => {
@@ -843,7 +1116,9 @@ describe("SAZO home composition", () => {
       .getByRole("heading", { name: "J-Planet GRAM" })
       .closest("section");
     expect(gramSection?.querySelectorAll(".sazo-mobile-gram-card")).toHaveLength(2);
-    const denseGrid = container.querySelector("[data-home-dense-product-grid]");
+    const denseGrid = container.querySelector(
+      "[data-mobile-picks-grid] [data-home-dense-product-grid]",
+    );
     expect(
       denseGrid?.querySelectorAll("[data-testid='home-dense-product-card']"),
     ).toHaveLength(48);

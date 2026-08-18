@@ -8,10 +8,10 @@ import {
   List,
   Search,
   ShoppingCart,
+  Sparkles,
 } from "lucide-react";
 import { useEffect, useState, type Dispatch } from "react";
 import {
-  categoryDirectory,
   formatBrl,
   jplanetBrandDirectory,
   nikeBrandProducts,
@@ -23,7 +23,6 @@ import {
 } from "@/sazo-commerce/fixtures";
 import type { SazoAction, SazoState } from "@/sazo-commerce/model";
 
-type BrandListTab = "popular" | "categories";
 type BrandDetailTab = "all" | BrandProductCategory;
 type ProductPresentation = "grid" | "list";
 
@@ -53,12 +52,20 @@ function BrandCommerceHeader({
   cartCount,
   dispatch,
   onBack,
+  onSearchChange,
+  searchLabel = "ブランド名・商品名を検索",
+  searchPlaceholder = "ブランド名・商品名を検索",
   searchValue,
+  showAiSearch = false,
 }: {
   cartCount: number;
   dispatch: Dispatch<SazoAction>;
   onBack: () => void;
+  onSearchChange?: (value: string) => void;
+  searchLabel?: string;
+  searchPlaceholder?: string;
   searchValue?: string;
+  showAiSearch?: boolean;
 }) {
   return (
     <header className="jplanet-brand-header">
@@ -66,12 +73,18 @@ function BrandCommerceHeader({
         <ArrowLeft aria-hidden size={24} strokeWidth={2} />
       </button>
       <label className="jplanet-brand-header-search">
-        <Search aria-hidden size={19} strokeWidth={2} />
+        {showAiSearch ? (
+          <Sparkles aria-hidden className="jplanet-brand-header-ai-mark" size={18} strokeWidth={2} />
+        ) : (
+          <Search aria-hidden size={19} strokeWidth={2} />
+        )}
         <input
-          aria-label="ブランド名・商品名を検索"
-          defaultValue={searchValue}
-          placeholder="ブランド名・商品名を検索"
+          aria-label={searchLabel}
+          defaultValue={onSearchChange === undefined ? searchValue : undefined}
+          onChange={onSearchChange === undefined ? undefined : (event) => onSearchChange(event.target.value)}
+          placeholder={searchPlaceholder}
           type="search"
+          value={onSearchChange === undefined ? undefined : searchValue}
         />
       </label>
       <button
@@ -168,29 +181,6 @@ function BrandDirectoryRow({
   );
 }
 
-function BrandCategoryPanel({ dispatch }: { dispatch: Dispatch<SazoAction> }) {
-  return (
-    <section aria-label="商品カテゴリー" className="jplanet-brand-category-panel">
-      <p>商品カテゴリー</p>
-      <div>
-        {categoryDirectory.map((category) => (
-          <button
-            key={category.id}
-            onClick={() => {
-              dispatch({ type: "select-directory-category", category: category.id });
-              dispatch({ type: "navigate", view: "beauty" });
-            }}
-            type="button"
-          >
-            <span>{category.name}</span>
-            <ChevronRight aria-hidden size={18} />
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 export function JplanetBrandsView({
   dispatch,
   state,
@@ -198,7 +188,6 @@ export function JplanetBrandsView({
   dispatch: Dispatch<SazoAction>;
   state: SazoState;
 }) {
-  const [activeTab, setActiveTab] = useState<BrandListTab>("popular");
   const [activeCategory, setActiveCategory] = useState<(typeof directoryCategories)[number]["id"]>(
     "all",
   );
@@ -221,80 +210,52 @@ export function JplanetBrandsView({
         cartCount={state.cartItems.length}
         dispatch={dispatch}
         onBack={() => dispatch({ type: "navigate", view: "home" })}
+        onSearchChange={setBrandQuery}
+        searchLabel="AIでブランド・商品を探す"
+        searchPlaceholder="AI検索"
+        searchValue={brandQuery}
+        showAiSearch
       />
-      <nav aria-label="ブランド一覧タブ" className="jplanet-brand-root-tabs" role="tablist">
-        <button
-          aria-selected={activeTab === "popular"}
-          onClick={() => setActiveTab("popular")}
-          role="tab"
-          type="button"
-        >
-          人気ブランド
-        </button>
-        <button
-          aria-selected={activeTab === "categories"}
-          onClick={() => setActiveTab("categories")}
-          role="tab"
-          type="button"
-        >
-          カテゴリー
-        </button>
-      </nav>
-
-      {activeTab === "categories" ? <BrandCategoryPanel dispatch={dispatch} /> : null}
-
-      {activeTab === "popular" ? (
-        <main className="jplanet-brand-directory-content">
-          <div aria-label="ブランドカテゴリ" className="jplanet-brand-category-rail">
-            {directoryCategories.map((category) => (
-              <button
-                aria-pressed={activeCategory === category.id}
-                key={category.id}
-                onClick={() => setActiveCategory(category.id)}
-                type="button"
-              >
-                {category.label}
-              </button>
+      <main className="jplanet-brand-directory-content">
+        <div aria-label="ブランドカテゴリ" className="jplanet-brand-category-rail">
+          {directoryCategories.map((category) => (
+            <button
+              aria-pressed={activeCategory === category.id}
+              key={category.id}
+              onClick={() => setActiveCategory(category.id)}
+              type="button"
+            >
+              {category.label}
+            </button>
+          ))}
+        </div>
+        <p className="jplanet-brand-directory-count">{directoryCategories.find((category) => category.id === activeCategory)?.label} {visibleBrands.length}件</p>
+        {visibleBrands.length === 0 ? (
+          <div className="jplanet-brand-empty" role="status">
+            <p>該当するブランドはありません</p>
+            <button
+              onClick={() => {
+                setActiveCategory("all");
+                setBrandQuery("");
+              }}
+              type="button"
+            >
+              検索条件をクリア
+            </button>
+          </div>
+        ) : (
+          <div className="jplanet-brand-directory-list">
+            {visibleBrands.map((brand) => (
+              <BrandDirectoryRow
+                brand={brand}
+                dispatch={dispatch}
+                key={brand.id}
+                saved={state.savedBrandIds.includes(brand.id)}
+              />
             ))}
           </div>
-          <label className="jplanet-brand-directory-search">
-            <Search aria-hidden size={20} strokeWidth={2} />
-            <input
-              aria-label="ブランド内検索"
-              onChange={(event) => setBrandQuery(event.target.value)}
-              placeholder="ブランド内検索"
-              type="search"
-              value={brandQuery}
-            />
-          </label>
-          <p className="jplanet-brand-directory-count">{directoryCategories.find((category) => category.id === activeCategory)?.label} {visibleBrands.length}件</p>
-          {visibleBrands.length === 0 ? (
-            <div className="jplanet-brand-empty" role="status">
-              <p>該当するブランドはありません</p>
-              <button
-                onClick={() => {
-                  setActiveCategory("all");
-                  setBrandQuery("");
-                }}
-                type="button"
-              >
-                検索条件をクリア
-              </button>
-            </div>
-          ) : (
-            <div className="jplanet-brand-directory-list">
-              {visibleBrands.map((brand) => (
-                <BrandDirectoryRow
-                  brand={brand}
-                  dispatch={dispatch}
-                  key={brand.id}
-                  saved={state.savedBrandIds.includes(brand.id)}
-                />
-              ))}
-            </div>
-          )}
-        </main>
-      ) : null}
+        )}
+      </main>
     </section>
   );
 }

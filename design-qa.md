@@ -2,6 +2,146 @@
 
 ---
 
+## 2026-08-18 — PC Lens: 検索履歴パネルの幅と開閉モーション
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260817-ttcm.jpeg`。赤枠は幅と配置を示す注釈としてのみ使用し、UIへは実装していません。
+- Browser-rendered implementation: `/tmp/jplanet-lens-history-aligned-1536.png`。比較入力: `/tmp/jplanet-lens-history-comparison.png`（左: 参照、右: 実装。同じLens表示・検索履歴を開いた状態へ正規化）。
+- State: PCホームの中央Lens入力欄をフォーカスし、検索履歴と最近見た商品を開いた状態。
+
+**Findings and verification**
+
+- [P1 → fixed] 履歴パネルが文字入力領域だけを基準にしていたため、カメラと送信を含む入力フォームの中心・幅からずれていました。フォーム全体をアンカーに変更し、中央揃えと直下配置を一致させました。
+- [P1 → fixed] Lens用パネルは`clamp(640px, 50vw, 760px)`へ拡張しました。1536pxでは760px幅で横レールに5商品と次の商品を余裕を持って見せ、1024px/768pxでもviewportからはみ出さずに収まります。ヘッダー検索トレーのコンパクトな履歴幅は変更していません。
+- [P2 → fixed] 開閉中もPortalを維持し、`opacity`、`translate3d`、`scale`を240ms（閉じる側210ms）の`cubic-bezier(.22,1,.36,1)`で遷移させます。閉じるタイマーも220msに揃え、急な消滅をなくしました。`prefers-reduced-motion`既存対応も維持しています。
+- 1536px、1024px、768pxで、中央楕円の寸法・4分割バナー・Lens直下導線を変えず、パネルがLensから独立して前面に表示されることを実ブラウザで確認しました。341px/390px/440pxではPC用Portalが表示されず、既存モバイル表示のままです。
+
+final result: passed
+
+---
+
+## 2026-08-18 — モバイルAI検索: ポルトガル語から化粧水へ翻訳した検索結果
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/IMG_8764.PNG`、`/Users/fujitatetsu/Downloads/IMG_8765.PNG`。SAZOの検索結果から、検索語、翻訳案内、横チップ、横分類タブ、件数、商品群の境界を比較しました。
+- Browser-rendered implementation: `/Users/fujitatetsu/.codex/visualizations/2026/08/18/01a012cc-b8e5-74e1-ab21-7bda85861576/toner-search/implemented-341.png`、`implemented-390.png`、`implemented-440.png`。
+- Same-input comparison: `/Users/fujitatetsu/.codex/visualizations/2026/08/18/01a012cc-b8e5-74e1-ab21-7bda85861576/toner-search/comparison-reference-vs-implementation.png`（左: SAZO参照、右: J-Planet実装、同幅へ正規化）。
+- State: ポルトガル語`loção facial`を入力し、`「化粧水」に翻訳して検索しました。`、`全体 1726件`、一般・限定・フリマ未開封の9商品を表示した状態。
+
+**Comparison history and findings**
+
+- [P1 → fixed] New Balance専用の検索判定・商品群だけだったため、化粧水やポルトガル語の`loção facial`が既存ランキングへ抜けていました。化粧水、ローション、トナーの日本語／ポルトガル語表記を同じ結果セットへ正規化しました。
+- [P1 → fixed] 靴向けの`cover`と1.26倍表示では化粧水ボトルが切れるため、化粧水結果だけ`contain`へ切り替えました。既存化粧品アセットを各商品枠へ収め、New Balanceの画像表示は変更していません。
+- [P2 → fixed] 翻訳の事実が検索欄だけでは伝わらなかったため、SAZOと同じ検索直下へ翻訳案内を置き、翻訳後の語`「化粧水」`だけをJ-Planetの桜色で強調しました。日本語`化粧水`の直接入力では`日本語の商品名「化粧水」で検索しました。`へ切り替わります。
+- P0 / P1 / P2: 残存なし。SAZOの構成を踏襲しつつ、J-Planet既存のネイビー、桜色、Lucide、商品カード密度を維持しています。
+
+**Visual, responsive, and interaction checks**
+
+- 341px / 390px / 440px: 3列、9商品、3商品群を維持し、横オーバーフローなし。狭幅では関連語だけが横スクロールし、商品群の境界と分類タブは崩れません。
+- 390pxの最下部では最後の商品群の下端が固定ナビ上端より約38px上に収まり、商品がナビに隠れません。
+- `限定`選択で`限定 214件`と3商品だけに切り替わり、保存トグルも操作可能です。商品画像から既存のスキンケア商品導線へ接続します。
+- `New Balance 9060`の既存結果は`全体 128件`、9商品、既存詳細導線のままです。768pxではモバイルAI検索DOMが表示されず、既存デスクトップヘッダーを維持しました。
+- Chrome実ブラウザのconsole errorは0件。`pnpm typecheck`、対象Unit 7件、`git diff --check`は通過しました。
+
+final result: passed
+
+---
+
+## 2026-08-18 — モバイルAI検索: New Balance 9060の取引確実性別結果
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a012cc-b8e5-74e1-ab21-7bda85861576/exec-7cab2e7a-e726-4e62-887d-763caf8f4e8b.png`。SAZOの検索結果を基準に、上部検索、横チップ、4分類タブ、件数、3つの商品群、太い淡灰色の境界を比較しました。
+- Browser-rendered implementation: `/Users/fujitatetsu/.codex/visualizations/2026/08/18/01a012cc-b8e5-74e1-ab21-7bda85861576/new-balance-search/implemented-341.png`、`implemented-390.png`、`implemented-440.png`。
+- Same-input comparison: `/Users/fujitatetsu/.codex/visualizations/2026/08/18/01a012cc-b8e5-74e1-ab21-7bda85861576/new-balance-search/comparison-reference-vs-implementation.png`（左: 参照、右: 実装、同幅へ正規化）。
+- State: `New Balance 9060`を検索し、`全体 128件`で一般・限定・フリマを表示したモバイル結果状態。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 初回は検索補助、チップ、分類タブ、件数の縦余白が参照より大きく、最初の商品群が下がっていました。結果状態だけを圧縮し、一般商品群の開始位置を参照へ合わせました。
+- [P1 → fixed] 初回は9060の被写体が画像領域内で小さく見えました。画像比率と表示倍率を調整し、各色の9060が3列でも識別できる大きさへ修正しました。
+- [P2 → fixed] 共有チャットボタンが下段の商品群と重なりました。検索結果状態だけで非表示にし、初期検索画面や他画面の共有チャット挙動は維持しました。
+- P0/P1/P2: なし。9商品すべてがNew Balance 9060で、一般・限定・中古という取引条件だけを分けています。
+
+**Visual, responsive, and interaction checks**
+
+- 341px / 390px / 440px: 3列、9商品、3商品群を維持し、横オーバーフローなし。検索語チップは横スクロールでき、固定下部ナビのための96px下余白を確認しました。
+- 768px: モバイル検索結果DOMはレンダーされず、既存のデスクトップヘッダー／ナビを維持し、横オーバーフローなし。
+- `一般` / `限定` / `フリマ`タブ、`もっと見る`、関連語チップ、保存トグル、検索語削除を操作可能にしました。`限定`選択で`限定 19件`と限定商品群だけが表示されます。
+- 商品画像／商品情報を押すと、既存の`New Balance 9060`商品詳細へ接続します。URL検索と画像検索、New Balance以外のキーワード検索は既存導線を維持しています。
+- in-app browserのconsole errorは0件。`pnpm typecheck`、対象Unit 6件、`git diff --check`は通過しました。全Unitは既存のエージェント文言・導線変更と未同期の38件が失敗し、本変更の対象Unitは失敗していません。
+
+final result: passed
+
+---
+
+## 2026-08-18 — PCホーム: Lens／共通ヘッダー／AI検索トレーの横幅最適化
+
+**Comparison input**
+
+- Current-issue visual: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260817-txfa.jpeg`。比較対象は、Lensの上へ`AI検索`と入力欄が漏れ出し、Lensと下部ECコンテンツの横幅が連続していない状態です。Chrome UI・カーソルは評価対象から除外しました。
+- Header-width structural reference: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260817-tosm.png`。ロゴ、ナビ、右操作を一つの広いPCラインへ収める構造だけを比較対象にしました。
+- Browser-rendered implementation: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent`。同じPC状態で実ブラウザのトップ／Lens通過後を確認し、参照と実装のスクリーンショットを照合しました。
+
+**Measured result and findings**
+
+- `1920px`: Lensは`1840px`（`x=33px`）、stickyヘッダーとLens直下の3導線・商品レールは`1680px`（`x=113px`）です。Lensだけを主役として広く使い、通常ECコンテンツは比較可能な最大幅へ内側化できています。
+- `1536px`: Lens、ヘッダー、3導線、商品レールはすべて`1473px`（`x=24px`）で連続し、下だけが急に細くなる差を解消しました。現状確認画像にあった左上の漏れ出したAI検索フォームはありません。
+- AI検索トレーはLensが十分に画面上へ抜けた時だけヘッダー直下に表示し、ヘッダーのAI検索アイコンからは常時手動で開けます。Lens内とトレーの入力値は同じ状態を共有し、`Nintendo Switch OLED`の入力が両方へ同期することを実操作で確認しました。
+- `1920 × 1080`、`1536 × 1024`、`1440 × 1024`、`1280 × 900`、`1024 × 900`、`768 × 900`で、トップ／スクロール後とも`scrollWidth === clientWidth`を確認しました。`341px`、`390px`、`440px`ではPC Lens・PC検索トレーが表示されず、横オーバーフローもありません。
+
+final result: passed
+
+---
+
+## 2026-08-18 — モバイルAI検索を旧エージェント導線へ反映
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a01236-ccfe-7370-9277-e3e3717d5ed1/exec-2c1b96bf-ef65-49ff-960b-e32e6c9f9816.png`。OS日本語キーボードはブラウザDOMへ再現せず、キーボード直前までのアプリ領域を比較しました。
+- Browser-rendered implementation: `/tmp/jplanet-ai-search-qa-final/sazo-commerce-reproduction-069ce-ct-text-URL-and-image-paths-mobile/ai-search-341-initial.png`、`ai-search-390-initial.png`、`ai-search-440-initial.png`。
+- Same-width comparison: `/tmp/jplanet-ai-search-comparison-390-final.png`（左: 参照、右: 実装。幅780px、キーボード開始位置までを同じ高さへ正規化）。
+- State: モバイル下部ナビの`AI検索`、モバイル共通ヘッダー検索、または既存`?view=agent-hub`から開いた初期状態。入力欄は自動フォーカス済みです。
+
+**Comparison history and findings**
+
+- [P1 → resolved] 新しいAI検索面は存在していましたが、下部ナビが旧`agent-hub`へ接続されたままで、ユーザーが旧「最近の相談」画面へ遷移していました。モバイルのナビ／共通検索を`ai-search`へ統一し、既存`agent-hub` URLもモバイルだけ同じAI検索面として描画しました。PC・タブレットのエージェント面は維持しています。
+- [P2 → resolved] 人気検索右端が参照の短いラインではなく右矢印でした。Lucide `Minus`へ変更しました。
+- [P2 → resolved] 案内4行の縦間隔が参照より約24px長く、見出しと人気検索がわずかに太い状態でした。行間、見出しウェイト、桜マーク背景を参照へ合わせて再キャプチャしました。
+- P0 / P1 / P2: 残存なし。341pxでは履歴チップが2行へ自然に折り返し、390px／440pxでは1行を維持します。3幅とも横オーバーフローはありません。
+
+**Interaction and regression checks**
+
+- 商品名・キーワードは既存一覧、URLは既存商品詳細、画像は既存候補選択へ分岐します。個別履歴削除、全削除、戻る、カート、入力自動フォーカスを確認しました。
+- `pnpm typecheck`、`tests/unit/ai-search-view.test.tsx`（4件）、対象mobile E2E（1件）、desktopの`keeps the agent search legible on tablet and desktop`（1件）、`git diff --check`を通過しました。
+- OSキーボードは実機でフォーカス時に表示されるため、Playwrightのデスクトップブラウザ画像には含めていません。固定下部ナビは実機キーボード表示中はブラウザの可視領域外になります。
+
+final result: passed
+
+---
+
+## 2026-08-18 — PCホーム: AI検索の一元化とヘッダー検索トレー
+
+**Comparison input**
+
+- Source of truth: この実装タスクで確定したAI検索の役割分担。Lens表示中はLensだけを主検索として見せ、Lensが画面外へ抜けた後は共通PCヘッダー直下へ同じAI検索を出すことを比較基準にしました。
+- Browser-rendered implementation: `/tmp/jplanet-ai-search-top-no-tray-1536.png`、`/tmp/jplanet-ai-search-scrolled-tray-1536.png`、`/tmp/jplanet-ai-search-header-history-1536.png`、`/tmp/jplanet-ai-search-mobile-390-current.png`。ローカルURL `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent` をin-app browserで確認しました。
+
+**Findings and verification**
+
+- [P1 → fixed] PCの通常商品検索を除去し、Lensの見出し、説明、入力、3タブ、ナビゲーション、ヘッダー操作を`AI検索`へ統一しました。Lens表示中の1536px画面には横長の検索入力を重複表示しません。
+- [P1 → fixed] Lensの可視率が18%未満になると、ヘッダー直下へ幅`620–760px`のAI検索トレーが自然に表示されます。入力中はスクロールしても維持し、Escapeでは閉じて検索アイコンへフォーカスが戻ります。
+- [P1 → fixed] ヘッダー検索トレーの入力フォーカス時にも、Lensと同じ検索履歴／最近見た商品パネルをbody直下のPortalで表示します。履歴パネルはLensやヘッダーに切り取られず、商品詳細・履歴削除の既存導線を維持します。
+- 1536px: Lens表示時は主入力が一つだけ、スクロール後はトレーが商品レール上で自然に追従し、横オーバーフローなしを確認しました。1920 / 1440 / 1280 / 1024 / 768pxも、トレー幅が各ブレークポイントに収まり、横オーバーフローなしをブラウザで確認しました。
+- 341 / 390 / 440px: PCトレーはDOMに表示されず、既存モバイルの検索入口からAI検索画面へ移動すること、検索履歴が表示されること、横オーバーフローなしを確認しました。
+- P0/P1/P2: なし。4分割Lens、中央入力面、カート／チャット／マイページ、商品詳細導線を維持し、画像アセットの生成・変更はしていません。
+
+final result: passed
+
+---
+
 ## 2026-08-13 — カート／購入用のカラー写真バリアント選択
 
 **Findings**
@@ -47,6 +187,904 @@ final result: passed
 
 ---
 
+## 2026-08-17 — モバイルホーム: 中央AI検索パネルの補足文削除
+
+**Comparison input**
+
+- Source visual truth: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_UOoKUF/スクリーンショット 2026-08-17 23.35.59.png`（`584 × 1172` px）。赤枠で示された補足文を除去し、見出し・入力欄・下部案内を残すことが今回の比較範囲です。
+- Browser-rendered implementation: `/tmp/jplanet-home-panel-after-341-844.png`、`/tmp/jplanet-home-panel-after-390-844.png`、`/tmp/jplanet-home-panel-after-440-956.png`。CSS viewportはそれぞれ`341 × 844`、`390 × 844`、`440 × 956`、densityは1です。
+- Same-view comparison: `/tmp/jplanet-home-panel-comparison-390.png`（左: 参照を`390 × 781`へ密度正規化、右: 同じ`390 × 781`の実装）。比較対象はホーム中央の白い検索パネルです。ヒーロー画像のスライド状態は比較範囲外であり、変更していません。
+- State: ホーム初期表示、未入力。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 中央パネルに`商品名・キーワード・画像・URLから商品を探します。`が残り、見出しと入力欄の間に不要な説明行と高さがありました。モバイルホームの`MobileAgentSearch`だけからこの要素を除去しました。
+- [P2 → fixed] 説明行の削除後に桜マークと見出しが上寄りにならないよう、モバイルホーム用カード見出しを縦中央揃えにしました。入力欄は既存の`margin-top`による自然な文書フローで直下に続きます。
+- P0/P1/P2: なし。
+
+**Full-view and focused comparison**
+
+- Fonts and typography: 見出しは既存翻訳キーの`AIで商品を探す`、既存ネイビー、14px/800のJ-Planetモバイルカード見出しを維持しました。中央カード見出しを`AI検索`へ置換していません。
+- Spacing and layout rhythm: 補足文のDOM・専用行高がなくなり、見出し、48px入力欄、下部案内の順に連続します。341px／390px／440pxでカード・入力欄・カメラ・送信を確認し、横方向のページオーバーフローはありません。
+- Colors and visual tokens: 桜マーク、ネイビー、桜ピンク、白、既存の薄い罫線のみを維持しました。
+- Image quality and asset fidelity: 既存`jplanet-sakura-mark.png`、既存ヒーロー・ショートカット・バナー画像をそのまま使い、画像の追加・生成・置換はありません。
+- Copy and content: 削除対象の補足文だけをモバイルホーム中央パネルから取り除き、入力欄文言`商品名・キーワード・画像・URLで検索`と下部案内`販売元・購入可否・関税・配送を確認し、BRL総額を表示`は維持しました。
+
+**Responsive and regression checks**
+
+- `341 × 844` / `390 × 844` / `440 × 956`: 見出し、桜マーク、入力欄、カメラ、送信、下部案内が重ならず、カードから切れず、横オーバーフローなしを実ブラウザのChromeスクリーンショットで確認しました。
+- `768 × 900` / `1440 × 900`: PC／タブレットは既存のDesktop Agent Lens（補足文を含む）をそのまま描画し、今回のモバイル限定DOM・`@media (max-width: 767px)`スタイルによる視覚差分がないことを確認しました。
+- Focused region comparisonは中央パネル全体で実施しました。今回の差分はカード内の一行削除のみであり、細分化した拡大比較は不要です。
+
+final result: passed
+
+---
+
+## 2026-08-17 — モバイル AI検索
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a01236-ccfe-7370-9277-e3e3717d5ed1/exec-2c1b96bf-ef65-49ff-960b-e32e6c9f9816.png`（`853 × 1843` px）。OSの日本語キーボードは比較対象から除外し、ヘッダー、検索履歴、案内、人気検索のアプリ領域を確認しました。
+- Browser-rendered implementation: in-app browserで `341 × 844`、`390 × 844`、`440 × 956` の各CSS viewportを直接キャプチャしました。390pxは`/tmp/jplanet-ai-search-comparison-390-final.png`で、左に参照、右に実装を同じ高さで配置して比較しました。
+- State: ホームの共有検索入口から遷移したAI検索の初期状態。追加で390pxの入力中、履歴削除後、画像候補、URL送信後をPlaywrightの実スクリーンショットで確認しました。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 初回は案内の行間と見出しが参照より大きく、341pxで見出しが不自然に折り返されました。案内の上下余白、番号列、文字サイズ、人気検索の行高を詰め、341pxだけ桜マークと見出しを縮めて一行へ収めました。
+- [P1 → fixed] 390pxで検索欄の完全一致プレースホルダー末尾がカメラへ隠れました。ヘッダー内の検索欄だけを細字・圧縮字間へ調整し、`画像・URL・商品名・キーワードを入力`を341px以上で重なりなく表示しました。
+- P0/P1/P2: なし。白地、ネイビー`#1f3864`、桜ピンク`#fea2ac`、薄い罫線`#e5eaf1`、実J-Planet桜マーク、Lucideアイコンを使い、偽キーボード、グラデーション、ガラス、重い影、装飾的AI表現はありません。
+
+**Fidelity, interaction and responsive checks**
+
+- 341px / 390px / 440px: ヘッダー、履歴チップ、案内4項目、人気検索2行が横オーバーフローなく表示され、固定ナビに内容が隠れません。390pxでは参照との同時比較で余白、罫線、チップ、桜マーク、文字密度を再確認しました。
+- 文字列は既存の一覧導線、URLは既存の共有商品詳細、画像は既存の候補選択画面へ分岐します。個別履歴削除、全削除、戻る、カート、入力自動フォーカス、Enter送信を対象Unit/E2Eで確認しました。
+- 768px / 1440px: in-app browserで既存のPC・タブレットホームを直接確認し、専用AI検索面はモバイル条件に限定されています。
+
+final result: passed
+
+---
+
+## 2026-08-17 — PCホーム: 最近確認した商品フローティングパネル
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260817-qwkp.jpeg`。赤枠・赤線は注釈として除外し、ページ上に独立して浮く白い履歴パネル、左見出し／右削除、5商品程度の横レール、画像右上の削除、下部スクロール位置を比較対象にしました。
+- Browser-rendered implementation: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent`。ユーザーのin-app browserで`1536 × 1024`のホーム上にパネルを開いた状態を確認しました。ブラウザのスクリーンショット書き出し機能は提供されなかったため、参照画像の目視比較と、実ブラウザのDOM・ボックス実測を併用しています。
+- State: `最近確認した商品`を開いた状態。パネルは`document.body`直下、`role="dialog"`、`aria-modal="false"`でレンダーされ、背景に暗幕はありません。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 従来の履歴面は中央楕円内に置かれ、確認項目・補足と一覧が干渉していました。React Portalへ移し、Lensと楕円のレイアウトから分離しました。
+- [P1 → fixed] 画像・商品名・価格をカードごとに縦で揃え、画像右上の削除、`削除`による全履歴のクリア、レール下部の控えめなスクロール位置を追加しました。
+- [P2 → fixed] 実ポインタ操作でレールがカードの削除クリックを捕捉していたため、ボタン上ではドラッグ開始しないようにして、クリック・個別削除を安定させました。
+
+**Fidelity, interaction and responsive checks**
+
+- `1536 × 1024`: パネルは`980 × 382px`、PCヘッダー下端から`16px`の`y=104`、水平中央。8商品のうち5商品が完全表示され、横レールは`926px / 1496px`でスクロール可能です。中央楕円は`845 × 540px`、Lensは`1473 × 699px`のままで、パネルはLens内ではありません。
+- `1440 × 1024` / `1280 × 900`: いずれも`980px`幅・5商品表示。`1024 × 900`: `960px`幅・4商品表示。`768 × 900`: `705px`幅、左右`24px`、3商品表示で、横スクロールへ切り替わります。
+- 開閉: 同じ導線でトグル、外側クリック、Escape、フォーカス復帰を実ブラウザで確認しました。個別の×、全削除、商品カードから既存商品詳細への遷移も確認しています。開閉はopacity／translateY／scaleで、reduced-motionではほぼ無効化します。
+- `341px` / `390px` / `440px`: `data-desktop-home-view`、Portal、PC用トリガーはいずれも未レンダー。既存モバイルホームとAI商品相談を維持し、横オーバーフローなしを実測しました。
+- `pnpm typecheck`、対象Vitest 59件、今回更新したdesktop E2E（最近確認パネルを含む）、`pnpm build`、`git diff --check`は通過しました。全体desktop E2Eには、今回と無関係な既存`[data-home-dense-product-grid]`のstrict selector失敗が1件、全体mobile E2Eには旧`[data-mobile-agent-hub]`を前提にした既存失敗が2件あります。
+
+final result: passed with browser screenshot-export limitation
+
+---
+
+## 2026-08-17 — PCホーム: 購入エージェントLensのLiquid Glass 3面
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/Codex 画像 2026年8月17日 19_18_13.jpg`（赤い注記は実装対象外）と、質感基準 `/Users/fujitatetsu/.codex/generated_images/01a010d7-3e62-78a2-baf4-ac2e133995d2/exec-798be21b-47ce-4d0e-9578-4be3fdbc8f14.png`。
+- Browser-rendered implementation: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent`。同サイズへ正規化した比較は `/Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/jplanet-liquid-glass-comparison-1536x1024.png`（左: 質感基準、右: 実装）です。通常状態と入力欄ホバー状態はそれぞれ `jplanet-liquid-glass-normal-1536x1024.png` / `jplanet-liquid-glass-input-hover-1536x1024.png` で確認しました。
+
+**Result**
+
+- 対象を入力方式タブ、購入エージェント入力欄、4項目の確認帯だけに限定しました。中央楕円、4面バナー、見出し・説明・補足、ヘッダー、既存の送信／タブ導線は変更していません。
+- 各面は半透明の本体、上縁の白い反射、下縁のネイビー／桜ピンクの屈折、カーソル位置に追従する小さなハイライトで構成しています。入力欄を最も強く（`blur(28px)`）、タブを中間（`22px`）、確認帯を静かに（`18px`）して階層を維持しました。
+- ポインタ移動は`requestAnimationFrame`でCSSカスタムプロパティだけを更新し、React stateをフレーム単位で更新していません。fine pointer時だけ入力欄は`translateY(-2px) scale(1.003)`、他2面は控えめに浮きます。`prefers-reduced-motion`とcoarse pointerでは停止し、キーボードフォーカスは2pxのネイビーリングです。`backdrop-filter`非対応時は90%白のフォールバックになります。
+- 1536×1024で入力欄のホバー反射・浮き上がりを実ブラウザで確認。1440×1024、1024×900、768×900では3面すべてが表示され、横オーバーフローなし。341／390／440pxではPC LensもLiquid Glass面もDOMに出ず、既存モバイル表示を維持しました。
+- `pnpm typecheck`、ホームUnit 59件、`pnpm build`、`git diff --check`を通過。対象Playwrightは既存のセレクタ前提に起因するdesktop 1件（`[data-home-dense-product-grid]`の重複）とmobile 2件（旧`[data-mobile-agent-hub]`）のみ失敗し、今回の3面のDOM・導線変更に関する失敗はありません。
+
+final result: passed
+
+---
+
+## 2026-08-17 — PCホーム: Agent Lens premium 4-panel asset fidelity
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a010d7-3e62-78a2-baf4-ac2e133995d2/exec-2b43c933-819a-4522-892c-d2470b3e57d2.png`.
+- Browser-rendered implementation: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent` at `1536 × 1024`. The normalized side-by-side proof is saved at `/Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/jplanet-agent-lens-reference-vs-current.png`.
+
+**Fidelity and implementation checks**
+
+- The Lens remains a single rounded shell composed of exactly four independent `2 × 2` image panels. The thin central horizontal and vertical separation lines remain visible, and the large white purchase-agent oval remains the top-most surface.
+- Replaced only the four PC backdrop images: coupon / OpenAI guidance / URL-image search / summer sale. Coupon ticket copy stays as DOM text over the image for readability; the official black OpenAI blossom and wordmark remain the existing local SVG assets rather than generated or imitated artwork.
+- At `1536 × 1024`, the Lens measured `1473 × 699px`; each backdrop measured approximately `736 × 348px`; the central agent surface measured `845 × 540px`. The outer portions of every panel retain a recognizable subject once covered by the oval.
+- `1440 × 1024`, `1024 × 900`, and `768 × 900`: the four-panel structure, panel subject readability, official OpenAI mark, agent input, and route rail remain visible without horizontal overflow. At `341 × 900`, `390 × 900`, and `440 × 900`, the desktop Lens was absent and the pre-existing mobile agent UI remained unchanged.
+- Hover/focus proof: the backdrop action uses `transform: translateY(-4px) scale(1.012)` with a low-opacity highlight and no abrupt scale or bounce; all four actions remain native buttons and keyboard reachable.
+
+**Automated checks**
+
+- Passed: `pnpm typecheck`, `pnpm exec vitest run tests/unit/sazo-commerce-home.test.tsx` (`59 / 59`), `pnpm build`, and `git diff --check`.
+- Desktop target E2E: the Agent Lens case passed. One unrelated pre-existing waterfall-grid test remains blocked because its global selector resolves two pre-existing dense grids.
+- Mobile target E2E: two pre-existing tests remain blocked because they expect the old `[data-mobile-agent-hub]` DOM that is not present in the current mobile implementation. Direct browser checks at all three required mobile widths confirmed this PC-only change did not render the desktop Lens or alter the mobile UI.
+
+final result: passed
+
+---
+
+## 2026-08-17 — PCホーム: 購入エージェントLensのLiquid Glass
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-17 18.50.47.png`（`1534 × 831` px）。白い購入エージェント面を主役にしつつ、外周・タブ・入力欄・確認項目にだけ柔らかな反射と淡い桜ピンク／青の屈折を置く構成を比較対象にしました。
+- Browser-rendered implementation: CSS viewport `1534 × 831`。同じ表示状態で参照と実装を並べた比較画像は `/Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/agent-lens-liquid-glass-final-comparison-1534.png` です。ブラウザの可視領域差を揃えるため、比較画像内では参照の下端を実装と同じ可視高さへトリミングし、拡大縮小はしていません。
+- State: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent`。通常状態（ホバー解除、履歴パネル未展開）です。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 中央面、入力欄、確認項目が平坦で、参照にある淡い反射・内側ハイライト・背景ぼかしがありませんでした。`backdrop-filter`を中央面`14px`、入力欄`11px`、確認項目`10px`に適用し、白い可読面を保ったまま薄い屈折の縁を追加しました。
+- [P1 → fixed] 初回の縦リズムは見出し／入力／確認列が詰まり、参照より下方向の余白が不足していました。1280px以上は中央面を`844 × 540px`（1534px時）として、タブから見出し、入力、確認列、補足までの間隔を参照に合わせて調整しました。
+- P0/P1/P2: なし。強い透過、鏡面反射、読みにくい文字色は採用せず、背景4面や既存導線の可視性を保持しています。
+
+**Fidelity and interaction checks**
+
+- 外周は白を主役にし、桜ピンクから淡い青への反射は縁・操作面に限定しました。CTAの桜ピンク、ネイビー文字、既存のOpenAIロゴと4面の既存アセットは変更していません。
+- 1534 × 831: 中央面`x=338, y=213, w=844, h=540`、タブ`y=272`、入力欄`y=466`、確認列`y=576`で、参照の楕円サイズ・奥行き・余白と並べて確認しました。document幅`1519px`で横オーバーフローはありません。
+- 1024 × 900: 中央面`720 × 440px`、確認列`620 × 52px`で表示し、入力・確認項目・3導線が収まり、横オーバーフローはありません。
+- 341 / 390 / 440px: `.sazo-desktop-agent-lens`はDOMに存在せず、既存モバイルホームを表示します。document幅は各viewport内（`326 / 375 / 425px`）で、今回のPC専用スタイルがモバイルへ影響しないことを実測しました。
+- ポインター追従: 中央面上のホバーは既存のrAF更新を維持し、`translateY(-3px) scale(1.006)`と反射位置の更新だけで滑らかに反応します。`prefers-reduced-motion`ではtransitionを停止します。
+
+final result: passed
+
+---
+
+## 2026-08-17 — PCホーム: Agent Lens 中央面の可読性・薄いリム・ホバー調整
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a010d7-3e62-78a2-baf4-ac2e133995d2/exec-798be21b-47ce-4d0e-9578-4be3fdbc8f14.png`（`1556 × 1011`）。4分割バナーの背後に、読みやすい白い購入エージェント面を前面に置く構成を唯一の正典としました。
+- Browser-rendered implementation: `/Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/agent-lens-glass-rim-implementation-1536.jpg`（CSS viewport `1536 × 1024`、実キャプチャ `1521 × 1014`）。
+- Same comparison input: `/Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/agent-lens-glass-rim-comparison-1536.jpg`（左: 正典、右: 実装）。ブラウザ枠の有無は評価対象から外し、ページ内のヘッダーからLens直下の3導線までを同寸法で照合しました。
+- State: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent` の通常状態。検索履歴パネルは閉じ、URL送信タブを選択した状態です。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 既存の証拠列は最終上書きで`570px`まで縮み、1536pxでも`BRL総額・到着目安`が不自然に折り返していました。中央面の内寸に合わせて`720px`へ戻し、4項目を一行・横オーバーフローなしにしました。
+- [P1 → fixed] 中央面が白の一枚板に見え、画像の4面に対する前景レイヤーとして弱かったため、面は`97%`不透明の白を維持したまま、内側`6–7px`だけに白／淡桜／淡ネイビーの反射リムと`0 3px 10px`の短い影を追加しました。本文全体を半透明ガラスにはしていません。
+- P0/P1/P2: なし。4枚のバナー、境界線、キャプション、OpenAI公式アセット、入力方式、カメラ、送信、3導線、商品レールは維持しています。
+
+**Full-view and focused comparison**
+
+- Layout / hierarchy: 1536pxでLensは`1473 × 699px`、中央面は`845 × 510px`。中央面は4面を自然に覆いながら、左上クーポン、右上の公式OpenAIロックアップ、左下の検索導線、右下のサマーセールが外周で判別できます。
+- Surface / color: 中央面は白`97%`、薄いネイビーの外周、淡い桜の反射だけです。強い影、広いガラス、ネオン、虹色、全面グラデーションはありません。背景は一律約8%だけ沈めて、内容認識を保ちました。
+- Controls: タブは弱いセグメント表示、選択中は桜色、検索欄は淡桜／淡ネイビーの細い反射、送信は`#fea2ac`です。証拠列は1536 / 1440 / 1024 / 768で一行・横オーバーフローなしを実測しました。
+- Interaction: 中央面はfine pointer時だけ`translateY(-3px) scale(1.006)`、`280ms cubic-bezier(.22,1,.36,1)`で浮きます。ポインタ位置は`requestAnimationFrame`でCSS変数へ反映し、React再描画ループを作っていません。入力・タブにフォーカスが入ると浮遊変形を止め、送信・画像選択を妨げません。背景4面は既存のネイティブbuttonでキーボード到達性を維持しています。
+
+**Responsive and regression checks**
+
+- `1536 × 1024`: 中央面`845 × 510px`、証拠列`720px`、4面の内容とLens直下の3導線を確認。
+- `1440 × 1024`: 中央面`792 × 510px`、証拠列`682px`、商品レール先頭まで表示、折り返しなし。
+- `1024 × 900`: 中央面`720 × 440px`、証拠列`620px`、上下余白と3導線が保たれ、横オーバーフローなし。
+- `768 × 900`: 中央面`555 × 440px`、証拠列`485px`、4面の判別性を保ち、横オーバーフローなし。
+- `341 / 390 / 440px`: PC LensはDOMに出ず、既存モバイルホームのみを表示。各幅で`documentElement.scrollWidth <= innerWidth`を確認しました。
+
+final result: passed
+
+---
+
+## 2026-08-17 — モバイルホーム: Uniqlo発見レールのコンテンツ線とロゴ
+
+**Comparison input**
+
+- Source visual truth: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_9qDM51/スクリーンショット 2026-08-17 17.42.08.png`（`836 × 1216` px）。赤い囲みと編集ハンドルは依頼時の注釈であり、実装対象には含めません。
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-c0169-es-its-source-on-every-card-mobile/uniqlo-discovery-341.png`、`uniqlo-discovery-390.png`、`uniqlo-discovery-440.png`、および同じ390px幅の周辺文脈 `uniqlo-discovery-context-390.png`。後者はCSS viewport `390 × 844`、device scale factor 2の`780 × 1688` pxです。
+- State: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=1&view=home` のホーム。J-Planet GRAM直後の「ユニクロをお探しですか？」レール。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 発見レールだけがホームpolishの12px内側余白と負のグリッドマージンを持ち、見出しと最初・最後のカード端がJ-Planet GRAMの16pxコンテンツ線と揃っていませんでした。モバイルの当該レールだけを16px基準へ正規化し、グリッドの負マージンを除去しました。341px／390px／440pxすべてで、見出し・レール・GRAMの左右境界が一致することを実測しています。
+- [P1 → fixed] 要求された販売元表示が商品名と見出しにありませんでした。既存の実`uniqlo-logo.svg`を、見出しでは20px、各商品タイトル行では既存カード基準の22px正方形で再利用しました。画像生成やロゴの描き直しはしていません。
+- 再キャプチャ後のP0/P1/P2: なし。横方向のページオーバーフローもありません。
+
+**Fidelity and implementation checks**
+
+- Typography and rhythm: 既存のArial系、ネイビー、18pxのセクション見出し、ホーム商品カードのタイトル・価格・バッジ密度を維持しました。ロゴは行高に合わせて縮小し、商品名の左端と価格の縦線を乱しません。
+- Alignment: セクション見出し、商品レールのスクロール領域、J-Planet GRAMの見出し・グリッドは同一の16pxコンテンツ線に揃います。右端も同じコンテンツ幅で止まり、カードは必要時のみ横スクロールします。
+- Asset fidelity: 既存の`/sazo-commerce/reference/uniqlo-logo.svg`だけを使い、実商品画像・既存の丸いカートボタン・J-Planetトークンを保持しました。
+- Responsive and interaction: 341px／390px／440pxでロゴ付きの商品名、既存の商品詳細導線、カート操作、横スクロールレールを確認しました。変更は`max-width: 767px`かつモバイル発見レールに限定し、PC表示は変えていません。
+- Verification: `pnpm typecheck`、対象Home Unit、対象mobile E2E、`git diff --check`を通過しました。
+
+final result: passed
+
+---
+
+## 2026-08-17 — PCホーム: 購入エージェント中央面（選定スクリーンショット）
+
+**Comparison input**
+
+- Source visual truth: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_PVphQZ/スクリーンショット 2026-08-17 16.58.20.png`（`796 × 463px`）。中央楕円内のタブ、見出し、入力、確認項目バー、補足の構成を対象にしました。
+- Browser-rendered implementation: `/Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/agent-lens-center-implementation-1536.png`（CSS viewport `1536 × 1024`、キャプチャ `1521 × 1014px`）。中央面の実測は `806.4 × 480px` です。
+- Normalized comparison: `/Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/agent-lens-center-comparison-1536.png`（左: source、右: implementation）。実装の中央面をブラウザの実キャプチャ倍率に合わせて切り出し、両方を `796 × 463px` に正規化して同一画像に並べました。
+- State: `URLを送る`が選択された初期状態。Lens内の検索履歴パネルは閉じた状態です。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 初回は、入力方式が白い枠付きのタブ群となり、確認項目は透明な接続線と丸いアイコンで、選定スクリーンショットのフラットな横並び構造と異なっていました。
+- 修正後は、タブの外枠と選択影を除き、3つの文字タブの間だけを細い罫線で区切りました。見出しを大きくし、幅`720px`・高さ`90px`の入力欄と、淡い青灰色の4分割確認バーへ整列しました。
+- P0/P1/P2: なし。確認項目は既存の送信後確認内容であり、進捗画面やチャット履歴には変更していません。
+
+**Full-view and focused comparison**
+
+- Fonts and typography: 既存のArial / Hiragino系フォントとネイビーを維持。`購入エージェント`は`58px`、説明は`16px`、確認項目は`12px`にして、選定画像の優先順位と可読性に揃えました。
+- Spacing and layout rhythm: 上からタブ`50px`、見出し、説明、`90px`入力、`26px`の間隔、`54px`確認バー、`21px`の補足間隔に統一。中心面は既存の楕円サイズと前面レイヤーを保っています。
+- Colors and visual tokens: 白い楕円、ネイビー`#1f3864`、桜ピンクの送信ボタン、`#f6f8fb`の確認バー、`#d9e2ee` / `#dbe3ef`の軽い区切り線だけを使用。強い影・グラデーション・ガラス表現はありません。
+- Image quality and asset fidelity: 中央面には新規画像や自作図形を追加していません。アイコンは既存のLucideセットを使い、検索、店舗、シールド、ボックスの意味を保ちました。
+- Copy and content: 3つの入力方式、見出し、説明、プレースホルダー、4つの確認項目、補足を変更せず維持しました。
+
+**Responsive and interaction checks**
+
+- `1536 × 1024`: 中央面`806.4 × 480px`、入力`720 × 90px`、確認バー`720 × 54px`。選定画像との同一比較入力で、タブ枠除去・入力寸法・4分割バーを照合しました。
+- `1440 × 1024`: 中央面`756 × 480px`、入力／確認バーは各`720px`、横オーバーフローなし。
+- `1024 × 900`: タブレット用中央面`720 × 494px`、入力／確認バー各`612px`、横オーバーフローなし。
+- `341 / 390 / 440px`: PC Lens DOMはレンダーされず、既存モバイルホームが表示され、横オーバーフローなし。
+- 操作: `画像を送る`と`URLを送る`の切替を実ブラウザで確認し、選択状態が往復すること、入力・カメラ・送信ボタンが有効であることを確認しました。
+- Runtime: 実ブラウザでの再読込・タブ切替中に可視のランタイムエラーは確認されませんでした。
+
+final result: passed
+
+---
+
+## 2026-08-17 — PCホーム: 4面購入エージェントLens（確定ビジュアル）
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a010d7-3e62-78a2-baf4-ac2e133995d2/exec-d8ac50c4-adfb-4593-a038-e3126dbd53a3.png`。
+- Browser-rendered implementation: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent`。1536 × 1024 の実ブラウザ画面を同じ比較入力へ横並びにした成果物: `/Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/agent-lens-canonical-comparison-final-1536-v4.png`。ブラウザのスクロールバーを含むキャプチャは 1521 × 1014 px で、参照を同じラスタ寸法へ縮尺しました。
+
+**Visual findings**
+
+- Lensは、薄い十字の境界線のみで区切った左上・右上・左下・右下の4面に統一し、中央の白い楕円を最前面へ置きました。楕円は背景4面へ深く重なり、入力タブ、見出し、説明、入力欄、確認項目、補足、Lens直下の3導線、商品レールの順序を保持しています。
+- 各面は独立した背景バナーで、外側の白いピルに`はじめてのクーポン`、`ChatGPTに相談`、`おすすめの検索先`、`サマーセールを見る`を配置しました。背景の露出部にクーポン、URL／画像検索、サマーセールの主題を置き、右上には公式配布の黒いOpenAI BlossomとWordmarkを実アセットとして表示しています。
+- 4面とも背景クリックに加え、外側の露出部にネイティブbuttonを持たせました。中央楕円の入力・タブを覆わず、キーボード到達時は同じfocus-visible状態になります。1536pxでChatGPT面をホバーし、`translateY(-3px)`、半透明ハイライト`rgba(255,255,255,.13)`、細い輪郭が発火することを実測しました。`初回クーポン`は1024pxでクリックして既存クーポン画面へ遷移、`ChatGPTに相談`は既存チャット面を開くことを実ブラウザで確認しました。
+
+**Responsive checks**
+
+- 1536 × 1024: 4面・境界線・楕円の重なり、OpenAIロックアップ、3導線、商品レールを参照との横並びで照合しました。
+- 1440 × 1024: 4面と楕円、3導線、6商品レールを維持し、横オーバーフローなしを確認しました。
+- 1024 × 900: 4面を保ったタブレットLensへ縮尺し、露出部のbuttonと中央入力面を分離して確認しました。
+- 341 / 390 / 440 × 900: PC LensはDOMに表示されず、既存モバイルホーム・モバイル検索入力・固定ナビが維持されることを実ブラウザで確認しました。
+
+**Constraint**
+
+- 画像生成を行わない条件のため、背景写真は既存J-Planetアセットを使用しています。そのため確定画像の個別写真（桜の美容ボトル、ノート、扇子・スーツケース）そのものには置換していません。4面の構造、露出位置、導線、色調、公式OpenAIロックアップはコードで合わせています。
+
+**Verification**
+
+- Passed: `pnpm typecheck`、`pnpm exec vitest run tests/unit/sazo-commerce-home.test.tsx`（59件）、`pnpm build`、`git diff --check`。
+- Target Playwright desktop: Lensを含む対象テストは通過。別の既存Waterfall Gridテストのみ、`[data-home-dense-product-grid]`が2要素あるためstrict locatorで失敗しました。
+- Target Playwright mobile: Lens非表示と実ブラウザ確認は通過。既存モバイルAgent Hubの見出し／空状態コピーを期待する2テストのみ失敗しました（今回のモバイルDOM・文言は変更していません）。
+
+final result: passed with existing-asset and pre-existing-test constraints
+
+---
+
+## 2026-08-17 — モバイルカテゴリー: スキンケア商品一覧
+
+**Comparison input**
+
+- Source layout truth: `/Users/fujitatetsu/.codex/generated_images/01a010ca-9a7d-7d12-9571-a4660a85a756/exec-4660ee81-f03d-433a-9f7c-00f874d41be1.png`（`853 × 1844` px）と、Masonry構成の `/Users/fujitatetsu/.codex/generated_images/01a010ca-9a7d-7d12-9571-a4660a85a756/exec-150cc740-e26d-4bcf-b5d2-5fe7978d4c9a.png`（`853 × 1844` px）。前者からはヘッダー直下のパンくず、コンパクトなAI入口、商品一覧の情報階層だけを採用し、後者からは左右独立の2列Masonryだけを採用しました。
+- Product-card visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-17 16.12.35.png`（`850 × 1264` px、現在のホーム商品カード）。色・フォント・角丸・画像余白・バッジ・カート・価格・販売数・直送表記はこのホーム実装を正典としました。
+- Browser-rendered implementation: in-app Browserの同一比較入力で、ホーム参照、Masonry参照、実装の440pxスクリーンショットを並べて確認しました。対象URLは `http://127.0.0.1:5190/sazo-commerce-mock/?qa=1&view=categories`、物理viewportは `440 × 956`、縦スクロールバーを除くアプリ内容幅は`425px`です。
+- State: `カテゴリー → 化粧品 → スキンケア`を押した直後、途中スクロール、既存商品詳細、戻り後の一覧を比較しました。
+
+**Comparison history and findings**
+
+- [P2 → fixed] 初回のスキンケア商品カードは汎用カードの8px角丸を引き継いでおり、現在のホーム商品の16px外周より硬く見えました。スキンケア一覧だけへホームと同じ`16px`の外周角丸トークンを適用し、再キャプチャでホーム参照との一致を確認しました。
+- P0/P1/P2: なし。再比較では、生成モック固有のロゴ、フォント、カード装飾を持ち込まず、既存J-Planetのネイビー、白、桜ピンク、既存のアイコン線幅と商品カードを維持しています。
+
+**Full-view and focused comparison**
+
+- Typography / spacing: 既存のArial系和文フォールバック、ホームと同じ見出し・商品名・価格の優先度、カード間隔、カード内余白を再利用しました。パンくずと`絞り込み`、`AIに探してもらう`、`あなたへのおすすめ`は必要な情報だけをコンパクトに縦積みしています。
+- Cards / Masonry: `JplanetRecommendationGrid`と`HomeDenseProductCard`をそのまま使用しています。440pxでは各列`196.5px`で、左列カードの下端は`645 / 973 / 1276px`、右列は`602 / 930 / 1257px`となり、左右の高さを揃えず前カード直下へ詰めています。
+- Assets / visual tokens: 肌ラボは既存の商品アセット、他の候補も既存の化粧品アセットを使いました。ネイビーの商品バッジ、丸いカート、ピンクの割引率、グレーの取消価格、BRL価格、販売数、`日本から直送`はホームと同じDOM・CSSです。新規ロゴ、フォント、色、グラデーション、重い影は追加していません。
+
+**Interaction and responsive checks**
+
+- 341px / 390px / 440pxで、カテゴリー、スキンケア一覧直後、途中スクロール、商品詳細、戻り後を実ブラウザで往復しました。各幅で横方向は`scrollWidth === clientWidth`、カード6件、共有固定ナビと最終カードの下余白を確認しました。
+- 商品カードは既存の商品詳細導線を開き、詳細の戻る操作でスキンケア一覧へ戻ります。カテゴリー画面の戻る操作も既存のカテゴリー画面へ戻ります。AI入力は既存`MobileAgentComposer`を使用し、カメラ、入力、送信を維持しています。
+- 768pxではスキンケア選択後も既存の`beauty`ビューに留まり、新しい`skincare-catalog` DOMはレンダーされません。幅`753px`の`scrollWidth`も`753px`で、PC・タブレットの既存カテゴリー挙動に新しい変更はありません。
+
+**Mock limitation**
+
+- 商品詳細は依頼どおり既存の共通詳細導線を再利用しているため、現行Mockでは選択したスキンケア商品固有の詳細ではなく既存の共通商品詳細を表示します。スキンケア固有の詳細画面は新設していません。
+
+final result: passed
+
+---
+
+## 2026-08-17 — スキンケア一覧: 中カテゴリー／小カテゴリー横レール
+
+**Comparison input**
+
+- Source visual truth: 赤枠の配置指定 `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_WabZID/スクリーンショット 2026-08-17 17.25.23.png`（`714 × 1188` px）と、横スライドする中カテゴリー／小カテゴリーの `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-17 17.26.46.png`（`698 × 188` px）。
+- Browser-rendered implementation: in-app Browserで `http://127.0.0.1:5190/sazo-commerce-mock/?qa=1&view=skincare-catalog` を物理viewport `390 × 844`、アプリ内容幅`375px`で撮影。参照の横レール切り抜きと実装レール、赤枠の全体図と実装の全体図をそれぞれ同じ比較入力に置きました。
+- State: 初期選択は`スキンケア`、小カテゴリーは未選択。比較後に`ベースメイク → BBクリーム`も選択し、表示データが切り替わる状態を確認しました。
+
+**Comparison history and findings**
+
+- P0/P1/P2: なし。上段は下線付きの中カテゴリー、下段は楕円チップという参照の情報階層を、既存J-Planetの白面・ネイビー・薄い罫線・フォント密度に正規化しました。既存商品カード、ヘッダー、AI入力、下部ナビの様式は変えていません。
+
+**Full-view and focused comparison**
+
+- Typography / spacing: 上段は既存ナビと同じ15px前後の太字、下段は13pxの小カテゴリーとし、参照と同じく選択中だけネイビー下線、非選択はmuted navyです。チップの高さは34px、横間隔8pxで、赤枠位置から商品見出しまでの余白を増やしすぎない構成にしています。
+- Colors / imagery / icons: 新しい色、ロゴ、画像、アイコンは追加していません。チップは白地・細い既存系罫線、選択時のみ既存ネイビーです。商品カードは既存のホームコンポーネントと既存化粧品アセットをそのまま使用しています。
+- Copy / data: 中カテゴリーは既存`catalogTabs`から`スキンケア`、`ベースメイク`、`ポイントメイク`、`セット商品`、`メイク小物`、`UVケア`を読み込み、小カテゴリーも同じ既存データから描画します。商品データの`categoryIds`と`chipIds`で実際に絞り込みます。
+
+**Interaction and responsive checks**
+
+- 341px / 390px / 440pxで、中カテゴリー6件・スキンケア小カテゴリー6件が表示され、両レールは横スクロール可能、ページ本体は`scrollWidth === clientWidth`で横オーバーフローなしを確認しました。
+- `ベースメイク`選択でパンくずと小カテゴリーを`メイクアップベース / プライマー / BBクリーム / CCクリーム`へ切り替え、商品2件へ絞り込みます。`BBクリーム`選択では1件へ絞り込み、`aria-selected`と`aria-pressed`も更新されます。
+
+final result: passed
+
+---
+
+## 2026-08-17 — スキンケア一覧: パンくず・絞り込み行の撤去
+
+**Comparison input**
+
+- Source instruction visual: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_DeQmK3/スクリーンショット 2026-08-17 17.40.16.png`。赤枠は残す要素ではなく、カテゴリー横レールを追加した後は撤去し、AI入力を上へ詰める対象として扱いました。
+- Browser-rendered implementation: ローカルプレビュー `http://127.0.0.1:5190/sazo-commerce-mock/?qa=1&view=skincare-catalog` を実Chromeで `341 × 844`、`390 × 844`、`440 × 844` にキャプチャし、同じ初期状態（`スキンケア`、小カテゴリー未選択）で比較しました。
+
+**Comparison history and findings**
+
+- [P1 → fixed] `化粧品 ＞ スキンケア` と `絞り込み` の54px行が、カテゴリー／小カテゴリーの二段レールと情報を重複させ、AI入力を下へ押し下げていました。この行をDOMとモバイルCSSの双方から撤去し、`AIに探してもらう` と入力欄を共有ヘッダー直下へ詰めました。
+- Re-capture result: P0/P1/P2: なし。ヘッダー、AI入力、二段横レール、商品見出しの順に連続し、二重のカテゴリ文脈や余白はありません。
+
+**Fidelity and interaction checks**
+
+- 341px / 390px / 440pxで、ヘッダーの各アイコンとAI入力が画面内に収まり、ページ本体の横はみ出しや下部ナビとの重なりはありません。中カテゴリー／小カテゴリーは意図どおり横スクロールを維持しています。
+- `MobileAgentComposer`、カメラ、送信、データ駆動の中カテゴリー／小カテゴリー切替、既存ホーム商品カードは変更していません。パンくず・フィルターのボタンだけを撤去しています。
+
+final result: passed
+
+---
+
+## 2026-08-17 — モバイルカテゴリー・ディレクトリ
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a010ca-9a7d-7d12-9571-a4660a85a756/exec-ac6c26b5-3f51-4eef-bc34-7813a5038bcc.png`（`853 × 1844` px）。戻る／AI検索／チャット／共有／カート／メニューの56pxヘッダー、ページ見出し、2タブ、約95pxの左レール、右側の3列・9枚の丸写真、共有下部ナビを比較対象にしました。
+- Browser-rendered implementation: `test-results/sazo-commerce-reproduction-d036d-ves-desktop-category-layout-mobile/category-cosmetics-390.png`（CSS viewport `390 × 844`、2× density、`780 × 1688` px）。同一状態の正規化済み比較入力は `/tmp/jplanet-category-qa-390.png`（左: 承認画像、右: 実装）です。
+- Additional evidence: `category-cosmetics-341.png`、`category-cosmetics-440.png`、`category-ladies-390.png`、`category-popular-brands-390.png`。いずれも同じPlaywright実ブラウザ状態です。
+
+**Comparison history and findings**
+
+- P0: なし。ヘッダー、ページ見出し、タブ、95px前後の左レール、円形写真の3列、共有下部ナビのいずれにも横オーバーフロー・重なり・欠落はありません。
+- [P1 → fixed] UVケアとボディケアの写真背景が白すぎて円形として読めませんでした。背景の明度差を持つ個別写真に置換し、全9画像のデコード完了後にキャプチャする検証へ変更しました。
+- [P2 → fixed] 341pxで`ポイントメイク`が2行に折り返していました。341pxだけ11px・わずかな字間圧縮・単一行を適用し、`scrollWidth <= clientWidth`を実測しました。
+- Re-capture result: P0/P1/P2: なし。
+
+**Fidelity and interaction checks**
+
+- Typography / spacing: 既存の和文フォールバック、ネイビー`#1f3864`、薄い罫線、写真下6pxのラベル間隔を用い、390pxで写真は72px、341pxでも3列を維持しました。左レールは`94–100px`に制約しています。
+- Imagery / surfaces: 9枚は各々独立した`img`で、無地の淡い背景・ロゴ／可読テキスト／透かしなしの化粧品写真です。四角カード、線画アイコン、グラデーション、ガラス、濃い面、過度な影はありません。
+- Behavior / accessibility: 左カテゴリーは`aria-current="page"`を更新し右見出しと子項目を切り替えます。子項目と`すべて見る`は既存のBEAUTY一覧導線、`人気ブランド`タブは既存ブランド導線へ接続しています。子項目には可視フォーカスを付け、全9項目を操作可能にしています。
+- Responsiveness: 341px／390px／440pxは3列・横オーバーフローなし・固定ナビ上へスクロール可能であることを確認しました。768px／1511pxはモバイル専用タイトルをレンダーせず、既存のカテゴリーAI入力、6件のデスクトップ一覧、既存DOMを確認しました。
+
+final result: passed
+
+---
+
+## 2026-08-17 — モバイルNintendo商品詳細の寸法・アスペクト比調整
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-17 14.33.30.png`（`662 × 1442` px）と `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-17 14.33.36.png`。同じNintendo Switch Proコントローラー詳細の先頭・スクロール下段を比較対象にしました。
+- Browser-rendered implementation: `/tmp/nintendo-final-top-331.png` と `/tmp/nintendo-final-scroll-331-v2.png`（CSS viewport `331 × 718`、2× density、`662 × 1436` px）。同幅比較の合成証跡は `/tmp/nintendo-top-comparison-331-final3.png` です。
+- State: `?qa=1&view=product&product=jplanet-nintendo-pro-controller`。画像ギャラリー先頭、固定購入フッター、説明文の折りたたみ状態。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 初回はメディア領域が約286px、サムネイルが62px、ヘッダー検索欄が狭く、参照の331px幅とアスペクト比が合っていませんでした。モバイル専用の後段CSSで、メディア高244px、ヒーロー高192px、サムネイル46px、ヘッダー検索欄141pxへ調整しました。
+- [P1 → fixed] 商品情報の縦密度も参照へ合わせ、配送カード84px、レビュー35px、仕様34px、固定フッター53.5pxへ圧縮しました。ソースバッジと外部リンクの幅も参照へ合わせています。
+- P0/P1/P2: なし。PC・タブレット用のメディア／購入レイアウト、DOM、操作は変更していません。
+
+**Full-view and focused comparison**
+
+- Header / media: 検索欄と4つの円形アクションを同じ32px径・2px間隔で配置し、淡いアクア背景、コントローラー画像、`1/10`バッジの位置と大きさを揃えました。
+- Gallery / product content: 6つの46px正方形サムネイル、14px左右余白、商品名、Nintendoバッジ、価格、配送・レビュー・仕様の境界線を同じ横幅で確認しました。
+- Scroll state: 説明見出し、本文3行、画像の灰色上端、`もっと見る`、購入者レビューの順序を下段参照と比較しました。横方向のクリップはありません。
+
+**Responsive and interaction checks**
+
+- 341px、390px、440pxでメディア・ヒーロー・サムネイル・配送カードを実測し、`document.documentElement.scrollWidth > clientWidth` がすべて `false` でした。
+- 既存のサムネイル選択、説明展開、配送詳細、カート／購入CTA、固定フッターはそのまま動作します。今回の変更はモバイルの表示寸法だけです。
+
+final result: passed
+
+---
+
+## 2026-08-17 — 440px商品詳細の文字・画像密度 再検証
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-17 11.13.12.png`（New Balance）と`/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-17 14.33.30.png`（Nintendo）。
+- Browser-rendered implementation: Chrome channelの実スクリーンショットを`440 × 736 CSS px / DPR 2`で取得し、`/tmp/qa-current-newbalance-440.png`と`/tmp/qa-current-nintendo-440.png`へ正規化しました。参照・実装を同じ比較入力に置いた証跡は`/tmp/jplanet-product-qa-comparison.png`です。
+- State: New Balanceは画像候補から確定した直後、Nintendoは`?qa=1&view=product&product=jplanet-nintendo-pro-controller`の先頭です。
+
+**Findings and fixes**
+
+- [P1 → fixed] 662pxの参照画像を331px幅として扱ったため、440pxではヘッダー、見出し、価格、配送情報、固定CTAが過度に小さくなっていました。440pxを正典として、44px操作面、17px商品名、27px価格、14/12/10pxの配送情報階層、38px CTAへ戻しました。
+- [P1 → fixed] New Balanceは10件の複製画像レールと割引表示が参照と異なっていました。既存fixtureの3枚ギャラリーをそのまま使い、`1/3`、3枚サムネイル、単一の`R$ 748`価格へ揃えました。
+- [P2 → fixed] モバイル商品詳細だけをApple/Hiragino系のシステムフォントへ揃え、見出し、販売元、配送補足の字幅・太さ・行高を参照へ合わせました。
+- P0/P1/P2: なし。参照画像に含まれる外側のデバイス余白はページUIではないため、実装はCSS viewport幅を100%使用しています。
+
+**Responsive and interaction checks**
+
+- 341 / 390 / 440pxで画像送信→候補→New Balance詳細、画像選択、配送詳細、レビュー、仕様、購入CTAを確認し、横オーバーフローはありません。
+- Nintendoの同じ440px比較では、ヒーロー、`1/10`、サムネイル、商品名、価格、配送カード、固定CTAの位置・文字密度を再確認しました。
+- PC・タブレットのDOM、レイアウト、既存操作は変更していません。
+
+final result: passed
+
+---
+
+## 2026-08-17 — PC購入エージェント: 入力欄の履歴／最近見た商品パネル
+
+**Comparison input**
+
+- Source interaction: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260817-nopk.jpeg`。赤枠で示された購入エージェントの `URL・画像・商品名を送る` を押すことが、履歴・最近見た商品を開く入口です。
+- Browser-rendered implementation: `/Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/desktop-agent-lens-input-history-1536.jpg`（`1536 × 1024`）。Lensの入力欄を開いた状態です。
+
+**Fidelity and interaction checks**
+
+- 入力欄の直下へ白いオーバーレイ面を置き、上段を`最近の検索`、区切り線の下を`最近見た商品`の横スクロール列にしました。Lensの高さ内で商品名・BRL価格まで読めるよう、5件の画像は56px高、カード名は1行に揃えています。
+- 1536 × 1024 と 1024 × 900: パネルが赤枠の購入エージェント入力にアンカーし、5件の画像、商品名、価格、個別XがLensの下端で切れずに読めること、document幅がviewport幅を越えないことを実ブラウザで確認しました。
+- 入力欄のクリック／フォーカスで開き、履歴チップを選ぶと入力欄へセットして閉じます。Esc／外側クリックで閉じ、個別Xは1件だけを削除します。最近見た商品のカードは既存の商品詳細へ接続します。通常の商品検索欄と右上の`検索`アイコンは履歴面を開かず、通常の商品検索へ留めています。
+- 341 × 844 / 390 × 844 / 440 × 900: PC LensのDOM／履歴面は表示されず、横オーバーフローがないことを確認しました。
+- `pnpm typecheck`、ホームUnit 59件、`pnpm build`、`git diff --check`を通過しました。desktop E2Eは今回のLens履歴検証より前に、既存のwaterfallグリッドselectorが2件へ一致する失敗で停止します。mobile E2Eは今回のPC-only変更とは別の、旧Agent Hubの`購入エージェント`／`まだ確認した商品はありません`を期待する2件で失敗します。
+
+final result: passed
+
+---
+
+## 2026-08-17 — PCホーム: Agent Lens サイド画像のホバー感度
+
+**Comparison input**
+
+- Source visual truth: 購入エージェントの中央楕円を前面に保ちつつ、左右に露出する4つの販促ビジュアルを大きな操作面として扱う現在のPC Lens。
+- Browser-rendered implementation: /Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/desktop-agent-lens-side-button-focus-1536.jpg（CSS viewport 1536 × 1024）。カメラ面へキーボードフォーカスを置き、カーソルホバーと同じ浮上状態を確認しました。
+
+**Result**
+
+- [P1 → fixed] 各背景画像の操作領域を、固定の170 × 170pxではなく、楕円に隠れない四分割面全体へ拡張しました。1536pxでカメラ面は736 × 274px、1024pxで440 × 269pxの全域がカーソル対象になります。
+- ホバー開始は画像面300ms、キャプション260ms、購入エージェント表示160/220msへ短縮。画像は既存のtranslateY(-15px) scale(1.04)で持ち上がり、中央入力欄の上に重なりません。
+- 1536px / 1024px: 中央入力欄が常に最前面のヒット対象、横オーバーフローなし。モバイル用のメディアクエリには変更を加えていません。
+
+final result: passed
+
+---
+
+## 2026-08-17 — モバイル商品カードのユニクロロゴ
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/Codex 画像 2026年8月17日 14_32_38.png`（添付のユニクロ実ロゴ）。商品名の開始位置の左側に、赤い正方形ロゴを置く指定を比較対象にしました。
+- Browser-rendered implementation: `/tmp/jplanet-home-uniqlo-logo-390.png`（CSS viewport `390 × 844`、`?qa=1&view=home`、ページ全体）。
+- State: モバイルホームの`ユニクロをお探しですか？`商品レール、先頭位置。
+
+**Comparison history and findings**
+
+- [P1 → fixed] モバイルレールだけブランドソースが未指定で、商品名の左側にロゴがありませんでした。既存の`/sazo-commerce/reference/uniqlo-logo.svg`を4カードへ渡し、商品名と同じタイトル行の左列へ配置しました。
+- P0/P1/P2: なし。ロゴは商品画像やカード背景へ流用せず、商品名の左側に22px角で表示しています。PC側の既存ロゴ表示・DOM・レイアウトは変更していません。
+
+**Responsive and implementation checks**
+
+- `390px`でロゴ4件、タイトル行4件を実ブラウザで確認し、各ロゴの右側から商品名が始まることを実測しました。
+- ロゴは既存の添付由来実素材を使用し、CSSアート・生成画像・新しいアイコンは追加していません。
+- `pnpm exec vitest run tests/unit/sazo-commerce-home.test.tsx`（58 passed）、`pnpm typecheck`、`git diff --check`を通過しました。
+
+final result: passed
+
+---
+
+## 2026-08-17 — New Balance商品詳細の原寸比較・縦密度補正
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-17 13.28.49.png`（商品詳細上部）と`/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-17 13.28.52.png`（商品説明までスクロールした状態）。
+- Browser implementation: `331 × 721 CSS px / deviceScaleFactor 2`で同じ商品詳細状態を撮影。比較証跡は`/tmp/jplanet-product-top-331x721.png`、`/tmp/jplanet-description-scroll-331-y313-tight.png`。
+- Product-specific copy and New Balance asset are intentionally different from the Nintendo source; shell, spacing, typography hierarchy, and interaction surfaces are the comparison target.
+
+**Findings and fixes**
+
+- [P1 → fixed] 商品画面上端に残っていた`10px`のモバイルコンテンツ余白を除去し、ヘッダー／メディア終端／商品画像見出しを正典の上端へ揃えた。
+- [P1 → fixed] 390／440pxで右側に残っていた330px固定面を解除し、モバイル商品面・固定購入バー・仕様シートをviewport幅へ統一した。
+- [P2 → fixed] New Balance説明文が正典より1行多く、画像が約40〜50px下がっていた。商品固有の短い3行コピー、説明ブロック間隔、行高を調整した。
+- [P2 → fixed] ギャラリー下余白を3px詰め、タイトル・価格・配送・仕様の行を正典の縦ラインへ揃えた。
+- [P2 → fixed] 商品情報がヘッダーへ到達した後は、ヘッダーを白いsolid surfaceへ切り替え、スクロール中の文字が透けない状態を確認した。
+
+**Responsive and regression checks**
+
+- 331px原寸相当、330／341／390／440pxで横スクロールなし。
+- 商品詳細面の実測幅が各viewport幅と一致するE2E assertionを通過。
+- P0/P1/P2: なし。
+
+final result: passed
+
+---
+
+## 2026-08-17 — PCホーム: Agent Lensを4分割背景へ修正
+
+**Comparison input**
+
+- ユーザー注記: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260817-kmcv.jpeg`。赤枠は、細い左右レールによって画像が届いていなかった領域を示す。
+- 実装比較: 同じユーザー注記と、Chromeで`1536 × 1024`として再撮影した実装を`/Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/agent-lens-four-quadrant-captions-comparison.png`へ横並びで比較した。今回の写真とホバー入口仕様を反映した最終Chrome撮影は`/Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/agent-lens-branded-hover-1536.png`。実装のChrome撮影面は縦スクロールバー分だけ`1521 × 1014`となる。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 左右の細い独立レールを廃止した。`768px`以上では、背面4カードをLens幅・高の厳密な50%へ固定し、`left-top / left-bottom / right-top / right-bottom`を余白なしで接続した。
+- [P1 → fixed] 左上カメラ、左下漫画／スキンケア＋初回クーポン、右上富士山・桜・箱＋日本の商品特集、右下ヘッドホン・Nintendo Switchを、中央楕円の下の連続背景として再トリミングした。赤枠で指示された楕円の上左右・下左右にも、それぞれ対応する画像が連続して届く。右上と左下のリボンだけは画像のクリップ外まで伸ばし、中央楕円に隠れる前後関係を保った。
+- [P2 → fixed] 楕円の外に残る各画像領域へ、画像内容を示す固有メッセージを置いた。左上`カメラ・ガジェットを探す`、左下`マンガ・美容をチェック`、右上`日本の名品を探す`、右下`ゲーム・ホビーを探す`。白い小さなラベルは画像より前、中央操作面より後ろに置き、画像の内容と操作面の意味を混同させない。
+- [P2 → fixed] 写真そのものを読み取りやすくするため、PCの中央楕円を`1138px`から最大`1080px`へ控えめに細くし、左右に見える面積を増やした。既存のカメラ、漫画／スキンケア、ヘッドホン／赤いSwitchが、中央楕円の曲線に隠れない側へ現れるトリミングにした。
+- [P2 → fixed] 4面は楕円の外へ見える領域に対応する既存のクリック導線を保ったまま、ボタンのように反応する。`768px`以上でホバーまたはキーボードフォーカスすると、対象写真だけがソフトに浮き上がり、ラベルに薄い白いハイライトと影が付く。中央楕円は動かず、画像は引き続きその下に留まる。`prefers-reduced-motion`では動きを無効にする。
+- `1536 × 1024`の最終Chrome確認では、Lensが`1473 × 550px`、4背景カードはそれぞれ`735.5 × 274px`、中央楕円は最大`1080 × 548px`。4カードは`x=25 / 760.5`、`y=105 / 379`に揃い、中央楕円がその上面（`z-index: 2`）で曲線のマスクを担っている。正典と見比べ、外側Lensの高さ、楕円の位置、2×2画像の連続性、リボン、直下の3導線、下の6商品レールを確認した。
+- タブは白い選択面＋桜文字、見出しは`42px`、入力欄は`812 × 108px`、送信は桜丸、確認列は接続線＋丸アイコンに揃えた。これは進捗画面ではなく、送信後に確認する購入条件の列として既存導線を維持している。
+- [P2 → fixed] 右上の日本特集を維持しつつ、判別しづらかった左上は既存のミラーレスカメラ写真、左下の美容側は既存スキンケア写真へ差し替えた。漫画とヘッドホン／赤いSwitchは、既存コラージュから商品が見える位置だけを使う。生成・上書きした画像はない。
+- [P2 → fixed] 上下カードの境目と各2段写真の境目を、ネイビーの薄い輪郭を伴う`38%`白の半透明セパレーター（外側`8px`、内側`6px`）へ統一した。白ベタの隙間ではなく、写真同士の区切りとして見える。
+- [P2 → fixed] ホバーの跳ねるキーフレームを外し、入る時も抜ける時も同じイージングでつないだ。対象写真は明確に`translateY(-15px) scale(1.04)`まで前に出し、既存の実J-Planetワードマークと`購入エージェント`を白いピルにして表示する。中央楕円は常に前面のままなので、背景をボタンとして認識できても、購入エージェントの操作面を上書きしない。
+
+**Responsive and interaction checks**
+
+- `1440 × 1024`: 4面の端部、前面楕円、3導線、6商品レールが保持され、横オーバーフローなし。
+- `1024 × 900` / `768 × 900`: 同じ2列×2行の背景画像、前面楕円、既存の3導線を保持。最終Chromeで`1024 × 900`を再確認し、カメラ、漫画／スキンケア、富士山、ヘッドホン／赤いSwitchと半透明の上下境目がすべて判別でき、横オーバーフローはない。
+- `341 × 900` / `390 × 900` / `440 × 900`: DesktopAgentLensは表示されず、既存モバイルHero、エージェント入力、固定ナビ、余白・文言がそのまま表示されることを実画面で確認した。
+- `URLを送る` / `画像を送る` / `商品名で探す`、カメラ、送信、クーポン、3導線、商品詳細、カート、チャット、マイページの既存導線は保持。対象desktop Agent Lens E2Eは通過した。
+- カメラ面を実Chromeでホバーすると、写真の計算値は`translateY(-15px) scale(1.04)`、影は`0 16px 30px rgb(31 56 100 / 20%)`、J-Planetロゴ＋`購入エージェント`ピルは`opacity: 1`となることを実測した。4面とも同じ状態になり、クリック時は既存の特集／クーポン／カテゴリー導線へ接続する。
+
+### Addendum — PC商品レールの横幅・整列・バッジ
+
+- 比較入力: ユーザー注記`/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260817-luzb.jpeg`の「もっと見る」の右端配置、画像／商品名／価格の縦の開始線、カード密度を対象にした。Shopee画面は下段を横幅いっぱいに使う密度の参照だけに使い、Shopeeロゴ・コピー・オレンジは実装へ入れていない。
+- 実装確認: `1280 × 720`の実ブラウザ撮影`/Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/desktop-product-rail-filled-1280-final.jpg`を確認した。
+- [P1 → fixed] 「ユニクロをお探しですか？」レールの`もっと見る`を見出し右端へ固定した。実測で見出し右端とボタン右端はいずれも`x=1220px`で、タイトル直後に残らない。
+- [P1 → fixed] 商品を4枚から6枚へ増やし、PC幅では6等分の列（実測`約184px`×6）で余白をカードで埋めた。外側セクションはページ幅いっぱいを維持する。
+- [P1 → fixed] 6カードすべてを正方形メディア＋固定コピー行に統一した。画像高は`約182px`、商品名・割引／旧価格・BRL価格・直送表示は同じ開始線に揃い、縦長トートだけが価格行を押し下げる状態を解消した。
+- [P2 → fixed] PCの各商品画像へ既存のラベルに対応したLucideバッジ（人気=Star、日本公式=ShieldCheck、限定=Sparkles、セレクト=PackageCheck）を追加した。ラベルは実データのままで、価格・販売実績・購入導線は変えていない。モバイルでは従来のラベルDOMのみをレンダーし、バッジアイコン・余白・操作を変更しない。
+
+**Limits**
+
+- 正典と写真そのもの（銀色カメラ、漫画、スキンケア等）は完全一致しない。既存のカメラ／スキンケア商品写真と、既存の左右コラージュを組み合わせ、新規画像生成・既存アセットの上書きは行わず、構造・レイヤー・位置・リボン・色を一致対象とした。
+- P0/P1/P2: なし。全体E2Eには今回と無関係な既存失敗が残る。desktopは`[data-home-dense-product-grid]`が2個に解決されるwaterfall gridの1件、mobileは`購入エージェント`見出しと`まだ確認した商品はありません`空状態を期待する2件である。対象のAgent Lensデスクトップ導線は通過した。
+
+final result: passed
+
+---
+
+## 2026-08-17 — モバイル購入エージェント: 商品送信／画像候補特定
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a00c76-2110-7833-be1b-a90b162e258e/exec-f65eaf1b-8f39-4dc9-b2fe-12ebf8373115.png`（`1536 × 1024px`）。同一完成画像内の「1 商品を送る」「2 画像から商品を特定」を唯一の比較対象にしました。
+- Browser-rendered implementation: `/tmp/jplanet-agent-flow-qa-final/agent-send-390.png`、`/tmp/jplanet-agent-flow-qa-final/agent-candidates-390.png`（各`780 × 1688px`、CSS viewport `390 × 844px`、deviceScaleFactor `2`）。同じ初期／候補状態を`341 × 844px`と`440 × 844px`でも取得しました。
+- Normalization: 完成画像内の左画面（`513 × 918px`）と右画面（`545 × 918px`）を画面枠で切り出し、各390px幅へ正規化しました。実装はDPR 2のキャプチャを390px幅へ縮小して比較し、密度差・外側キャンバス・画面枠を見た目の不一致として数えていません。
+- State: モバイル購入エージェントの空の初期状態、および画像を選択して送信した後の候補特定状態。PC／タブレットは既存の別レンダー経路です。
+
+**Full-view and focused comparison evidence**
+
+- Full view: `/tmp/jplanet-agent-flow-qa-comparison-final.png`。上段が完成画像の2画面、下段が390px実装の初期／候補状態です。
+- Focused regions: `/tmp/jplanet-agent-flow-focus-comparison-final.png`。入力・最近の2リスト、および送信画像・主候補・4候補レールを同じ比較画像内で拡大確認しました。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 空状態の送信ボタンは桜ピンクでしたが、旧SVG色指定が残り矢印も桜ピンクになって消えていました。アイコン色を白へ固定し、実ブラウザの計算値で背景`rgb(254, 162, 172)`、矢印`rgb(255, 255, 255)`を確認しました。
+- [P2 → fixed] 入力欄に旧コンポーザーの外側カード、影、内側枠が重なっていました。外側面を解除し、ネイビー枠の入力／カメラと独立した丸い送信ボタンへ戻しました。
+- [P2 → fixed] 最近の行が個別カードとして離れていました。各セクションを1つの軽い縦リストへまとめ、行間は細い罫線だけにしました。341pxでは長いLOEWE名を2行まで表示します。
+- [P2 → fixed] 候補画面の送信画像ブロックと見出し間隔が広く、主候補画像が小さく見えていました。旧罫線／余白を解除し、主候補の商品占有率を完成画像へ合わせました。最近の相談も既存のNew Balanceカタログ画像へ統一しました。
+- [P2 → fixed] 商品名だけの送信でも画像候補へ遷移していました。画像ファイルを選択して送信した場合だけ候補画面へ進み、商品名は既存検索、URLは既存商品詳細へ進むように分離しました。
+- P0/P1/P2: なし。バッグの色と4色候補の写真差は、使用可能な既存アセットが黒バッグ1点、New Balance画像1点だけというMock制約です。画像を生成・加工して補完せず、商品名／カラー文言で区別しています。
+
+**Required fidelity surfaces**
+
+- Fonts / typography: 既存Arial／日本語フォールバックを維持し、見出し21px前後、節見出し16px、行本文14px、候補名10〜15pxの階層を確認しました。341pxの入力文言は1行、LOEWE名は2行以内です。
+- Spacing / layout rhythm: 58pxヘッダー、54px入力、74pxの軽い行、52px送信画像、主候補＋正方形候補レール、76px共有ナビの順序を確認しました。固定ナビ分の下余白があり、最終行と候補操作はスクロール後も隠れません。
+- Colors / tokens: white、navy `#1f3864`、sakura `#fea2ac`、muted navy `#667085`、薄い罫線だけです。グラデーション、ガラス、濃い面、過度な影はありません。
+- Image quality / asset fidelity: 実J-Planetワードマーク、既存New Balance／バッグ画像、LucideのHouse／Tag／Sparkles／Bell／Userを使用しました。完成画像を背景・素材に流用せず、CSSアートや独自SVGも追加していません。
+- Copy / content: 指定された見出し、入力文言、相談、最近確認商品、送信画像、候補名、4色、選択CTAを確認しました。価格、割引、最安値、公式ストア、購入先比較、バリエーション、会話吹き出しは候補画面にありません。
+
+**Interaction, responsive, accessibility and console checks**
+
+- 画像の選択→変更→削除→再選択→送信、候補選択→New Balance 9060商品詳細、URL→既存商品詳細、商品名→既存検索を確認しました。
+- 共有下部ナビは両画面でエージェント選択状態です。ブランドは丸穴付きTag、非選択は`#667085`、選択はネイビー背景＋桜ピンクです。
+- `341 × 844`、`390 × 844`、`440 × 844`の初期／候補で横オーバーフローなし、ナビ表示、空状態の送信ボタン色を実測しました。モバイル分岐は`max-width: 767px`に限定しています。
+- ボタン／入力のfocus-visible、aria-label、候補region、横レールのタッチスクロールを維持しています。
+- Console: JavaScript実行エラーは0件です。既存シェルの`/favicon.ico`だけが404で、画面・操作・今回の変更範囲には影響しません。
+
+### Addendum — 画像候補からNew Balance 9060商品詳細へ接続
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-17 11.14.16.png`と`/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_gxxhTN/画面収録 2026-08-17 12.22.38.mov`。動画をコマ単位で確認し、Nintendo商品詳細の全構造と操作を正典にしました。
+- Full-view comparison evidence: `/tmp/jplanet-product-selection.JXFW2G/qa-product-final-comparison.png`（左: 動画の正典、右: New Balance実装）。330px商品面、44pxオーバーレイヘッダー、商品画像、10枚レール、商品名／販売元／元ページ、価格／販売数、通常日本商品、通関配送、元ページレビュー、商品仕様、固定CTAの位置と密度を同一画面で比較しました。
+- Focused comparison evidence: `/tmp/jplanet-product-selection.JXFW2G/final-compare-description-v3.png`（商品説明→商品画像→もっと見る→購入者レビュー）と`/tmp/jplanet-product-selection.JXFW2G/final-compare-spec-v2.png`（商品仕様ボトムシート）。いずれも左が動画、右がNew Balance実装です。
+- [P1 → fixed] 以前の画像遷移先は、正典にある商品画像レール、値引き、販売数、元ページレビュー、商品仕様、説明、購入者レビュー、関連商品を欠き、別の商品画面になっていました。既存Nintendo詳細のDOMと操作を再利用し、表示商品だけをNew Balance 9060へ置換しました。
+- [P1 → fixed] 画像遷移側だけが正典より約1.2〜1.3倍大きく、仕様行まで固定CTAの下へ押し出されていました。New Balance専用のモバイルスコープでヘッダー、レール、本文、配送カード、レビュー行、仕様行、説明、レビュー、固定CTAを正典の330px密度へ補正しました。
+- [P1 → fixed] 商品仕様シートは高さ・文字・行数が異なっていました。正典と同じ10行構成と約518px高の下部シートにし、カテゴリ、モデル、素材、色、サイズ、ソール、重量、留め具、メーカー、状態をNew Balanceの値で表示します。
+- [P2 → fixed] New Balance写真が小さく見えていました。既存商品アセットを正典のヒーロー占有率へ合わせ、生成画像やスクリーンショット素材は使用していません。
+- Interactions: 10枚の商品画像切替、配送・通関詳細、元ページの商品レビュー、説明の展開／収納、商品仕様シート、カート／購入、カラー・サイズ・数量選択を操作確認しました。画像選択時だけNew Balance詳細へ入り、URL送信は既存Nintendo詳細へ直接遷移します。
+- Responsive retention: `341 × 735`、`390 × 735`、`440 × 735`の初期・候補・商品詳細を実ブラウザで取得しました。各幅で`scrollWidth === innerWidth`、固定CTAの非重複、330px商品面を確認しました。PC／タブレットは別DOMのまま、対象desktop E2Eを通過しています。
+- P0/P1/P2: 未解決なし。Mock上はNew Balanceの商品写真が1点だけのため、10枚の画像位置と関連商品で既存写真を再利用しています。
+
+final result: passed
+
+---
+
+## 2026-08-16 — PCホーム: Agent Lensの4枚バックドロップ
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/Codex 画像 2026年8月16日 19_40_25.png`（`1536 × 1024`）。中央の白い楕円形の購入エージェントを前面に置き、その背面を左右2枚ずつ・計4枚の独立した商品／特集面で囲む構成を正典としました。
+- Browser-rendered implementation: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent` を in-app browser の `1536 × 1024` で取得し、参照と同一キャンバスへ左右比較して確認しました。比較画像: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/jplanet-agent-lens-comparison.png`。
+- State: URL入力方式を選択したPCホーム。カメラ・初回クーポン・日本の商品特集・ゲーム商品の4面が、中央操作面の背面にある状態です。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 以前の実装は左右の連結した縦レールに見え、中央の楕円と前後関係が曖昧でした。現在は、4面を別々のクリック可能な面として絶対配置し、中央の購入エージェントを明確に前面へ固定しました。
+- [P1 → fixed] バックドロップを既存の合成バナー画像の切り抜きで代用せず、既存のカメラ、スキンケア、日本・ブラジル特集、Nintendo商品アセットをそれぞれの面に割り当てました。
+- P0/P1/P2: なし。外側カードは控えめな薄い罫線のみで、中央の入力欄・購入判断導線を上回らない視覚強度に抑えています。
+
+**Fidelity, interaction and responsive checks**
+
+- `1536 × 1024`: 4枚のバックドロップ、中央楕円、3つの入力方式、エージェント確認項目、下部の軽量導線と商品レールが同時に収まり、横オーバーフローなしを確認しました。
+- 操作: `URLを送る`／`画像を送る`／`商品名で探す` は同じ購入エージェント内で切り替わります。カメラ、送信、キャンペーン、クーポン、カテゴリーの既存導線も維持しています。
+- `1024 × 900` / `768 × 900`: 横オーバーフローなし。狭いPC／タブレットでは側面の4面を非表示にして、既存のコンパクトなホーム構成へ戻します。
+- `341 × 844` / `390 × 844` / `440 × 844`: PC専用Agent Lensは表示されず、既存モバイルの画面・操作を維持します。
+- Verification passed: `pnpm typecheck`、ホームUnit 58件、`pnpm build`、`git diff --check`。
+
+final result: passed
+
+---
+
+## 2026-08-16 — PCホーム: Agent Lens左右レールの再現
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/Codex 画像 2026年8月16日 19_40_25.png`（`1536 × 1024` px）。中央のLens外周にある、左のカメラ／漫画／スキンケア、右の日本商品特集／ヘッドホン／ゲーム機という各3段レール、リボン、ドット、矢印を比較対象にしました。
+- Browser-rendered implementation: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent` を同じ `1536 × 1024` CSS viewportで再確認しました。Lensは`1488 × 540px`、左右レールはそれぞれ`188 × 496px`です。
+
+**Corrected fidelity**
+
+- [P1 → fixed] 周辺画像を小さなカードのように配置していた表示を廃止し、既存アセットの`agent-lens-left-collage.png`と`agent-lens-right-collage.png`を、見本どおり各1枚の3段縦レールとして`object-fit: cover`で表示しました。
+- 左右のレールはLens外周に揃え、左下に`初回クーポン`の斜めリボン・ページドット・次へ矢印、右上に`日本の商品特集`の斜めリボンを配置しています。中央の入力面には重ねていません。
+- `1536 × 1024`で横オーバーフローなし、中央Lensの入力欄・確認項目・3つの導線・6商品レールが見切れないことを実測しました。
+
+**Responsive and implementation checks**
+
+- `1024 × 900` と `768 × 900`: レールを非表示にして横オーバーフローなし。PCの中核導線を圧迫しません。
+- `341 × 844` / `390 × 844` / `440 × 844`: PC Lens／左右レールはDOMに出ず、横オーバーフローなしを確認しました。
+- `pnpm typecheck`、ホームUnit 58件、`pnpm build`、`git diff --check`を通過しました。
+
+final result: passed
+
+---
+
+## 2026-08-16 — PCホーム: Agent Lens fidelity addendum
+
+- Source: `/Users/fujitatetsu/.codex/generated_images/01a0090b-85ab-7483-b0d9-529cad5c5a4a/exec-62663212-2b02-474b-af1f-946906fd1881.png` at `1536 × 1024`.
+- Same-viewport proof: `/tmp/jplanet-agent-lens-comparison.png` (left: selected visual, right: browser-rendered implementation). The implementation retains the normal product-search header, puts the agent tabs and large intake field in the central oval, uses edge-only product imagery, then follows with three lightweight routes and the existing six-product rail.
+- Corrected in this pass: the side visual hierarchy is now a single left/right story instead of scattered thumbnails; the `1024px` intake no longer clips because edge imagery is removed at tablet width; desktop-only Lens rendering is confirmed absent at `341px` / `390px` / `440px`.
+- Verified interactions: `URLを送る` / `画像を送る` / `商品名で探す` toggle within the same purchase agent; camera, send, discovery routes, product links, cart, chat, and my page remain present.
+- Verification passed: `pnpm typecheck`; selected home Unit; desktop and mobile target E2E; `pnpm build`; `git diff --check`. No P0/P1/P2 issue remains for the selected desktop composition. Full-suite failures are not asserted as resolved here.
+
+final result: passed
+
+---
+
+## 2026-08-17 — PCホーム: Agent Lens 4面バナーの操作面分離
+
+**Comparison input and scope**
+
+- User-provided motion reference: `/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_U9DB4w/画面収録 2026-08-17 20.04.42.mov`. The temporary source had expired before this pass, so it could not be replayed or used as a pixel reference. No substitute asset or visual redesign was created.
+- Browser-rendered implementation: the local Agent Lens at `1536 × 1024`, checked in normal and pointer-hover states. The Lens still has four whole-image quadrants and the central agent ellipse; only the interaction owner moved from nested controls to each entire quadrant.
+
+**Verification findings**
+
+- Each quadrant is exactly one native button in source order: `初回クーポンを見る` / `J-PlanetをChatGPTから使う` / `おすすめの検索先を見る` / `サマーセールを見る`. No descendant button remains inside a quadrant.
+- The Lens remains `overflow: hidden`; quadrants are `z-index: 1`, hover raises only the active quadrant to `z-index: 2`, and the central control stays at `z-index: 10`.
+- At `1536px`, the four tiles are equal `735.5px × 348.4px` regions. Each tile's image computed to `filter: none`, `opacity: 1`, and `transform: none` in both resting and hover states.
+- Fine-pointer hover was measured on all four quadrants: parent-only motion reaches approximately `2.25px` lateral / `7.65px` vertical including the specified 6px lift and `scale(1.009)`; the source image remains unchanged. The `requestAnimationFrame` interpolation is limited to `2.6px` pointer offset and `0.56deg` rotation. Reduced-motion rules remove transforms.
+- `1920 × 1080`, `1536 × 1024`, `1440 × 1024`, `1280 × 900`, `1024 × 900`, and `768 × 900` each retained four PC tiles, a foreground control at z-index 10, neutral image styles, and no horizontal page overflow. At `341px`, `390px`, and `440px`, the desktop Lens was not rendered and the existing mobile navigation remained visible with no horizontal overflow.
+
+**Interaction and test evidence**
+
+- The exposed coupon region was clicked in the live browser and reached the existing coupon view. The targeted desktop Agent Lens Playwright scenario passed, including the whole-tile semantics, neutral image styles, tab, camera, review, and route checks.
+- `pnpm typecheck`, `pnpm exec vitest run tests/unit/sazo-commerce-home.test.tsx` (59 tests), `pnpm build`, and `git diff --check` passed.
+- The full desktop Playwright run retains one unrelated existing strict-locator failure caused by two `[data-home-dense-product-grid]` elements. The full mobile run retains two existing mobile Agent Hub expectation failures for missing prior-copy strings. Neither failure is in the PC Lens banner path, and no mobile DOM or mobile CSS was changed here.
+
+final result: passed (scoped PC Agent Lens interaction; original temporary motion file unavailable)
+
+---
+
+## 2026-08-17 — PCホーム: UNIQLO探索レールをSAZO型へ整理
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260817-lvzt.jpeg`。赤枠のSAZO商品レールについて、同じ大きさの画像、画像下の左端から始まる出所ロゴ＋商品名、価格ベースライン、右端の`もっと見る`を比較対象にしました。出所ロゴはユーザー提供の実画像`/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-17 14.31.38.png`を使用します。
+- Browser-rendered implementation: `/Users/fujitatetsu/Documents/Codex/2026-08-17/jplanet-agent-lens-reproduction/outputs/desktop-uniqlo-user-logo-1536.jpg`（CSS viewport `1536 × 1024`）。同一比較入力で参照と実装を並べ、PCホームのUNIQLO探索領域のみを確認しました。
+- State: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent` の通常PCホーム。
+
+**Result**
+
+- P0/P1/P2: なし。大きな枠カード、画像内の商品ラベル、余分な販売・直送行を外し、6枚の等幅画像、商品名開始位置の左にあるユーザー提供の実UNIQLOロゴ画像（`22 × 22px`）、固定2行のタイトル領域、揃った価格行へ整理しました。文字で作った赤いバッジは撤去し、見出し罫線の右端に`もっと見る`も揃えています。
+- `1536px`: セクション幅`1473px`、各画像`230.5px`、6枚すべてで画像上端・タイトル上端・価格上端が一致。`1440px`: セクション幅`1377px`、各画像`214.5px`で同様に一致。`1024px`: 4列＋2列へ折り返し、各行内の画像・タイトル・価格が揃い、横オーバーフローなしです。
+- モバイル`341px`／`390px`／`440px`では既存4カード、既存画像内バッジ、既存余白のまま。PC専用のUNIQLO出所表示はレンダーされず、横オーバーフローもありません。
+- 実ロゴ画像はPCレールにだけ読み込まれ、6/6カードで画像の読み込みと商品名の直前配置を実ブラウザで確認しました。モバイルのDOM・文言・余白・操作は変更していません。
+
+final result: passed
+
+---
+
+## 2026-08-16 — PCホーム: Agent Lens fidelity pass
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a0090b-85ab-7483-b0d9-529cad5c5a4a/exec-62663212-2b02-474b-af1f-946906fd1881.png`（`1536 × 1024` px）。コンパクトな通常ECヘッダー、中央の楕円型購入エージェント、左右の商品ビジュアル、3分割の補助導線、浅い6商品レールを比較対象にしました。
+- Browser-rendered implementation: `/tmp/jplanet-agent-lens-refined-reload.png`（CSS viewport `1536 × 1024` px）。同一サイズ・同一スクロール位置での横並び比較は `/tmp/jplanet-agent-lens-comparison.png`（左: 見本、右: 実装）です。
+- State: `?qa=desktop-coupon-agent` のPCホーム、`URLを送る`タブ選択、初期スクロール位置。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 初回の周辺ビジュアルは既存の小さな商品画像を個別に並べており、見本にある「購入エージェントの入力文脈」を作る左右の縦方向ストーリーになっていませんでした。左をカメラ／漫画／スキンケア、右を富士・桜／ヘッドホン／ゲーム機の2枚の目的別コラージュに組み替え、中央操作面より目立たない位置へ収めました。
+- [P2 → fixed] 1024pxで入力欄が途中で見切れていました。768〜1199pxは装飾ビジュアルを外し、中央操作面を広げて入力文言、カメラ、送信ボタンを完全に読める状態にしています。
+- P0/P1/P2: なし。見本画像自体を背景に使わず、実ロゴ、既存商品データ、Lucideアイコン、およびこのために生成した商品コラージュのみで組み直しました。
+
+**Full-view and focused comparison**
+
+- Header: 見本と同じく、左の実J-Planetロゴ、通常商品検索、中央ナビ、右の検索／カート／チャット／マイページを1段に集約しています。商品検索と購入エージェント入力は別の役割として維持しています。
+- Agent Lens: `1536 × 1024`で外枠は`1488 × 540px`、中央操作面はおよそ`1128 × 520px`に収まり、タブ → 見出し → 説明 → 入力 → 4項目の確認範囲 → 補足の読み順を確認しました。入力欄は見本と同程度の約`808px`幅・`104px`高です。
+- Visual hierarchy: 購入エージェントを唯一の主役にし、商品特集と初回クーポンは外周の細いリボンへ抑えています。カードの重ね置きや過度な影、暗いパネル、グラデーションはありません。
+- Product discovery: 直下に最近確認・人気検索・レビューの3分割導線を置き、その次にBRL、販売実績、直送表記、カート導線を持つ既存の6商品レールを置いています。1536pxのファーストビューで商品導線の開始が確認できます。
+
+**Interaction and responsive checks**
+
+- `1536 × 1024`: 見本と同じviewportで横オーバーフローなし。タブは`画像を送る`へ切替後、`aria-selected`が切り替わること、カメラ・送信・3つの補助導線・商品リンクが存在することをブラウザで確認しました。
+- `1440 × 1024`: Lensの外枠は`1392 × 540px`、入力欄と主要アクションの重なり・横オーバーフローなしを実測しました。
+- `1024 × 900`: 装飾ビジュアルを非表示にして中央入力を拡張し、入力欄の可視幅`486px`、横オーバーフローなしを実測しました。
+- `768 × 900`: 同じ入力・確認フローを保持し、画像装飾なしで入力欄・4確認項目・3補助導線・商品導線が読めることを画面確認しました。
+- `341 × 844` / `390 × 844` / `440 × 844`: Desktop Lensは表示されず、既存モバイルナビが表示され、横オーバーフローなしを実測しました。
+- `pnpm typecheck`、対象ホームUnit、PCホームE2E、モバイル既存導線E2E、`pnpm build`、`git diff --check`を通過しました。
+
+final result: passed
+
+---
+
+## 2026-08-16 — PCホーム: Agent Lens
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a0090b-85ab-7483-b0d9-529cad5c5a4a/exec-62663212-2b02-474b-af1f-946906fd1881.png`。通常の商品検索と、購入判断を行うエージェント入力を明確に分けたPCホームを比較対象にしました。
+- Browser-rendered implementation: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent`。in-app browserでPC／タブレットとモバイル幅を直接確認しました。
+
+**Implemented and checked**
+
+- PCヘッダーには通常の商品検索を置き、購入エージェントはLens内の `URL・画像・商品名を送る` に限定しました。カートの隣の検索アイコンはこの通常検索欄へフォーカスします。
+- Lensは最大幅1240px、1440px幅で`1240 × 412px`、1024px幅で`904 × 412px`、768px幅で`676 × 390px`を実測しました。いずれも横オーバーフローはありません。
+- URL／画像／商品名の3タブは同じエージェント入力を切り替えます。実ブラウザで画像タブを選択し、`aria-selected`と入力モードが`image`へ変わることを確認しました。
+- Lens下の最近確認・人気検索・購入体験レビュー、既存6商品レール、特集／クーポン導線は既存遷移に接続しています。
+- 341px／390px／440pxではPCヘッダーとLensが非表示になり、document幅は各viewport幅以内でした。モバイル用のDOM・文言・操作は変更していません。
+
+**Verification**
+
+- passed: `pnpm typecheck`
+- passed: `pnpm build`
+- passed: `pnpm exec vitest run tests/unit/sazo-commerce-home.test.tsx --testNamePattern 'renders the selected desktop agentic-commerce home'`
+- passed: PCホーム対象E2E、モバイル既存導線E2E、`git diff --check`
+- `pnpm test`は今回のLens対象外である未コミットのモバイルエージェント／認証／既存ホーム契約テスト20件が失敗します。対象UnitとPC・mobile E2Eは通過しており、この変更による型・ビルド・横オーバーフローの問題は確認されていません。
+
+final result: passed with unrelated full-unit-suite failures
+
+---
+
+## 2026-08-16 — モバイル画像検索: 商品候補から通常商品ページへの導線
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a0088f-daa6-74f3-9cc9-a56a23c3be41/exec-77c9f4f2-1923-449b-b179-53103b501b98.png`。候補をカテゴリー別に並べ、通常の商品ページから購入時だけカラー・サイズを選び、条件不足時だけ再検索する情報順を比較対象にしました。
+- Product-page visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-16 2.07.25.png`、`スクリーンショット 2026-08-16 2.07.29.png`、`スクリーンショット 2026-08-16 2.07.32.png`。丸い上部操作群、大きな商品画像、横サムネイル、配送情報、仕様・説明・レビュー、下部固定購入操作を保持する対象です。
+- Browser-rendered implementation: Playwright mobile `390 × 844` の候補、New Balance 9060詳細、購入時のバリアント選択シート。候補一覧は `341 × 844`、`390 × 844`、`440 × 844` でも横オーバーフローなしを確認しました。
+
+**Result**
+
+- 画像送信後は、`販売店候補`、`公式ストア候補`、`フリマ・希少品` の3本の横レールへ直接商品カードを表示します。カードは画像、商品名、販売元、BRL価格目安、到着目安、必要時の状態ラベルだけに絞っています。
+- New Balance 9060を選んだ場合はコントローラーではなく、既存商品ページと同じ情報階層を持つNew Balance詳細へ遷移します。通常画面にはエージェントの検索欄や再検索カードを置かず、再検索は購入時のバリアント選択シートだけに限定しました。
+- 白地、ネイビー、桜ピンク、薄い罫線を使い、画像・商品情報・購入操作の優先度を維持しました。価格、到着目安、販売元はfixtureのMock表示であり、在庫・公式性・輸入可否を確定表示していません。
+- `768px`以上は新しい候補画面およびNew Balance専用詳細をレンダーせず、既存のPC／タブレットのエージェント・商品詳細構成を保つことを対象E2Eで確認しました。
+
+**Verification**
+
+- `pnpm typecheck`
+- Agent image-resolution Unit 6件、商品詳細・model関連を含め103件
+- モバイル画像検索E2E 3件
+- PCエージェント／PC商品購入面E2E 2件
+- `git diff --check`
+
+final result: passed
+
+---
+
+## 2026-08-16 — PCホーム: 選定案②の購入エージェント入口
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a002c3-4985-7ff2-9b84-9d45e2b1ad18/exec-f460a7e2-572f-49f0-afd7-d61061750816.png`。一段ヘッダー、左の大型ヒーロー、ヒーローに重なる購入エージェント入力、右の3枚バナー、ショートカット／商品レールの順序を比較対象にしました。
+- Browser-rendered implementation: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=desktop-coupon-agent`。in-app browserで`1440 × 960`のホーム初期状態を確認しました。
+
+**Findings**
+
+- ヘッダーはPCホームに限り一段へ統合し、入力窓を重複させず、ヒーローに重なる`購入エージェント`入力を唯一の送信入口にしました。
+- 既存の`japan-brazil-hero.png`、実ロゴ、既存ショートカットと商品レールを維持しました。右列は、初回クーポン、URLからの商品確認、購入体験レビューの3操作に整理しています。
+- 入力欄の下では、販売元・購入可否・通関／規制・BRL総額／到着目安を明示し、送料・関税込みを事実として断定していません。
+- `768 × 900`、`1024 × 900`、`1440 × 900`はPC E2Eで横オーバーフローなしと操作を確認しました。`390 × 844`のモバイル導線は既存E2Eで維持を確認しました。
+
+final result: passed
+
+---
+
+## 2026-08-16 — モバイル エージェントのCommerce Conversation
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a00668-bb3f-79d0-9ec2-12c7c4dd4f5f/exec-40aed4e5-d130-4d05-b504-b556691a77f8.png`（全体フロー、`1487 × 1058`）、`exec-9e141419-e174-4989-a0af-77491f731ca1.png`（初期状態、`853 × 1844`）、`exec-c2c554ff-46dc-4d55-973f-215663353304.png`（候補特定、`853 × 1844`）、`exec-344a08a7-c493-4e50-b616-9adfa8b54f69.png`（購入先比較、`853 × 1844`）を確認対象にしました。
+- Implementation target: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=1&view=agent-hub`。Codexのin-app browserからはこのローカルURLが `ERR_CONNECTION_REFUSED` となり、レンダー済み画面のキャプチャと参照画像との並列比較を実行できませんでした。
+
+**Implemented interaction coverage**
+
+- 初期状態は最近の相談2件、最近確認商品2件、共有下部ナビ直上の固定コンポーザーだけに絞りました。URLは既存の商品詳細へ直接遷移し、画像・商品名は候補特定へ進みます。
+- 画像・商品名は、候補3件の選択、必要時だけのカラー／サイズ確定、同一条件の購入先比較、既存商品詳細への遷移として実装しました。画像添付の削除、追加情報の送信、サイズ変更、購入先の選択もMockで操作できます。
+- `pnpm typecheck`、対象Unit 6件、候補フローのモバイルE2E 2件、既存エージェントのdesktop 768px / 1024px / 1511px E2E、`git diff --check`は通過しています。候補フローE2Eではdesktopを明示的にskipし、PC側の既存エージェントDOMは別の回帰E2Eで確認しました。
+
+**Visual QA blocker**
+
+- P1: 実装対象のローカルプレビューにin-app browserから接続できないため、341px / 390px / 440pxでのスクリーンショット比較、キーボード表示時の追従位置、参照画像との視覚的な最終確認は未完了です。機能E2Eは通過していますが、視覚QAの代替にはしません。
+
+final result: blocked
+
+---
+
+## 2026-08-15 — 画像検索からの New Balance 専用商品詳細
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-15 21.19.15.png`（候補／バリエーション／購入先比較の進行表示）と、`/var/folders/f9/g75lkj552h7dv5fxlp1ztx040000gn/T/TemporaryItems/NSIRD_screencaptureui_tVDP0I/スクリーンショット 2026-08-15 21.19.44.png`（画像添付後に画像面が大きく崩れていた状態）。
+- Browser-rendered implementation: `test-results/agent-image-resolution-res-ad422-and-purchase-source-choices-mobile/image-resolution-candidates-390.png`、`image-resolution-variants-390.png`、`image-resolution-comparison-390.png`、`image-resolution-attached-390.png`、`image-resolution-new-balance-detail-390.png`。CSS viewport `390 × 844`、DPR 2（出力 `780px`幅）です。
+- Full-view comparison evidence: `/tmp/jplanet-image-resolution-progress-comparison.png`（上: 参照、下: 実装の同じ進行表示領域）。候補ステップの太字・色コントラスト・接続線・段階の区別を同一比較入力で確認しました。
+- Focused region comparison evidence: 添付画像は`62 × 62px`のサムネイル、ファイル名、用途、置換／削除を一つの淡い面にまとめ、入力面全体を覆わないことを確認しました。New Balance選択後は、実写風の送信画像とカタログ画像を切り替えられる商品詳細、サイズ・カラー、条件確認、固定購入CTAを確認しました。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 既存の進行表示は2・3段階目が薄く、何を行う画面か判断しにくい状態でした。現在段階は濃いネイビーの丸と太字、完了段階は桜ピンクのチェック、未完了は細い罫線とmuted navyに分けました。接続線は一枚に統一し、ラベルが線に干渉しません。
+- [P1 → fixed] 画像を添付すると、選択画像が入力面より大きく表示されていました。正方形サムネイルと2行の説明へ圧縮し、候補検索が次の操作であることを明示しました。
+- [P1 → fixed] 画像検索で選んだNew Balanceも既存のコントローラー詳細へ正規化されていました。画像検索の確定アクションだけに専用IDを保持する分岐を追加し、New Balance 9060の画像・バリエーション・BRL目安・確認項目・カート／購入導線を含む専用詳細を表示します。通常のURL入力と既存の商品カードは従来のコントローラー詳細へ維持されます。
+- P0/P1/P2: なし。購入条件・販売元・価格・到着目安はすべてMockの目安／購入前確認として扱い、事実として断定していません。
+
+**Required fidelity surfaces**
+
+- Fonts / typography: 既存Arial系を維持。進行表示、商品名、BRL目安、補足の太さと色を分け、390pxでも候補・バリエーション・比較の三段階を一目で読めます。
+- Spacing / layout rhythm: 添付面は入力欄直下に10px間隔で収め、候補・詳細は白地と16px前後の余白、薄い罫線、既存の角丸へ揃えました。固定CTAの分だけ本文下に余白を確保しています。
+- Colors / tokens: white、navy `#1f3864`、sakura `#fea2ac`、muted `#667085`、line `#e5eaf1`のみを使用。グラデーション、暗いパネル、新規生成画像は追加していません。
+- Image quality / asset fidelity: New Balance候補・詳細・購入先には既存のNew Balance商品画像と送信済みの到着後写真のみを使用し、送信画像は`object-fit: cover`、商品写真は`contain`で表示します。
+- Copy / content: `似ている候補を3件見つけました`から候補選択を必須にし、`画像から選んだ候補`、`BRL到着総額の目安`、`購入前に確認`で画像解決の範囲とMock性を示しています。
+
+**Interactions and checks**
+
+- 画像選択 → 候補3件 → New Balance選択 → カラー・サイズ選択 → 購入先比較 → New Balance専用詳細 → カートをE2Eで確認しました。
+- バリエーション不要候補は比較へ直行し、URL入力は既存のコントローラー商品詳細を開くことをUnitで確認しました。
+- `pnpm typecheck`、`pnpm exec vitest run tests/unit/agent-image-resolution.test.tsx tests/unit/sazo-commerce-model.test.ts`（67 passed）、`pnpm exec playwright test tests/e2e/agent-image-resolution.spec.ts --project=mobile`（1 passed）、`git diff --check`を通過しました。
+
+final result: passed
+
+---
+
 ## 2026-08-15 — PC商品詳細: 配送・通関ガイド
 
 **Comparison input**
@@ -73,6 +1111,61 @@ final result: passed
 - 768 × 900: モーダルは`560 × 501px`、左右余白を保持し、横オーバーフローなしを実測しました。
 - 390 × 844: PCモーダルは表示されず、既存のモバイル配送詳細画面へ遷移することを確認しました。偽の費用包含表現だけは全表示面から除去しています。
 - `pnpm typecheck`、商品詳細Unit 34件、PC／mobile対象E2E、`git diff --check`を通過しました。
+
+final result: passed
+
+---
+
+## 2026-08-15 — モバイルカテゴリーディレクトリ
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Downloads/スクリーンショット 2026-08-15 15.55.03.png`（`396 × 867` px）。ヘッダー、コンパクトな商品送信欄、タブ、左の親カテゴリー、右の6枚サブカテゴリー、下部ナビを同一viewportで比較しました。
+- Browser-rendered implementation: In-app Browserで`http://127.0.0.1:5190/sazo-commerce-mock/?qa=1&view=categories`を`396 × 867`で確認。参照と実装を同一比較入力へ並べ、選択状態は`化粧品`、`カテゴリー`タブです。
+
+**Result**
+
+- 参照どおり、`カテゴリー`を先頭の選択タブとし、左の親カテゴリーメニューと右の2列×3段のサブカテゴリーへ再構成しました。カードは既存画像タイルではなくLucideアイコンにし、`すべて見る`、カメラ、桜ピンクの送信ボタンを残しています。
+- 浮動チャットはこのモバイルカテゴリ画面だけで非表示にし、既存の共有下部ナビと各導線には手を加えていません。
+- 341 × 844、390 × 844、440 × 956で、6枚のタイル、2列グリッド、横オーバーフローなしを実測しました。396 × 867でのブラウザconsole errorは0件です。
+- `人気ブランド`タブ、親カテゴリ選択、サブカテゴリの既存ビュー遷移、商品送信からの`agent-searching`遷移をブラウザで確認しました。
+- `pnpm vitest run tests/unit/sazo-commerce-views.test.tsx`（42件）、`pnpm typecheck`、`git diff --check`を通過しました。
+
+final result: passed
+
+---
+
+## 2026-08-15 — ホームのソフトサーフェス精密調整（案2）
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/.codex/generated_images/01a00070-d0d3-76f2-9308-45c3b3511eab/exec-7ffb5a60-9ef4-4fcd-a9ca-848c50f097c4.png`（`853 × 1844` px）。この案の白い面、細いネイビー罫線、均一な角丸、抑制した陰影、桜ピンクの操作状態を参照しました。ヒーローの画像・見出し構造は今回の変更範囲外です。
+- Browser-rendered implementation: `http://127.0.0.1:5190/sazo-commerce-mock/`。in-app Browserで `390 × 844` CSS viewport（本文クライアント幅`375px`）と`1280 × 720`を再読み込みしてキャプチャしました。上記参照と同じ比較入力へ、モバイル実装キャプチャを並べて確認しています。
+- State: ホーム先頭、購入エージェントは未入力、ホーム下部ナビ選択、通常モーション設定。
+
+**Comparison history and findings**
+
+- [P2 → fixed] 既存ホームは面ごとの角丸・境界線・陰影にばらつきがあり、購入エージェント、ショートカット、クーポン、商品カード、下部ナビの質感が揃っていませんでした。案2のルールへ統一しました。
+- [P2 → fixed] 既存の静的な状態だけでは押下感が弱かったため、ホバー可能なPCでは`-2px`の浮き、タップ時は`0.985`の縮小、`prefers-reduced-motion`では実質無効化する短い遷移を追加しました。
+- P0/P1/P2: なし。参照とのヒーロー画像・構図の差は、ホームの大きな配置を変えないという今回の明示的な制約による許容差です。
+
+**Required fidelity surfaces**
+
+- Fonts / typography: システムの既存Arial系フォントを維持し、見出し・補助ラベル・販売実績の文字間を微調整しました。小さい本文を不必要に拡大せず、既存の密度を保っています。
+- Spacing / layout rhythm: 購入エージェントの内側余白を`13/14px`、入力面を`48px`、標準面を`20px`、小面を`16px`角丸へ揃えました。セクション順・商品数・既存導線は変えていません。
+- Colors / tokens: ネイビー`#1f3864`、桜ピンク、白、ネイビー10%相当の罫線を使用し、透明ガラス・グラデーションを追加していません。
+- Image quality / asset fidelity: ヒーロー、クーポン、商品、桜ロゴはすべて既存アセットのままです。新規の画像生成素材は実装へ追加していません。
+- Copy / content: 表示文言、URL・画像・商品名の導線、販売元・購入可否・関税・配送の確認文を維持しています。
+
+**Responsive and interaction checks**
+
+- `341 / 390 / 440 / 768 / 1024 / 1440px`で、ホーム印、既存のモバイル／PC表示切替、横オーバーフローなしを実測しました。
+- 390pxと1280pxで、白い表面・罫線・角丸・抑制した影、下部ナビ、PCのヒーロー／根拠カード／ショートカットを実ブラウザで確認しました。
+- `pnpm exec vitest run tests/unit/sazo-commerce-home.test.tsx`（54 passed）、`pnpm typecheck`、`pnpm build`、`git diff --check`を通過しました。追加したテストは案2の表示マーカーとモーション／reduced-motion規則を確認します。
+
+**Follow-up Polish**
+
+- [P3] 実デバイスでのSafariフォントレンダリングは、Chrome系のin-app Browserと僅かに差が出る可能性があります。実機確認時だけ字間を`0.01em`以内で再調整してください。
 
 final result: passed
 
@@ -2456,5 +3549,68 @@ final result: passed
 - 768 × 900: モーダルは`640 × 779px`、上下61pxの余白、横オーバーフローなしを実測しました。
 - 390 × 844: PCモーダルは表示されず、既存のモバイル配送詳細画面が開くこと、横オーバーフローなしを確認しました。
 - `pnpm typecheck`、商品詳細Unit 34件、PC／mobile対象E2E、`git diff --check`を通過しました。
+
+final result: passed
+
+---
+
+## 2026-08-15 — PC商品詳細: 商品情報／注意事項の下段構成
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260815-ooku.png`、`SCR-20260815-oooi.png`、`SCR-20260815-ooqb.png`、`SCR-20260815-ooqw.png`。商品レールの次に置く`商品情報`／`注意事項`タブ、注文配送の流れ、説明、購入前の注意、サービス説明の構造と余白を比較対象にしました。
+- Browser-rendered implementation: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=1&view=product&product=jplanet-nintendo-pro-controller`。in-app browserで同URLを`1440 × 960`、`1024 × 900`、`390 × 844`の各CSS viewportにして確認しました。商品情報と注意事項のそれぞれを参照画像と同じ比較入力に置いて確認しています。
+- State: Nintendo Switch Proコントローラーの商品詳細。PCでは`商品情報`選択と`注意事項`選択の2状態、モバイルでは既存の商品詳細状態です。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 既存PC表示は商品説明が単独で置かれ、参照にある情報／注意事項の切り替えと注文後の流れが欠けていました。PC専用のタブ面を商品レール直後へ置き、商品情報には配送フロー・商品説明・J-Planetの利用理由、注意事項には購入前確認事項を集約しました。
+- P0/P1/P2: なし。タブの下線、控えめな罫線、見出しと3列の情報密度をJ-Planetのネイビー、桜ピンク、白、`#e5eaf1`に正規化しています。SAZOのロゴ、コピー、保証表現、オレンジは使っていません。
+
+**Fidelity and responsive checks**
+
+- 商品情報: 参照と同じく、左から開始するタブ、コンパクトな注文配送フロー、商品説明、サービス説明を通常の縦フローで配置しました。配送の詳細、説明の展開、説明内画像の拡大は既存操作へ接続しています。
+- 注意事項: 参照の購入前案内を、販売元在庫・ブラジルの輸入制限・返品返金サポートへ分け、断定的な関税込み・送料込み表示は追加していません。
+- `1440 × 960` と `1024 × 900`: PCタブが表示され、横オーバーフローなし、購入面は右列、下段情報は通常フローに収まることを実測しました。`390 × 844`: PC情報面とPC購入面はDOMにレンダーされず、既存モバイル詳細を維持し、横オーバーフローなしを実測しました。
+- 操作: 商品情報／注意事項のクリックと左右・Home・Endキーによるタブ移動をUnitで確認しました。既存のPC購入アクション、モバイルの商品詳細導線も対象E2Eで確認しています。
+
+final result: passed
+
+---
+
+## 2026-08-15 — PC商品詳細: 商品情報区間の追従購入パネル
+
+**Comparison input**
+
+- Source visual truth: `/Users/fujitatetsu/Library/Containers/cc.ffitch.shottr/Data/tmp/cc.ffitch.shottr/SCR-20260815-pkbn.png`（`3024 × 1964` px）。関連商品レールの後に左の商品情報、右のバリエーション・数量・決済面を並べ、商品情報の終端で右面も通常フローへ戻す挙動を比較対象にしました。
+- Browser-rendered implementation: `http://127.0.0.1:5190/sazo-commerce-mock/?qa=1&view=product&product=jplanet-nintendo-pro-controller`。in-app browserでPC `1440 × 960` の中間・終端、タブレット `768 × 900` / `1024 × 900`、モバイル `341 × 844` / `390 × 844` / `440 × 844` を直接確認しました。
+- State: Nintendo Switch Proコントローラーの商品詳細。PCでは既存の上部購入面を残し、関連商品レールの直後にある商品情報区間の右側へ、同一状態を使う追従購入面を置いた状態です。
+
+**Comparison history and findings**
+
+- [P1 → fixed] 従来は、右の購入面が上部で途切れ、関連商品以降の商品説明を読む間にバリエーション・数量・購入CTAを参照できませんでした。
+- 修正後は、商品情報を左、購入面を右に置き、情報区間では`top: 24px`で追従します。実測で情報面の終端がviewport上端を越えた後、追従面も同じ終端で上へ抜け、下のレビューなどの通常フローへ続くことを確認しました。
+- P0/P1/P2: なし。SAZOのロゴ・コピー・色は使用せず、J-Planet既存のネイビー、桜ピンク、白、薄い罫線へ置換しています。
+
+**Fidelity, interaction and responsive checks**
+
+- 商品情報: 注文配送の流れ、商品説明、利用理由／注意事項の既存内容を左列の通常フローで保持しました。情報区間の下に薄い区切り線を置き、その後はレビューなどの既存下段コンテンツを全幅で表示します。
+- 購入面: カラー、数量、購入条件の表示、`カートに入れる`、`購入に進む`を右列へ集約しました。上部購入面と下部追従面は同じ状態を使うため、色・数量とカート／購入導線が同期します。
+- `1440 × 960`: 横オーバーフローなし。商品情報中は購入面が`top: 24px`へ追従し、情報面の終端では購入面の下端も同じ終端へ揃って通常フローへ戻ることを実測しました。
+- `768 × 900` / `1024 × 900`: 右パネル幅はそれぞれ`340px` / `391px`で表示され、横オーバーフローなしを実測しました。
+- `341 × 844` / `390 × 844` / `440 × 844`: PC用の追従購入面はレンダーされず、既存のモバイル変種レール・固定フッターが維持され、横オーバーフローもありません。
+- `pnpm typecheck`、商品詳細Unit 34件、PC／mobile対象E2E、`git diff --check`を実行対象にしています。
+
+final result: passed
+
+---
+
+## 2026-08-16 — PCホーム: Agent Lens fidelity addendum
+
+- Source: `/Users/fujitatetsu/.codex/generated_images/01a0090b-85ab-7483-b0d9-529cad5c5a4a/exec-62663212-2b02-474b-af1f-946906fd1881.png` at `1536 × 1024`.
+- Same-viewport proof: `/tmp/jplanet-agent-lens-comparison.png` (left: selected visual, right: browser-rendered implementation). The implementation retains the normal product-search header, puts the agent tabs and large intake field in the central oval, uses edge-only product imagery, then follows with three lightweight routes and the existing six-product rail.
+- Corrected in this pass: the side visual hierarchy is now a single left/right story instead of scattered thumbnails; the `1024px` intake no longer clips because edge imagery is removed at tablet width; desktop-only Lens rendering is confirmed absent at `341px` / `390px` / `440px`.
+- Verified interactions: `URLを送る` / `画像を送る` / `商品名で探す` toggle within the same purchase agent; camera, send, discovery routes, product links, cart, chat, and my page remain present.
+- Verification passed: `pnpm typecheck`; selected home Unit; desktop and mobile target E2E; `pnpm build`; `git diff --check`. No P0/P1/P2 issue remains for the selected desktop composition. Full-suite failures are not asserted as resolved here.
 
 final result: passed

@@ -53,8 +53,8 @@ describe("sazoReducer", () => {
     expect(createInitialSazoState(`?qa=1&view=${view}`).view).toBe(view);
   });
 
-  it("accepts the dedicated BEAUTY QA route", () => {
-    expect(createInitialSazoState("?qa=1&view=beauty").view).toBe("beauty");
+  it("redirects the retired BEAUTY QA route to the skincare catalog", () => {
+    expect(createInitialSazoState("?qa=1&view=beauty").view).toBe("skincare-catalog");
   });
 
   it("accepts the deterministic checkout QA route", () => {
@@ -259,15 +259,37 @@ describe("sazoReducer", () => {
     },
   );
 
-  it("keeps the submitted request while the agent checks it and returns safely on cancellation", () => {
+  it("starts an image submission at the explicit similar-candidate step", () => {
     const searching = sazoReducer(createInitialSazoState(), {
       type: "start-agent-search",
-      request: { imageName: "limited.png", summary: "日本限定スニーカー" },
+      request: {
+        imageName: "limited.png",
+        imageResolution: true,
+        summary: "日本限定スニーカー",
+      },
+    });
+
+    expect(searching).toMatchObject({
+      agentSearchRequest: {
+        imageName: "limited.png",
+        imageResolution: true,
+        summary: "日本限定スニーカー",
+      },
+      agentSearchReturnView: "home",
+      overlay: "none",
+      view: "agent-image-resolution",
+    });
+  });
+
+  it("keeps text submissions in the existing checking state and returns safely on cancellation", () => {
+    const searching = sazoReducer(createInitialSazoState(), {
+      type: "start-agent-search",
+      request: { imageName: null, summary: "日本限定スニーカー" },
     });
     const cancelled = sazoReducer(searching, { type: "cancel-agent-search" });
 
     expect(searching).toMatchObject({
-      agentSearchRequest: { imageName: "limited.png", summary: "日本限定スニーカー" },
+      agentSearchRequest: { imageName: null, summary: "日本限定スニーカー" },
       agentSearchReturnView: "home",
       overlay: "none",
       view: "agent-searching",
@@ -305,6 +327,17 @@ describe("sazoReducer", () => {
     expect(sazoReducer(detail, { type: "close-product" }).view).toBe("catalog");
   });
 
+  it("returns skincare discovery cards to the mobile skincare catalog", () => {
+    const skincareCatalog = {
+      ...createInitialSazoState(),
+      view: "skincare-catalog",
+    } as SazoState;
+    const detail = sazoReducer(skincareCatalog, { type: "open-product", productId: "p01" });
+
+    expect(detail.productReturnView).toBe("skincare-catalog");
+    expect(sazoReducer(detail, { type: "close-product" }).view).toBe("skincare-catalog");
+  });
+
   it("keeps legacy and J-Planet card IDs out of the retired SAZO detail flow", () => {
     for (const productId of [
       "p01",
@@ -321,6 +354,19 @@ describe("sazoReducer", () => {
       expect(detail.selectedProductId).toBe("jplanet-nintendo-pro-controller");
       expect(detail.view).toBe("product");
     }
+  });
+
+  it("keeps the New Balance identifier only for the image-search resolution result", () => {
+    const detail = sazoReducer(
+      { ...createInitialSazoState(), view: "agent-image-resolution" } as SazoState,
+      { type: "open-image-search-product", productId: "jplanet-new-balance-9060" },
+    );
+
+    expect(detail).toMatchObject({
+      productReturnView: "agent-image-resolution",
+      selectedProductId: "jplanet-new-balance-9060",
+      view: "product",
+    });
   });
 
   it("keeps cart quantities and selected variants in reducer state", () => {

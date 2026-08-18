@@ -28,8 +28,9 @@ function applicationExternalRequests(requests: readonly string[]) {
 }
 
 async function expectLoadedDenseHomeProducts(page: Page) {
-  const cards = page.getByTestId("home-dense-product-card");
-  const images = page.locator("[data-home-dense-product-grid] img");
+  const grid = page.locator("[data-mobile-picks-grid] [data-home-dense-product-grid]");
+  const cards = grid.getByTestId("home-dense-product-card");
+  const images = grid.locator("img");
 
   await expect(cards).toHaveCount(48);
   await expect(images).toHaveCount(48);
@@ -150,6 +151,203 @@ async function expectNoHorizontalPageOverflow(page: Page) {
   expect(geometry.scrollWidth).toBe(geometry.clientWidth);
 }
 
+test("aligns the mobile Uniqlo discovery rail and identifies its source on every card", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "mobile",
+    "The rail is a mobile-only presentation.",
+  );
+
+  for (const viewport of [
+    { height: 735, width: 341 },
+    { height: 844, width: 390 },
+    { height: 956, width: 440 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto(`${routePath}&view=home`);
+
+    const gram = page.getByTestId("mobile-gram-section");
+    const discovery = page.getByTestId("mobile-home-uniqlo-discovery");
+    await discovery.scrollIntoViewIfNeeded();
+
+    await expect(
+      discovery.getByRole("heading", { name: "ユニクロをお探しですか？" }),
+    ).toBeVisible();
+    await expect(
+      discovery.locator(
+        'img[data-brand-source="uniqlo"][src="/sazo-commerce/reference/uniqlo-logo.svg"]',
+      ),
+    ).toHaveCount(5);
+
+    const bounds = await page.evaluate(() => {
+      const rect = (selector: string) => {
+        const element = document.querySelector<HTMLElement>(selector);
+        if (element === null) throw new Error(`Missing ${selector}`);
+        const { left, right } = element.getBoundingClientRect();
+        return { left: Math.round(left), right: Math.round(right) };
+      };
+
+      return {
+        discoveryGrid: rect(
+          ".sazo-mobile-home-uniqlo-discovery .sazo-home-dense-product-grid",
+        ),
+        discoveryHeading: rect(
+          ".sazo-mobile-home-uniqlo-discovery .sazo-home-dense-picks-heading",
+        ),
+        gramGrid: rect(".sazo-mobile-gram-section .sazo-mobile-gram-grid"),
+        gramHeading: rect(".sazo-mobile-gram-section .sazo-section-heading"),
+      };
+    });
+
+    expect(bounds.discoveryHeading).toEqual(bounds.gramHeading);
+    expect(bounds.discoveryGrid).toEqual(bounds.gramGrid);
+    await expectNoHorizontalPageOverflow(page);
+    await discovery.screenshot({
+      path: testInfo.outputPath(`uniqlo-discovery-${viewport.width}.png`),
+    });
+    if (viewport.width === 390) {
+      await page.screenshot({
+        path: testInfo.outputPath("uniqlo-discovery-context-390.png"),
+      });
+    }
+  }
+});
+
+test("matches the mobile category directory at supported mobile widths and preserves desktop category layout", async ({
+  page,
+}, testInfo) => {
+  if (testInfo.project.name === "desktop") {
+    for (const viewport of [
+      { height: 900, width: 768 },
+      { height: 900, width: 1_511 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto(`${routePath}&view=categories`);
+      await expect(page.locator('[data-view-content="categories"]')).toBeVisible();
+      await expect(page.locator('[data-testid="category-agent-entry"]')).toBeVisible();
+      await expect(page.locator(".sazo-mobile-category-title")).toHaveCount(0);
+      await expect(page.locator(".sazo-category-child-card")).toHaveCount(6);
+      await expectNoHorizontalPageOverflow(page);
+    }
+    return;
+  }
+
+  for (const viewport of [
+    { height: 735, width: 341 },
+    { height: 844, width: 390 },
+    { height: 956, width: 440 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto(`${routePath}&view=categories`);
+    await page.evaluate(() => window.scrollTo({ top: 0 }));
+    await expect(page.locator('[data-view-content="categories"]')).toBeVisible();
+    await expect(page.getByRole("heading", { name: "カテゴリー" })).toBeVisible();
+    await expect(page.getByRole("tab", { name: "カテゴリー" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await expect(
+      page.getByRole("button", { name: "化粧品", exact: true }),
+    ).toHaveAttribute("aria-current", "page");
+    await expect(page.locator(".sazo-category-parent-list button")).toHaveCount(14);
+
+    const grid = page.locator(".sazo-category-child-list");
+    const children = grid.locator(".sazo-category-child-card");
+    await expect(children).toHaveCount(9);
+    await expect
+      .poll(() =>
+        grid
+          .locator("img")
+          .evaluateAll(
+            (images) =>
+              images.filter(
+                (image) =>
+                  image instanceof HTMLImageElement &&
+                  (!image.complete || image.naturalWidth === 0),
+              ).length,
+          ),
+      )
+      .toBe(0);
+    await grid.locator("img").evaluateAll(async (images) => {
+      await Promise.all(
+        images.map((image) =>
+          image instanceof HTMLImageElement
+            ? image.decode().catch(() => undefined)
+            : undefined,
+        ),
+      );
+    });
+    expect(
+      await grid.evaluate(
+        (element) =>
+          getComputedStyle(element).gridTemplateColumns.split(" ").filter(Boolean).length,
+      ),
+    ).toBe(3);
+    await expect(children.getByRole("img")).toHaveCount(0);
+    expect(
+      await children
+        .first()
+        .locator(".sazo-category-child-image")
+        .evaluate((element) => getComputedStyle(element).borderRadius),
+    ).toBe("50%");
+    if (viewport.width === 341) {
+      expect(
+        await children
+          .filter({ hasText: "ポイントメイク" })
+          .locator(".sazo-category-child-copy")
+          .evaluate((element) => element.scrollWidth <= element.clientWidth),
+      ).toBe(true);
+    }
+    await expectNoHorizontalPageOverflow(page);
+    await page.screenshot({
+      path: testInfo.outputPath(`category-cosmetics-${viewport.width}.png`),
+    });
+  }
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto(`${routePath}&view=categories`);
+  await page.evaluate(() => window.scrollTo({ top: 0 }));
+  await page.getByRole("button", { name: "レディース", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "レディース" })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "レディース", exact: true }),
+  ).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("button", { name: "トップス", exact: true })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("category-ladies-390.png") });
+
+  const pcAndGames = page.getByRole("button", { name: "PC・ゲーム", exact: true });
+  await pcAndGames.scrollIntoViewIfNeeded();
+  await expect(pcAndGames).toBeVisible();
+  await pcAndGames.click();
+  await expect(page.getByRole("heading", { name: "PC・ゲーム" })).toBeVisible();
+  await expect(pcAndGames).toHaveAttribute("aria-current", "page");
+
+  await page.goto(`${routePath}&view=categories`);
+  await page.evaluate(() => window.scrollTo({ top: 0 }));
+  const bodyCare = page.getByRole("button", { name: "ボディケア" });
+  await bodyCare.scrollIntoViewIfNeeded();
+  const navTop = await page
+    .getByRole("navigation", { name: "モバイルメニュー" })
+    .evaluate((element) => element.getBoundingClientRect().top);
+  const bodyCareBottom = await bodyCare.evaluate(
+    (element) => element.getBoundingClientRect().bottom,
+  );
+  expect(bodyCareBottom).toBeLessThanOrEqual(navTop);
+  await bodyCare.click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute(
+    "data-view",
+    "skincare-catalog",
+  );
+  await expect(page.getByTestId("skincare-catalog-view")).toBeVisible();
+
+  await page.goto(`${routePath}&view=categories`);
+  await page.evaluate(() => window.scrollTo({ top: 0 }));
+  await page.getByRole("tab", { name: "人気ブランド" }).click();
+  await expect(page.locator('[data-view-content="brands"]')).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("category-popular-brands-390.png") });
+});
+
 async function expectComposerBelowAgentHeader(page: Page) {
   await page.evaluate(() => {
     window.scrollTo({ behavior: "instant", top: 0 });
@@ -191,8 +389,11 @@ async function replayDesktopScenario(page: Page) {
     )
     .toEqual(["J-Planet特集", "限定", "フリマ", "コスメ", "K-POP"]);
   await desktopShortcuts.getByRole("button", { exact: true, name: "コスメ" }).click();
-  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "beauty");
-  await expect(page.locator("[data-beauty-view]")).toBeVisible();
+  await expect(page.locator(".sazo-root")).toHaveAttribute(
+    "data-view",
+    "skincare-catalog",
+  );
+  await expect(page.getByTestId("skincare-catalog-view")).toBeVisible();
   await page
     .getByRole("navigation", { exact: true, name: "メインメニュー" })
     .getByRole("button", { exact: true, name: "ホーム" })
@@ -282,7 +483,7 @@ async function replayMobileScenario(page: Page) {
   await expect(mobileHeader).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
   const headerAgentSearch = mobileHeader.getByRole("button", {
     exact: true,
-    name: "URL・画像・商品名をAIに渡す",
+    name: "AI検索",
   });
   const headerCamera = mobileHeader.getByRole("button", { exact: true, name: "カメラ" });
   const headerChat = mobileHeader.getByRole("button", {
@@ -300,8 +501,8 @@ async function replayMobileScenario(page: Page) {
   await page.getByTestId("chat-close").click();
 
   await headerAgentSearch.click();
-  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
-  await page.getByRole("button", { exact: true, name: "J-Planet ホーム" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
+  await page.getByRole("button", { exact: true, name: "ホームに戻る" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
 
   await headerCamera.click();
@@ -604,15 +805,20 @@ async function replayMobileScenario(page: Page) {
 
   const homeAgent = page.locator("[data-home-agent-entry]");
   await expect(homeAgent).toBeVisible();
+  await expect(homeAgent.getByText("AIで商品を探す", { exact: true })).toBeVisible();
+  await expect(homeAgent.getByText("AI検索", { exact: true })).toHaveCount(0);
   await expect(
-    homeAgent.getByRole("button", { exact: true, name: "URL・画像・商品名をAIに渡す" }),
+    homeAgent.getByText("商品名・キーワード・画像・URLから商品を探します。", {
+      exact: true,
+    }),
+  ).toHaveCount(0);
+  await expect(
+    homeAgent.getByRole("button", { exact: true, name: "AI検索" }),
   ).toBeVisible();
   await expect(
     homeAgent.getByRole("button", { exact: true, name: "入力メニュー" }),
   ).toHaveCount(0);
-  await homeAgent
-    .getByRole("button", { exact: true, name: "URL・画像・商品名をAIに渡す" })
-    .click();
+  await homeAgent.getByRole("button", { exact: true, name: "AI検索" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
   await page.getByRole("button", { exact: true, name: "J-Planet ホーム" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
@@ -639,15 +845,13 @@ async function replayMobileScenario(page: Page) {
   await mobileNavigation.getByRole("button", { exact: true, name: "ホーム" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
 
-  await mobileNavigation
-    .getByRole("button", { exact: true, name: "エージェント" })
-    .click();
+  await mobileNavigation.getByRole("button", { exact: true, name: "AI検索" }).click();
   const hub = page.locator("[data-mobile-agent-hub]");
   await expect(hub).toBeVisible();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
   await expect(mobileNavigation).toBeVisible();
   await expect(
-    mobileNavigation.getByRole("button", { exact: true, name: "エージェント" }),
+    mobileNavigation.getByRole("button", { exact: true, name: "AI検索" }),
   ).toHaveAttribute("aria-pressed", "true");
   await expect(
     page.getByRole("dialog", { exact: true, name: "J-Planet AIエージェント" }),
@@ -661,7 +865,7 @@ async function replayMobileScenario(page: Page) {
     await page.setViewportSize(viewport);
     await expect(mobileNavigation).toBeVisible();
     await expect(
-      mobileNavigation.getByRole("button", { exact: true, name: "エージェント" }),
+      mobileNavigation.getByRole("button", { exact: true, name: "AI検索" }),
     ).toHaveAttribute("aria-pressed", "true");
     await expectNoHorizontalPageOverflow(page);
   }
@@ -669,9 +873,7 @@ async function replayMobileScenario(page: Page) {
 
   await hub.getByRole("button", { exact: true, name: "J-Planet ホーム" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
-  await mobileNavigation
-    .getByRole("button", { exact: true, name: "エージェント" })
-    .click();
+  await mobileNavigation.getByRole("button", { exact: true, name: "AI検索" }).click();
   await expect(hub).toBeVisible();
   await hub.locator("#sazo-mobile-agent-image").setInputFiles({
     name: "sample.png",
@@ -687,12 +889,10 @@ async function replayMobileScenario(page: Page) {
   await hub.getByRole("button", { exact: true, name: "J-Planet ホーム" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
 
-  await mobileNavigation
-    .getByRole("button", { exact: true, name: "エージェント" })
-    .click();
+  await mobileNavigation.getByRole("button", { exact: true, name: "AI検索" }).click();
   const agentNavigation = mobileNavigation.getByRole("button", {
     exact: true,
-    name: "エージェント",
+    name: "AI検索",
   });
   await expect(hub).toBeVisible();
   await expect(
@@ -715,8 +915,8 @@ async function replayMobileScenario(page: Page) {
 
   const composer = hub.locator(".sazo-mobile-agent-composer");
   await composer
-    .getByRole("textbox", { name: "URL・画像・商品名をAIに渡す" })
-    .fill("rakuten.co.jp の商品を確認したい");
+    .getByRole("textbox", { name: "AI検索" })
+    .fill("https://www.rakuten.co.jp/item/mock-product");
   const submit = composer.getByRole("button", {
     exact: true,
     name: "送信",
@@ -844,101 +1044,25 @@ async function replayMobileScenario(page: Page) {
   expect(applicationExternalRequests(externalRequests)).toEqual([]);
 }
 
-test("opens the J-Planet BEAUTY route with an inline AI composer and touch rails", async ({
+test("redirects the retired J-Planet BEAUTY route to the supported skincare catalog", async ({
   page,
 }, testInfo) => {
-  test.skip(testInfo.project.name !== "mobile", "BEAUTY reproduction is mobile-first");
-  // Mobile intentionally removes the desktop-only コスメ shortcut. Start
-  // from the QA deep-link so this existing BEAUTY journey remains covered
-  // without reintroducing that shortcut into the mobile rail.
+  test.skip(
+    testInfo.project.name !== "mobile",
+    "the replacement catalog is mobile-first",
+  );
+  await page.setViewportSize({ height: 844, width: 390 });
   await page.goto(`${routePath}&view=beauty`);
 
-  const beauty = page.locator("[data-beauty-view]");
-  await expect(beauty).toBeVisible();
-  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "beauty");
-  await expect(beauty.locator(".sazo-beauty-logo img")).toBeVisible();
-  await expect(beauty.getByText("BEAUTY", { exact: true })).toBeVisible();
-
-  const composer = beauty.getByPlaceholder("URL・画像・商品名をAIに渡す");
-  await composer.fill("美容液");
-  await beauty.getByRole("button", { exact: true, name: "送信" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute(
     "data-view",
-    "agent-searching",
+    "skincare-catalog",
   );
-  await expect(page.getByRole("dialog", { name: "J-Planet AIエージェント" })).toHaveCount(
-    0,
-  );
-  await expect(page.locator("[data-agent-pet-stage]")).toBeVisible();
-  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "product", {
-    timeout: 12_000,
-  });
-  await expect(page.getByTestId("jplanet-controller-result")).toBeVisible();
-  await page.goto(`${routePath}&view=beauty`);
-  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "beauty");
-  await composer.fill("");
-
-  const categoryRail = beauty.locator(".sazo-beauty-category-rail");
-  const categoryBox = await categoryRail.boundingBox();
-  if (categoryBox === null) throw new Error("Missing BEAUTY category rail geometry");
-  await dispatchNativeTouchGesture(page, [
-    {
-      x: categoryBox.x + categoryBox.width - 18,
-      y: categoryBox.y + categoryBox.height / 2,
-    },
-    {
-      x: categoryBox.x + categoryBox.width / 2,
-      y: categoryBox.y + categoryBox.height / 2,
-    },
-    { x: categoryBox.x + 22, y: categoryBox.y + categoryBox.height / 2 },
-  ]);
-  await expect
-    .poll(() => categoryRail.evaluate((node) => node.scrollLeft))
-    .toBeGreaterThan(0);
-
-  await beauty.getByRole("button", { exact: true, name: "マスクパック" }).click();
-  await expect(
-    beauty.getByRole("status", { name: "マスクパックの商品を読み込んでいます" }),
-  ).toBeVisible();
-  await expect(
-    beauty.getByRole("button", { exact: true, name: "マスクパック" }),
-  ).toHaveAttribute("aria-pressed", "true", { timeout: 800 });
-  await expect(beauty.locator(".sazo-beauty-product-card")).toHaveCount(6);
-
-  const productRail = beauty.locator(".sazo-beauty-product-rail");
-  const productBox = await productRail.boundingBox();
-  if (productBox === null) throw new Error("Missing BEAUTY product rail geometry");
-  await dispatchNativeTouchGesture(page, [
-    { x: productBox.x + productBox.width - 18, y: productBox.y + productBox.height / 2 },
-    { x: productBox.x + productBox.width / 2, y: productBox.y + productBox.height / 2 },
-    { x: productBox.x + 22, y: productBox.y + productBox.height / 2 },
-  ]);
-  await expect
-    .poll(() =>
-      productRail.evaluate((node) => ({
-        clientWidth: node.clientWidth,
-        scrollWidth: node.scrollWidth,
-      })),
-    )
-    .toMatchObject({ clientWidth: expect.any(Number), scrollWidth: expect.any(Number) });
-  await expect
-    .poll(() => productRail.evaluate((node) => node.scrollWidth > node.clientWidth))
-    .toBe(true);
-  await productRail.evaluate((node) => {
-    node.scrollBy({ behavior: "instant", left: node.clientWidth });
-  });
-  await expect
-    .poll(() => productRail.evaluate((node) => node.scrollLeft))
-    .toBeGreaterThan(0);
-
-  await beauty.locator(".sazo-beauty-product-card button").first().click();
-  await expect(page.locator("[data-product-detail]")).toBeVisible();
-  await page
-    .getByTestId("jplanet-product-media-header")
-    .getByRole("button", { exact: true, name: "戻る" })
-    .click();
-  await expect(beauty).toBeVisible();
+  await expect(page.getByTestId("skincare-catalog-view")).toBeVisible();
+  await expect(page.locator("[data-beauty-view]")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "すべて見る" })).toHaveCount(0);
   await expect(page.getByRole("navigation", { name: "モバイルメニュー" })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("retired-beauty-redirect-390.png") });
 });
 
 test("renders Jupi at half of its former scale beside Kurone", async ({
@@ -998,8 +1122,8 @@ test("shows a waterfall home grid with direct-Japan prices and returns each card
   test.skip(testInfo.project.name !== "mobile", "the dense home grid is mobile-first");
   await page.goto(routePath);
 
-  const grid = page.locator("[data-home-dense-product-grid]");
-  const cards = page.getByTestId("home-dense-product-card");
+  const grid = page.locator("[data-mobile-picks-grid] [data-home-dense-product-grid]");
+  const cards = grid.getByTestId("home-dense-product-card");
   await grid.evaluate((element) => {
     element.scrollIntoView({ block: "start" });
   });
@@ -1108,7 +1232,9 @@ test("keeps the waterfall grid legible on tablet and desktop", async ({
   );
 
   await page.goto(routePath);
-  const grid = page.locator("[data-home-dense-product-grid]");
+  const grid = page.locator(
+    ".sazo-desktop-home-product-rail [data-home-dense-product-grid]",
+  );
 
   for (const { width, columns } of [
     { width: 768, columns: 3 },
@@ -1117,7 +1243,7 @@ test("keeps the waterfall grid legible on tablet and desktop", async ({
   ]) {
     await page.setViewportSize({ width, height: 900 });
     await expect(grid).toHaveAttribute("data-column-count", String(columns));
-    await expect(grid.locator(".sazo-home-dense-product-column")).toHaveCount(columns);
+    await expect(grid.locator(".sazo-home-dense-product-column")).toHaveCount(1);
     await expect(page.locator("html")).toHaveJSProperty("scrollWidth", width);
   }
 });
@@ -1287,9 +1413,9 @@ test("continues a retrieved Nintendo product with reviews and recommendations in
   const controllerGallery = page.locator(
     ".sazo-reference-nintendo-controller-thumbnails",
   );
-  await expect(controllerGallery.getByRole("button")).toHaveCount(3);
+  await expect(controllerGallery.getByRole("button")).toHaveCount(10);
   await controllerGallery
-    .getByRole("button", { exact: true, name: "ホワイトを表示" })
+    .getByRole("button", { exact: true, name: "画像2を表示" })
     .click();
   await expect(
     page
@@ -1381,6 +1507,7 @@ test("keeps the product media header over the gallery until product information 
     testInfo.project.name !== "mobile",
     "the product-media header is a mobile-first interaction",
   );
+  await page.setViewportSize({ height: 956, width: 440 });
   await page.goto(`${routePath}&view=product&product=jplanet-nintendo-pro-controller`);
 
   const header = page.getByTestId("jplanet-product-media-header");
@@ -1394,7 +1521,8 @@ test("keeps the product media header over the gallery until product information 
     controllerMedia.locator(".sazo-reference-nintendo-controller-thumbnails"),
   ).toHaveCount(0);
   await expect(controllerVariantRail).toBeVisible();
-  await expect(controllerVariantRail).toContainText("3色のバリエーション");
+  await expect(controllerVariantRail).toHaveAttribute("aria-label", "商品画像");
+  await expect(controllerVariantRail).toContainText("10枚の商品画像");
   expect(
     await page.evaluate(() =>
       document
@@ -1410,6 +1538,7 @@ test("keeps the product media header over the gallery until product information 
   await expect(header.getByRole("button", { name: "商品メニュー" })).toBeVisible();
   await expect(header.getByRole("button", { name: "チャット" })).toHaveCount(0);
   await expect(header.getByRole("button", { name: "画像から検索" })).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath("controller-top-440.png") });
 
   await header.getByRole("button", { name: "商品メニュー" }).click();
   await expect(header.getByRole("menu")).toBeVisible();
@@ -1446,100 +1575,68 @@ test("keeps the product media header over the gallery until product information 
   );
   await expect(header).toHaveAttribute("data-header-surface", "transparent");
   await header.getByRole("button", { name: "AI検索を開く" }).click();
-  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
 });
 
-test("renders the agent as a direct product-search entry at mobile widths", async ({
+test("keeps controller photos separate from the ten purchase-time variations", async ({
   page,
 }, testInfo) => {
-  test.skip(testInfo.project.name !== "mobile", "the agent hub is a mobile-first flow");
+  test.skip(
+    testInfo.project.name !== "mobile",
+    "the compact gallery and purchase sheet are the mobile product-detail presentation",
+  );
+
+  await page.goto(`${routePath}&view=product&product=jplanet-nintendo-pro-controller`);
+
+  const variationRail = page.getByTestId("jplanet-controller-variant-rail");
+  await expect(variationRail).toHaveAttribute("aria-label", "商品画像");
+  await expect(variationRail).toContainText("10枚の商品画像");
+  await expect(variationRail.getByRole("button")).toHaveCount(10);
+  await expect
+    .poll(() =>
+      variationRail
+        .locator(".sazo-reference-nintendo-controller-thumbnails")
+        .evaluate((node) => node.scrollWidth > node.clientWidth),
+    )
+    .toBe(true);
+
+  const thirdPhoto = variationRail.getByRole("button", { name: "画像3を表示" });
+  await thirdPhoto.click();
+  await expect(thirdPhoto).toHaveAttribute("aria-current", "true");
+  await page.getByRole("button", { exact: true, name: "カートに入れる" }).click();
+  const purchaseSheet = page.getByRole("dialog", {
+    exact: true,
+    name: "Proコントローラーをカートに入れる",
+  });
+  await expect(purchaseSheet).toBeVisible();
+  await expect(
+    purchaseSheet.locator(".sazo-reference-controller-sheet-colors button"),
+  ).toHaveCount(10);
+  await expect(
+    purchaseSheet.getByRole("button", { name: /ゼルダ 在庫あり/ }),
+  ).toBeVisible();
+  await expectNoHorizontalPageOverflow(page);
+});
+
+test("renders the AI search as a direct product-search entry at mobile widths", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "AI search is a mobile-first flow");
 
   await page.goto(`${routePath}&view=agent-hub&agentScenario=customs-action`);
   await page.setViewportSize({ height: 844, width: 390 });
-  const hub = page.locator("[data-mobile-agent-hub]");
+  const search = page.locator("[data-ai-search-view]");
   const navigation = page.getByRole("navigation", { name: "モバイルメニュー" });
 
-  await expect(hub).toHaveAttribute("data-scenario", "customs-action");
-  await expect(
-    hub.getByRole("heading", { name: "購入エージェント", exact: true }),
-  ).toBeVisible();
-  await expect(
-    hub.getByText("商品を送るだけで、購入判断まで。", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    hub.getByText("URLは商品ページを直接開きます", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    hub.getByRole("heading", { name: "最近の検索", exact: true }),
-  ).toBeVisible();
-  await expect(
-    hub.getByRole("heading", { name: "最近確認した商品", exact: true }),
-  ).toBeVisible();
-  await expect(
-    hub.getByRole("heading", { name: "よく検索されるキーワード", exact: true }),
-  ).toBeVisible();
-  await expect(hub.getByRole("button", { name: "すべて見る（8件）" })).toBeVisible();
-  await expect(
-    hub.getByRole("button", { name: "このエージェントの使い方" }),
-  ).toHaveAttribute("aria-expanded", "false");
-  await expect(hub.getByRole("button", { name: /の商品を見る$/ })).toHaveCount(2);
-  await expect(hub.getByText("結果を見る", { exact: true })).toHaveCount(0);
-  await expect(hub.getByText("送信履歴", { exact: true })).toHaveCount(0);
-  await expect(
-    hub.getByText("通関手続きに必要な情報があります", { exact: true }),
-  ).toHaveCount(0);
-  const composer = hub.locator('[data-section="agent-search"]');
-  await expect(composer.locator(".sazo-mobile-agent-composer-input-shell")).toHaveCSS(
-    "min-height",
-    "52px",
-  );
-  await expect(hub.locator(".sazo-agent-hub-product-card")).toHaveCount(0);
-  const recentSearches = hub.getByRole("list", { name: "最近の検索" });
-  await expect(recentSearches.getByRole("listitem")).toHaveCount(3);
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
+  await expect(search).toBeVisible();
+  await expect(search.locator("[data-ai-search-input]")).toBeFocused();
+  await expect(search.getByText("最近の検索")).toBeVisible();
+  await expect(search.getByRole("button", { name: "画像を選択" })).toBeVisible();
   await page.evaluate(() => {
     window.scrollTo(0, 0);
   });
   await page.screenshot({ path: testInfo.outputPath("agent-search-default-390.png") });
-  await expect
-    .poll(() =>
-      recentSearches.evaluate((element) => element.scrollWidth > element.clientWidth),
-    )
-    .toBe(true);
-  await recentSearches.evaluate((element) => {
-    element.scrollTo({ left: element.scrollWidth, behavior: "instant" });
-  });
-  await expect
-    .poll(() => recentSearches.evaluate((element) => element.scrollLeft))
-    .toBeGreaterThan(0);
-  await expect(hub.getByText("購入可能", { exact: true })).toHaveCount(0);
-
-  await hub.getByRole("button", { name: "すべて見る（8件）" }).click();
-  await expect(hub.getByRole("button", { name: /の商品を見る$/ })).toHaveCount(8);
-  await expect(hub.getByRole("button", { name: "閉じる" })).toHaveAttribute(
-    "aria-expanded",
-    "true",
-  );
-  await page.screenshot({ path: testInfo.outputPath("agent-search-expanded-390.png") });
-  await hub.getByRole("button", { name: "閉じる" }).click();
-  await expect(hub.getByRole("button", { name: /の商品を見る$/ })).toHaveCount(2);
-
-  await hub.getByRole("button", { name: "このエージェントの使い方" }).click();
-  await expect(hub.getByText("URLを貼る", { exact: true })).toBeVisible();
-  await expect(hub.getByText("画像を送る", { exact: true })).toBeVisible();
-  await expect(hub.getByText("商品名で探す", { exact: true })).toBeVisible();
-  await hub.getByRole("button", { name: "このエージェントの使い方" }).click();
-  await expect(hub.getByText("URLを貼る", { exact: true })).toHaveCount(0);
-
-  const popularProducts = hub.getByTestId("agent-popular-products");
-  await popularProducts.scrollIntoViewIfNeeded();
-  await expect(popularProducts.getByTestId("home-dense-product-card")).toHaveCount(4);
-  await page.screenshot({ path: testInfo.outputPath("agent-popular-products-390.png") });
-
-  await hub.getByRole("button", { name: "Nintendo Switchを削除" }).click();
-  await expect(recentSearches.getByRole("listitem")).toHaveCount(2);
-  await hub.getByRole("button", { name: "検索履歴を全消去" }).click();
-  await expect(recentSearches.getByRole("listitem")).toHaveCount(0);
-  await expect(hub.getByRole("button", { name: "検索履歴を全消去" })).toBeDisabled();
 
   for (const viewport of [
     { height: 735, width: 341 },
@@ -1548,40 +1645,156 @@ test("renders the agent as a direct product-search entry at mobile widths", asyn
   ]) {
     await page.setViewportSize(viewport);
     await expect(
-      navigation.getByRole("button", { name: "エージェント", exact: true }),
+      navigation.getByRole("button", { name: "AI検索", exact: true }),
     ).toHaveAttribute("aria-pressed", "true");
     await expectNoHorizontalPageOverflow(page);
   }
 
-  await hub.getByRole("button", { name: "フィギュア" }).click();
-  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "product");
+  await search.getByRole("button", { name: "Nintendo Switch" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ranking");
 });
 
-test("opens agent usage guidance for the empty first-visit mock state at mobile widths", async ({
+test("opens the dedicated mobile AI search with distinct text, URL, and image paths", async ({
   page,
 }, testInfo) => {
-  test.skip(testInfo.project.name !== "mobile", "the agent hub is a mobile-first flow");
+  test.skip(testInfo.project.name !== "mobile", "AI search is a mobile-only surface");
+
+  for (const width of [341, 390, 440]) {
+    await page.setViewportSize({ height: 844, width });
+    await page.goto(routePath);
+    await page.locator("[data-shell-search-button]").click();
+
+    const search = page.locator("[data-ai-search-view]");
+    await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
+    await expect(search).toBeVisible();
+    await expect(search.locator("[data-ai-search-input]")).toBeFocused();
+    await expect(search.locator("[data-ai-search-input]")).toHaveAttribute(
+      "placeholder",
+      "商品名・キーワード・画像・URLで検索",
+    );
+    await expect(search.locator("[data-ai-search-image-input]")).toHaveAttribute(
+      "capture",
+      "environment",
+    );
+    await expect(search.getByText("最近の検索")).toBeVisible();
+    await expect(search.getByText("AI検索で商品を探してみよう！")).toBeVisible();
+    await expect(search.getByText("今、人気の検索")).toBeVisible();
+    await expectNoHorizontalPageOverflow(page);
+    await page.screenshot({
+      path: testInfo.outputPath(`ai-search-${width}-initial.png`),
+    });
+  }
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto(routePath);
+  await page.locator("[data-shell-search-button]").click();
+  const search = page.locator("[data-ai-search-view]");
+  const searchInput = search.locator("[data-ai-search-input]");
+
+  await search.getByRole("button", { name: "敏感肌 化粧水を検索履歴から削除" }).click();
+  await expect(search.getByText("敏感肌 化粧水")).toHaveCount(0);
+  await search.getByRole("button", { name: "すべての検索履歴を削除" }).click();
+  await expect(search.getByText("最近の検索")).toHaveCount(0);
+  await page.screenshot({
+    path: testInfo.outputPath("ai-search-390-history-cleared.png"),
+  });
+
+  await searchInput.fill("New Balance 9060");
+  await page.screenshot({ path: testInfo.outputPath("ai-search-390-text-input.png") });
+  await searchInput.press("Enter");
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
+  await expect(search.locator("[data-ai-search-results]")).toBeVisible();
+  await expect(search.getByText("海外ショップも含めて検索しました。")).toBeVisible();
+  await expect(search.getByText("全体 128件")).toBeVisible();
+  await expect(search.getByRole("heading", { name: "一般・すぐ買える" })).toBeVisible();
+  await expect(search.getByRole("heading", { name: "限定・ハイブランド" })).toBeVisible();
+  await expect(search.getByRole("heading", { name: "フリマ・中古" })).toBeVisible();
+  await expect(search.locator(".sazo-ai-search-result-image img")).toHaveCount(9);
+  await expectNoHorizontalPageOverflow(page);
+  await page.screenshot({
+    path: testInfo.outputPath("ai-search-390-new-balance-results.png"),
+  });
+
+  await search.getByRole("button", { name: "限定" }).click();
+  await expect(search.getByText("限定 19件")).toBeVisible();
+  await expect(search.locator('[data-result-group="limited"]')).toBeVisible();
+  await expect(search.locator('[data-result-group="general"]')).toHaveCount(0);
+  await search.getByRole("button", { name: "全体" }).click();
+  await search
+    .getByRole("button", {
+      name: "New Balance 9060 グリーン ホワイトの商品詳細を見る",
+    })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "product");
+  await expect(page.getByText("New Balance 9060", { exact: true })).toBeVisible();
+
+  await page.goto(
+    `${routePath}&view=ai-search&query=lo%C3%A7%C3%A3o%20facial`,
+  );
+  const tonerResults = page.locator("[data-ai-search-results]");
+  await expect(page.locator("[data-ai-search-input]")).toHaveValue("loção facial");
+  await expect(
+    tonerResults.getByText("「化粧水」に翻訳して検索しました。", { exact: true }),
+  ).toBeVisible();
+  await expect(tonerResults.getByText("全体 1726件", { exact: true })).toBeVisible();
+  await expect(
+    tonerResults.getByRole("heading", { name: "フリマ・未開封" }),
+  ).toBeVisible();
+  await expect(tonerResults.locator(".sazo-ai-search-result-image img")).toHaveCount(9);
+  await expectNoHorizontalPageOverflow(page);
+  await page.screenshot({ path: testInfo.outputPath("ai-search-390-toner-results.png") });
+
+  await page.goto(`${routePath}&view=ai-search`);
+  await page.locator("[data-ai-search-input]").fill("https://example.com/product");
+  await page.locator("[data-ai-search-input]").press("Enter");
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "product");
+  await page.screenshot({ path: testInfo.outputPath("ai-search-390-url-product.png") });
+
+  await page.goto(`${routePath}&view=ai-search`);
+  await page.locator("[data-ai-search-image-input]").setInputFiles({
+    mimeType: "image/png",
+    name: "reference-shoe.png",
+    buffer: Buffer.from("image"),
+  });
+  await expect(page.locator(".sazo-root")).toHaveAttribute(
+    "data-view",
+    "agent-image-resolution",
+  );
+  await expect(page.locator("[data-agent-image-resolution]")).toBeVisible();
+  await page.screenshot({
+    path: testInfo.outputPath("ai-search-390-image-candidates.png"),
+  });
+
+  await page.goto(`${routePath}&view=ai-search`);
+  await page.getByRole("button", { name: "ホームに戻る" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
+
+  await page
+    .locator(".sazo-mobile-nav")
+    .getByRole("button", { exact: true, name: "AI検索" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
+  await expect(page.locator("[data-ai-search-input]")).toBeFocused();
+
+  await page.goto(`${routePath}&view=agent-hub`);
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
+  await expect(page.locator("[data-ai-search-view]")).toBeVisible();
+  await expect(page.locator("[data-ai-search-input]")).toBeFocused();
+});
+
+test("keeps the mobile AI search available for an empty first-visit route", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "AI search is a mobile-first flow");
 
   await page.goto(`${routePath}&view=agent-hub&agentScenario=empty`);
   await page.setViewportSize({ height: 844, width: 390 });
-  const hub = page.locator("[data-mobile-agent-hub]");
+  const search = page.locator("[data-ai-search-view]");
 
-  await expect(hub).toHaveAttribute("data-scenario", "empty");
-  await expect(
-    hub.getByRole("list", { name: "最近の検索" }).getByRole("listitem"),
-  ).toHaveCount(0);
-  await expect(
-    hub.getByText("まだ確認した商品はありません", { exact: true }),
-  ).toBeVisible();
-  await expect(hub.getByRole("button", { name: /の商品を見る$/ })).toHaveCount(0);
-  await expect(
-    hub.getByRole("button", { name: "このエージェントの使い方" }),
-  ).toHaveAttribute("aria-expanded", "true");
-  await expect(hub.getByText("URLを貼る", { exact: true })).toBeVisible();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
+  await expect(search.locator("[data-ai-search-input]")).toBeVisible();
+  await expect(search.getByText("AI検索で商品を探してみよう！")).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("agent-search-empty-390.png") });
-
-  await hub.getByRole("button", { name: "このエージェントの使い方" }).click();
-  await expect(hub.getByText("URLを貼る", { exact: true })).toHaveCount(0);
   await expectNoHorizontalPageOverflow(page);
 });
 
@@ -1605,7 +1818,7 @@ test("keeps the agent search legible on tablet and desktop", async ({
     await page.setViewportSize(viewport);
     await expect(desktopNavigation).toBeVisible();
     await expect(
-      hub.getByRole("heading", { name: "購入エージェント", exact: true }),
+      hub.getByRole("heading", { name: "AIで商品を探す", exact: true }),
     ).toBeVisible();
     await expect(
       hub.getByRole("list", { name: "最近の検索" }).getByRole("listitem"),
@@ -1642,6 +1855,24 @@ test("continues the Pro controller purchase sheet with its selected color and qu
   await purchaseDialog.getByRole("button", { exact: true, name: "数量を増やす" }).click();
   await purchaseDialog.getByRole("button", { exact: true, name: "購入手続きへ" }).click();
   await expect(page.getByRole("heading", { name: "カート (4)" })).toBeVisible();
+});
+
+test("gives the mobile purchase CTA the same visual prominence as a primary action", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "mobile",
+    "the fixed purchase CTA is a mobile-first interaction",
+  );
+  await page.goto(`${routePath}&view=product&product=jplanet-nintendo-pro-controller`);
+
+  const purchaseButton = page.getByRole("button", {
+    exact: true,
+    name: "購入に進む",
+  });
+
+  await expect(purchaseButton).toHaveCSS("background-color", "rgb(233, 76, 104)");
+  await expect(purchaseButton).toHaveCSS("color", "rgb(255, 255, 255)");
 });
 
 test("completes the My Page post-purchase delivery flow", async ({ page }, testInfo) => {
@@ -1777,7 +2008,15 @@ test("opens one J-Planet brand directory from both entries and keeps NIKE browsi
     await page.setViewportSize({ height: 844, width });
     await page.goto(`${routePath}&view=brands`);
     await expect(page.locator('[data-view-content="brands"]')).toBeVisible();
+    await expect(page.getByRole("tablist", { name: "ブランド一覧タブ" })).toHaveCount(0);
+    await expect(page.getByRole("region", { name: "商品カテゴリー" })).toHaveCount(0);
+    await expect(
+      page.getByRole("searchbox", { name: "AIでブランド・商品を探す" }),
+    ).toHaveCount(1);
     await expect(page.getByText("全体 8件", { exact: true })).toBeVisible();
+    await page.screenshot({
+      path: testInfo.outputPath(`brand-directory-route-${width}.png`),
+    });
     await expectNoHorizontalPageOverflow(page);
   }
 
@@ -1797,11 +2036,11 @@ test("opens one J-Planet brand directory from both entries and keeps NIKE browsi
 
   await page.getByRole("button", { name: "家電" }).click();
   await expect(page.getByText("APPLE", { exact: true })).toBeVisible();
-  await page.getByRole("searchbox", { name: "ブランド内検索" }).fill("ソニー");
+  await page.getByRole("searchbox", { name: "AIでブランド・商品を探す" }).fill("ソニー");
   await expect(page.getByText("SONY", { exact: true })).toBeVisible();
   await expect(page.getByText("APPLE", { exact: true })).toBeHidden();
   await page.screenshot({ path: testInfo.outputPath("brand-search-390.png") });
-  await page.getByRole("searchbox", { name: "ブランド内検索" }).fill("");
+  await page.getByRole("searchbox", { name: "AIでブランド・商品を探す" }).fill("");
   await page.getByRole("button", { name: "全体" }).click();
 
   await page.getByRole("button", { name: "NIKEを開く" }).click();
@@ -1841,29 +2080,38 @@ test("renders mobile purchase experience reviews with working decision filters",
   const reviewAgentEntry = page.locator("[data-review-agent-entry]");
   await expect(reviewAgentEntry).toBeVisible();
   await expect(
-    reviewAgentEntry.getByRole("heading", { name: "購入エージェント" }),
+    reviewAgentEntry.getByRole("heading", { name: "AIで商品を探す" }),
   ).toBeVisible();
   await expect(
-    reviewAgentEntry.getByText("購入したい日本商品のURL・画像・名前を\nこちらで検索してみてください！", {
-      exact: true,
-    }),
+    reviewAgentEntry.getByText(
+      "商品名・キーワード・画像・URLから\n探したい商品を検索してみてください。",
+      {
+        exact: true,
+      },
+    ),
   ).toBeVisible();
-  await expect(reviewAgentEntry.locator(".sazo-review-agent-entry-hint svg")).toBeVisible();
+  await expect(
+    reviewAgentEntry.locator(".sazo-review-agent-entry-hint svg"),
+  ).toBeVisible();
   const reviewAgentComposer = reviewAgentEntry.locator(".sazo-mobile-agent-composer");
   await expect(
-    reviewAgentComposer.getByRole("textbox", { name: "URL・画像・商品名をAIに渡す" }),
+    reviewAgentComposer.getByRole("textbox", { name: "AI検索" }),
   ).toBeVisible();
-  await expect(
-    reviewAgentComposer.getByRole("button", { name: "カメラ" }),
-  ).toBeVisible();
+  await expect(reviewAgentComposer.getByRole("button", { name: "カメラ" })).toBeVisible();
   await expect(
     reviewAgentComposer.locator(".sazo-mobile-agent-composer-input-shell"),
   ).toHaveCSS("min-height", "48px");
 
   const carousel = page.locator('[data-review-feature-carousel="true"]');
   await expect(carousel).toBeVisible();
-  expect(await carousel.evaluate((element) => Math.round(element.getBoundingClientRect().top))).toBeGreaterThan(
-    Math.round(await reviewAgentEntry.evaluate((element) => element.getBoundingClientRect().bottom)),
+  expect(
+    await carousel.evaluate((element) => Math.round(element.getBoundingClientRect().top)),
+  ).toBeGreaterThan(
+    Math.round(
+      await reviewAgentEntry.evaluate(
+        (element) => element.getBoundingClientRect().bottom,
+      ),
+    ),
   );
 
   const featureCards = carousel.locator(".sazo-review-feature-card");
@@ -1917,7 +2165,7 @@ test("renders mobile purchase experience reviews with working decision filters",
   );
   await expect(page.locator(".sazo-review-tile")).toHaveCount(18);
   const reviewFeedHeading = page.locator(".sazo-review-feed-heading");
-  const reviewCategoryRail = page.locator("[data-review-category-filter=\"true\"]");
+  const reviewCategoryRail = page.locator('[data-review-category-filter="true"]');
   expect(
     await reviewFeedHeading.evaluate((heading) => heading.getBoundingClientRect().top),
   ).toBeLessThan(
@@ -1929,7 +2177,9 @@ test("renders mobile purchase experience reviews with working decision filters",
   expect(
     await firstColumnTiles.nth(1).evaluate((tile) => tile.getBoundingClientRect().top),
   ).toBeLessThanOrEqual(
-    (await firstColumnTiles.nth(0).evaluate((tile) => tile.getBoundingClientRect().bottom)) + 10,
+    (await firstColumnTiles
+      .nth(0)
+      .evaluate((tile) => tile.getBoundingClientRect().bottom)) + 10,
   );
   const reviewMasonry = page.locator(".sazo-review-masonry");
   await expect(reviewMasonry).toHaveCSS("grid-auto-rows", "auto");
@@ -1938,7 +2188,8 @@ test("renders mobile purchase experience reviews with working decision filters",
       const editorialView = masonry.closest(".sazo-editorial-view");
       return (
         editorialView !== null &&
-        editorialView.getBoundingClientRect().bottom >= masonry.getBoundingClientRect().bottom
+        editorialView.getBoundingClientRect().bottom >=
+          masonry.getBoundingClientRect().bottom
       );
     }),
   ).toBe(true);
@@ -1969,10 +2220,13 @@ test("renders mobile purchase experience reviews with working decision filters",
 
   await page.setViewportSize({ height: 844, width: 390 });
   await reviewAgentComposer
-    .getByRole("textbox", { name: "URL・画像・商品名をAIに渡す" })
+    .getByRole("textbox", { name: "AI検索" })
     .fill("New Balance 9060");
   await reviewAgentComposer.getByRole("button", { name: "送信" }).click();
-  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-searching");
+  await expect(page.locator(".sazo-root")).toHaveAttribute(
+    "data-view",
+    "agent-searching",
+  );
 });
 
 test("replays the deterministic SAZO commerce journey", async ({ page }, testInfo) => {
@@ -2000,14 +2254,7 @@ test("replays the deterministic SAZO commerce journey", async ({ page }, testInf
       await desktopNavigation
         .getByRole("button")
         .evaluateAll((buttons) => buttons.map((button) => button.textContent?.trim())),
-    ).toEqual([
-      "ホーム",
-      "ブランド",
-      "エージェント",
-      "カテゴリー",
-      "人気商品",
-      "配送・通関",
-    ]);
+    ).toEqual(["ホーム", "ブランド", "AI検索", "カテゴリー", "人気商品", "配送・通関"]);
 
     await desktopNavigation
       .getByRole("button", { exact: true, name: "ブランド" })
@@ -2015,9 +2262,7 @@ test("replays the deterministic SAZO commerce journey", async ({ page }, testInf
     await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "brands");
     await expect(page.locator('[data-view-content="brands"]')).toBeVisible();
 
-    await desktopNavigation
-      .getByRole("button", { exact: true, name: "エージェント" })
-      .click();
+    await desktopNavigation.getByRole("button", { exact: true, name: "AI検索" }).click();
     await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
     await expect(page.locator("[data-mobile-agent-hub]")).toBeVisible();
 
@@ -2068,7 +2313,7 @@ test("replays the deterministic SAZO commerce journey", async ({ page }, testInf
     await mobileNavigation
       .getByRole("button")
       .evaluateAll((buttons) => buttons.map((button) => button.textContent?.trim())),
-  ).toEqual(["ホーム", "ブランド", "エージェント", "通知", "マイページ"]);
+  ).toEqual(["ホーム", "ブランド", "AI検索", "通知", "マイページ"]);
   await expectLoadedDenseHomeProducts(page);
 
   await mobileNavigation.getByRole("button", { exact: true, name: "ブランド" }).click();
@@ -2079,11 +2324,9 @@ test("replays the deterministic SAZO commerce journey", async ({ page }, testInf
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "notifications");
   await expect(page.locator('[data-view-content="notifications"]')).toBeVisible();
 
-  await mobileNavigation
-    .getByRole("button", { exact: true, name: "エージェント" })
-    .click();
-  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
-  await expect(page.locator("[data-mobile-agent-hub]")).toBeVisible();
+  await mobileNavigation.getByRole("button", { exact: true, name: "AI検索" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
+  await expect(page.locator("[data-ai-search-view]")).toBeVisible();
   await expectNoHorizontalPageOverflow(page);
 });
 
@@ -2104,15 +2347,54 @@ test("keeps the selected agentic-commerce home responsive and interactive on des
     await page.goto(routePath);
 
     const desktopHome = page.locator("[data-desktop-home-view]");
-    const heroImage = desktopHome.locator(".sazo-desktop-home-hero > img");
+    const agentLens = page.getByTestId("desktop-agent-lens");
     await expect(desktopHome).toBeVisible();
     await expect(page.locator(".sazo-mobile-nav")).toBeHidden();
-    await expect(page.getByRole("search", { name: "購入エージェント検索" })).toHaveCount(
-      1,
-    );
-    await expect(heroImage).toHaveAttribute(
-      "src",
-      "/sazo-commerce/reference/japan-brazil-hero.png",
+    await expect(agentLens).toBeVisible();
+    await expect(
+      agentLens.getByRole("heading", { name: "AIで商品を探す" }),
+    ).toBeVisible();
+    await expect(agentLens.getByRole("search", { name: "AI検索" })).toHaveCount(1);
+    const lensBanners = agentLens.locator("[data-agent-lens-banner]");
+    await expect(lensBanners).toHaveCount(4);
+    expect(
+      await lensBanners.evaluateAll((banners) =>
+        banners.map((banner) => ({
+          nestedButtonCount: banner.querySelectorAll("button").length,
+          tagName: banner.tagName,
+        })),
+      ),
+    ).toEqual([
+      { nestedButtonCount: 0, tagName: "BUTTON" },
+      { nestedButtonCount: 0, tagName: "BUTTON" },
+      { nestedButtonCount: 0, tagName: "BUTTON" },
+      { nestedButtonCount: 0, tagName: "BUTTON" },
+    ]);
+    expect(
+      await lensBanners
+        .locator(".sazo-desktop-agent-lens-backdrop-media")
+        .evaluateAll((images) =>
+          images.map((image) => {
+            const style = getComputedStyle(image);
+            return {
+              filter: style.filter,
+              opacity: style.opacity,
+              transform: style.transform,
+            };
+          }),
+        ),
+    ).toEqual([
+      { filter: "none", opacity: "1", transform: "none" },
+      { filter: "none", opacity: "1", transform: "none" },
+      { filter: "none", opacity: "1", transform: "none" },
+      { filter: "none", opacity: "1", transform: "none" },
+    ]);
+    const headerAiSearchTray = page.getByTestId("desktop-header-ai-search-tray");
+    await expect(page.getByTestId("desktop-ai-search-trigger")).toBeVisible();
+    await expect(headerAiSearchTray).toBeHidden();
+    await expect(agentLens.getByRole("tab", { name: "URLで検索" })).toHaveAttribute(
+      "aria-selected",
+      "true",
     );
     await expect(
       page
@@ -2149,6 +2431,12 @@ test("keeps the selected agentic-commerce home responsive and interactive on des
         .getByTestId("desktop-home-gram")
         .getByRole("button", { name: "次のJ-Planet GRAM投稿を表示" }),
     ).toBeVisible();
+    await agentLens.evaluate((lens) => {
+      window.scrollTo({ top: lens.getBoundingClientRect().bottom + window.scrollY + 24 });
+    });
+    await expect(headerAiSearchTray).toBeVisible();
+    await page.evaluate(() => window.scrollTo({ top: 0 }));
+    await expect(headerAiSearchTray).toBeHidden();
     expect(
       await desktopHome.evaluate((home) => {
         const products = home.querySelector('[data-testid="desktop-home-product-rail"]');
@@ -2171,36 +2459,37 @@ test("keeps the selected agentic-commerce home responsive and interactive on des
           ) &&
           Boolean(
             community.compareDocumentPosition(categories) &
-              Node.DOCUMENT_POSITION_FOLLOWING,
+            Node.DOCUMENT_POSITION_FOLLOWING,
           ) &&
           Boolean(
             categories.compareDocumentPosition(categoryProducts) &
-              Node.DOCUMENT_POSITION_FOLLOWING,
+            Node.DOCUMENT_POSITION_FOLLOWING,
           )
         );
       }),
-    ).toBe(true);
-    expect(
-      await heroImage.evaluate(
-        (image) => image instanceof HTMLImageElement && image.naturalWidth > 0,
-      ),
     ).toBe(true);
     await expectNoHorizontalPageOverflow(page);
   }
 
   await page.setViewportSize({ height: 900, width: 1024 });
   await page.goto(routePath);
-  const desktopCouponBanner = page.getByTestId("desktop-home-coupon-banner");
-  await expect(desktopCouponBanner).toBeVisible();
-  await expect(desktopCouponBanner.locator("img")).toHaveAttribute(
-    "src",
-    "/sazo-commerce/campaign/jplanet-coupon-banner.svg",
-  );
-  await desktopCouponBanner.click();
+  const desktopCouponPromotion = page
+    .getByTestId("desktop-agent-lens")
+    .getByRole("button", { name: "初回クーポンを見る" });
+  await expect(desktopCouponPromotion).toBeVisible();
+  // The centered purchase-agent surface intentionally covers this banner's
+  // middle. Click the exposed outer area, which is the actual PC target.
+  await desktopCouponPromotion.click({ position: { x: 36, y: 36 } });
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "coupons");
 
   await page.goto(routePath);
-  await page.getByTestId("desktop-home-agent-cta").click();
+  const desktopAgentLens = page.getByTestId("desktop-agent-lens");
+  await desktopAgentLens.getByRole("tab", { name: "画像で検索" }).click();
+  await expect(desktopAgentLens.getByRole("tab", { name: "画像で検索" })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await desktopAgentLens.getByRole("button", { name: "カメラ" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
 
   await page.goto(routePath);
@@ -2218,25 +2507,115 @@ test("keeps the selected agentic-commerce home responsive and interactive on des
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "gram");
 
   await page.goto(routePath);
-  const hero = page.locator(".sazo-desktop-home-hero");
-  const initialHero = await hero.getAttribute("data-active-hero");
-  await hero.getByRole("button", { name: "次のバナー" }).click();
-  await expect(hero).not.toHaveAttribute("data-active-hero", initialHero ?? "");
-
-  await page.goto(routePath);
   const header = page.locator(".sazo-desktop-header");
-  const headerSearch = header.getByRole("search", { name: "購入エージェント検索" });
-  await headerSearch
-    .getByRole("textbox", { name: "URL・画像・商品名を送る" })
-    .fill("New Balance 9060");
-  await headerSearch.getByRole("button", { name: "商品を確認する" }).click();
+  const headerAiSearchTrigger = page.getByTestId("desktop-ai-search-trigger");
+  await headerAiSearchTrigger.click();
+  const headerAiSearchTray = page.getByTestId("desktop-header-ai-search-tray");
+  await expect(headerAiSearchTray).toBeVisible();
+  const headerAiSearchInput = headerAiSearchTray.getByRole("textbox", {
+    name: "商品名・キーワード・画像・URLで検索",
+  });
+  await expect(headerAiSearchInput).toBeFocused();
+  const headerSearchHistoryPopover = page.getByRole("dialog", { name: "最近の検索" });
+  await expect(headerSearchHistoryPopover).toBeVisible();
+  await expect(
+    headerSearchHistoryPopover.getByRole("list", { name: "最近の検索" }),
+  ).toBeVisible();
+  expect(
+    await headerSearchHistoryPopover.evaluate(
+      (panel) => panel.parentElement === document.body,
+    ),
+  ).toBe(true);
+  await headerAiSearchInput.fill("Nintendo");
+  await page.evaluate(() => window.scrollTo({ top: 700 }));
+  await expect(headerAiSearchTray).toBeVisible();
+  await headerAiSearchInput.press("Escape");
+  await expect(headerAiSearchTray).toBeHidden();
+  await expect(headerSearchHistoryPopover).toHaveCount(0);
+  await expect(headerAiSearchTrigger).toBeFocused();
+  await headerAiSearchTrigger.click();
+  await headerAiSearchInput.fill("Nintendo");
+  await headerAiSearchTray.getByRole("button", { name: "AI検索を実行" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute(
     "data-view",
     "agent-searching",
   );
 
   await page.goto(routePath);
-  await header.getByRole("button", { name: "カメラ" }).click();
+  const lensSearch = page
+    .getByTestId("desktop-agent-lens")
+    .getByRole("search", { name: "AI検索" });
+  const lensInput = lensSearch.getByRole("textbox", {
+    name: "商品名・キーワード・画像・URLで検索",
+  });
+  await expect(lensInput).toHaveAttribute(
+    "aria-controls",
+    "desktop-agent-search-history-popover",
+  );
+  await expect(lensInput).toHaveAttribute("aria-expanded", "false");
+  await lensInput.click();
+  const searchHistoryPopover = page.getByRole("dialog", { name: "最近の検索" });
+  await expect(searchHistoryPopover).toBeVisible();
+  await expect(lensInput).toHaveAttribute("aria-expanded", "true");
+  await expect(
+    searchHistoryPopover.getByRole("list", { name: "最近の検索" }),
+  ).toBeVisible();
+  await expect(
+    searchHistoryPopover.getByRole("button", { name: /の商品を見る$/ }),
+  ).toHaveCount(8);
+  expect(
+    await searchHistoryPopover.evaluate((panel) => ({
+      isDirectBodyChild: panel.parentElement === document.body,
+      isInsideLens: Boolean(panel.closest("[data-testid='desktop-agent-lens']")),
+    })),
+  ).toEqual({ isDirectBodyChild: true, isInsideLens: false });
+  await page.keyboard.press("Escape");
+  await expect(searchHistoryPopover).toHaveCount(0);
+  await expect(lensInput).toHaveAttribute("aria-expanded", "false");
+
+  const recentProductsTrigger = page.getByRole("button", {
+    name: "最近確認した商品 続きからすぐに確認できます",
+  });
+  await expect(recentProductsTrigger).toHaveAttribute(
+    "aria-controls",
+    "desktop-recent-products-popover",
+  );
+  await expect(recentProductsTrigger).toHaveAttribute("aria-expanded", "false");
+  await recentProductsTrigger.click();
+  const recentProductsPopover = page.getByRole("dialog", { name: "最近見た商品" });
+  await expect(recentProductsPopover).toBeVisible();
+  await expect(recentProductsTrigger).toHaveAttribute("aria-expanded", "true");
+  await expect(
+    recentProductsPopover.getByRole("button", { name: /の商品を見る$/ }),
+  ).toHaveCount(8);
+  expect(
+    await recentProductsPopover.evaluate((panel) => ({
+      isDirectBodyChild: panel.parentElement === document.body,
+      isInsideLens: Boolean(panel.closest("[data-testid='desktop-agent-lens']")),
+    })),
+  ).toEqual({ isDirectBodyChild: true, isInsideLens: false });
+  await recentProductsPopover
+    .getByRole("button", { name: "Sony α7C IIを最近見た商品から削除" })
+    .click();
+  await expect(
+    recentProductsPopover.getByRole("button", { name: /の商品を見る$/ }),
+  ).toHaveCount(7);
+  await page.keyboard.press("Escape");
+  await expect(recentProductsPopover).toHaveCount(0);
+  await expect(recentProductsTrigger).toHaveAttribute("aria-expanded", "false");
+
+  await lensInput.fill("New Balance 9060");
+  await lensSearch.getByRole("button", { name: "AI検索を実行" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute(
+    "data-view",
+    "agent-searching",
+  );
+
+  await page.goto(routePath);
+  await page
+    .getByTestId("desktop-agent-lens")
+    .getByRole("button", { name: "カメラ" })
+    .click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
 
   await page.goto(routePath);
@@ -2291,16 +2670,43 @@ test("keeps desktop product actions in the purchase column without changing mobi
   await page.goto(productPath);
 
   const desktopPurchase = page.getByTestId("jplanet-desktop-controller-purchase");
+  const stickyPurchase = page.getByTestId("jplanet-desktop-controller-sticky-purchase");
   await expect(desktopPurchase).toBeVisible();
+  await expect(stickyPurchase).toHaveCSS("position", "sticky");
+  await expect(stickyPurchase).toHaveCSS("top", "24px");
+  await page
+    .getByTestId("jplanet-desktop-controller-information")
+    .scrollIntoViewIfNeeded();
+  await expect(stickyPurchase).toBeInViewport();
+  await expect(
+    desktopPurchase.getByTestId("jplanet-desktop-controller-order-total"),
+  ).toContainText("R$ 429");
+  await expect(
+    stickyPurchase.getByTestId("jplanet-desktop-controller-order-total"),
+  ).toContainText("R$ 429");
+  await stickyPurchase.getByRole("button", { name: "PCで数量を増やす" }).click();
+  await expect(
+    desktopPurchase.locator(".sazo-desktop-controller-purchase-quantity span"),
+  ).toHaveText("2");
+  await expect(
+    desktopPurchase.getByTestId("jplanet-desktop-controller-order-total"),
+  ).toContainText("R$ 858");
+  await expect(
+    stickyPurchase.getByTestId("jplanet-desktop-controller-order-total"),
+  ).toContainText("R$ 858");
   await expect(page.getByTestId("jplanet-desktop-controller-points")).toHaveText(
     /4P \(1%\)/,
   );
-  await expect(page.getByTestId("jplanet-desktop-controller-delivery-note")).toHaveCount(0);
+  await expect(page.getByTestId("jplanet-desktop-controller-delivery-note")).toHaveCount(
+    0,
+  );
   await expect(page.getByText("関税込み・国際送料を含む見込みです。")).toHaveCount(0);
   await page.getByRole("button", { name: "配送・通関の詳細を開く" }).click();
   const deliveryGuide = page.getByTestId("jplanet-desktop-delivery-guide");
   await expect(deliveryGuide).toBeVisible();
-  await expect(deliveryGuide).toContainText("送料・税金の内訳は、購入前に確認が必要です。");
+  await expect(deliveryGuide).toContainText(
+    "送料・税金の内訳は、購入前に確認が必要です。",
+  );
   await deliveryGuide.getByRole("button", { name: "配送・通関のご案内を閉じる" }).click();
   await expect(deliveryGuide).toHaveCount(0);
   await expect(page.getByTestId("jplanet-controller-variant-rail")).toBeHidden();
@@ -2309,13 +2715,15 @@ test("keeps desktop product actions in the purchase column without changing mobi
   await expect(desktopGallery).toBeVisible();
   await expect(desktopGallery.getByRole("button")).toHaveCount(3);
   await desktopGallery.getByRole("button", { name: "ホワイトの商品画像を表示" }).click();
-  await expect(
-    page.locator(".sazo-reference-nintendo-controller-hero"),
-  ).toHaveAttribute("src", "/sazo-commerce/reference/nintendo-pro-controller-white-v1.png");
+  await expect(page.locator(".sazo-reference-nintendo-controller-hero")).toHaveAttribute(
+    "src",
+    "/sazo-commerce/reference/nintendo-pro-controller-white-v1.png",
+  );
   await desktopPurchase.getByRole("button", { name: "ホワイト 在庫あり" }).click();
-  await expect(
-    page.locator(".sazo-reference-nintendo-controller-hero"),
-  ).toHaveAttribute("src", "/sazo-commerce/reference/nintendo-pro-controller-white-v1.png");
+  await expect(page.locator(".sazo-reference-nintendo-controller-hero")).toHaveAttribute(
+    "src",
+    "/sazo-commerce/reference/nintendo-pro-controller-white-v1.png",
+  );
   await desktopPurchase.getByRole("button", { name: "PCで数量を増やす" }).click();
   await desktopPurchase.getByRole("button", { name: "商品をカートに入れる" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "cart");
@@ -2331,7 +2739,9 @@ test("keeps desktop product actions in the purchase column without changing mobi
   await page.goto(productPath);
   await expect(page.getByTestId("jplanet-desktop-controller-purchase")).toBeHidden();
   await expect(page.getByTestId("jplanet-desktop-controller-points")).toHaveCount(0);
-  await expect(page.getByTestId("jplanet-desktop-controller-delivery-note")).toHaveCount(0);
+  await expect(page.getByTestId("jplanet-desktop-controller-delivery-note")).toHaveCount(
+    0,
+  );
   await expect(page.getByTestId("jplanet-controller-variant-rail")).toBeVisible();
   await expect(page.locator(".sazo-reference-nintendo-controller-footer")).toBeVisible();
   await page.getByRole("button", { name: "配送・通関の詳細を開く" }).click();

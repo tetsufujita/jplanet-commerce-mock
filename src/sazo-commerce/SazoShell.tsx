@@ -1,4 +1,11 @@
-import type { Dispatch, ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type Dispatch,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import {
   Bell,
   Camera,
@@ -12,7 +19,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { DesktopAgentSearchForm } from "@/sazo-commerce/DesktopAgentSearchForm";
 import type {
   SazoAccountView,
   SazoAction,
@@ -20,6 +26,11 @@ import type {
   SazoView,
 } from "@/sazo-commerce/model";
 import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
+import {
+  DesktopAgentSearchDraftProvider,
+  DesktopAgentSearchForm,
+} from "@/sazo-commerce/DesktopAgentSearchForm";
+import { DesktopAgentSearchHistoryPopover } from "@/sazo-commerce/HomeView";
 
 interface NavigationItem {
   icon?: LucideIcon;
@@ -58,6 +69,7 @@ const mobileSecondaryNavigation = [
 export interface SazoShellProps {
   children?: ReactNode;
   dispatch: Dispatch<SazoAction>;
+  isMobileViewport?: boolean;
   state: SazoState;
 }
 
@@ -105,6 +117,7 @@ function NavigationButton({
 }
 
 interface ControlButtonProps {
+  buttonRef?: RefObject<HTMLButtonElement | null>;
   className: string;
   expanded?: boolean;
   icon: LucideIcon;
@@ -115,6 +128,7 @@ interface ControlButtonProps {
 }
 
 function ControlButton({
+  buttonRef,
   className,
   expanded,
   icon: Icon,
@@ -130,6 +144,7 @@ function ControlButton({
       className={className}
       data-testid={testId}
       onClick={onPress}
+      ref={buttonRef}
       type="button"
     >
       <Icon aria-hidden size={20} strokeWidth={1.8} />
@@ -170,17 +185,70 @@ function ShellFooter({ copyright }: ShellFooterProps) {
   );
 }
 
-export function SazoShell({ children, dispatch, state }: SazoShellProps) {
+interface DesktopAiSearchTrayProps {
+  dispatch: Dispatch<SazoAction>;
+  historyControls: string;
+  historyExpanded: boolean;
+  inputRef: RefObject<HTMLInputElement | null>;
+  onEscape: () => void;
+  onInputActivate: () => void;
+}
+
+/**
+ * The desktop header exposes the same agent-search entry point as the Lens.
+ * It is kept mounted so a query remains available while the visitor scrolls.
+ */
+function DesktopAiSearchTray({
+  dispatch,
+  historyControls,
+  historyExpanded,
+  inputRef,
+  onEscape,
+  onInputActivate,
+}: DesktopAiSearchTrayProps) {
+  return (
+    <div className="sazo-desktop-ai-search-tray" data-open="true">
+      <div className="sazo-desktop-ai-search-tray-surface">
+        <span aria-hidden="true" className="sazo-desktop-ai-search-tray-label">
+          AI検索
+        </span>
+        <DesktopAgentSearchForm
+          className="sazo-desktop-ai-search-tray-form"
+          dispatch={dispatch}
+          historyControls={historyControls}
+          historyExpanded={historyExpanded}
+          inputRef={inputRef}
+          mode="product"
+          onEscape={onEscape}
+          onInputActivate={onInputActivate}
+          submitIcon="search"
+          testId="desktop-header-ai-search-tray"
+        />
+      </div>
+    </div>
+  );
+}
+
+export function SazoShell({
+  children,
+  dispatch,
+  isMobileViewport = false,
+  state,
+}: SazoShellProps) {
   const { t } = useTranslation();
+  const [headerAiSearchHistoryOpen, setHeaderAiSearchHistoryOpen] = useState(false);
+  const [sharedAgentSearchDraft, setSharedAgentSearchDraft] = useState("");
+  const headerAiSearchInputRef = useRef<HTMLInputElement>(null);
   const loginExpanded = state.overlay === "login";
   const serviceView = state.view === "service";
-  const agentHubView = state.view === "agent-hub";
+  const agentHubView = state.view === "agent-hub" || state.view === "agent-image-resolution";
+  const aiSearchView = state.view === "ai-search";
   const couponView = state.view === "coupons";
   const brandDetailView = state.view === "brand-detail";
   const dedicatedMobileHeader =
     agentHubView ||
+    aiSearchView ||
     couponView ||
-    state.view === "beauty" ||
     state.view === "cart" ||
     state.view === "checkout" ||
     state.view === "brands" ||
@@ -214,13 +282,31 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
   const desktopHome = state.view === "home";
   const activeDesktopNavigation = desktopHome ? desktopHomeNavigation : desktopNavigation;
 
+  useEffect(() => {
+    if (!desktopHome || isMobileViewport) {
+      setHeaderAiSearchHistoryOpen(false);
+    }
+  }, [desktopHome, isMobileViewport]);
+
   return (
     <div className="sazo-shell-background" data-overlay-background="true">
-      <div className="sazo-desktop-shell" data-shell="desktop">
+      <DesktopAgentSearchDraftProvider draft={sharedAgentSearchDraft} setDraft={setSharedAgentSearchDraft}>
+        <div className="sazo-desktop-shell" data-shell="desktop">
         <div className="sazo-desktop-header-band">
           <div className="sazo-desktop-header-card">
             <header className="sazo-desktop-header">
               <Wordmark dispatch={dispatch} homeLabel={t("sazo.brand.homeLabel")} />
+
+              {desktopHome && !isMobileViewport ? (
+                <DesktopAiSearchTray
+                  dispatch={dispatch}
+                  historyControls="desktop-header-ai-search-history-popover"
+                  historyExpanded={headerAiSearchHistoryOpen}
+                  inputRef={headerAiSearchInputRef}
+                  onEscape={() => setHeaderAiSearchHistoryOpen(false)}
+                  onInputActivate={() => setHeaderAiSearchHistoryOpen(true)}
+                />
+              ) : null}
 
               <nav
                 aria-label={t("sazo.navigation.desktopLabel")}
@@ -244,12 +330,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
                 className="sazo-top-actions"
                 role="group"
               >
-                {desktopHome ? (
-                  <DesktopAgentSearchForm
-                    className="sazo-desktop-agent-search"
-                    dispatch={dispatch}
-                  />
-                ) : (
+                {desktopHome ? null : (
                   <button
                     aria-label="AI検索を開く"
                     className="sazo-desktop-agent-search"
@@ -328,9 +409,21 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
           </div>
         </div>
 
-        <main className="sazo-main sazo-content-main">{children}</main>
-        <ShellFooter copyright={t("sazo.footer.copyright")} />
-      </div>
+        {desktopHome && !isMobileViewport ? (
+          <DesktopAgentSearchHistoryPopover
+            dispatch={dispatch}
+            id="desktop-header-ai-search-history-popover"
+            onClose={() => setHeaderAiSearchHistoryOpen(false)}
+            open={headerAiSearchHistoryOpen}
+            presentation="header"
+            triggerRef={headerAiSearchInputRef}
+          />
+        ) : null}
+
+          <main className="sazo-main sazo-content-main">{children}</main>
+          <ShellFooter copyright={t("sazo.footer.copyright")} />
+        </div>
+      </DesktopAgentSearchDraftProvider>
 
       <div className="sazo-mobile-shell" data-shell="mobile">
         {dedicatedMobileHeader ? null : (
@@ -345,7 +438,7 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
                   className="sazo-mobile-agent-search-trigger"
                   data-shell-search-button
                   onClick={() => {
-                    dispatch({ type: "open-agent-hub", intent: "compose" });
+                    dispatch({ type: "navigate", view: "ai-search" });
                   }}
                   type="button"
                 >
@@ -442,12 +535,17 @@ export function SazoShell({ children, dispatch, state }: SazoShellProps) {
               view="brands"
             />
             <NavigationButton
+              active={
+                state.view === "agent-hub" || state.view === "agent-image-resolution"
+                  ? true
+                  : undefined
+              }
               className="sazo-nav-button sazo-agent-nav-button"
               dispatch={dispatch}
               icon={Sparkles}
               label={t("sazo.agent.navigation")}
               state={state}
-              view="agent-hub"
+              view="ai-search"
             />
             <NavigationButton
               dispatch={dispatch}

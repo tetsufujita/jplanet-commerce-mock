@@ -41,6 +41,8 @@ import { ProductSourceLink } from "@/sazo-commerce/ProductSourceLink";
 import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
 import {
   catalogInventory,
+  desktopControllerRelatedProducts,
+  formatBrl,
   getProductDetail,
   formatYen,
   products,
@@ -54,10 +56,7 @@ import type {
   ProductContentBlock,
   ProductSpecification,
 } from "@/sazo-commerce/fixtures";
-import {
-  JPLANET_PRODUCT_DETAIL_ID,
-  type SazoAction,
-} from "@/sazo-commerce/model";
+import { JPLANET_PRODUCT_DETAIL_ID, type SazoAction } from "@/sazo-commerce/model";
 import { useProductPurchaseController } from "@/sazo-commerce/useProductPurchaseController";
 import type { PurchaseIntent } from "@/sazo-commerce/useProductPurchaseController";
 
@@ -163,6 +162,49 @@ const controllerGalleryVariants = [
   },
 ] as const;
 
+// Product media is intentionally independent from purchasable variations. The
+// mock currently reuses the three supplied catalog assets to fill ten gallery
+// positions; color/stock selection remains inside the cart or purchase sheet.
+const controllerMobileGalleryImages = [
+  { color: "ブラック", image: "/sazo-commerce/reference/nintendo-pro-controller-v1.png" },
+  {
+    color: "ホワイト",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-white-v1.png",
+  },
+  {
+    color: "スプラトゥーン",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-splatoon-v1.png",
+  },
+  {
+    color: "商品画像 4",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
+  },
+  {
+    color: "商品画像 5",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-white-v1.png",
+  },
+  {
+    color: "商品画像 6",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-splatoon-v1.png",
+  },
+  {
+    color: "商品画像 7",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
+  },
+  {
+    color: "商品画像 8",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-white-v1.png",
+  },
+  {
+    color: "商品画像 9",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-splatoon-v1.png",
+  },
+  {
+    color: "商品画像 10",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
+  },
+] as const;
+
 const controllerPurchaseVariants = [
   {
     color: "ブラック",
@@ -179,6 +221,48 @@ const controllerPurchaseVariants = [
   {
     color: "スプラトゥーン",
     image: "/sazo-commerce/reference/nintendo-pro-controller-splatoon-v1.png",
+    stockLabel: "売り切れ",
+    available: false,
+  },
+  {
+    color: "ネオンブルー",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-splatoon-v1.png",
+    stockLabel: "在庫あり",
+    available: true,
+  },
+  {
+    color: "ネオンレッド",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-splatoon-v1.png",
+    stockLabel: "在庫あり",
+    available: true,
+  },
+  {
+    color: "パステルピンク",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-white-v1.png",
+    stockLabel: "在庫あり",
+    available: true,
+  },
+  {
+    color: "ラベンダー",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-white-v1.png",
+    stockLabel: "在庫あり",
+    available: true,
+  },
+  {
+    color: "ミント",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-splatoon-v1.png",
+    stockLabel: "残りわずか",
+    available: true,
+  },
+  {
+    color: "ゼルダ",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
+    stockLabel: "在庫あり",
+    available: true,
+  },
+  {
+    color: "グレー",
+    image: "/sazo-commerce/reference/nintendo-pro-controller-v1.png",
     stockLabel: "売り切れ",
     available: false,
   },
@@ -220,13 +304,7 @@ const controllerProductReviews = [
   },
 ] as const;
 
-function ProductRatingStars({
-  rating,
-  size = 16,
-}: {
-  rating: number;
-  size?: number;
-}) {
+export function ProductRatingStars({ rating, size = 16 }: { rating: number; size?: number }) {
   return (
     <span aria-label={`${rating} / 5`} className="sazo-reference-nintendo-rating-stars">
       {Array.from({ length: 5 }, (_, index) => (
@@ -246,16 +324,18 @@ function descriptionBlocksFor(
   product: Product,
   fallbackInformation: string,
 ): readonly ProductContentBlock[] {
-  return product.descriptionBlocks ?? [
-    {
-      id: "legacy-description",
-      type: "paragraph",
-      text: fallbackInformation,
-    },
-  ];
+  return (
+    product.descriptionBlocks ?? [
+      {
+        id: "legacy-description",
+        type: "paragraph",
+        text: fallbackInformation,
+      },
+    ]
+  );
 }
 
-function ProductDescriptionBlocks({
+export function ProductDescriptionBlocks({
   blocks,
   onOpenImage,
 }: {
@@ -311,7 +391,9 @@ function ProductDescriptionBlocks({
               >
                 <img alt={block.alt} loading="lazy" src={block.src} />
               </button>
-              {block.caption !== undefined ? <figcaption>{block.caption}</figcaption> : null}
+              {block.caption !== undefined ? (
+                <figcaption>{block.caption}</figcaption>
+              ) : null}
             </figure>
           );
         }
@@ -332,7 +414,9 @@ function ProductDescriptionBlocks({
                   >
                     <img alt={image.alt} loading="lazy" src={image.src} />
                   </button>
-                  {image.caption !== undefined ? <figcaption>{image.caption}</figcaption> : null}
+                  {image.caption !== undefined ? (
+                    <figcaption>{image.caption}</figcaption>
+                  ) : null}
                 </figure>
               ))}
             </div>
@@ -345,7 +429,314 @@ function ProductDescriptionBlocks({
   );
 }
 
-function ProductSpecificationSheet({
+function DesktopControllerInformation({
+  descriptionBlocks,
+  descriptionCanCollapse,
+  descriptionOpen,
+  onCloseDescription,
+  onOpenDeliveryDetails,
+  onOpenImage,
+  onOpenDescription,
+}: {
+  descriptionBlocks: readonly ProductContentBlock[];
+  descriptionCanCollapse: boolean;
+  descriptionOpen: boolean;
+  onCloseDescription: () => void;
+  onOpenDeliveryDetails: () => void;
+  onOpenImage: (image: { src: string; alt: string }) => void;
+  onOpenDescription: () => void;
+}) {
+  const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState<ProductDetailTab>("information");
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const selectTab = (tab: ProductDetailTab) => {
+    setActiveTab(tab);
+  };
+
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    let nextIndex: number | null = null;
+
+    if (event.key === "ArrowRight") {
+      nextIndex = (index + 1) % productDetailTabs.length;
+    } else if (event.key === "ArrowLeft") {
+      nextIndex = (index - 1 + productDetailTabs.length) % productDetailTabs.length;
+    } else if (event.key === "Home") {
+      nextIndex = 0;
+    } else if (event.key === "End") {
+      nextIndex = productDetailTabs.length - 1;
+    }
+
+    if (nextIndex === null) return;
+
+    event.preventDefault();
+    const nextTab = productDetailTabs[nextIndex];
+    if (nextTab === undefined) return;
+    selectTab(nextTab.id);
+    tabRefs.current[nextIndex]?.focus();
+  };
+
+  return (
+    <section
+      className="sazo-desktop-controller-information"
+      data-testid="jplanet-desktop-controller-information"
+    >
+      <div
+        aria-label={t("sazo.views.productDetail.tabs.label")}
+        className="sazo-desktop-controller-information-tabs"
+        role="tablist"
+      >
+        {productDetailTabs.map((tab, index) => (
+          <button
+            aria-controls="jplanet-desktop-controller-information-panel"
+            aria-selected={activeTab === tab.id}
+            id={`jplanet-desktop-controller-${tab.id}-tab`}
+            key={tab.id}
+            onClick={() => selectTab(tab.id)}
+            onKeyDown={(event) => handleTabKeyDown(event, index)}
+            ref={(node) => {
+              tabRefs.current[index] = node;
+            }}
+            role="tab"
+            tabIndex={activeTab === tab.id ? 0 : -1}
+            type="button"
+          >
+            {t(`sazo.views.productDetail.${tab.labelKey}`)}
+          </button>
+        ))}
+      </div>
+
+      <div
+        aria-labelledby={`jplanet-desktop-controller-${activeTab}-tab`}
+        className="sazo-desktop-controller-information-panel"
+        id="jplanet-desktop-controller-information-panel"
+        role="tabpanel"
+      >
+        {activeTab === "information" ? (
+          <>
+            <ProductOrderFlow compact onOpenDetails={onOpenDeliveryDetails} />
+            <section
+              aria-labelledby="jplanet-desktop-controller-description-title"
+              className="sazo-desktop-controller-description"
+            >
+              <h2 id="jplanet-desktop-controller-description-title">
+                {t("sazo.views.productDetail.description.title")}
+              </h2>
+              <div
+                className="sazo-reference-nintendo-product-description-content"
+                data-expanded={descriptionOpen}
+                id="jplanet-desktop-controller-product-description"
+              >
+                <ProductDescriptionBlocks
+                  blocks={descriptionBlocks}
+                  onOpenImage={onOpenImage}
+                />
+              </div>
+              {descriptionCanCollapse ? (
+                <button
+                  aria-controls="jplanet-desktop-controller-product-description"
+                  aria-expanded={descriptionOpen}
+                  className="sazo-desktop-controller-description-toggle"
+                  onClick={() => {
+                    if (descriptionOpen) {
+                      onCloseDescription();
+                    } else {
+                      onOpenDescription();
+                    }
+                  }}
+                  type="button"
+                >
+                  {t(
+                    descriptionOpen
+                      ? "sazo.views.productDetail.description.close"
+                      : "sazo.views.productDetail.description.showMore",
+                  )}
+                  {descriptionOpen ? (
+                    <ChevronUp aria-hidden size={18} />
+                  ) : (
+                    <ChevronDown aria-hidden size={18} />
+                  )}
+                </button>
+              ) : null}
+            </section>
+
+            <section
+              aria-labelledby="jplanet-desktop-controller-benefits-title"
+              className="sazo-desktop-controller-benefits"
+            >
+              <h2 id="jplanet-desktop-controller-benefits-title">
+                {t("sazo.views.productDetail.benefits.title")}
+              </h2>
+              <div>
+                {benefitCards.map(({ copyKey, icon: Icon, titleKey }) => (
+                  <article key={titleKey}>
+                    <Icon aria-hidden size={23} strokeWidth={1.9} />
+                    <h3>{t(`sazo.views.productDetail.${titleKey}`)}</h3>
+                    <p>{t(`sazo.views.productDetail.${copyKey}`)}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+          </>
+        ) : (
+          <section
+            aria-labelledby="jplanet-desktop-controller-cautions-title"
+            className="sazo-desktop-controller-cautions"
+          >
+            <h2 id="jplanet-desktop-controller-cautions-title">
+              {t("sazo.views.productDetail.tabs.cautionsTitle")}
+            </h2>
+            <p>{t("sazo.views.productDetail.tabs.cautionsBody")}</p>
+            <div>
+              {cautionCards.map(({ copyKey, titleKey }) => (
+                <article key={titleKey}>
+                  <ShieldCheck aria-hidden size={22} strokeWidth={1.8} />
+                  <h3>{t(`sazo.views.productDetail.${titleKey}`)}</h3>
+                  <p>{t(`sazo.views.productDetail.${copyKey}`)}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </section>
+  );
+}
+
+type ControllerPurchaseVariant = (typeof controllerPurchaseVariants)[number];
+
+function DesktopControllerPurchasePanel({
+  className,
+  dataTestId,
+  onAddToCart,
+  onCheckout,
+  onDecreaseQuantity,
+  onIncreaseQuantity,
+  onSelectVariant,
+  quantity,
+  selectedColor,
+  unitPriceAmount,
+}: {
+  className?: string;
+  dataTestId: string;
+  onAddToCart: () => void;
+  onCheckout: () => void;
+  onDecreaseQuantity: () => void;
+  onIncreaseQuantity: () => void;
+  onSelectVariant: (variant: ControllerPurchaseVariant) => void;
+  quantity: number;
+  selectedColor: ControllerPurchaseVariant["color"];
+  unitPriceAmount: number;
+}) {
+  const { t } = useTranslation();
+  const panelClassName = ["sazo-desktop-controller-purchase", className]
+    .filter(Boolean)
+    .join(" ");
+  const merchandiseTotal = unitPriceAmount * quantity;
+
+  return (
+    <section
+      aria-label="PC用の購入オプション"
+      className={panelClassName}
+      data-testid={dataTestId}
+    >
+      <div className="sazo-desktop-controller-purchase-heading">
+        <div>
+          <h2>バリエーション</h2>
+          <p>カラーと数量を選択してください</p>
+        </div>
+        <span>購入可能</span>
+      </div>
+      <section className="sazo-desktop-controller-purchase-colors">
+        <h3>カラー</h3>
+        <div>
+          {controllerPurchaseVariants.map((variant) => {
+            const selected = selectedColor === variant.color;
+
+            return (
+              <button
+                aria-disabled={!variant.available}
+                aria-label={`${variant.color} ${variant.stockLabel}`}
+                aria-pressed={selected}
+                className={variant.available ? undefined : "is-sold-out"}
+                disabled={!variant.available}
+                key={variant.color}
+                onClick={() => onSelectVariant(variant)}
+                type="button"
+              >
+                <img alt="" aria-hidden src={variant.image} />
+                <span>{variant.color}</span>
+                {selected ? <CircleCheck aria-hidden size={17} /> : null}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+      <section className="sazo-desktop-controller-purchase-quantity">
+        <h3>数量</h3>
+        <div aria-label="購入数量">
+          <button
+            aria-label="PCで数量を減らす"
+            disabled={quantity === 1}
+            onClick={onDecreaseQuantity}
+            type="button"
+          >
+            <Minus aria-hidden size={17} />
+          </button>
+          <span>{quantity}</span>
+          <button
+            aria-label="PCで数量を増やす"
+            onClick={onIncreaseQuantity}
+            type="button"
+          >
+            <Plus aria-hidden size={17} />
+          </button>
+        </div>
+      </section>
+      <p className="sazo-desktop-controller-purchase-check">
+        <ClipboardCheck aria-hidden size={18} />
+        販売元・通関・配送条件を確認済み
+      </p>
+      <section
+        aria-label={t("sazo.views.productDetail.purchase.desktopSummary.total")}
+        className="sazo-desktop-controller-purchase-total"
+        data-testid="jplanet-desktop-controller-order-total"
+      >
+        <div className="sazo-desktop-controller-purchase-total-heading">
+          <h3>{t("sazo.views.productDetail.purchase.desktopSummary.total")}</h3>
+          <strong aria-live="polite">{formatBrl(merchandiseTotal)}</strong>
+        </div>
+        <dl>
+          <div>
+            <dt>{t("sazo.views.productDetail.purchase.desktopSummary.merchandise")}</dt>
+            <dd>{formatBrl(merchandiseTotal)}</dd>
+          </div>
+          <div>
+            <dt>
+              {t("sazo.views.productDetail.purchase.desktopSummary.deliveryAndCustoms")}
+            </dt>
+            <dd>
+              {t(
+                "sazo.views.productDetail.purchase.desktopSummary.confirmBeforePurchase",
+              )}
+            </dd>
+          </div>
+        </dl>
+      </section>
+      <div className="sazo-desktop-controller-purchase-actions">
+        <button aria-label="商品をカートに入れる" onClick={onAddToCart} type="button">
+          <ShoppingCart aria-hidden size={18} />
+          カートに入れる
+        </button>
+        <button aria-label="商品を購入に進む" onClick={onCheckout} type="button">
+          購入に進む
+        </button>
+      </div>
+    </section>
+  );
+}
+
+export function ProductSpecificationSheet({
   onClose,
   specifications,
 }: {
@@ -534,7 +925,7 @@ function NintendoRelatedProducts({
   );
 }
 
-function ReferenceNintendoHeader({
+export function ReferenceNintendoHeader({
   dispatch,
   onBack,
   title,
@@ -597,7 +988,7 @@ function ReferenceNintendoHeader({
  * header. It sits over the product image and keeps the purchase journey in
  * context while offering a quick route back to the purchasing agent.
  */
-function ProductMediaHeader({
+export function ProductMediaHeader({
   dispatch,
   onBack,
   productInfoRef,
@@ -769,12 +1160,16 @@ function ProductMediaHeader({
           </button>
         </div>
       ) : null}
-      {shareFeedback.length > 0 ? <span className="sazo-visually-hidden" role="status">{shareFeedback}</span> : null}
+      {shareFeedback.length > 0 ? (
+        <span className="sazo-visually-hidden" role="status">
+          {shareFeedback}
+        </span>
+      ) : null}
     </header>
   );
 }
 
-function ReferenceNintendoFooter({
+export function ReferenceNintendoFooter({
   onCart,
   onPurchase,
 }: {
@@ -813,7 +1208,8 @@ function MobileReferenceProductDetail({
   const [mobileScreen, setMobileScreen] =
     useState<ReferenceNintendoMobileScreen>("controller");
   const [controllerThumbnail, setControllerThumbnail] = useState(0);
-  const [controllerColor, setControllerColor] = useState("ブラック");
+  const [controllerColor, setControllerColor] =
+    useState<ControllerPurchaseVariant["color"]>("ブラック");
   const [controllerQuantity, setControllerQuantity] = useState(1);
   const [isControllerSaved, setIsControllerSaved] = useState(false);
   const [isControllerSpecificationSheetOpen, setIsControllerSpecificationSheetOpen] =
@@ -831,6 +1227,13 @@ function MobileReferenceProductDetail({
   const [reviewSearch, setReviewSearch] = useState("");
   const productInformationRef = useRef<HTMLElement>(null);
   const controllerDescriptionRef = useRef<HTMLElement>(null);
+  const selectControllerPurchaseVariant = (variant: ControllerPurchaseVariant) => {
+    setControllerColor(variant.color);
+    const galleryIndex = controllerGalleryVariants.findIndex(
+      (galleryVariant) => galleryVariant.image === variant.image,
+    );
+    if (galleryIndex >= 0) setControllerThumbnail(galleryIndex);
+  };
   const controllerSpecifications = product.specifications ?? [
     { label: "対応機種", value: "Nintendo Switch / Nintendo Switch OLED" },
     { label: "接続方式", value: "Bluetooth / USB Type-C" },
@@ -842,11 +1245,14 @@ function MobileReferenceProductDetail({
       (block) => block.type === "paragraph" && block.text.length > 220,
     );
   const controllerSpecificationSummary =
-    controllerSpecifications.find((specification) => specification.label === "接続方式")?.value ??
-    controllerSpecifications[0]?.value;
+    controllerSpecifications.find((specification) => specification.label === "接続方式")
+      ?.value ?? controllerSpecifications[0]?.value;
   const controllerPointsAmount = Math.floor(detail.unitPriceAmount * 0.01);
+  const controllerGalleryImages = isDesktopControllerGallery
+    ? controllerGalleryVariants
+    : controllerMobileGalleryImages;
   const activeControllerGalleryVariant =
-    controllerGalleryVariants[controllerThumbnail] ?? controllerGalleryVariants[0]!;
+    controllerGalleryImages[controllerThumbnail] ?? controllerGalleryImages[0]!;
   const visibleControllerReviews = controllerProductReviews.filter((review) => {
     if (reviewFilter === "media" && review.image === undefined) return false;
     if (reviewFilter === "five-star" && review.rating !== 5) return false;
@@ -1036,7 +1442,10 @@ function MobileReferenceProductDetail({
           <h1>商品レビュー</h1>
           <p>Nintendo Switch Proコントローラー</p>
         </header>
-        <section aria-label="レビューの平均評価" className="sazo-reference-nintendo-reviews-overview">
+        <section
+          aria-label="レビューの平均評価"
+          className="sazo-reference-nintendo-reviews-overview"
+        >
           <strong>4.8</strong>
           <div>
             <ProductRatingStars rating={5} size={20} />
@@ -1044,7 +1453,10 @@ function MobileReferenceProductDetail({
             <span>J-Planetで購入を確認したお客様の声</span>
           </div>
         </section>
-        <div aria-label="レビューの絞り込み" className="sazo-reference-nintendo-review-filters">
+        <div
+          aria-label="レビューの絞り込み"
+          className="sazo-reference-nintendo-review-filters"
+        >
           {[
             ["all", "すべて 128"],
             ["media", "写真付き 36"],
@@ -1070,7 +1482,10 @@ function MobileReferenceProductDetail({
             value={reviewSearch}
           />
         </label>
-        <section aria-label="レビュー一覧" className="sazo-reference-nintendo-review-list">
+        <section
+          aria-label="レビュー一覧"
+          className="sazo-reference-nintendo-review-list"
+        >
           {visibleControllerReviews.length > 0 ? (
             visibleControllerReviews.map((review) => (
               <article key={review.id}>
@@ -1091,7 +1506,9 @@ function MobileReferenceProductDetail({
               </article>
             ))
           ) : (
-            <p className="sazo-reference-nintendo-reviews-empty">該当するレビューがありません。</p>
+            <p className="sazo-reference-nintendo-reviews-empty">
+              該当するレビューがありません。
+            </p>
           )}
         </section>
       </main>
@@ -1263,7 +1680,7 @@ function MobileReferenceProductDetail({
             src={activeControllerGalleryVariant.image}
           />
           <span aria-hidden className="sazo-reference-nintendo-controller-media-count">
-            {controllerThumbnail + 1}/{controllerGalleryVariants.length}
+            {controllerThumbnail + 1}/{controllerGalleryImages.length}
           </span>
           {isDesktopControllerGallery ? (
             <div
@@ -1286,25 +1703,24 @@ function MobileReferenceProductDetail({
           ) : null}
         </section>
         <section
-          aria-label="カラーを選択"
+          aria-label="商品画像"
           className="sazo-reference-nintendo-controller-variant-rail"
           data-testid="jplanet-controller-variant-rail"
         >
           <div className="sazo-reference-nintendo-controller-variant-rail-heading">
-            <p>カラーを選ぶ</p>
-            <span>{controllerGalleryVariants.length}色のバリエーション</span>
+            <p>商品画像</p>
+            <span>{controllerMobileGalleryImages.length}枚の商品画像</span>
           </div>
           <div className="sazo-reference-nintendo-controller-thumbnails">
-            {controllerGalleryVariants.map((variant, index) => (
+            {controllerMobileGalleryImages.map((variant, index) => (
               <button
                 aria-current={controllerThumbnail === index ? "true" : undefined}
-                aria-label={`${variant.color}を表示`}
-                key={variant.color}
+                aria-label={`画像${index + 1}を表示`}
+                key={`${variant.image}-${index}`}
                 onClick={() => setControllerThumbnail(index)}
                 type="button"
               >
                 <img alt="" src={variant.image} />
-                <span>{variant.color}</span>
               </button>
             ))}
           </div>
@@ -1329,18 +1745,24 @@ function MobileReferenceProductDetail({
                     <b>{detail.commerce.rating.toFixed(1)}</b>
                     <ProductRatingStars rating={detail.commerce.rating} size={13} />
                   </div>
-                  <span>{t("sazo.views.productDetail.commerceMeta.reviews", {
-                    count: detail.commerce.reviewCount,
-                  })}</span>
-                  <span>{t("sazo.views.productDetail.commerceMeta.sold", {
-                    count: detail.commerce.soldLabel,
-                  })}</span>
+                  <span>
+                    {t("sazo.views.productDetail.commerceMeta.reviews", {
+                      count: detail.commerce.reviewCount,
+                    })}
+                  </span>
+                  <span>
+                    {t("sazo.views.productDetail.commerceMeta.sold", {
+                      count: detail.commerce.soldLabel,
+                    })}
+                  </span>
                   <div className="sazo-desktop-controller-seller">
                     <span aria-label={`${detail.commerce.sellerLogoLabel}のロゴ`}>
                       {detail.commerce.sellerLogoLabel}
                     </span>
                     <a
-                      aria-label={t("sazo.views.productDetail.commerceMeta.sellerPageAria")}
+                      aria-label={t(
+                        "sazo.views.productDetail.commerceMeta.sellerPageAria",
+                      )}
                       href={detail.originalUrl}
                       rel="noreferrer"
                       target="_blank"
@@ -1362,7 +1784,10 @@ function MobileReferenceProductDetail({
               </div>
             ) : null}
           </div>
-          <section aria-label="価格情報" className="sazo-reference-nintendo-controller-price">
+          <section
+            aria-label="価格情報"
+            className="sazo-reference-nintendo-controller-price"
+          >
             <div className="sazo-reference-nintendo-controller-price-main">
               <strong>R$ 429〜</strong>
               <del>R$ 498</del>
@@ -1385,98 +1810,22 @@ function MobileReferenceProductDetail({
               </button>
             </div>
           </section>
-          <section
-            aria-label="PC用の購入オプション"
-            className="sazo-desktop-controller-purchase"
-            data-testid="jplanet-desktop-controller-purchase"
-          >
-            <div className="sazo-desktop-controller-purchase-heading">
-              <div>
-                <h2>バリエーション</h2>
-                <p>カラーと数量を選択してください</p>
-              </div>
-              <span>購入可能</span>
-            </div>
-            <section className="sazo-desktop-controller-purchase-colors">
-              <h3>カラー</h3>
-              <div>
-                {controllerPurchaseVariants.map((variant) => {
-                  const selected = controllerColor === variant.color;
-
-                  return (
-                    <button
-                      aria-disabled={!variant.available}
-                      aria-label={`${variant.color} ${variant.stockLabel}`}
-                      aria-pressed={selected}
-                      className={variant.available ? undefined : "is-sold-out"}
-                      disabled={!variant.available}
-                      key={variant.color}
-                      onClick={() => {
-                        setControllerColor(variant.color);
-                        setControllerThumbnail(
-                          controllerGalleryVariants.findIndex(
-                            (galleryVariant) => galleryVariant.color === variant.color,
-                          ),
-                        );
-                      }}
-                      type="button"
-                    >
-                      <img alt="" aria-hidden src={variant.image} />
-                      <span>{variant.color}</span>
-                      {selected ? <CircleCheck aria-hidden size={17} /> : null}
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-            <section className="sazo-desktop-controller-purchase-quantity">
-              <h3>数量</h3>
-              <div aria-label="購入数量">
-                <button
-                  aria-label="PCで数量を減らす"
-                  disabled={controllerQuantity === 1}
-                  onClick={() =>
-                    setControllerQuantity((current) => Math.max(1, current - 1))
-                  }
-                  type="button"
-                >
-                  <Minus aria-hidden size={17} />
-                </button>
-                <span>{controllerQuantity}</span>
-                <button
-                  aria-label="PCで数量を増やす"
-                  onClick={() => setControllerQuantity((current) => current + 1)}
-                  type="button"
-                >
-                  <Plus aria-hidden size={17} />
-                </button>
-              </div>
-            </section>
-            <p className="sazo-desktop-controller-purchase-check">
-              <ClipboardCheck aria-hidden size={18} />
-              販売元・通関・配送条件を確認済み
-            </p>
-            <div className="sazo-desktop-controller-purchase-actions">
-              <button
-                aria-label="商品をカートに入れる"
-                onClick={() => {
-                  addControllerToCart();
-                  dispatch({ type: "navigate", view: "cart" });
-                }}
-                type="button"
-              >
-                <ShoppingCart aria-hidden size={18} />
-                カートに入れる
-              </button>
-              <button
-                aria-label="商品を購入に進む"
-                onClick={beginControllerCheckout}
-                type="button"
-              >
-                購入に進む
-              </button>
-            </div>
-          </section>
+          <DesktopControllerPurchasePanel
+            dataTestId="jplanet-desktop-controller-purchase"
+            onAddToCart={() => {
+              addControllerToCart();
+              dispatch({ type: "navigate", view: "cart" });
+            }}
+            onCheckout={beginControllerCheckout}
+            onDecreaseQuantity={() =>
+              setControllerQuantity((current) => Math.max(1, current - 1))
+            }
+            onIncreaseQuantity={() => setControllerQuantity((current) => current + 1)}
+            onSelectVariant={selectControllerPurchaseVariant}
+            quantity={controllerQuantity}
+            selectedColor={controllerColor}
+            unitPriceAmount={detail.unitPriceAmount}
+          />
           <section
             aria-label="通常日本商品"
             className="sazo-reference-nintendo-variant-info"
@@ -1544,6 +1893,48 @@ function MobileReferenceProductDetail({
               <ChevronRight aria-hidden size={20} />
             </button>
           </section>
+          {isDesktopControllerGallery ? (
+            <ProductRecommendationRail
+              className="sazo-desktop-controller-related-products"
+              dispatch={dispatch}
+              products={desktopControllerRelatedProducts}
+              testId="jplanet-desktop-controller-related-products"
+            />
+          ) : null}
+          {isDesktopControllerGallery ? (
+            <section
+              aria-label="商品情報と購入手続き"
+              className="sazo-desktop-controller-detail-layout"
+              data-testid="jplanet-desktop-controller-detail-layout"
+            >
+              <DesktopControllerInformation
+                descriptionBlocks={controllerDescriptionBlocks}
+                descriptionCanCollapse={controllerDescriptionCanCollapse}
+                descriptionOpen={isControllerDescriptionOpen}
+                onCloseDescription={closeControllerDescription}
+                onOpenDeliveryDetails={openDeliveryDetails}
+                onOpenDescription={() => setIsControllerDescriptionOpen(true)}
+                onOpenImage={setExpandedDescriptionImage}
+              />
+              <DesktopControllerPurchasePanel
+                className="sazo-desktop-controller-purchase--sticky"
+                dataTestId="jplanet-desktop-controller-sticky-purchase"
+                onAddToCart={() => {
+                  addControllerToCart();
+                  dispatch({ type: "navigate", view: "cart" });
+                }}
+                onCheckout={beginControllerCheckout}
+                onDecreaseQuantity={() =>
+                  setControllerQuantity((current) => Math.max(1, current - 1))
+                }
+                onIncreaseQuantity={() => setControllerQuantity((current) => current + 1)}
+                onSelectVariant={selectControllerPurchaseVariant}
+                quantity={controllerQuantity}
+                selectedColor={controllerColor}
+                unitPriceAmount={detail.unitPriceAmount}
+              />
+            </section>
+          ) : null}
           <section
             aria-labelledby="jplanet-controller-description-title"
             className="sazo-reference-nintendo-product-description"
@@ -1565,7 +1956,9 @@ function MobileReferenceProductDetail({
                 aria-controls="jplanet-controller-product-description"
                 aria-expanded={isControllerDescriptionOpen}
                 aria-label={
-                  isControllerDescriptionOpen ? "商品説明を閉じる" : "商品説明をもっと見る"
+                  isControllerDescriptionOpen
+                    ? "商品説明を閉じる"
+                    : "商品説明をもっと見る"
                 }
                 className="sazo-reference-nintendo-product-description-toggle"
                 onClick={() => {
@@ -1649,7 +2042,9 @@ function MobileReferenceProductDetail({
                 <Truck aria-hidden size={22} />
                 <div>
                   <span>配送・通関</span>
-                  <h2 id="jplanet-desktop-delivery-guide-title">配送・通関に関するご案内</h2>
+                  <h2 id="jplanet-desktop-delivery-guide-title">
+                    配送・通関に関するご案内
+                  </h2>
                 </div>
               </div>
               <button
@@ -1665,7 +2060,10 @@ function MobileReferenceProductDetail({
                 配送条件は、販売元の発送状況・商品の種類・配送先により変わります。
               </p>
               <div className="sazo-desktop-controller-delivery-guide-product">
-                <img alt="Nintendo Switch Proコントローラー" src={activeControllerGalleryVariant.image} />
+                <img
+                  alt="Nintendo Switch Proコントローラー"
+                  src={activeControllerGalleryVariant.image}
+                />
                 <div>
                   <strong>Nintendo Switch Proコントローラー</strong>
                   <span>{controllerColor} / 購入可能</span>
@@ -1704,7 +2102,9 @@ function MobileReferenceProductDetail({
                       <Store aria-hidden size={18} />
                       販売元
                     </dt>
-                    <dd>Nintendo 公式の元ページに記載された販売・発送条件を確認します。</dd>
+                    <dd>
+                      Nintendo 公式の元ページに記載された販売・発送条件を確認します。
+                    </dd>
                   </div>
                   <div>
                     <dt>
@@ -1726,7 +2126,9 @@ function MobileReferenceProductDetail({
                 <Info aria-hidden size={19} />
                 <p>
                   <b>表示内容について</b>
-                  <span>表示日数は参考です。選択したバリエーション、販売元の発送状況、配送・通関手続きにより前後する可能性があります。</span>
+                  <span>
+                    表示日数は参考です。選択したバリエーション、販売元の発送状況、配送・通関手続きにより前後する可能性があります。
+                  </span>
                 </p>
               </aside>
             </div>
@@ -1784,7 +2186,7 @@ function MobileReferenceProductDetail({
                       className={variant.available ? undefined : "is-sold-out"}
                       disabled={!variant.available}
                       key={variant.color}
-                      onClick={() => setControllerColor(variant.color)}
+                      onClick={() => selectControllerPurchaseVariant(variant)}
                       type="button"
                     >
                       <img alt="" aria-hidden src={variant.image} />

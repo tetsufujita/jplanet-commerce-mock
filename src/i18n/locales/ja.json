@@ -129,8 +129,8 @@
       "homeLabel": "J-Planet ホーム"
     },
     "search": {
-      "label": "商品を検索",
-      "placeholder": "キーワードまたはURLを入力"
+      "label": "AI検索",
+      "placeholder": "商品名・キーワード・画像・URLで検索"
     },
     "navigation": {
       "desktopLabel": "メインメニュー",
@@ -144,7 +144,7 @@
       "help": "ヘルプ",
       "news": "お知らせ",
       "notification": "通知",
-      "search": "検索",
+      "search": "AI検索",
       "favorites": "お気に入り",
       "mypage": "マイページ"
     },
@@ -445,7 +445,7 @@
     },
     "agent": {
       "launcher": "URL・画像・商品名をAIに相談",
-      "navigation": "エージェント",
+      "navigation": "AI検索",
       "eyebrow": "J-Planet AI",
       "title": "J-Planet AIエージェント",
       "close": "閉じる",
@@ -459,7 +459,7 @@
       "submit": "AIに探してもらう"
     },
     "agentHub": {
-      "title": "エージェント",
+      "title": "AI検索",
       "chat": "チャット",
       "launcher": "URL・画像・商品名をAIに相談",
       "launcherLabel": "AIエージェントに相談",
@@ -496,12 +496,12 @@
       "rankedTopic": "{{rank}}位 {{topic}}",
       "composer": {
         "title": "J-Planet AIエージェント",
-        "purchaseTitle": "購入エージェント",
-        "purchaseIntro": "商品を送るだけで、購入判断まで。",
-        "agentHubPlaceholder": "URL・画像・商品名を送る",
+        "purchaseTitle": "AIで商品を探す",
+        "purchaseIntro": "商品名・キーワード・画像・URLから商品を探します。",
+        "agentHubPlaceholder": "商品名・キーワード・画像・URLで検索",
         "intro": "日本の商品探し・購入からブラジルへの配送まで、AIがサポートします。",
         "menuLabel": "入力メニュー",
-        "inputPlaceholder": "URL・画像・商品名をAIに渡す",
+        "inputPlaceholder": "商品名・キーワード・画像・URLで検索",
         "send": "送信",
         "pasteUrl": "URLを貼る",
         "selectPhoto": "ギャラリー",
@@ -514,7 +514,7 @@
         "urlMode": "URLを貼る",
         "imageMode": "画像を追加",
         "productMode": "商品名で相談",
-        "draftLabel": "URL・画像・商品名をAIに渡す",
+        "draftLabel": "AI検索",
         "urlPlaceholder": "日本の商品URLを貼り付けてください",
         "productPlaceholder": "欲しい商品名や条件を入力してください",
         "selectImage": "画像を選択",
@@ -601,6 +601,7 @@
       "nextInterestedItems": "次の商品を表示",
       "reviewsTitle": "みんなの口コミ",
       "gramTitle": "J-Planet GRAM",
+      "uniqloDiscoveryTitle": "ユニクロをお探しですか？",
       "reviewRecommendations": "レビュー高評価のおすすめ",
       "picksTitle": "J-Planet's PICK",
       "popularKeywords": "人気検索キーワード",
@@ -617,12 +618,67 @@
       "favoriteProduct": "{{product}}をお気に入りに追加"
     },
     "desktopHome": {
-      "searchFormLabel": "購入エージェント検索",
-      "searchInputLabel": "URL・画像・商品名を送る",
-      "searchPlaceholder": "URL・画像・商品名を送る",
-      "searchSubmit": "商品を確認する",
+      "searchFormLabel": "AI検索",
+      "searchInputLabel": "商品名・キーワード・画像・URLで検索",
+      "searchPlaceholder": "商品名・キーワード・画像・URLで検索",
+      "searchSubmit": "AI検索を実行",
+      "catalogSearch": {
+        "label": "AI検索",
+        "inputLabel": "商品名・キーワード・画像・URLで検索",
+        "placeholder": "商品名・キーワード・画像・URLで検索",
+        "submit": "AI検索を実行"
+      },
       "actions": {
         "chat": "チャット"
+      },
+      "lens": {
+        "label": "AI検索",
+        "inputModes": "AI検索の入力方式",
+        "tabs": {
+          "url": "URLで検索",
+          "image": "画像で検索",
+          "product": "商品名で検索"
+        },
+        "title": "AIで商品を探す",
+        "description": "商品名・キーワード・画像・URLから商品を探します。",
+        "evidenceLabel": "AI検索で確認する内容",
+        "evidence": {
+          "identify": "商品特定",
+          "seller": "販売元・購入条件",
+          "customs": "通関・規制",
+          "estimate": "BRL総額・到着目安"
+        },
+        "note": "J-Planetが商品情報を確認します",
+        "promotions": {
+          "feature": "日本の商品特集",
+          "coupon": "初回クーポン"
+        },
+        "backdrop": {
+          "camera": "カメラの商品特集",
+          "gaming": "ゲームの商品を探す"
+        },
+        "panelMessages": {
+          "camera": "カメラ・ガジェットを探す",
+          "coupon": "マンガ・美容をチェック",
+          "feature": "日本の名品を探す",
+          "gaming": "ゲーム・ホビーを探す"
+        },
+        "backdropCta": "AI検索",
+        "routesLabel": "AI検索の関連導線",
+        "routes": {
+          "recent": {
+            "title": "最近確認した商品",
+            "body": "続きからすぐに確認できます"
+          },
+          "popular": {
+            "title": "人気の検索",
+            "body": "みんなが調べているキーワード"
+          },
+          "reviews": {
+            "title": "購入体験レビュー",
+            "body": "届いた商品の声を見る"
+          }
+        }
       },
       "navigation": {
         "popular": "人気商品",
@@ -640,6 +696,28 @@
       "couponBannerCta": "クーポン一覧を見る",
       "agentCta": "J-Planet AIエージェントに相談",
       "agentCtaBody": "URL・画像・商品名から、購入判断を確認します。",
+      "composerTitle": "購入エージェント",
+      "composerEvidence": "販売元・購入可否・通関・規制・BRL総額・到着目安を確認",
+      "composerChecks": {
+        "seller": "販売元",
+        "purchase": "購入可否",
+        "clearance": "通関・規制",
+        "estimate": "BRL総額・到着目安"
+      },
+      "promos": {
+        "coupon": {
+          "title": "初回クーポン",
+          "body": "商品・配送で使えるクーポン"
+        },
+        "source": {
+          "title": "URLから商品を確認",
+          "body": "販売元・購入条件を確認"
+        },
+        "review": {
+          "title": "購入体験レビュー",
+          "body": "届いた商品の声を見る"
+        }
+      },
       "evidence": {
         "sourceTitle": "販売元・規制・関税を確認",
         "sourceBody": "出品者・規制・関税のポイントを事前にチェック。",
@@ -667,8 +745,8 @@
       },
       "categoriesLabel": "商品カテゴリー",
       "categoriesTitle": "カテゴリー",
-      "categoryProductsLabel": "カテゴリーの商品一覧",
-      "categoryProductsTitle": "カテゴリーの商品",
+      "categoryProductsLabel": "あなたへのおすすめ商品",
+      "categoryProductsTitle": "あなたへのおすすめ",
       "categories": {
         "ladies": "レディース",
         "mens": "メンズ",
@@ -798,6 +876,12 @@
           "productPrice": "商品価格",
           "localDistributionFee": "国内配送費",
           "totalOrderAmount": "ご注文金額合計",
+          "desktopSummary": {
+            "total": "総注文額",
+            "merchandise": "商品価格",
+            "deliveryAndCustoms": "配送・通関費",
+            "confirmBeforePurchase": "購入前に確認"
+          },
           "total": "合計",
           "addToCart": "カートに入れる",
           "buyNow": "今すぐ買う",
@@ -855,6 +939,11 @@
           "informationTitle": "J-Planetが日本で購入・検品し、ブラジルへお届けします",
           "cautionsTitle": "購入前にご確認ください",
           "cautionsBody": "在庫や輸入可否は商品ごとに異なります。下記の注意事項をご確認のうえ、ご注文ください。"
+        },
+        "description": {
+          "title": "商品説明",
+          "showMore": "もっと見る",
+          "close": "閉じる"
         },
         "review": {
           "eyebrow": "REVIEW",
@@ -922,7 +1011,9 @@
         "title": "カテゴリー",
         "brandsTab": "人気ブランド",
         "categoriesTab": "カテゴリー",
-        "more": "もっと見る"
+        "more": "すべて見る",
+        "agentPlaceholder": "見つからない商品を送る",
+        "agentHelper": "URL・画像・商品名から購入可否とBRL総額を確認"
       },
       "catalog": {
         "title": "化粧品",
@@ -940,9 +1031,9 @@
         "title": "購入体験レビュー",
         "subtitle": "商品をどう探し、届いてどうだったか",
         "agentEntry": {
-          "title": "購入エージェント",
-          "subtitle": "URL・画像・商品名から、購入前に確認。",
-          "hint": "購入したい日本商品のURL・画像・名前を\nこちらで検索してみてください！"
+          "title": "AIで商品を探す",
+          "subtitle": "商品名・キーワード・画像・URLから商品を探します。",
+          "hint": "商品名・キーワード・画像・URLから\n探したい商品を検索してみてください。"
         },
         "featuredLabel": "注目の購入体験",
         "communityHeading": "みんなの購入体験",

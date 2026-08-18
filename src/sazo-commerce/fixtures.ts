@@ -119,6 +119,22 @@ export interface DesktopHomeShortcutItem {
   view: SazoView;
 }
 
+/**
+ * PC home only: four independent discovery panels placed behind the purchase
+ * agent lens. Keeping these as individual fixtures lets the foreground lens
+ * remain the only interaction surface while each visual still links to an
+ * existing discovery destination.
+ */
+export interface DesktopAgentLensBackdropBanner {
+  action: "campaign" | "categories" | "chatgpt" | "coupons";
+  ariaLabel: string;
+  id: "chatgpt" | "coupon" | "search" | "summer";
+  image: SazoImagePath;
+  label: string;
+  position: "left-bottom" | "left-top" | "right-bottom" | "right-top";
+  supportingCopy?: string;
+}
+
 export interface DesktopHomeCategoryItem {
   id: string;
   image: SazoImagePath;
@@ -227,12 +243,14 @@ export interface CategoryDirectoryEntry {
   id: DirectoryCategoryId;
   name: string;
   children: readonly CategoryDirectoryChild[];
+  mobileChildren?: readonly CategoryDirectoryChild[];
 }
 
 export interface CategoryDirectoryChild {
   id: string;
   label: string;
   targetCatalogId: CatalogTabId;
+  image?: SazoImagePath;
 }
 
 export interface CatalogChip {
@@ -479,6 +497,42 @@ export const desktopHomeShortcutItems = [
   { id: "skincare", labelKey: "skincare", view: "categories" },
   { id: "categories", labelKey: "categories", view: "categories" },
 ] satisfies readonly DesktopHomeShortcutItem[];
+
+export const desktopAgentLensBackdropBanners = [
+  {
+    action: "coupons",
+    ariaLabel: "初回クーポンを見る",
+    id: "coupon",
+    image: "/sazo-commerce/generated/agent-lens-premium-coupon-v2.png",
+    label: "はじめてのクーポン",
+    position: "left-top",
+  },
+  {
+    action: "chatgpt",
+    ariaLabel: "J-PlanetをChatGPTから使う",
+    id: "chatgpt",
+    image: "/sazo-commerce/generated/agent-lens-premium-openai-v1.png",
+    label: "ChatGPTから使う",
+    position: "right-top",
+    supportingCopy: "J-PlanetをChatGPTから使う",
+  },
+  {
+    action: "categories",
+    ariaLabel: "おすすめの検索先を見る",
+    id: "search",
+    image: "/sazo-commerce/generated/agent-lens-premium-search-v1.png",
+    label: "おすすめの検索先",
+    position: "left-bottom",
+  },
+  {
+    action: "campaign",
+    ariaLabel: "サマーセールを見る",
+    id: "summer",
+    image: "/sazo-commerce/generated/agent-lens-premium-summer-v1.png",
+    label: "サマーセールを見る",
+    position: "right-bottom",
+  },
+] satisfies readonly DesktopAgentLensBackdropBanner[];
 
 export const desktopHomeCategoryItems = [
   {
@@ -801,6 +855,52 @@ export const referenceProducts = [
         ],
       },
     ],
+  },
+] satisfies readonly Product[];
+
+/** Desktop-only related products for the Nintendo controller detail rail. */
+export const desktopControllerRelatedProducts = [
+  {
+    id: "jplanet-nintendo-switch-oled",
+    brand: "Rakuten Japan",
+    name: "Nintendo Switch OLED",
+    price: "R$ 2,184",
+    image: "/sazo-commerce/reference/nintendo-switch-oled.png",
+  },
+  {
+    id: "jplanet-nintendo-joycon",
+    brand: "Nintendo",
+    name: "Joy-Con (L)/(R)",
+    price: "R$ 512",
+    image: "/sazo-commerce/reference/nintendo-joycon-v1.png",
+  },
+  {
+    id: "jplanet-nintendo-carrying-case",
+    brand: "Rakuten Japan",
+    name: "Nintendo Switch キャリングケース",
+    price: "R$ 188",
+    image: "/sazo-commerce/reference/nintendo-switch-case-v1.png",
+  },
+  {
+    id: "jplanet-wireless-game-controller",
+    brand: "Nintendo",
+    name: "ワイヤレス ゲームコントローラー",
+    price: "R$ 318",
+    image: "/sazo-commerce/reference/game-controller.png",
+  },
+  {
+    id: "jplanet-controller-storage-case",
+    brand: "Rakuten Japan",
+    name: "Proコントローラー 収納ケース",
+    price: "R$ 164",
+    image: "/sazo-commerce/reference/nintendo-switch-case-v1.png",
+  },
+  {
+    id: "jplanet-nintendo-joycon-neon",
+    brand: "Nintendo",
+    name: "Joy-Con ネオンブルー／ネオンレッド",
+    price: "R$ 512",
+    image: "/sazo-commerce/reference/nintendo-joycon-v1.png",
   },
 ] satisfies readonly Product[];
 
@@ -1415,6 +1515,62 @@ export const categoryDirectory = [
         targetCatalogId: "mens-cosmetics",
       },
     ],
+    mobileChildren: [
+      {
+        id: "skincare",
+        label: "スキンケア",
+        targetCatalogId: "skincare",
+        image: "/sazo-commerce/categories/beauty-skincare.png",
+      },
+      {
+        id: "base-makeup",
+        label: "ベースメイク",
+        targetCatalogId: "base-makeup",
+        image: "/sazo-commerce/categories/beauty-base-makeup.png",
+      },
+      {
+        id: "point-makeup",
+        label: "ポイントメイク",
+        targetCatalogId: "point-makeup",
+        image: "/sazo-commerce/categories/beauty-point-makeup.png",
+      },
+      {
+        id: "sets",
+        label: "セット商品",
+        targetCatalogId: "sets",
+        image: "/sazo-commerce/categories/beauty-sets.png",
+      },
+      {
+        id: "tools",
+        label: "メイク小物",
+        targetCatalogId: "tools",
+        image: "/sazo-commerce/categories/beauty-tools.png",
+      },
+      {
+        id: "uv-care",
+        label: "UVケア",
+        targetCatalogId: "uv-care",
+        image: "/sazo-commerce/categories/beauty-uv-care.png",
+      },
+      {
+        id: "cleansing",
+        label: "クレンジング",
+        targetCatalogId: "skincare",
+        image: "/sazo-commerce/categories/beauty-cleansing.png",
+      },
+      {
+        id: "haircare",
+        label: "ヘアケア",
+        targetCatalogId: "hair",
+        image: "/sazo-commerce/categories/beauty-haircare.png",
+      },
+      {
+        id: "bodycare",
+        label: "ボディケア",
+        targetCatalogId: "body-care",
+        image: "/sazo-commerce/categories/beauty-bodycare.png",
+      },
+    ],
   },
   {
     id: "ladies",
@@ -1503,6 +1659,56 @@ export const categoryDirectory = [
       { id: "kpop", label: "K-POP", targetCatalogId: "kpop" },
       { id: "characters", label: "キャラクター", targetCatalogId: "characters" },
       { id: "sports", label: "スポーツ", targetCatalogId: "sports" },
+    ],
+  },
+] satisfies readonly CategoryDirectoryEntry[];
+
+/** Additional parent categories are exposed only in the mobile rail. */
+export const mobileCategoryDirectoryEntries = [
+  {
+    id: "shoes",
+    name: "シューズ",
+    children: [
+      { id: "sneakers", label: "スニーカー", targetCatalogId: "shoes" },
+      { id: "sandals", label: "サンダル", targetCatalogId: "shoes" },
+      { id: "boots", label: "ブーツ", targetCatalogId: "shoes" },
+      { id: "pumps", label: "パンプス", targetCatalogId: "shoes" },
+    ],
+  },
+  {
+    id: "sports",
+    name: "スポーツ",
+    children: [
+      { id: "sportswear", label: "スポーツウェア", targetCatalogId: "sports" },
+      { id: "training", label: "トレーニング", targetCatalogId: "sports" },
+      { id: "outdoor", label: "アウトドア", targetCatalogId: "sports" },
+    ],
+  },
+  {
+    id: "characters",
+    name: "キャラクター",
+    children: [
+      { id: "figures", label: "フィギュア", targetCatalogId: "characters" },
+      { id: "plush", label: "ぬいぐるみ", targetCatalogId: "characters" },
+      { id: "stationery", label: "文具・雑貨", targetCatalogId: "characters" },
+    ],
+  },
+  {
+    id: "kpop",
+    name: "K-POP",
+    children: [
+      { id: "albums", label: "アルバム", targetCatalogId: "kpop" },
+      { id: "goods", label: "公式グッズ", targetCatalogId: "kpop" },
+      { id: "photocards", label: "フォトカード", targetCatalogId: "kpop" },
+    ],
+  },
+  {
+    id: "electronics",
+    name: "PC・ゲーム",
+    children: [
+      { id: "games", label: "ゲーム", targetCatalogId: "electronics" },
+      { id: "pc", label: "PC・周辺機器", targetCatalogId: "electronics" },
+      { id: "audio", label: "オーディオ", targetCatalogId: "electronics" },
     ],
   },
 ] satisfies readonly CategoryDirectoryEntry[];
@@ -2339,6 +2545,7 @@ const productRegistry = new Map<string, Product>();
 for (const product of [
   ...products,
   ...referenceProducts,
+  ...desktopControllerRelatedProducts,
   ...interestedProducts,
   ...searchDiscoveryProducts,
   ...catalogInventory.map(({ product }) => product),

@@ -129,8 +129,8 @@
       "homeLabel": "J-Planet ホーム"
     },
     "search": {
-      "label": "商品を検索",
-      "placeholder": "キーワードまたはURLを入力"
+      "label": "AI search",
+      "placeholder": "Search by product name, keyword, image, or URL"
     },
     "navigation": {
       "desktopLabel": "メインメニュー",
@@ -144,7 +144,7 @@
       "help": "ヘルプ",
       "news": "お知らせ",
       "notification": "通知",
-      "search": "検索",
+      "search": "AI search",
       "favorites": "お気に入り",
       "mypage": "マイページ"
     },
@@ -445,7 +445,7 @@
     },
     "agent": {
       "launcher": "Ask AI about a URL, image, or product name",
-      "navigation": "Agent",
+      "navigation": "AI search",
       "eyebrow": "J-Planet AI",
       "title": "J-Planet AI Agent",
       "close": "Close",
@@ -459,7 +459,7 @@
       "submit": "Ask AI to find it"
     },
     "agentHub": {
-      "title": "Agent",
+      "title": "AI search",
       "chat": "Chat",
       "launcher": "Ask AI about a URL, image, or product name",
       "launcherLabel": "Ask the AI agent",
@@ -496,12 +496,12 @@
       "rankedTopic": "{{rank}}. {{topic}}",
       "composer": {
         "title": "J-Planet AI Agent",
-        "purchaseTitle": "Purchase Agent",
-        "purchaseIntro": "Send a product and get a purchase assessment.",
-        "agentHubPlaceholder": "Send a URL, image, or product name",
+        "purchaseTitle": "Find products with AI",
+        "purchaseIntro": "Search by product name, keyword, image, or URL.",
+        "agentHubPlaceholder": "Search by product name, keyword, image, or URL",
         "intro": "AI helps you find and buy products in Japan, then deliver them to Brazil.",
         "menuLabel": "Input menu",
-        "inputPlaceholder": "Send a URL, image, or product name to AI",
+        "inputPlaceholder": "Search by product name, keyword, image, or URL",
         "send": "Send",
         "pasteUrl": "Paste a URL",
         "selectPhoto": "Gallery",
@@ -514,7 +514,7 @@
         "urlMode": "Paste a URL",
         "imageMode": "Add an image",
         "productMode": "Ask by product name",
-        "draftLabel": "Send a URL, image, or product name to AI",
+        "draftLabel": "AI search",
         "urlPlaceholder": "Paste a Japanese product URL",
         "productPlaceholder": "Enter the product name or preferences you want",
         "selectImage": "Select an image",
@@ -601,6 +601,7 @@
       "nextInterestedItems": "次の商品を表示",
       "reviewsTitle": "みんなの口コミ",
       "gramTitle": "J-Planet GRAM",
+      "uniqloDiscoveryTitle": "Looking for UNIQLO?",
       "reviewRecommendations": "レビュー高評価のおすすめ",
       "picksTitle": "J-Planet's PICK",
       "popularKeywords": "人気検索キーワード",
@@ -617,12 +618,67 @@
       "favoriteProduct": "{{product}}をお気に入りに追加"
     },
     "desktopHome": {
-      "searchFormLabel": "Purchase agent search",
-      "searchInputLabel": "Send a URL, image, or product name",
-      "searchPlaceholder": "Send a URL, image, or product name",
-      "searchSubmit": "Check product",
+      "searchFormLabel": "AI search",
+      "searchInputLabel": "Search by product name, keyword, image, or URL",
+      "searchPlaceholder": "Search by product name, keyword, image, or URL",
+      "searchSubmit": "Run AI search",
+      "catalogSearch": {
+        "label": "AI search",
+        "inputLabel": "Search by product name, keyword, image, or URL",
+        "placeholder": "Search by product name, keyword, image, or URL",
+        "submit": "Run AI search"
+      },
       "actions": {
         "chat": "Chat"
+      },
+      "lens": {
+        "label": "AI search",
+        "inputModes": "AI search input method",
+        "tabs": {
+          "url": "Search by URL",
+          "image": "Search by image",
+          "product": "Search by product name"
+        },
+        "title": "Find products with AI",
+        "description": "Search by product name, keyword, image, or URL.",
+        "evidenceLabel": "What AI search checks",
+        "evidence": {
+          "identify": "Product identification",
+          "seller": "Retailer and purchase conditions",
+          "customs": "Customs and regulations",
+          "estimate": "BRL total and arrival estimate"
+        },
+        "note": "J-Planet checks the available product information",
+        "promotions": {
+          "feature": "Japanese product features",
+          "coupon": "First-order coupons"
+        },
+        "backdrop": {
+          "camera": "Camera product feature",
+          "gaming": "Browse game products"
+        },
+        "panelMessages": {
+          "camera": "Explore cameras and gadgets",
+          "coupon": "Browse manga and beauty",
+          "feature": "Discover Japanese favorites",
+          "gaming": "Explore games and hobbies"
+        },
+        "backdropCta": "AI search",
+        "routesLabel": "AI search routes",
+        "routes": {
+          "recent": {
+            "title": "Recently checked products",
+            "body": "Pick up where you left off"
+          },
+          "popular": {
+            "title": "Popular searches",
+            "body": "Keywords people are exploring"
+          },
+          "reviews": {
+            "title": "Purchase experience reviews",
+            "body": "See stories of delivered products"
+          }
+        }
       },
       "navigation": {
         "popular": "Popular products",
@@ -640,6 +696,28 @@
       "couponBannerCta": "View coupons",
       "agentCta": "Consult the J-Planet AI agent",
       "agentCtaBody": "Use a URL, image, or product name to check your purchase decision.",
+      "composerTitle": "Purchase agent",
+      "composerEvidence": "Check the retailer, eligibility, customs requirements, BRL total, and arrival estimate.",
+      "composerChecks": {
+        "seller": "Retailer",
+        "purchase": "Eligibility",
+        "clearance": "Customs & rules",
+        "estimate": "BRL total & ETA"
+      },
+      "promos": {
+        "coupon": {
+          "title": "First-order coupons",
+          "body": "Coupons for products and delivery"
+        },
+        "source": {
+          "title": "Check a product from its URL",
+          "body": "Review the retailer and purchase conditions"
+        },
+        "review": {
+          "title": "Purchase experience reviews",
+          "body": "See what arrived for other shoppers"
+        }
+      },
       "evidence": {
         "sourceTitle": "Check retailer, regulations, and duties",
         "sourceBody": "Review seller, regulation, and duty considerations first.",
@@ -667,8 +745,8 @@
       },
       "categoriesLabel": "Product categories",
       "categoriesTitle": "Categories",
-      "categoryProductsLabel": "Category product list",
-      "categoryProductsTitle": "Products by category",
+      "categoryProductsLabel": "Recommended products for you",
+      "categoryProductsTitle": "Recommended for you",
       "categories": {
         "ladies": "Women's fashion",
         "mens": "Men's fashion",
@@ -798,6 +876,12 @@
           "productPrice": "Product price",
           "localDistributionFee": "Local distribution fee",
           "totalOrderAmount": "Total order amount",
+          "desktopSummary": {
+            "total": "Order total",
+            "merchandise": "Product price",
+            "deliveryAndCustoms": "Shipping and customs",
+            "confirmBeforePurchase": "Confirm before purchase"
+          },
           "total": "Total",
           "addToCart": "Add to cart",
           "buyNow": "Buy now",
@@ -855,6 +939,11 @@
           "informationTitle": "J-Planet purchases and inspects in Japan, then delivers to Brazil",
           "cautionsTitle": "Please review before purchasing",
           "cautionsBody": "Inventory and import eligibility vary by product. Review the notes below before ordering."
+        },
+        "description": {
+          "title": "Product description",
+          "showMore": "Show more",
+          "close": "Close"
         },
         "review": {
           "eyebrow": "REVIEW",
@@ -922,7 +1011,9 @@
         "title": "カテゴリー",
         "brandsTab": "人気ブランド",
         "categoriesTab": "カテゴリー",
-        "more": "もっと見る"
+        "more": "すべて見る",
+        "agentPlaceholder": "Send an item you cannot find",
+        "agentHelper": "Check purchase eligibility and the BRL total from a URL, image, or product name"
       },
       "catalog": {
         "title": "化粧品",
@@ -940,9 +1031,9 @@
         "title": "Purchase experience reviews",
         "subtitle": "How shoppers found an item and how it arrived",
         "agentEntry": {
-          "title": "Purchase agent",
-          "subtitle": "Check before buying with a URL, photo, or product name.",
-          "hint": "Search a Japanese product by URL,\nphoto, or name here!"
+          "title": "Find products with AI",
+          "subtitle": "Search by product name, keyword, image, or URL.",
+          "hint": "Search with the product name, keyword, image,\nor URL for the item you want to find."
         },
         "featuredLabel": "Featured purchase experiences",
         "communityHeading": "Purchase experiences from the community",

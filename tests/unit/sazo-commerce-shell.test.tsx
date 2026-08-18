@@ -502,13 +502,12 @@ describe("SazoCommercePage shell", () => {
     expect(container.querySelector(".sazo-mobile-nav")).not.toBeNull();
   });
 
-  it("mounts BEAUTY with its dedicated header and keeps the fixed mobile nav", async () => {
+  it("redirects the retired BEAUTY deep link to the supported skincare catalog", async () => {
     window.history.replaceState({}, "", "/sazo-commerce-mock/?qa=1&view=beauty");
     const { container } = await renderSazoCommercePage();
 
-    expect(container.querySelector("[data-beauty-view]")).not.toBeNull();
-    expect(container.querySelector(".sazo-mobile-shell .sazo-mobile-header")).toBeNull();
-    expect(container.querySelector("[data-beauty-header]")).not.toBeNull();
+    expect(container.querySelector("[data-beauty-view]")).toBeNull();
+    expect(container.querySelector("[data-testid=\"skincare-catalog-view\"]")).not.toBeNull();
     expect(container.querySelector(".sazo-mobile-nav")).not.toBeNull();
   });
 

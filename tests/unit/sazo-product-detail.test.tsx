@@ -112,7 +112,9 @@ describe("SAZO product detail navigation", () => {
     );
     const { container } = await renderWithI18n(<SazoCommercePage />);
 
-    expect(container.querySelector("[data-testid='jplanet-controller-result']")).not.toBeNull();
+    expect(
+      container.querySelector("[data-testid='jplanet-controller-result']"),
+    ).not.toBeNull();
     expect(
       screen.getByRole("heading", { name: "Nintendo Switch Proコントローラー" }),
     ).toBeTruthy();
@@ -133,7 +135,10 @@ describe("J-Planet product detail experience", () => {
     });
     const dispatch = vi.fn();
     await renderWithI18n(
-      <ProductDetailView dispatch={dispatch} productId="jplanet-nintendo-pro-controller" />,
+      <ProductDetailView
+        dispatch={dispatch}
+        productId="jplanet-nintendo-pro-controller"
+      />,
     );
 
     const controllerCommerceMeta = screen.getByTestId(
@@ -150,8 +155,12 @@ describe("J-Planet product detail experience", () => {
     ).toBeTruthy();
 
     const desktopPurchase = screen.getByTestId("jplanet-desktop-controller-purchase");
-    fireEvent.click(within(desktopPurchase).getByRole("button", { name: "ホワイト 在庫あり" }));
-    fireEvent.click(within(desktopPurchase).getByRole("button", { name: "PCで数量を増やす" }));
+    fireEvent.click(
+      within(desktopPurchase).getByRole("button", { name: "ホワイト 在庫あり" }),
+    );
+    fireEvent.click(
+      within(desktopPurchase).getByRole("button", { name: "PCで数量を増やす" }),
+    );
     fireEvent.click(
       within(desktopPurchase).getByRole("button", { name: "商品をカートに入れる" }),
     );
@@ -166,7 +175,9 @@ describe("J-Planet product detail experience", () => {
     });
     expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "cart" });
 
-    fireEvent.click(within(desktopPurchase).getByRole("button", { name: "商品を購入に進む" }));
+    fireEvent.click(
+      within(desktopPurchase).getByRole("button", { name: "商品を購入に進む" }),
+    );
     expect(dispatch).toHaveBeenCalledWith({
       type: "begin-checkout",
       items: [
@@ -191,7 +202,10 @@ describe("J-Planet product detail experience", () => {
     const dispatch = vi.fn();
 
     await renderWithI18n(
-      <ProductDetailView dispatch={dispatch} productId="jplanet-nintendo-pro-controller" />,
+      <ProductDetailView
+        dispatch={dispatch}
+        productId="jplanet-nintendo-pro-controller"
+      />,
     );
 
     const mediaHeader = screen.getByTestId("jplanet-product-media-header");
@@ -203,7 +217,7 @@ describe("J-Planet product detail experience", () => {
 
     expect(screen.queryByRole("button", { name: "チャット" })).toBeNull();
     expect(screen.queryByRole("button", { name: "画像から検索" })).toBeNull();
-    expect(screen.queryByLabelText("商品画像を選択")).toBeNull();
+    expect(within(mediaHeader).queryByLabelText("商品画像を選択")).toBeNull();
 
     const openWindow = vi.spyOn(window, "open").mockImplementation(() => null);
     fireEvent.click(screen.getByRole("button", { name: "WhatsAppで共有" }));
@@ -227,18 +241,26 @@ describe("J-Planet product detail experience", () => {
 
     const headerBox = mediaHeader as HTMLElement;
     const productInformation = screen.getByTestId("jplanet-product-information");
-    vi.spyOn(headerBox, "getBoundingClientRect").mockReturnValue({ height: 56 } as DOMRect);
-    vi.spyOn(productInformation, "getBoundingClientRect").mockReturnValue({ top: 57 } as DOMRect);
+    vi.spyOn(headerBox, "getBoundingClientRect").mockReturnValue({
+      height: 56,
+    } as DOMRect);
+    vi.spyOn(productInformation, "getBoundingClientRect").mockReturnValue({
+      top: 57,
+    } as DOMRect);
     fireEvent.scroll(window);
     await waitFor(() => {
       expect(mediaHeader.getAttribute("data-header-surface")).toBe("transparent");
     });
-    vi.spyOn(productInformation, "getBoundingClientRect").mockReturnValue({ top: 56 } as DOMRect);
+    vi.spyOn(productInformation, "getBoundingClientRect").mockReturnValue({
+      top: 56,
+    } as DOMRect);
     fireEvent.scroll(window);
     await waitFor(() => {
       expect(mediaHeader.getAttribute("data-header-surface")).toBe("solid");
     });
-    vi.spyOn(productInformation, "getBoundingClientRect").mockReturnValue({ top: 220 } as DOMRect);
+    vi.spyOn(productInformation, "getBoundingClientRect").mockReturnValue({
+      top: 220,
+    } as DOMRect);
     fireEvent.scroll(window);
     await waitFor(() => {
       expect(mediaHeader.getAttribute("data-header-surface")).toBe("transparent");
@@ -250,20 +272,26 @@ describe("J-Planet product detail experience", () => {
     expect(screen.queryByText("購入条件を確認中")).toBeNull();
     expect(screen.queryByText("限定ハイプラ")).toBeNull();
     expect(screen.queryByRole("button", { name: /バリアントを選択/ })).toBeNull();
-    expect(screen.getByRole("button", { name: "ブラックを表示" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "画像1を表示" })).toBeTruthy();
     const controllerMedia = document.querySelector(
       ".sazo-reference-nintendo-controller-media",
     );
     const controllerVariantRail = screen.getByTestId("jplanet-controller-variant-rail");
     expect(controllerMedia).not.toBeNull();
     expect(
-      within(controllerMedia as HTMLElement).queryByRole("button", { name: "ブラックを表示" }),
+      within(controllerMedia as HTMLElement).queryByRole("button", {
+        name: "画像1を表示",
+      }),
     ).toBeNull();
     expect(controllerMedia?.compareDocumentPosition(controllerVariantRail)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(controllerVariantRail.textContent).toContain("3色のバリエーション");
-    fireEvent.click(screen.getByRole("button", { name: "ホワイトを表示" }));
+    expect(controllerVariantRail.getAttribute("aria-label")).toBe("商品画像");
+    expect(controllerVariantRail.textContent).toContain("商品画像");
+    expect(controllerVariantRail.textContent).toContain("10枚の商品画像");
+    expect(within(controllerVariantRail).getAllByRole("button")).toHaveLength(10);
+    expect(within(controllerVariantRail).queryByText("10色のバリエーション")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "画像2を表示" }));
     expect(
       (controllerMedia as HTMLElement)
         .querySelector<HTMLImageElement>(".sazo-reference-nintendo-controller-hero")
@@ -285,12 +313,15 @@ describe("J-Planet product detail experience", () => {
     expect(saveController.getAttribute("aria-pressed")).toBe("false");
     fireEvent.click(saveController);
     expect(
-      screen.getByRole("button", { name: "お気に入りから削除" }).getAttribute("aria-pressed"),
+      screen
+        .getByRole("button", { name: "お気に入りから削除" })
+        .getAttribute("aria-pressed"),
     ).toBe("true");
     expect(
-      screen.getByRole("heading", { name: "Nintendo Switch Proコントローラー" }).compareDocumentPosition(
-        screen.getByText("R$ 429〜"),
-      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+      screen
+        .getByRole("heading", { name: "Nintendo Switch Proコントローラー" })
+        .compareDocumentPosition(screen.getByText("R$ 429〜")) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(screen.getByText("通関配送情報")).toBeTruthy();
     expect(screen.getByText("日本国内：1〜2日")).toBeTruthy();
@@ -300,7 +331,9 @@ describe("J-Planet product detail experience", () => {
     expect(specificationButton.textContent).toContain("Bluetooth / USB Type-C");
     fireEvent.click(specificationButton);
     const specificationSheet = screen.getByRole("dialog", { name: "商品仕様" });
-    expect(specificationSheet.textContent).toContain("Nintendo Switch / Nintendo Switch OLED");
+    expect(specificationSheet.textContent).toContain(
+      "Nintendo Switch / Nintendo Switch OLED",
+    );
     expect(specificationSheet.textContent).toContain("約40時間");
     expect(specificationSheet.textContent).toContain("HAC-A-FSSKA");
     fireEvent.click(screen.getByRole("button", { name: "商品仕様を閉じる" }));
@@ -311,11 +344,17 @@ describe("J-Planet product detail experience", () => {
       ".sazo-reference-nintendo-product-description-content",
     );
     expect(description?.getAttribute("data-expanded")).toBe("false");
-    const expandDescription = screen.getByRole("button", { name: "商品説明をもっと見る" });
+    const expandDescription = screen.getByRole("button", {
+      name: "商品説明をもっと見る",
+    });
     fireEvent.click(expandDescription);
     expect(description?.getAttribute("data-expanded")).toBe("true");
     expect(screen.getByText("主な仕様")).toBeTruthy();
-    expect(screen.getByRole("img", { name: "Nintendo Switch Proコントローラー ブラックの正面" })).toBeTruthy();
+    expect(
+      screen.getByRole("img", {
+        name: "Nintendo Switch Proコントローラー ブラックの正面",
+      }),
+    ).toBeTruthy();
     fireEvent.click(
       screen.getByRole("button", {
         name: "Nintendo Switch Proコントローラー ブラックの正面を拡大",
@@ -342,7 +381,8 @@ describe("J-Planet product detail experience", () => {
     });
     expect(within(controllerSheet).getByText("R$ 429")).toBeTruthy();
     expect(
-      within(controllerSheet).getByRole("button", { name: /ブラック 在庫あり/ })
+      within(controllerSheet)
+        .getByRole("button", { name: /ブラック 在庫あり/ })
         .getAttribute("aria-pressed"),
     ).toBe("true");
     const soldOutVariant = within(controllerSheet).getByRole("button", {
@@ -353,8 +393,12 @@ describe("J-Planet product detail experience", () => {
     fireEvent.click(
       within(controllerSheet).getByRole("button", { name: /ホワイト 在庫あり/ }),
     );
-    fireEvent.click(within(controllerSheet).getByRole("button", { name: "数量を増やす" }));
-    fireEvent.click(within(controllerSheet).getByRole("button", { name: "カートに入れる" }));
+    fireEvent.click(
+      within(controllerSheet).getByRole("button", { name: "数量を増やす" }),
+    );
+    fireEvent.click(
+      within(controllerSheet).getByRole("button", { name: "カートに入れる" }),
+    );
     expect(dispatch).toHaveBeenCalledWith({
       type: "add-to-cart",
       item: {
@@ -366,7 +410,9 @@ describe("J-Planet product detail experience", () => {
     expect(dispatch).toHaveBeenCalledWith({ type: "navigate", view: "cart" });
 
     fireEvent.click(screen.getByRole("button", { name: "カートに入れる" }));
-    expect(screen.getByRole("dialog", { name: "Proコントローラーをカートに入れる" })).toBeTruthy();
+    expect(
+      screen.getByRole("dialog", { name: "Proコントローラーをカートに入れる" }),
+    ).toBeTruthy();
   });
 
   it("continues the retrieved product with reviews and recommendations in one scroll", async () => {
@@ -381,15 +427,48 @@ describe("J-Planet product detail experience", () => {
 
     const dispatch = vi.fn();
     await renderWithI18n(
-      <ProductDetailView dispatch={dispatch} productId="jplanet-nintendo-pro-controller" />,
+      <ProductDetailView
+        dispatch={dispatch}
+        productId="jplanet-nintendo-pro-controller"
+      />,
     );
 
     expect(screen.getByTestId("jplanet-controller-result")).toBeTruthy();
     expect(screen.queryByTestId("jplanet-inline-delivery-detail")).toBeNull();
     expect(screen.getByTestId("jplanet-inline-followup")).toBeTruthy();
-    expect(screen.getByTestId("jplanet-related-product-list").querySelectorAll("button")).toHaveLength(
-      10,
+    const desktopRelatedProducts = screen.getByTestId(
+      "jplanet-desktop-controller-related-products",
     );
+    const controllerDescription = document.querySelector(
+      ".sazo-reference-nintendo-product-description",
+    );
+    expect(desktopRelatedProducts.querySelectorAll(".sazo-product-card")).toHaveLength(6);
+    expect(
+      desktopRelatedProducts.compareDocumentPosition(controllerDescription as Node) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    const desktopInformation = screen.getByTestId(
+      "jplanet-desktop-controller-information",
+    );
+    const controllerInformationTab = within(desktopInformation).getByRole("tab", {
+      name: "商品情報",
+    });
+    const controllerCautionTab = within(desktopInformation).getByRole("tab", {
+      name: "注意事項",
+    });
+    expect(controllerInformationTab.getAttribute("aria-selected")).toBe("true");
+    expect(
+      within(desktopInformation).getByRole("list", {
+        name: "注文からお届けまで",
+      }),
+    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "なぜJ-Planetなのか？" })).toBeTruthy();
+    fireEvent.click(controllerCautionTab);
+    expect(controllerCautionTab.getAttribute("aria-selected")).toBe("true");
+    expect(within(desktopInformation).getByText("販売元の在庫について")).toBeTruthy();
+    expect(
+      screen.getByTestId("jplanet-related-product-list").querySelectorAll("button"),
+    ).toHaveLength(10);
     expect(screen.queryByText("購入条件を確認中")).toBeNull();
     expect(screen.queryByText("限定ハイプラ")).toBeNull();
     expect(screen.queryByText("J-Planetの到着実績")).toBeNull();
@@ -423,7 +502,9 @@ describe("J-Planet product detail experience", () => {
     expect(screen.queryByText("関税込み・国際送料を含む見込みです。")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "配送・通関のご案内を閉じる" }));
     expect(screen.queryByTestId("jplanet-desktop-delivery-guide")).toBeNull();
-    fireEvent.click(screen.getAllByRole("button", { name: "すべてのレビューを見る" })[0]!);
+    fireEvent.click(
+      screen.getAllByRole("button", { name: "すべてのレビューを見る" })[0]!,
+    );
     expect(screen.getByTestId("jplanet-product-reviews")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "商品レビュー" })).toBeTruthy();
     expect(screen.getByText("J-Planetで購入を確認したお客様の声")).toBeTruthy();
@@ -439,12 +520,14 @@ describe("J-Planet product detail experience", () => {
     fireEvent.click(screen.getByRole("button", { name: "戻る" }));
     expect(screen.getByTestId("jplanet-product-review-preview")).toBeTruthy();
     fireEvent.click(
-      screen.getByRole("button", { name: "Nintendo Switch Proコントローラーの商品詳細を見る" }),
+      screen.getByRole("button", {
+        name: "Nintendo Switch Proコントローラーの商品詳細を見る",
+      }),
     );
     expect(screen.getByTestId("jplanet-controller-result")).toBeTruthy();
 
     expect(screen.queryByRole("button", { name: /バリアントを選択/ })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "スプラトゥーンを表示" }));
+    fireEvent.click(screen.getByRole("button", { name: "画像3を表示" }));
     expect(
       screen
         .getByRole("img", { name: "Nintendo Switch Proコントローラー スプラトゥーン" })
