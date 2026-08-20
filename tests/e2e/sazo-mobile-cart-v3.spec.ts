@@ -53,13 +53,13 @@ test("keeps the Figma v3 cart readable and actionable at 341, 390, and 440px", a
     expect(geometry).toMatchObject({
       ctaInside: true,
       evidenceDisplay: "none",
-      footerBottom: 0,
+      footerBottom: 8,
       pageOverflow: 0,
       recommendationAfterNote: true,
     });
     expect(geometry.ctaHeight).toBeGreaterThanOrEqual(44);
-    expect(geometry.footerHeight).toBeGreaterThanOrEqual(104);
-    expect(geometry.footerHeight).toBeLessThanOrEqual(124);
+    expect(geometry.footerHeight).toBeGreaterThanOrEqual(88);
+    expect(geometry.footerHeight).toBeLessThanOrEqual(96);
   }
 });
 

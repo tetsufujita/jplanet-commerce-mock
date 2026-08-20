@@ -18375,3 +18375,896 @@
     color: var(--jplanet-v19-action);
   }
 }
+
+/* Figma v2.0 commerce flow (299:365). Content, order data, and behavior stay
+ * in the existing React views; this final mobile-only layer aligns their
+ * typography, solid commerce surfaces, and translucent operation chrome. */
+@media (max-width: 767px) {
+  .sazo-root:is([data-view="product"], [data-view="cart"], [data-view="checkout"]),
+  .sazo-root > .sazo-auth-backdrop {
+    --jplanet-v20-canvas: #f3f6f9;
+    --jplanet-v20-card: #fff;
+    --jplanet-v20-line: #dde3eb;
+    --jplanet-v20-navy: #132e4f;
+    --jplanet-v20-muted: #61708c;
+    --jplanet-v20-action: #a83d53;
+    --jplanet-v20-selected: #fff1f4;
+    --jplanet-v20-glass: rgb(255 255 255 / 94%);
+    color: var(--jplanet-v20-navy);
+    font-family: "Noto Sans JP Variable", "Noto Sans JP", "Hiragino Sans",
+      "Yu Gothic", Meiryo, sans-serif;
+  }
+
+  /* Auth provider */
+  .sazo-root > .sazo-auth-backdrop {
+    align-items: flex-start;
+    overflow-y: auto;
+    background: #fff;
+  }
+
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-dialog {
+    width: min(100%, 440px);
+    min-height: 100dvh;
+    max-height: none;
+    margin: 0 auto;
+    overflow: visible;
+    border-radius: 0;
+    background: #fff;
+    color: var(--jplanet-v20-navy);
+    box-shadow: none;
+  }
+
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-dialog > .sazo-overlay-close {
+    top: 18px;
+    right: 18px;
+    width: 44px;
+    height: 44px;
+    color: var(--jplanet-v20-muted);
+  }
+
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-provider-content {
+    width: 100%;
+    padding: 104px 24px 36px;
+    box-sizing: border-box;
+  }
+
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-provider-content h1 {
+    max-width: none;
+    color: var(--jplanet-v20-navy);
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1.6;
+    white-space: normal;
+  }
+
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-provider-content > p:first-of-type {
+    margin-top: 0;
+    color: var(--jplanet-v20-muted);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 24px;
+  }
+
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-coupon-callout {
+    min-height: 74px;
+    align-items: center;
+    margin-top: 32px;
+    padding: 14px 17px;
+    border-color: #f2c2cc;
+    border-radius: 16px;
+    background: var(--jplanet-v20-selected);
+    color: var(--jplanet-v20-navy);
+    font-size: 14px;
+    line-height: 1.45;
+    box-sizing: border-box;
+  }
+
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-coupon-callout svg {
+    display: none;
+  }
+
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-coupon-button {
+    min-height: 56px;
+    margin-top: 16px;
+    border-radius: 14px;
+    background: #1f3864;
+    font-size: 16px;
+  }
+
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-reward-divider {
+    gap: 8px;
+    margin-top: 20px;
+    color: var(--jplanet-v20-muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-reward-divider span {
+    max-width: 212px;
+  }
+
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-providers {
+    gap: 16px;
+    margin-top: 30px;
+  }
+
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-provider {
+    display: flex;
+    min-height: 56px;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 16px;
+    border-color: var(--jplanet-v20-line);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--jplanet-v20-navy);
+    font-size: 16px;
+  }
+
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-provider-icon {
+    display: none;
+  }
+
+  /* Product detail and related product candidates */
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller[data-product-detail] {
+    overflow-x: clip;
+    background: #fff;
+    color: var(--jplanet-v20-navy);
+    font-family: inherit;
+  }
+
+  .sazo-root[data-view="product"] .sazo-product-media-header {
+    font-family: inherit;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-product-media-header[data-header-surface="solid"] {
+    top: 8px;
+    width: calc(100% - 16px);
+    margin: 8px 8px -64px;
+    border: 1px solid rgb(255 255 255 / 88%);
+    border-radius: 22px;
+    background: var(--jplanet-v20-glass);
+    box-shadow: 0 8px 24px rgb(19 46 79 / 10%);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller > main {
+    padding-right: 14px;
+    padding-left: 14px;
+    padding-bottom: 116px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    > main
+    .sazo-reference-nintendo-controller-variant-rail {
+    margin-right: -14px;
+    margin-bottom: 12px;
+    margin-left: -14px;
+    padding: 14px 20px 10px;
+    border: 0;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller-variant-rail-heading {
+    margin-bottom: 8px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller-variant-rail-heading
+    p {
+    color: var(--jplanet-v20-navy);
+    font-size: 13px;
+    line-height: 22px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller-variant-rail-heading
+    span {
+    color: var(--jplanet-v20-muted);
+    font-size: 12px;
+    line-height: 22px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-controller-variant-rail
+    .sazo-reference-nintendo-controller-thumbnails {
+    gap: 12px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-controller-variant-rail
+    .sazo-reference-nintendo-controller-thumbnails
+    button {
+    width: 66px;
+    height: 54px;
+    min-height: 54px;
+    flex-basis: 66px;
+    padding: 4px;
+    border-color: var(--jplanet-v20-line);
+    border-radius: 10px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-purchase-column {
+    padding-inline: 6px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-heading {
+    gap: 10px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-title h1 {
+    color: var(--jplanet-v20-navy);
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-source {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(132px, 150px);
+    gap: 8px;
+    align-items: center;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-source > span {
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 9px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-source b {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-source a {
+    min-height: 44px;
+    justify-content: center;
+    padding: 0 10px;
+    border-color: var(--jplanet-v20-line);
+    border-radius: 14px;
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-price {
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 8px 0 10px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-price strong {
+    color: var(--jplanet-v20-action);
+    font-size: 32px;
+    line-height: 1.6;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-price del,
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-price em {
+    font-size: 14px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    :is(
+      .sazo-reference-nintendo-variant-info,
+      .sazo-reference-nintendo-estimate,
+      .sazo-reference-nintendo-review-line,
+      .sazo-reference-nintendo-product-specification
+    ) {
+    border: 1px solid var(--jplanet-v20-line);
+    border-radius: 14px;
+    background: var(--jplanet-v20-card);
+    box-shadow: none;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-variant-info {
+    margin-top: 8px;
+    padding: 12px 16px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-estimate {
+    margin-top: 12px;
+    padding: 14px 16px;
+    border-radius: 16px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-review-line {
+    min-height: 62px;
+    margin-top: 12px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-review-line
+    span {
+    color: var(--jplanet-v20-action);
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-product-specification {
+    margin-top: 10px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-product-specification
+    > button {
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: inherit;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-product-specification
+    b {
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-product-specification
+    span {
+    font-size: 12px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-product-description {
+    margin-top: 14px;
+    padding: 20px;
+    border: 1px solid var(--jplanet-v20-line);
+    border-radius: 16px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-product-description
+    > h2 {
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-description-blocks
+    h3 {
+    font-size: 18px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller[data-product-detail]
+    .sazo-reference-nintendo-description-blocks
+    :is(p, li) {
+    color: var(--jplanet-v20-muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-scroll-section {
+    margin: 24px -20px 0;
+    padding: 24px 20px 0;
+    border-top-color: var(--jplanet-v20-canvas);
+    background: #fff;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-review-preview {
+    margin-inline: 0;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-review-preview-heading
+    h2,
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-related h2 {
+    color: var(--jplanet-v20-navy);
+    font-size: 21px;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-review-summary {
+    min-height: 62px;
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-color: var(--jplanet-v20-line);
+    border-radius: 14px;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-review-summary strong {
+    font-size: 28px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-review-preview-list {
+    gap: 12px;
+    margin-top: 16px;
+    border-top: 0;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-review-preview-list
+    > article {
+    padding: 16px;
+    border: 1px solid var(--jplanet-v20-line);
+    border-radius: 16px;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-review-preview-more {
+    min-height: 50px;
+    margin-top: 16px;
+    border-color: var(--jplanet-v20-line);
+    border-radius: 14px;
+    background: #fff;
+    font-size: 16px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-scroll-followup
+    .sazo-reference-nintendo-related {
+    margin: 24px 0 20px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-scroll-followup
+    .sazo-reference-nintendo-related
+    > p {
+    color: var(--jplanet-v20-muted);
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-scroll-followup
+    .sazo-reference-nintendo-related
+    > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-scroll-followup
+    .sazo-reference-nintendo-related
+    > div
+    > button {
+    grid-template-rows: 146px minmax(44px, auto) 22px 1fr 28px;
+    min-height: 366px;
+    padding: 7px 7px 12px;
+    border-color: var(--jplanet-v20-line);
+    border-radius: 16px;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-scroll-followup
+    .sazo-reference-nintendo-related
+    > div
+    > button
+    img {
+    height: 146px;
+    border-radius: 12px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-scroll-followup
+    .sazo-reference-nintendo-related
+    > div
+    > button
+    :is(b, small, strong, em) {
+    padding-inline: 4px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-scroll-followup
+    .sazo-reference-nintendo-related
+    b {
+    font-size: 14px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-scroll-followup
+    .sazo-reference-nintendo-related
+    strong {
+    align-self: end;
+    font-size: 21px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-footer {
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: 8px;
+    display: grid;
+    width: auto;
+    min-height: 88px;
+    grid-template-columns: minmax(0, 190px) minmax(0, 198px);
+    grid-template-rows: 56px auto;
+    justify-content: space-between;
+    gap: 2px 8px;
+    padding: 8px 8px 4px 16px;
+    border: 1px solid rgb(255 255 255 / 88%);
+    border-radius: 16px;
+    background: var(--jplanet-v20-glass);
+    box-shadow: 0 10px 28px rgb(19 46 79 / 12%);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    box-sizing: border-box;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-footer button {
+    width: 100%;
+    min-height: 56px;
+    border: 2px solid #1f2e4f;
+    border-radius: 12px;
+    background: #fff;
+    color: #1f2e4f;
+    font-size: 16px;
+  }
+
+  .sazo-root[data-view="product"]
+    .sazo-reference-nintendo-controller-footer
+    button:nth-child(2) {
+    border-color: var(--jplanet-v20-action);
+    background: var(--jplanet-v20-action);
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-footer small {
+    grid-column: 1 / -1;
+    color: var(--jplanet-v20-muted);
+    font-size: 9px;
+    line-height: 1.2;
+  }
+
+  /* Variant sheet keeps the single purchase intent while using the v2 grid. */
+  .sazo-root[data-view="product"] .sazo-reference-controller-purchase-sheet {
+    right: auto;
+    left: 50%;
+    width: min(100%, 440px);
+    max-height: calc(100dvh - 8px);
+    padding: 10px 20px max(16px, env(safe-area-inset-bottom));
+    overflow-y: auto;
+    border-radius: 22px 22px 0 0;
+    color: var(--jplanet-v20-navy);
+    font-family: inherit;
+    transform: translateX(-50%);
+    box-sizing: border-box;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-handle {
+    width: 56px;
+    height: 5px;
+    margin-bottom: 18px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-product {
+    grid-template-columns: 140px minmax(0, 1fr);
+    gap: 16px;
+    padding-bottom: 20px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-product > img {
+    width: 140px;
+    height: 112px;
+    border-radius: 16px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-product strong {
+    font-size: 19px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-product span {
+    font-size: 30px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-colors {
+    padding-block: 20px 12px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-colors h2,
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-quantity h2 {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-colors > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 10px;
+    margin-top: 14px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-colors button {
+    min-height: 70px;
+    padding: 7px;
+    border-color: var(--jplanet-v20-line);
+    border-radius: 14px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-colors button > img {
+    width: 54px;
+    height: 54px;
+    border-radius: 10px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-colors button b {
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-colors button small {
+    font-size: 11px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-quantity {
+    padding-block: 12px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-quantity > div {
+    grid-template-columns: 42px 54px 42px;
+    border-color: var(--jplanet-v20-line);
+    border-radius: 12px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-quantity button,
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-quantity span {
+    height: 52px;
+    font-size: 20px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-info {
+    padding: 14px 16px;
+    border-color: var(--jplanet-v20-line);
+    border-radius: 12px;
+    background: #f2f7ff;
+    color: var(--jplanet-v20-muted);
+    font-size: 12px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-checked {
+    margin: 12px 0;
+    font-size: 12px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-confirm {
+    position: sticky;
+    z-index: 2;
+    bottom: 8px;
+    min-height: 56px;
+    border-radius: 12px;
+    background: var(--jplanet-v20-action);
+    box-shadow: 0 8px 22px rgb(19 46 79 / 14%);
+    font-size: 16px;
+  }
+
+  /* Cart and checkout */
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"],
+  .sazo-root[data-view="checkout"]
+    .sazo-jplanet-checkout[data-checkout-mobile-proposal="figma-43-2"] {
+    background: var(--jplanet-v20-canvas);
+    color: var(--jplanet-v20-navy);
+    font-family: inherit;
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    .sazo-jplanet-cart-main,
+  .sazo-root[data-view="checkout"]
+    .sazo-jplanet-checkout[data-checkout-mobile-proposal="figma-43-2"]
+    .sazo-jplanet-checkout-main {
+    padding-right: 12px;
+    padding-bottom: 128px;
+    padding-left: 12px;
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    .sazo-jplanet-cart-groups,
+  .sazo-root[data-view="checkout"]
+    .sazo-jplanet-checkout[data-checkout-mobile-proposal="figma-43-2"]
+    .sazo-jplanet-checkout-procedure {
+    gap: 14px;
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    :is(.sazo-jplanet-cart-group, .sazo-jplanet-cart-purchase-note),
+  .sazo-root[data-view="checkout"]
+    .sazo-jplanet-checkout[data-checkout-mobile-proposal="figma-43-2"]
+    :is(
+      .sazo-jplanet-checkout-address,
+      .sazo-jplanet-checkout-source,
+      .sazo-jplanet-checkout-section,
+      .sazo-jplanet-checkout-mobile-order-review,
+      .sazo-jplanet-checkout-mobile-payment-review,
+      .sazo-jplanet-checkout-breakdown
+    ) {
+    border-color: var(--jplanet-v20-line);
+    border-radius: 16px;
+    background: var(--jplanet-v20-card);
+    box-shadow: none;
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    input[type="checkbox"] {
+    accent-color: #c93658;
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    .sazo-jplanet-cart-item,
+  .sazo-root[data-view="checkout"]
+    .sazo-jplanet-checkout[data-checkout-mobile-proposal="figma-43-2"]
+    .sazo-jplanet-checkout-line {
+    border-color: var(--jplanet-v20-line);
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    .sazo-jplanet-cart-recommendations
+    .sazo-home-dense-product {
+    border-color: var(--jplanet-v20-line);
+    border-radius: 16px;
+    background: #fff;
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    .sazo-jplanet-cart-summary,
+  .sazo-root[data-view="checkout"]
+    .sazo-jplanet-checkout[data-checkout-mobile-proposal="figma-43-2"]
+    .sazo-jplanet-checkout-footer {
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: 8px;
+    width: auto;
+    min-height: 88px;
+    padding: 12px 12px 12px 16px;
+    border: 1px solid rgb(255 255 255 / 88%);
+    border-radius: 16px;
+    background: var(--jplanet-v20-glass);
+    box-shadow: 0 10px 28px rgb(19 46 79 / 12%);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    box-sizing: border-box;
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    .sazo-jplanet-cart-summary {
+    grid-template-columns: auto minmax(72px, 1fr) minmax(150px, 190px);
+    grid-template-rows: 56px;
+    gap: 8px;
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    .sazo-jplanet-cart-summary
+    > label {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    .sazo-jplanet-cart-summary
+    > div {
+    display: grid;
+    grid-column: 2;
+    grid-row: 1;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: end;
+    gap: 2px;
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    .sazo-jplanet-cart-summary
+    > button {
+    width: 100%;
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .sazo-root[data-view="checkout"]
+    .sazo-jplanet-checkout[data-checkout-mobile-proposal="figma-43-2"]
+    .sazo-jplanet-checkout-footer {
+    grid-template-columns: minmax(0, 160px) minmax(170px, 190px);
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    .sazo-jplanet-cart-summary
+    > button,
+  .sazo-root[data-view="checkout"]
+    .sazo-jplanet-checkout[data-checkout-mobile-proposal="figma-43-2"]
+    .sazo-jplanet-checkout-footer
+    > button {
+    min-height: 56px;
+    border-color: var(--jplanet-v20-action);
+    border-radius: 12px;
+    background: var(--jplanet-v20-action);
+    box-shadow: none;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .sazo-root > .sazo-auth-backdrop .sazo-auth-provider-content {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-source {
+    grid-template-columns: auto minmax(0, 1fr) 126px;
+    gap: 5px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-source b {
+    font-size: 13px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-source a {
+    font-size: 11px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-footer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 8px;
+    padding-left: 8px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-nintendo-controller-footer button {
+    font-size: 14px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-product {
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-product > img {
+    width: 112px;
+    height: 96px;
+  }
+
+  .sazo-root[data-view="product"] .sazo-reference-controller-sheet-product strong {
+    font-size: 16px;
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    .sazo-jplanet-cart-summary {
+    grid-template-columns: auto minmax(62px, 1fr) minmax(132px, 150px);
+    padding-inline: 10px;
+  }
+
+  .sazo-root[data-view="cart"]
+    .sazo-jplanet-cart[data-cart-mobile-redesign="figma-47-30"]
+    .sazo-jplanet-cart-summary
+    > button,
+  .sazo-root[data-view="checkout"]
+    .sazo-jplanet-checkout[data-checkout-mobile-proposal="figma-43-2"]
+    .sazo-jplanet-checkout-footer
+    > button {
+    font-size: 14px;
+  }
+}

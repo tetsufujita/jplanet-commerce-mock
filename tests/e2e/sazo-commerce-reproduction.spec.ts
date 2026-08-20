@@ -1835,7 +1835,7 @@ test("keeps the product media header over the gallery until product information 
     Math.max(0, bounds.productInformationTop - bounds.headerHeight + 4),
   );
   await expect(header).toHaveAttribute("data-header-surface", "solid");
-  await expect(header).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  await expect(header).toHaveCSS("background-color", "rgba(255, 255, 255, 0.94)");
 
   await page.evaluate(
     (top) => window.scrollTo({ behavior: "instant", top }),
@@ -2158,7 +2158,7 @@ test("gives the mobile purchase CTA the same visual prominence as a primary acti
     name: "購入に進む",
   });
 
-  await expect(purchaseButton).toHaveCSS("background-color", "rgb(233, 76, 104)");
+  await expect(purchaseButton).toHaveCSS("background-color", "rgb(168, 61, 83)");
   await expect(purchaseButton).toHaveCSS("color", "rgb(255, 255, 255)");
 });
 
