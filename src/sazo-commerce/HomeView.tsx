@@ -33,6 +33,7 @@ import {
   Store,
   Tags,
   ThumbsUp,
+  TicketPercent,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -44,6 +45,7 @@ import {
   type AgentRecentSearch,
   type AgentRecentViewedProduct,
 } from "@/sazo-commerce/agentHubFixtures";
+import { getJplanetCoupon } from "@/sazo-commerce/couponFixtures";
 import {
   desktopAgentLensBackdropBanners,
   getHeroSlidesForFeed,
@@ -287,15 +289,32 @@ const homeDenseProducts: readonly HomeDenseProduct[] = [
   },
 ];
 
-const uniqloDiscoveryProductIds = new Set([
+const mobileHomeCouponCards = [
+  {
+    couponId: "popular-brands-10",
+    artwork: "/sazo-commerce/campaign/jplanet-mobile-coupon-switch-v1.jpg",
+    productName: "Nintendo Switch OLED",
+    tone: "sakura",
+  },
+  {
+    couponId: "camera-brand-12",
+    artwork: "/sazo-commerce/campaign/jplanet-mobile-coupon-camera-v1.jpg",
+    productName: "Sony α7C II",
+    tone: "indigo",
+  },
+  {
+    couponId: "all-products-5",
+    artwork: "/sazo-commerce/campaign/jplanet-mobile-coupon-controller-v1.jpg",
+    productName: "Nintendo Switch Proコントローラー",
+    tone: "matcha",
+  },
+] as const;
+
+const desktopUniqloDiscoveryProductIds = new Set([
   "new-balance",
   "air-jordan",
   "shopper-tote",
   "black-sandal",
-]);
-
-const desktopUniqloDiscoveryProductIds = new Set([
-  ...uniqloDiscoveryProductIds,
   "handbag",
   "gift-accessory",
 ]);
@@ -312,24 +331,61 @@ function getUniqloDiscoveryProducts(productIds: ReadonlySet<string>) {
     );
 }
 
-const uniqloDiscoveryProducts = getUniqloDiscoveryProducts(uniqloDiscoveryProductIds);
 const desktopUniqloDiscoveryProducts = getUniqloDiscoveryProducts(
   desktopUniqloDiscoveryProductIds,
 );
 
-const homeDenseProductFeedMultiplier = 3;
-const homeDenseProductFeed = Array.from(
-  { length: homeDenseProductFeedMultiplier },
-  (_, batchIndex) =>
-    homeDenseProducts.map((product) => ({
-      ...product,
-      id: `${product.id}-home-batch-${String(batchIndex + 1)}`,
-    })),
-).flat();
+// Visual-only fixture correction for the mobile mock: identity and media are
+// matched to Uniqlo's official product pages. Existing synthetic BRL values,
+// sales copy, and shared mock detail route stay unchanged and are not claims
+// about Uniqlo inventory, price, or an official J-Planet partnership.
+const uniqloDiscoveryProducts = [
+  {
+    discount: "14% OFF",
+    id: "uniqlo-airism-cotton-oversized-t-shirt",
+    image: "/sazo-commerce/reference/uniqlo/airism-cotton-oversized-t-shirt.jpg",
+    label: "参考商品",
+    mediaAspect: "portrait",
+    name: "エアリズムコットンオーバーサイズTシャツ/5分袖",
+    originalPrice: "R$ 868",
+    price: "R$ 748",
+    salesCount: "8,600件販売",
+  },
+  {
+    id: "uniqlo-sweat-full-zip-parka",
+    image: "/sazo-commerce/reference/uniqlo/sweat-full-zip-parka.jpg",
+    label: "参考商品",
+    mediaAspect: "portrait",
+    name: "スウェットフルジップパーカ",
+    price: "R$ 789",
+    salesCount: "12,000件販売",
+  },
+  {
+    discount: "10% OFF",
+    id: "uniqlo-kando-jacket",
+    image: "/sazo-commerce/reference/uniqlo/kando-jacket.jpg",
+    label: "参考商品",
+    mediaAspect: "portrait",
+    name: "感動ジャケット",
+    originalPrice: "R$ 760",
+    price: "R$ 684",
+    salesCount: "2,800件販売",
+  },
+  {
+    id: "uniqlo-easy-wide-pants",
+    image: "/sazo-commerce/reference/uniqlo/easy-wide-pants.jpg",
+    label: "参考商品",
+    mediaAspect: "portrait",
+    name: "イージーワイドパンツ",
+    price: "R$ 522",
+    salesCount: "4,350件販売",
+  },
+] as const satisfies readonly HomeDenseProduct[];
 
-// The desktop catalog intentionally has enough repeated fixture items to make a
-// complete discovery surface. It is desktop-only; the mobile product feed keeps
-// its established length and composition.
+// The approved PC home reuses the established 16-product mobile-compatible
+// feed as 4 featured, 4 continued, and 8 lower-grid items. The established
+// 768–1023px discovery surface keeps its prior repeated mock feed.
+const pcHomeCatalogProducts = homeDenseProducts.slice(8, 16);
 const desktopHomeCatalogProducts = Array.from(
   { length: 4 },
   (_, batchIndex) =>
@@ -340,6 +396,15 @@ const desktopHomeCatalogProducts = Array.from(
 )
   .flat()
   .slice(0, 60);
+
+const desktopHomeSearchKeywords = [
+  "ユニクロ",
+  "New Balance",
+  "Nintendo Switch",
+  "日本限定コスメ",
+  "K-POP",
+  "キャラクターグッズ",
+] as const;
 
 const homeDenseColumnBreakpoints = [
   { columns: 5, query: "(min-width: 1440px)" },
@@ -425,6 +490,30 @@ function useMobileHome() {
     return () => {
       media.removeEventListener("change", update);
     };
+  }, []);
+
+  return matches;
+}
+
+function usePcHome() {
+  const query = "(min-width: 1024px)";
+  const getMatches = () =>
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia(query).matches;
+  const [matches, setMatches] = useState(getMatches);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return undefined;
+    }
+
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
+    media.addEventListener("change", update);
+    update();
+
+    return () => media.removeEventListener("change", update);
   }, []);
 
   return matches;
@@ -633,6 +722,7 @@ const navigationShortcutIcons: Record<
 > = {
   brands: Tags,
   categories: Grid2X2,
+  coupons: TicketPercent,
   help: CircleHelp,
   news: Newspaper,
   reviews: Star,
@@ -653,6 +743,27 @@ function ShortcutArtwork({ icon }: { icon?: HomeShortcutIconId }) {
   return <Icon aria-hidden />;
 }
 
+function activateHomeShortcut(
+  dispatch: Dispatch<SazoAction>,
+  shortcut: (typeof homeShortcutItems)[number],
+) {
+  if (shortcut.id === "feature") {
+    dispatch({ type: "open-campaign" });
+    return;
+  }
+  if (shortcut.id === "limited") {
+    dispatch({ type: "navigate", view: "categories" });
+    return;
+  }
+  if (shortcut.id === "flea-market") {
+    dispatch({ type: "navigate", view: "categories" });
+    return;
+  }
+  if (shortcut.view !== undefined) {
+    dispatch({ type: "navigate", view: shortcut.view });
+  }
+}
+
 function MobileShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
 
@@ -660,35 +771,26 @@ function MobileShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
     <div
       aria-label={t("sazo.home.shortcutLabel")}
       className="sazo-shortcuts"
+      data-horizontal-scroll="true"
       data-mobile-shortcut-grid
-      data-layout="horizontal-menu"
+      data-layout="horizontal-rail"
       data-page-size="9"
       role="group"
     >
-      {homeShortcutItems.map((shortcut) => {
-        const view = shortcut.view;
-
-        return (
-          <button
-            aria-label={t(`sazo.home.shortcuts.${shortcut.labelKey}`)}
-            className="sazo-shortcut"
-            key={shortcut.id}
-            onClick={
-              view === undefined
-                ? undefined
-                : () => {
-                    dispatch({ type: "navigate", view });
-                  }
-            }
-            type="button"
-          >
-            <span className="sazo-shortcut-icon" data-icon={shortcut.icon}>
-              <ShortcutArtwork icon={shortcut.icon} />
-            </span>
-            <span>{t(`sazo.home.shortcuts.${shortcut.labelKey}`)}</span>
-          </button>
-        );
-      })}
+      {homeShortcutItems.map((shortcut) => (
+        <button
+          aria-label={t(`sazo.home.shortcuts.${shortcut.labelKey}`)}
+          className="sazo-shortcut"
+          key={shortcut.id}
+          onClick={() => activateHomeShortcut(dispatch, shortcut)}
+          type="button"
+        >
+          <span className="sazo-shortcut-icon" data-icon={shortcut.icon}>
+            <ShortcutArtwork icon={shortcut.icon} />
+          </span>
+          <span>{t(`sazo.home.shortcuts.${shortcut.labelKey}`)}</span>
+        </button>
+      ))}
     </div>
   );
 }
@@ -775,14 +877,15 @@ function MobileAgentSearch({ dispatch }: Pick<HomeViewProps, "dispatch">) {
         role="group"
       >
         <header className="sazo-home-agent-card-header">
-          <img
-            alt=""
-            aria-hidden="true"
-            data-jplanet-sakura-mark
-            height={28}
-            src="/sazo-commerce/jplanet-sakura-mark.png"
-            width={28}
-          />
+          <span aria-hidden="true" data-jplanet-ai-mark-slot>
+            <img
+              alt=""
+              data-jplanet-sakura-mark
+              height={18}
+              src="/sazo-commerce/jplanet-sakura-mark.png"
+              width={18}
+            />
+          </span>
           <div>
             <strong>{t("sazo.agentHub.composer.purchaseTitle")}</strong>
           </div>
@@ -824,6 +927,33 @@ function MobileAgentSearch({ dispatch }: Pick<HomeViewProps, "dispatch">) {
 
 function MobileCouponBanner({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   const { t } = useTranslation();
+  const couponCta = t("sazo.home.couponBannerCta");
+  const [activeCouponIndex, setActiveCouponIndex] = useState(0);
+  const couponRailRef = useRef<HTMLDivElement>(null);
+
+  const syncActiveCoupon = () => {
+    const rail = couponRailRef.current;
+    if (!rail) return;
+
+    const cards = Array.from(
+      rail.querySelectorAll<HTMLElement>(".sazo-mobile-coupon-card"),
+    );
+    const viewportCenter = rail.scrollLeft + rail.clientWidth / 2;
+    let nearestIndex = 0;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+
+    cards.forEach((card, index) => {
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const distance = Math.abs(cardCenter - viewportCenter);
+
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestIndex = index;
+      }
+    });
+
+    setActiveCouponIndex(nearestIndex);
+  };
 
   return (
     <section
@@ -832,20 +962,73 @@ function MobileCouponBanner({ dispatch }: Pick<HomeViewProps, "dispatch">) {
       data-mobile-coupon-banner
       data-testid="mobile-coupon-banner"
     >
-      <button
-        aria-label={t("sazo.home.couponBannerCta")}
-        onClick={() => {
-          dispatch({ type: "navigate", view: "coupons" });
-        }}
-        type="button"
+      <div
+        aria-label="おすすめクーポン"
+        className="sazo-mobile-coupon-rail"
+        onScroll={syncActiveCoupon}
+        ref={couponRailRef}
+        role="list"
       >
-        <img
-          alt={t("sazo.home.couponBannerArtwork")}
-          decoding="async"
-          src="/sazo-commerce/campaign/jplanet-pix-day-sale.png"
-        />
-        <span className="sazo-visually-hidden">{t("sazo.home.couponBannerCta")}</span>
-      </button>
+        {mobileHomeCouponCards.map((card) => {
+          const coupon = getJplanetCoupon(card.couponId);
+
+          return (
+            <article
+              className="sazo-mobile-coupon-card"
+              data-tone={card.tone}
+              key={card.couponId}
+              role="listitem"
+            >
+              <button
+                aria-label={couponCta}
+                onClick={() => {
+                  dispatch({ type: "navigate", view: "coupons" });
+                }}
+                type="button"
+              >
+                <img
+                  alt={`${card.productName}のキャンペーンビジュアル`}
+                  className="sazo-mobile-coupon-artwork"
+                  decoding="async"
+                  src={card.artwork}
+                />
+                <span className="sazo-mobile-coupon-copy">
+                  <span className="sazo-mobile-coupon-kicker">
+                    <img
+                      alt=""
+                      aria-hidden="true"
+                      height={22}
+                      src="/sazo-commerce/jplanet-sakura-mark.png"
+                      width={22}
+                    />
+                    日本セレクト
+                  </span>
+                  <strong>{coupon.discount}</strong>
+                  <span className="sazo-mobile-coupon-product">{card.productName}</span>
+                  <span className="sazo-mobile-coupon-condition">{coupon.minimumSpend}</span>
+                  <span className="sazo-mobile-coupon-cta">
+                    {couponCta}
+                    <ChevronRight aria-hidden size={16} strokeWidth={2.4} />
+                  </span>
+                </span>
+              </button>
+            </article>
+          );
+        })}
+      </div>
+      <div
+        aria-label={`クーポン ${activeCouponIndex + 1}/${mobileHomeCouponCards.length}`}
+        className="sazo-mobile-coupon-pagination"
+        role="status"
+      >
+        {mobileHomeCouponCards.map((card, index) => (
+          <span
+            aria-hidden="true"
+            data-active={index === activeCouponIndex ? "true" : "false"}
+            key={card.couponId}
+          />
+        ))}
+      </div>
     </section>
   );
 }
@@ -860,7 +1043,7 @@ function MobileGramGrid({ dispatch }: Pick<HomeViewProps, "dispatch">) {
         title="J-Planet GRAM"
       />
       <div className="sazo-mobile-gram-grid">
-        {homeGramEntries.slice(0, 2).map((entry) => (
+        {homeGramEntries.map((entry) => (
           <article className="sazo-mobile-gram-card" key={entry.id}>
             <div className="sazo-mobile-gram-media">
               <img alt={entry.caption} decoding="async" src={entry.image} />
@@ -1119,7 +1302,8 @@ function UniqloDiscoveryRail({
       headingBrandSource={showBrandSource ? "uniqlo" : undefined}
       layout="rail"
       onMore={() => {
-        dispatch({ type: "navigate", view: "catalog" });
+        dispatch({ type: "select-directory-category", category: "ladies" });
+        dispatch({ type: "navigate", view: "categories" });
       }}
       products={showImageBadgeIcon ? desktopUniqloDiscoveryProducts : uniqloDiscoveryProducts}
       productPresentation="media-rail"
@@ -1175,7 +1359,41 @@ function DesktopHomeShortcutRow({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   );
 }
 
-function DesktopHomeCategoryGrid({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+interface DesktopHomeSectionHeadingProps {
+  eyebrow?: string;
+  moreLabel?: string;
+  onMore?: () => void;
+  title: string;
+}
+
+function DesktopHomeSectionHeading({
+  eyebrow,
+  moreLabel,
+  onMore,
+  title,
+}: DesktopHomeSectionHeadingProps) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="sazo-desktop-home-section-heading">
+      <span>
+        {eyebrow ? <small>{eyebrow}</small> : null}
+        <h2>{title}</h2>
+      </span>
+      {onMore ? (
+        <button onClick={onMore} type="button">
+          {moreLabel ?? t("sazo.home.more")}
+          <ArrowRight aria-hidden size={17} strokeWidth={2.2} />
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+function DesktopHomeCategoryGrid({
+  dispatch,
+  figmaHeading = false,
+}: Pick<HomeViewProps, "dispatch"> & { figmaHeading?: boolean }) {
   const { t } = useTranslation();
 
   return (
@@ -1184,9 +1402,18 @@ function DesktopHomeCategoryGrid({ dispatch }: Pick<HomeViewProps, "dispatch">) 
       className="sazo-desktop-home-categories"
       data-testid="desktop-home-category-grid"
     >
-      <div className="sazo-desktop-home-categories-heading">
-        <h2>{t("sazo.desktopHome.categoriesTitle")}</h2>
-      </div>
+      {figmaHeading ? (
+        <DesktopHomeSectionHeading
+          eyebrow="BROWSE BY CATEGORY"
+          moreLabel="一覧を見る"
+          onMore={() => dispatch({ type: "navigate", view: "categories" })}
+          title={t("sazo.desktopHome.categoriesTitle")}
+        />
+      ) : (
+        <div className="sazo-desktop-home-categories-heading">
+          <h2>{t("sazo.desktopHome.categoriesTitle")}</h2>
+        </div>
+      )}
       <div className="sazo-desktop-home-categories-grid">
         {desktopHomeCategoryItems.map((category) => (
           <button
@@ -1209,7 +1436,12 @@ function DesktopHomeCategoryGrid({ dispatch }: Pick<HomeViewProps, "dispatch">) 
 
 function DesktopHomeCategoryProductCatalog({
   dispatch,
-}: Pick<HomeViewProps, "dispatch">) {
+  figmaHeading = false,
+  products: catalogProducts = desktopHomeCatalogProducts,
+}: Pick<HomeViewProps, "dispatch"> & {
+  figmaHeading?: boolean;
+  products?: readonly HomeDenseProduct[];
+}) {
   const { t } = useTranslation();
   const openProduct = () => {
     dispatch({ type: "open-product", productId: JPLANET_PRODUCT_DETAIL_ID });
@@ -1221,11 +1453,20 @@ function DesktopHomeCategoryProductCatalog({
       className="sazo-desktop-home-category-products"
       data-testid="desktop-home-category-products"
     >
-      <div className="sazo-desktop-home-category-products-heading">
-        <h2>{t("sazo.desktopHome.categoryProductsTitle")}</h2>
-      </div>
+      {figmaHeading ? (
+        <DesktopHomeSectionHeading
+          eyebrow="MOBILE FEED · MORE"
+          moreLabel="商品一覧へ"
+          onMore={() => dispatch({ type: "navigate", view: "catalog" })}
+          title="おすすめ商品をもっと見る"
+        />
+      ) : (
+        <div className="sazo-desktop-home-category-products-heading">
+          <h2>{t("sazo.desktopHome.categoryProductsTitle")}</h2>
+        </div>
+      )}
       <div className="sazo-desktop-home-category-product-grid">
-        {desktopHomeCatalogProducts.map((product) => (
+        {catalogProducts.map((product) => (
           <HomeDenseProductCard
             key={product.id}
             onOpen={openProduct}
@@ -1234,16 +1475,16 @@ function DesktopHomeCategoryProductCatalog({
           />
         ))}
       </div>
-      <button
-        className="sazo-desktop-home-category-products-more"
-        onClick={() => {
-          dispatch({ type: "navigate", view: "catalog" });
-        }}
-        type="button"
-      >
-        {t("sazo.home.more")}
-        <ChevronRight aria-hidden size={19} strokeWidth={2.2} />
-      </button>
+      {!figmaHeading ? (
+        <button
+          className="sazo-desktop-home-category-products-more"
+          onClick={() => dispatch({ type: "navigate", view: "catalog" })}
+          type="button"
+        >
+          {t("sazo.home.more")}
+          <ChevronRight aria-hidden size={19} strokeWidth={2.2} />
+        </button>
+      ) : null}
     </section>
   );
 }
@@ -1278,7 +1519,10 @@ function DesktopHomeCommunity({ dispatch, state }: HomeViewProps) {
         data-testid="desktop-home-reviews"
       >
         <div className="sazo-desktop-home-community-heading">
-          <h2>{t("sazo.home.reviewsTitle")}</h2>
+          <span>
+            <small>REAL PURCHASES</small>
+            <h2>利用者レビュー</h2>
+          </span>
           <button
             onClick={() => {
               dispatch({ type: "navigate", view: "reviews" });
@@ -1357,7 +1601,10 @@ function DesktopHomeCommunity({ dispatch, state }: HomeViewProps) {
         data-testid="desktop-home-gram"
       >
         <div className="sazo-desktop-home-community-heading">
-          <h2>{t("sazo.home.gramTitle")}</h2>
+          <span>
+            <small>DISCOVERED IN JAPAN</small>
+            <h2>{t("sazo.home.gramTitle")}</h2>
+          </span>
           <button
             onClick={() => {
               dispatch({ type: "navigate", view: "gram" });
@@ -2172,86 +2419,451 @@ function DesktopAgentLens({ dispatch }: Pick<HomeViewProps, "dispatch">) {
   );
 }
 
+const desktopAlignedHomeShortcuts = homeShortcutItems;
+const tabletAlignedHomeShortcuts = homeShortcutItems.slice(0, 5);
+
+function DesktopAlignedHomeHero({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+  const [searchHistoryOpen, setSearchHistoryOpen] = useState(false);
+  const searchHistoryTriggerRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <>
+      <section
+        aria-labelledby="desktop-aligned-home-title"
+        className="sazo-desktop-aligned-home-hero"
+        data-testid="desktop-aligned-home-hero"
+      >
+        <picture>
+          <source
+            media="(min-width: 1024px)"
+            srcSet="/sazo-commerce/reference/japan-brazil-hero-desktop-v2.png"
+          />
+          <img
+            alt=""
+            aria-hidden="true"
+            className="sazo-desktop-aligned-home-hero-image"
+            decoding="async"
+            fetchPriority="high"
+            height={1024}
+            src="/sazo-commerce/reference/japan-brazil-hero.png"
+            width={1536}
+          />
+        </picture>
+        <img
+          alt=""
+          aria-hidden="true"
+          className="sazo-desktop-aligned-home-hero-brand-mark"
+          height={192}
+          src="/sazo-commerce/jplanet-sakura-mark.png"
+          width={192}
+        />
+        <div className="sazo-desktop-aligned-home-copy">
+          <small>FROM JAPAN TO BRAZIL</small>
+          <h1 id="desktop-aligned-home-title">
+            日本の買い物を、
+            <br />
+            もっと確かに。
+          </h1>
+          <p className="sazo-desktop-aligned-home-subtitle">
+            販売元・購入可否・関税・配送を確認し、
+            <br />
+            BRL総額まで見通せます。
+          </p>
+        </div>
+        <span aria-hidden className="sazo-desktop-aligned-home-pagination">
+          <i data-active="true" />
+          <i />
+          <i />
+        </span>
+        <div className="sazo-desktop-aligned-agent-card" data-testid="desktop-aligned-agent-card">
+          <header>
+            <img
+              alt=""
+              aria-hidden="true"
+              height={34}
+              src="/sazo-commerce/jplanet-sakura-mark.png"
+              width={34}
+            />
+            <h2>AIで商品を探す</h2>
+          </header>
+          <DesktopAgentSearchForm
+            className="sazo-desktop-aligned-agent-search"
+            dispatch={dispatch}
+            historyControls="desktop-agent-search-history-popover"
+            historyExpanded={searchHistoryOpen}
+            inputRef={searchHistoryTriggerRef}
+            mode="product"
+            onEscape={() => setSearchHistoryOpen(false)}
+            onInputActivate={() => setSearchHistoryOpen(true)}
+          />
+          <p>
+            <ShieldCheck aria-hidden size={19} strokeWidth={2.1} />
+            販売元・購入可否・関税・配送を確認し、BRL総額を表示
+          </p>
+        </div>
+      </section>
+      <DesktopAgentSearchHistoryPopover
+        dispatch={dispatch}
+        onClose={() => setSearchHistoryOpen(false)}
+        open={searchHistoryOpen}
+        presentation="lens"
+        triggerRef={searchHistoryTriggerRef}
+      />
+    </>
+  );
+}
+
+function DesktopAlignedShortcutRow({
+  dispatch,
+  shortcuts = desktopAlignedHomeShortcuts,
+}: Pick<HomeViewProps, "dispatch"> & {
+  shortcuts?: readonly (typeof homeShortcutItems)[number][];
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <section
+      aria-label={t("sazo.home.shortcutLabel")}
+      className="sazo-desktop-aligned-shortcuts"
+      data-testid="desktop-aligned-shortcuts"
+    >
+      {shortcuts.map((shortcut) => (
+        <button
+          aria-label={t(`sazo.home.shortcuts.${shortcut.labelKey}`)}
+          key={shortcut.id}
+          onClick={() => activateHomeShortcut(dispatch, shortcut)}
+          type="button"
+        >
+          <span className="sazo-desktop-aligned-shortcut-icon" data-icon={shortcut.icon}>
+            <ShortcutArtwork icon={shortcut.icon} />
+          </span>
+          <strong>{t(`sazo.home.shortcuts.${shortcut.labelKey}`)}</strong>
+        </button>
+      ))}
+    </section>
+  );
+}
+
+function TabletAlignedPixBanner({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+  const { t } = useTranslation();
+
+  return (
+    <section
+      aria-label="J-Planet PIX DAY"
+      className="sazo-desktop-aligned-pix-banner"
+      data-testid="desktop-aligned-pix-banner"
+    >
+      <h2 className="sazo-desktop-aligned-pix-title">PIX DAY</h2>
+      <button
+        aria-label="J-Planet PIX DAYセールを見る"
+        onClick={() => dispatch({ type: "navigate", view: "coupons" })}
+        type="button"
+      >
+        <span className="sazo-desktop-aligned-pix-copy">
+          <strong>{t("sazo.home.couponBannerArtwork")}</strong>
+          <span className="sazo-desktop-aligned-pix-cta">
+            {t("sazo.desktopHome.couponBannerCta")}
+            <ChevronRight aria-hidden size={20} strokeWidth={2.2} />
+          </span>
+        </span>
+        <span className="sazo-desktop-aligned-pix-media">
+          <img
+            alt="PIX DAY 対象商品のセール"
+            decoding="sync"
+            fetchPriority="high"
+            height={887}
+            src="/sazo-commerce/campaign/jplanet-pix-day-sale.png"
+            width={1774}
+          />
+        </span>
+      </button>
+    </section>
+  );
+}
+
+function DesktopHomeSearchTrend({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+  return (
+    <section
+      aria-label="人気の検索"
+      className="sazo-desktop-home-search-trend"
+      data-testid="desktop-home-search-trend"
+    >
+      <div>
+        <strong>人気の検索</strong>
+        <span>{desktopHomeSearchKeywords.slice(0, 5).join("　")}</span>
+      </div>
+      <button
+        onClick={() => dispatch({ type: "navigate", view: "agent-hub" })}
+        type="button"
+      >
+        最近の検索を見る
+        <ArrowRight aria-hidden size={16} strokeWidth={2.2} />
+      </button>
+    </section>
+  );
+}
+
+function DesktopHomeCouponCollection({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+  const { t } = useTranslation();
+
+  return (
+    <section
+      aria-labelledby="desktop-home-coupons-title"
+      className="sazo-desktop-home-coupons"
+      data-testid="desktop-home-coupons"
+    >
+      <DesktopHomeSectionHeading title="おすすめクーポン" />
+      <div className="sazo-desktop-home-coupon-grid">
+        {mobileHomeCouponCards.map((card) => {
+          const coupon = getJplanetCoupon(card.couponId);
+
+          return (
+            <article data-tone={card.tone} key={card.couponId}>
+              <button
+                aria-label={`${coupon.name}を見る`}
+                onClick={() => dispatch({ type: "navigate", view: "coupons" })}
+                type="button"
+              >
+                <img
+                  alt=""
+                  aria-hidden
+                  decoding="async"
+                  src={card.artwork}
+                />
+                <span className="sazo-desktop-home-coupon-copy">
+                  <small>J-PLANET SELECT</small>
+                  <strong>{coupon.discount}</strong>
+                  <span>{card.productName}</span>
+                  <em>{coupon.minimumSpend}</em>
+                  <b>
+                    {t("sazo.home.couponBannerCta")}
+                    <ArrowRight aria-hidden size={15} strokeWidth={2.4} />
+                  </b>
+                </span>
+              </button>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+interface DesktopHomeProductSectionProps extends Pick<HomeViewProps, "dispatch"> {
+  className: string;
+  eyebrow: string;
+  heading: string;
+  products: readonly HomeDenseProduct[];
+  testId: string;
+}
+
+function DesktopHomeProductSection({
+  className,
+  dispatch,
+  eyebrow,
+  heading,
+  products: sectionProducts,
+  testId,
+}: DesktopHomeProductSectionProps) {
+  return (
+    <section className={className}>
+      <DesktopHomeSectionHeading
+        eyebrow={eyebrow}
+        moreLabel="もっと見る"
+        onMore={() => dispatch({ type: "navigate", view: "catalog" })}
+        title={heading}
+      />
+      <JplanetRecommendationGrid
+        dispatch={dispatch}
+        heading={heading}
+        layout="rail"
+        products={sectionProducts}
+        sectionClassName="sazo-desktop-home-figma-product-grid"
+        showImageBadgeIcon
+        testId={testId}
+      />
+    </section>
+  );
+}
+
+function DesktopHomeKeywordRanking({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+  return (
+    <section className="sazo-desktop-home-keywords" data-testid="desktop-home-keywords">
+      <DesktopHomeSectionHeading
+        eyebrow="TRENDING NOW"
+        moreLabel="検索一覧へ"
+        onMore={() => dispatch({ type: "navigate", view: "agent-hub" })}
+        title="人気検索キーワード"
+      />
+      <ol>
+        {desktopHomeSearchKeywords.map((keyword, index) => (
+          <li key={keyword}>
+            <small>{String(index + 1).padStart(2, "0")}</small>
+            <strong>{keyword}</strong>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function DesktopHomeSupport({ dispatch }: Pick<HomeViewProps, "dispatch">) {
+  const steps = [
+    { copy: "販売元・サイズ・購入可否を確認", title: "条件確認" },
+    { copy: "商品代・送料・関税の総額を表示", title: "BRLで確認" },
+    { copy: "購入後の配送状況と次の対応を案内", title: "配送サポート" },
+  ] as const;
+
+  return (
+    <section className="sazo-desktop-home-support" data-testid="desktop-home-support">
+      <div className="sazo-desktop-home-support-copy">
+        <small>J-PLANET SUPPORT</small>
+        <h2>購入前も、購入後も。</h2>
+        <p>
+          販売元・購入可否・関税・配送を確認し、
+          <br />
+          BRL総額と次の対応を分かりやすく整理します。
+        </p>
+        <button onClick={() => dispatch({ type: "navigate", view: "service" })} type="button">
+          チャットで問い合わせる
+          <ArrowRight aria-hidden size={17} strokeWidth={2.2} />
+        </button>
+      </div>
+      <ol>
+        {steps.map((step, index) => (
+          <li key={step.title}>
+            <small>{String(index + 1).padStart(2, "0")}</small>
+            <strong>{step.title}</strong>
+            <span>{step.copy}</span>
+            <ArrowRight aria-hidden size={22} strokeWidth={2.1} />
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function DesktopHomeFooter() {
+  return (
+    <footer className="sazo-desktop-home-footer" data-testid="desktop-home-footer">
+      <div className="sazo-desktop-home-footer-brand">
+        <JplanetLogo />
+        <p>日本の買い物を、もっと確かに。</p>
+      </div>
+      <div className="sazo-desktop-home-footer-support">
+        <strong>カスタマーサポート</strong>
+        <span>平日 10:00–18:00</span>
+        <span>土日・祝日 15:00–18:00</span>
+      </div>
+      <div className="sazo-desktop-home-footer-links">
+        <button type="button">会社概要</button>
+        <button type="button">利用規約</button>
+        <button type="button">プライバシーポリシー</button>
+        <button type="button">特定商取引法に基づく表記</button>
+      </div>
+      <small>© J-Planet</small>
+      <small>日本の商品をブラジルへ</small>
+    </footer>
+  );
+}
+
 function DesktopHomeView({ dispatch, state }: HomeViewProps) {
   const { t } = useTranslation();
-  const [recentProductsOpen, setRecentProductsOpen] = useState(false);
-  const recentProductsTriggerRef = useRef<HTMLButtonElement>(null);
+  const pcHome = usePcHome();
+
+  if (!pcHome) {
+    return (
+      <div className="sazo-desktop-home" data-desktop-home-view>
+        <DesktopAlignedHomeHero dispatch={dispatch} />
+        <DesktopAlignedShortcutRow
+          dispatch={dispatch}
+          shortcuts={tabletAlignedHomeShortcuts}
+        />
+        <div className="sazo-desktop-home-ec-content">
+          <TabletAlignedPixBanner dispatch={dispatch} />
+          <DesktopHomeCommunity dispatch={dispatch} state={state} />
+          <section className="sazo-desktop-home-products">
+            <div className="sazo-desktop-home-products-heading">
+              <h2>{t("sazo.desktopHome.productsTitle")}</h2>
+              <button onClick={() => dispatch({ type: "navigate", view: "catalog" })} type="button">
+                {t("sazo.home.more")}
+                <ChevronRight aria-hidden size={18} strokeWidth={2.2} />
+              </button>
+            </div>
+            <JplanetRecommendationGrid
+              dispatch={dispatch}
+              heading={t("sazo.desktopHome.productsTitle")}
+              layout="rail"
+              productLimit={6}
+              sectionClassName="sazo-desktop-home-product-rail"
+              showImageBadgeIcon
+              testId="desktop-home-product-rail"
+            />
+          </section>
+          <UniqloDiscoveryRail
+            dispatch={dispatch}
+            sectionClassName="sazo-desktop-home-uniqlo-discovery"
+            showBrandSource
+            showImageBadgeIcon
+            testId="desktop-home-uniqlo-discovery"
+          />
+          <DesktopHomeCategoryGrid dispatch={dispatch} />
+          <DesktopHomeCategoryProductCatalog dispatch={dispatch} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="sazo-desktop-home" data-desktop-home-view>
-      <DesktopAgentLens dispatch={dispatch} />
+      <DesktopAlignedHomeHero dispatch={dispatch} />
+      <DesktopAlignedShortcutRow dispatch={dispatch} />
+      <DesktopHomeSearchTrend dispatch={dispatch} />
 
       <div className="sazo-desktop-home-ec-content">
-        <section aria-label={t("sazo.desktopHome.lens.routesLabel")} className="sazo-desktop-agent-lens-routes">
-          {desktopAgentLensRoutes.map(({ icon: Icon, id, view }) => (
-            <button
-              aria-controls={id === "recent" ? "desktop-recent-products-popover" : undefined}
-              aria-expanded={id === "recent" ? recentProductsOpen : undefined}
-              aria-haspopup={id === "recent" ? "dialog" : undefined}
-              key={id}
-              onClick={() => {
-                if (id === "recent") {
-                  setRecentProductsOpen((open) => !open);
-                  return;
-                }
-                if (view) dispatch({ type: "navigate", view });
-              }}
-              ref={id === "recent" ? recentProductsTriggerRef : undefined}
-              type="button"
-            >
-              <Icon aria-hidden size={21} strokeWidth={2} />
-              <span>
-                <strong>{t(`sazo.desktopHome.lens.routes.${id}.title`)}</strong>
-                <small>{t(`sazo.desktopHome.lens.routes.${id}.body`)}</small>
-              </span>
-              <ChevronRight aria-hidden size={19} strokeWidth={2.1} />
-            </button>
-          ))}
-        </section>
-
-        <DesktopRecentProductsPopover
-          dispatch={dispatch}
-          onClose={() => setRecentProductsOpen(false)}
-          open={recentProductsOpen}
-          triggerRef={recentProductsTriggerRef}
-        />
-
-        <section className="sazo-desktop-home-products">
-          <div className="sazo-desktop-home-products-heading">
-            <h2>{t("sazo.desktopHome.productsTitle")}</h2>
-            <button
-              onClick={() => {
-                dispatch({ type: "navigate", view: "catalog" });
-              }}
-              type="button"
-            >
-              {t("sazo.home.more")}
-              <ChevronRight aria-hidden size={18} strokeWidth={2.2} />
-            </button>
-          </div>
-          <JplanetRecommendationGrid
-            dispatch={dispatch}
-            heading={t("sazo.desktopHome.productsTitle")}
-            layout="rail"
-            productLimit={6}
-            sectionClassName="sazo-desktop-home-product-rail"
-            showImageBadgeIcon
-            testId="desktop-home-product-rail"
-          />
-        </section>
-
-        <DesktopHomeCommunity dispatch={dispatch} state={state} />
+        <DesktopHomeCouponCollection dispatch={dispatch} />
 
         <UniqloDiscoveryRail
           dispatch={dispatch}
           sectionClassName="sazo-desktop-home-uniqlo-discovery"
+          showBrandSource
           showImageBadgeIcon
           testId="desktop-home-uniqlo-discovery"
         />
 
-        <DesktopHomeCategoryGrid dispatch={dispatch} />
+        <DesktopHomeCommunity dispatch={dispatch} state={state} />
 
-        <DesktopHomeCategoryProductCatalog dispatch={dispatch} />
+        <DesktopHomeProductSection
+          className="sazo-desktop-home-products"
+          dispatch={dispatch}
+          eyebrow="MOBILE FEED"
+          heading={t("sazo.desktopHome.productsTitle")}
+          products={homeDenseProducts.slice(0, 4)}
+          testId="desktop-home-product-rail"
+        />
+
+        <DesktopHomeKeywordRanking dispatch={dispatch} />
+
+        <DesktopHomeCategoryGrid dispatch={dispatch} figmaHeading />
+
+        <DesktopHomeProductSection
+          className="sazo-desktop-home-recommendation-continuation"
+          dispatch={dispatch}
+          eyebrow="MOBILE FEED · CONTINUED"
+          heading="おすすめ商品の続き"
+          products={homeDenseProducts.slice(4, 8)}
+          testId="desktop-home-recommendation-continuation"
+        />
+
+        <DesktopHomeCategoryProductCatalog
+          dispatch={dispatch}
+          figmaHeading
+          products={pcHomeCatalogProducts}
+        />
+
+        <DesktopHomeSupport dispatch={dispatch} />
+
+        <DesktopHomeFooter />
       </div>
     </div>
   );
@@ -2539,17 +3151,17 @@ export function HomeView({ dispatch, state }: HomeViewProps) {
           <MobileAgentSearch dispatch={dispatch} />
           <MobileShortcutRow dispatch={dispatch} />
           <MobileCouponBanner dispatch={dispatch} />
-          <ReviewStrip dispatch={dispatch} state={state} title="利用者レビュー" />
-          <MobileGramGrid dispatch={dispatch} />
           <UniqloDiscoveryRail
             dispatch={dispatch}
             sectionClassName="sazo-mobile-home-uniqlo-discovery"
             showBrandSource
             testId="mobile-home-uniqlo-discovery"
           />
+          <ReviewStrip dispatch={dispatch} state={state} title="利用者レビュー" />
+          <MobileGramGrid dispatch={dispatch} />
           <JplanetRecommendationGrid
             dispatch={dispatch}
-            products={homeDenseProductFeed}
+            products={homeDenseProducts}
           />
           <MobileSupportFooter />
         </>

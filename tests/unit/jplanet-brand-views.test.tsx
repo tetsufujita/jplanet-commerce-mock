@@ -34,7 +34,7 @@ describe("J-Planet brand directory", () => {
     expect(screen.getByText("SONY")).toBeTruthy();
     expect(screen.queryByText("NIKE")).toBeNull();
 
-    fireEvent.change(screen.getByRole("searchbox", { name: "AIでブランド・商品を探す" }), {
+    fireEvent.change(screen.getByRole("searchbox", { name: "ブランド・商品を検索" }), {
       target: { value: "ソニー" },
     });
     expect(screen.getByText("家電 1件")).toBeTruthy();
@@ -45,7 +45,7 @@ describe("J-Planet brand directory", () => {
   it("shows an actionable empty search state and clears its criteria", () => {
     render(<JplanetBrandsView dispatch={vi.fn()} state={brandState()} />);
 
-    fireEvent.change(screen.getByRole("searchbox", { name: "AIでブランド・商品を探す" }), {
+    fireEvent.change(screen.getByRole("searchbox", { name: "ブランド・商品を検索" }), {
       target: { value: "存在しないブランド" },
     });
     expect(screen.getByText("該当するブランドはありません")).toBeTruthy();
@@ -73,7 +73,7 @@ describe("J-Planet brand directory", () => {
     expect(screen.queryByRole("tablist", { name: "ブランド一覧タブ" })).toBeNull();
     expect(screen.queryByRole("region", { name: "商品カテゴリー" })).toBeNull();
     expect(screen.getAllByRole("searchbox")).toHaveLength(1);
-    expect(screen.getByRole("searchbox", { name: "AIでブランド・商品を探す" })).toBeTruthy();
+    expect(screen.getByRole("searchbox", { name: "ブランド・商品を検索" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "全体" })).toBeTruthy();
     expect(screen.getByText("全体 8件")).toBeTruthy();
   });

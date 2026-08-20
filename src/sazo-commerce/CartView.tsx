@@ -83,6 +83,23 @@ function formatBrl(amount: number): string {
   return `R$ ${new Intl.NumberFormat("en-US").format(Math.max(0, Math.round(amount)))}`;
 }
 
+function getMobileSourceName(sourceId: string, sourceName: string): string {
+  if (sourceId === "rakuten-official") return "Rakuten Japan";
+  if (sourceId === "sony-official") return "Sony Japan";
+  if (sourceId === "nintendo-official") return "Nintendo 公式";
+  return sourceName;
+}
+
+function isExactApprovedCartMockRoute(): boolean {
+  if (typeof window === "undefined") return false;
+  const parameters = new URLSearchParams(window.location.search);
+  return (
+    window.location.pathname === "/sazo-commerce-mock/" &&
+    parameters.get("qa") === "1" &&
+    parameters.get("view") === "cart"
+  );
+}
+
 function fallbackPresentation(item: CartItem): CartPresentation {
   return {
     defaultOption: item.option,
@@ -102,6 +119,7 @@ export function CartView({ dispatch, items, selectedCouponId = null }: CartViewP
   const [isEditing, setIsEditing] = useState(false);
   const [couponSourceId, setCouponSourceId] = useState<string | null>(null);
   const [appliedCoupons, setAppliedCoupons] = useState<Readonly<Record<string, boolean>>>({});
+  const usesApprovedMobileCartProposal = isExactApprovedCartMockRoute();
   const activeItems = useMemo(
     () => items.filter((item) => !removedKeys.includes(itemKey(item))),
     [items, removedKeys],
@@ -220,7 +238,13 @@ export function CartView({ dispatch, items, selectedCouponId = null }: CartViewP
   };
 
   return (
-    <section className="sazo-jplanet-cart" data-testid="jplanet-cart" data-view-content="cart">
+    <section
+      className="sazo-jplanet-cart"
+      data-cart-mobile-proposal={usesApprovedMobileCartProposal ? "figma-43-2" : undefined}
+      data-cart-mobile-redesign={usesApprovedMobileCartProposal ? "figma-47-30" : undefined}
+      data-testid="jplanet-cart"
+      data-view-content="cart"
+    >
       <header className="sazo-jplanet-cart-header">
         <button
           aria-label="戻る"
@@ -229,7 +253,11 @@ export function CartView({ dispatch, items, selectedCouponId = null }: CartViewP
         >
           <ArrowLeft aria-hidden size={24} />
         </button>
-        <h1>カート ({cartLines.length})</h1>
+        <h1 aria-label={usesApprovedMobileCartProposal ? "カート" : `カート (${cartLines.length})`}>
+          <span className="sazo-jplanet-cart-desktop-title">カート ({cartLines.length})</span>
+          <span className="sazo-jplanet-cart-mobile-title">カート</span>
+        </h1>
+        <span className="sazo-jplanet-cart-mobile-count">{cartLines.length}商品</span>
         <button
           aria-pressed={isEditing}
           className="sazo-jplanet-cart-edit"
@@ -238,7 +266,12 @@ export function CartView({ dispatch, items, selectedCouponId = null }: CartViewP
         >
           {isEditing ? "完了" : "編集"}
         </button>
-        <button aria-label="チャット" onClick={() => dispatch({ type: "open-chat" })} type="button">
+        <button
+          aria-label="チャット"
+          className="sazo-jplanet-cart-chat"
+          onClick={() => dispatch({ type: "open-chat" })}
+          type="button"
+        >
           <MessageCircle aria-hidden size={24} />
         </button>
       </header>
@@ -265,11 +298,18 @@ export function CartView({ dispatch, items, selectedCouponId = null }: CartViewP
               const groupSelected = groupKeys.every((key) => selectedSet.has(key));
               const coupon = couponBySourceId[group.presentation.sourceId];
               const couponApplied = appliedCoupons[group.presentation.sourceId] === true;
+              const mobileSourceName = getMobileSourceName(
+                group.presentation.sourceId,
+                group.presentation.sourceName,
+              );
+              const sharesSourceName = mobileSourceName === group.presentation.sourceName;
 
               return (
                 <section
                   aria-label={`${group.presentation.sourceName}の商品`}
                   className="sazo-jplanet-cart-group"
+                  data-cart-group-size={group.lines.length}
+                  data-cart-source-id={group.presentation.sourceId}
                   key={group.presentation.sourceId}
                 >
                   <header>
@@ -281,8 +321,24 @@ export function CartView({ dispatch, items, selectedCouponId = null }: CartViewP
                         type="checkbox"
                       />
                     </label>
-                    <Store aria-hidden size={18} />
-                    <strong>{group.presentation.sourceName}</strong>
+                    <Store aria-hidden className="sazo-jplanet-cart-source-mark" size={18} />
+                    <strong>
+                      <span
+                        className={`sazo-jplanet-cart-desktop-source-name${
+                          sharesSourceName ? " sazo-jplanet-cart-source-name-shared" : ""
+                        }`}
+                      >
+                        {group.presentation.sourceName}
+                      </span>
+                      {sharesSourceName ? null : (
+                        <span className="sazo-jplanet-cart-mobile-source-name">
+                          {mobileSourceName}
+                        </span>
+                      )}
+                    </strong>
+                    <span className="sazo-jplanet-cart-mobile-group-count">
+                      {group.lines.length}商品
+                    </span>
                     <button
                       aria-label={`${group.presentation.sourceName}を編集`}
                       onClick={() => setIsEditing(true)}
@@ -365,16 +421,36 @@ export function CartView({ dispatch, items, selectedCouponId = null }: CartViewP
                       type="button"
                     >
                       <Ticket aria-hidden size={19} />
-                      <span>{couponApplied ? "使えるクーポン" : "クーポンコードを追加"}</span>
+                      <span>
+                        <span className="sazo-jplanet-cart-desktop-coupon-label">
+                          {couponApplied ? "使えるクーポン" : "クーポンコードを追加"}
+                        </span>
+                        <span className="sazo-jplanet-cart-mobile-coupon-label">
+                          {couponApplied ? "販売元クーポンを適用中" : "販売元クーポンを選ぶ"}
+                        </span>
+                      </span>
                       {couponApplied ? <b>{coupon.label}</b> : null}
                       <ChevronRight aria-hidden size={18} />
                     </button>
                   )}
+                  {usesApprovedMobileCartProposal ? (
+                    <div className="sazo-jplanet-cart-mobile-shipping">
+                      <span>配送条件は購入手続きで確認</span>
+                      <ChevronRight aria-hidden size={16} />
+                    </div>
+                  ) : null}
                 </section>
               );
             })}
           </div>
         )}
+
+        {groups.length > 0 && usesApprovedMobileCartProposal ? (
+          <aside className="sazo-jplanet-cart-purchase-note">
+            <strong>ご案内</strong>
+            <span>関税・州税・国際送料は購入手続きで表示します。</span>
+          </aside>
+        ) : null}
 
         <JplanetRecommendationGrid
           dispatch={dispatch}
@@ -396,7 +472,12 @@ export function CartView({ dispatch, items, selectedCouponId = null }: CartViewP
             <span>すべて</span>
           </label>
           <div>
-            <span>{selectedDiscount > 0 ? `${formatBrl(selectedDiscount)} 割引適用` : "関税込み・国際送料を含む"}</span>
+            <span className="sazo-jplanet-cart-desktop-summary-note">
+              {selectedDiscount > 0
+                ? `${formatBrl(selectedDiscount)} 割引適用`
+                : "関税込み・国際送料を含む"}
+            </span>
+            <span className="sazo-jplanet-cart-mobile-summary-label">商品小計</span>
             <strong>{formatBrl(selectedTotal)}</strong>
           </div>
           <button

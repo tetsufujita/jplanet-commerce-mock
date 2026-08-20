@@ -194,7 +194,9 @@ function PostPurchaseHeader({ backView, dispatch, title }: PostPurchaseHeaderPro
   const { t } = useTranslation();
 
   return (
-    <header className="sazo-postpurchase-header">
+    <header
+      className={`sazo-postpurchase-header${backView === undefined ? " sazo-unified-mobile-header" : ""}`}
+    >
       <div className="sazo-postpurchase-header-start">
         {backView === undefined ? null : (
           <button
@@ -221,7 +223,7 @@ function PostPurchaseHeader({ backView, dispatch, title }: PostPurchaseHeaderPro
           <ShoppingCart aria-hidden size={25} strokeWidth={1.8} />
         </button>
         <button
-          aria-label={t("sazo.actions.chat")}
+          aria-label={backView === undefined ? "購入について相談" : t("sazo.actions.chat")}
           onClick={() => {
             dispatch({ type: "open-chat" });
           }}
@@ -262,8 +264,10 @@ export function MyPageView({
           }}
           type="button"
         >
-          <span aria-hidden className="sazo-mypage-avatar">T</span>
-          <strong>Tetsu Fujita <small>さん</small></strong>
+          <span aria-hidden className="sazo-mypage-avatar">
+            {sazoAccountFixture.displayName.trim().charAt(0).toUpperCase() || "J"}
+          </span>
+          <strong>{sazoAccountFixture.displayName} <small>さん</small></strong>
           <ChevronRight aria-hidden size={22} />
         </button>
 
@@ -873,19 +877,34 @@ function CouponHeader({
 }
 
 function CouponTicket({
+  actionCopy,
+  actionDisabled = false,
   coupon,
   onConditions,
   onUse,
   selected,
+  showExpiry = true,
+  showRibbon = true,
 }: {
+  actionCopy?: string;
+  actionDisabled?: boolean;
   coupon: JplanetCoupon;
   onConditions: () => void;
   onUse: () => void;
   selected: boolean;
+  showExpiry?: boolean;
+  showRibbon?: boolean;
 }) {
   const category = coupon.displayCategory ?? coupon.category;
   const CategoryIcon = category === "shipping" ? Truck : category === "brand" ? Store : ShoppingBag;
-  const buttonCopy = coupon.actionMode === "later" ? "あとで使う" : selected ? "選択中" : "使う";
+  const buttonCopy = actionCopy ?? (coupon.actionMode === "later" ? "あとで使う" : selected ? "選択中" : "使う");
+  const ribbonCopy = coupon.quantity === undefined
+    ? category === "shipping"
+      ? "送料"
+      : coupon.expiresSoon
+        ? "初回"
+        : null
+    : `残り${coupon.quantity}枚`;
 
   return (
     <article className="sazo-coupon-ticket" data-category={category} data-testid="jplanet-coupon-ticket">
@@ -898,15 +917,28 @@ function CouponTicket({
           <p>{coupon.minimumSpend}</p>
           {coupon.maximumDiscount === undefined ? null : <p>{coupon.maximumDiscount}</p>}
         </div>
-        {coupon.quantity === undefined ? null : <span className="sazo-coupon-ticket-quantity">残り{coupon.quantity}枚</span>}
+        {!showRibbon || ribbonCopy === null ? null : (
+          <span
+            aria-hidden={coupon.quantity === undefined ? true : undefined}
+            className={`sazo-coupon-ticket-ribbon${coupon.quantity === undefined ? "" : " is-quantity"}`}
+          >
+            {ribbonCopy}
+          </span>
+        )}
       </div>
       <footer className="sazo-coupon-ticket-footer">
-        <span className={coupon.expiresSoon ? "is-urgent" : undefined}>
-          {coupon.expiresSoon ? <CircleAlert aria-hidden size={15} /> : null}
-          {coupon.expiresAt}
+        <span className={showExpiry && coupon.expiresSoon ? "is-urgent" : undefined}>
+          {showExpiry && coupon.expiresSoon ? <CircleAlert aria-hidden size={15} /> : null}
+          {showExpiry ? coupon.expiresAt : null}
         </span>
         <button className="sazo-coupon-conditions-link" onClick={onConditions} type="button">利用条件</button>
-        <button aria-pressed={selected} className={selected ? "is-selected" : undefined} onClick={onUse} type="button">
+        <button
+          aria-pressed={actionCopy === undefined ? selected : undefined}
+          className={actionCopy === undefined && selected ? "is-selected" : undefined}
+          disabled={actionDisabled}
+          onClick={onUse}
+          type="button"
+        >
           {buttonCopy}
         </button>
       </footer>
@@ -939,6 +971,14 @@ export function CouponsView({ dispatch, state }: CouponStateProps) {
     { id: "shipping", label: `配送 (${ownedCoupons.filter((coupon) => coupon.category === "shipping").length})` },
     { id: "brand", label: `ブランド (${ownedCoupons.filter((coupon) => coupon.category === "brand").length})` },
   ];
+  const discoverableCoupons = discoverableCouponIds.map((couponId) => {
+    const coupon = getJplanetCoupon(couponId);
+    return {
+      claimed: ownedIds.includes(coupon.id),
+      closed: coupon.id === "closed-brand-15",
+      coupon,
+    };
+  });
 
   const claimCoupon = (couponId: string) => {
     if (!ownedIds.includes(couponId)) {
@@ -1031,41 +1071,58 @@ export function CouponsView({ dispatch, state }: CouponStateProps) {
       {screen === "discover" ? (
         <main className="sazo-coupon-discover">
           <p>取得できるクーポン</p>
-          <div>
-            {discoverableCouponIds.map((couponId) => {
-              const coupon = getJplanetCoupon(couponId);
-              const closed = coupon.id === "closed-brand-15";
-              const claimed = ownedIds.includes(coupon.id);
-              return (
-                <article key={coupon.id}>
-                  <span>{couponCategoryCopy[coupon.category]}</span>
-                  <h2>{coupon.discount}</h2>
-                  <p>{coupon.minimumSpend}</p>
-                  <button onClick={() => setConditionCoupon(coupon)} type="button">利用条件</button>
-                  <button
-                    disabled={closed || claimed}
-                    onClick={() => claimCoupon(coupon.id)}
-                    type="button"
-                  >
-                    {closed ? "配布終了" : claimed ? "取得済み" : "取得する"}
-                  </button>
-                </article>
-              );
-            })}
+          <div className="sazo-coupon-discover-grid">
+            {discoverableCoupons.map(({ claimed, closed, coupon }) => (
+              <article key={coupon.id}>
+                <span>{couponCategoryCopy[coupon.category]}</span>
+                <h2>{coupon.discount}</h2>
+                <p>{coupon.minimumSpend}</p>
+                <button onClick={() => setConditionCoupon(coupon)} type="button">利用条件</button>
+                <button
+                  disabled={closed || claimed}
+                  onClick={() => claimCoupon(coupon.id)}
+                  type="button"
+                >
+                  {closed ? "配布終了" : claimed ? "取得済み" : "取得する"}
+                </button>
+              </article>
+            ))}
+          </div>
+          <div className="sazo-coupon-ticket-list sazo-coupon-discover-ticket-list">
+            {discoverableCoupons.map(({ claimed, closed, coupon }) => (
+              <CouponTicket
+                actionCopy={closed ? "配布終了" : claimed ? "取得済み" : "取得する"}
+                actionDisabled={closed || claimed}
+                coupon={coupon}
+                key={coupon.id}
+                onConditions={() => setConditionCoupon(coupon)}
+                onUse={() => claimCoupon(coupon.id)}
+                selected={false}
+                showExpiry={false}
+                showRibbon={false}
+              />
+            ))}
           </div>
         </main>
       ) : null}
 
       {screen === "history" ? (
-        <main className="sazo-coupon-history">
+        <main className="sazo-coupon-history" data-history-state={historyTab}>
           <div role="tablist" aria-label="クーポン利用履歴">
             <button aria-selected={historyTab === "used"} onClick={() => setHistoryTab("used")} role="tab" type="button">使用済み</button>
             <button aria-selected={historyTab === "expired"} onClick={() => setHistoryTab("expired")} role="tab" type="button">期限切れ</button>
           </div>
           {couponHistory[historyTab].map((entry) => (
             <article key={entry.id}>
-              <Ticket aria-hidden size={22} />
-              <div><h2>{entry.name}</h2><p>{entry.discount} · {historyTab === "used" ? "使用日" : "期限切れ日"} {entry.date}</p><small>注文番号 {entry.order}</small></div>
+              <span className="sazo-coupon-history-icon"><Ticket aria-hidden size={26} /></span>
+              <div>
+                <h2>{entry.name}</h2>
+                <p>
+                  <strong>{entry.discount}</strong>
+                  <span>· {historyTab === "used" ? "使用日" : "期限切れ日"} {entry.date}</span>
+                </p>
+                <small>注文番号 {entry.order}</small>
+              </div>
               <button onClick={() => dispatch({ type: "navigate", view: "orders" })} type="button">注文を見る</button>
             </article>
           ))}

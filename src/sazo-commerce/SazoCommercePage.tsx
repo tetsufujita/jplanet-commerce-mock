@@ -20,7 +20,6 @@ import { AuthFlow } from "@/sazo-commerce/AuthFlow";
 import { AgentComposerSheet } from "@/sazo-commerce/AgentComposerSheet";
 import { AgentDesignCandidatesView } from "@/sazo-commerce/AgentDesignCandidatesView";
 import { AgentFirstPrototypeView } from "@/sazo-commerce/AgentFirstPrototypeView";
-import { CatalogView } from "@/sazo-commerce/CatalogView";
 import { CartView } from "@/sazo-commerce/CartView";
 import { CheckoutView } from "@/sazo-commerce/CheckoutView";
 import { CampaignView } from "@/sazo-commerce/CampaignView";
@@ -45,6 +44,7 @@ import "@/sazo-commerce/coupons.css";
 import "@/sazo-commerce/sazo.css";
 import "@/sazo-commerce/section-flow.css";
 import "@/sazo-commerce/responsive.css";
+import "@/sazo-commerce/mobile-content-header.css";
 import "@/sazo-commerce/ai-search-v110.css";
 
 function useMobileViewport() {
@@ -176,10 +176,29 @@ export function SazoCommercePage() {
 
   useEffect(() => {
     const updateHeader = () => {
-      // The home header is part of the hero while the visitor is at the
-      // starting position. Once they begin reading, it becomes the familiar
-      // solid navigation surface instead of competing with the banner.
-      setHeaderCollapsed(Math.max(0, window.scrollY) > 12);
+      if (state.view !== "home") {
+        setHeaderCollapsed(false);
+        return;
+      }
+
+      const hero = document.querySelector<HTMLElement>("[data-testid='sazo-hero']");
+      const header = document.querySelector<HTMLElement>("[data-sazo-topbar='true']");
+      const heroRect = hero?.getBoundingClientRect();
+      const headerRect = header?.getBoundingClientRect();
+
+      if (hero === null || header === null || heroRect === undefined || headerRect === undefined) {
+        setHeaderCollapsed(false);
+        return;
+      }
+
+      // The browser uses the visible hero edge as the material boundary. The
+      // scrollY fallback only keeps non-layout test/render environments stable.
+      const hasMeasuredLayout = heroRect.height > 0 || hero.offsetHeight > 0;
+      setHeaderCollapsed(
+        hasMeasuredLayout
+          ? heroRect.bottom <= headerRect.bottom
+          : Math.max(0, window.scrollY) > 80,
+      );
     };
 
     updateHeader();
@@ -188,7 +207,7 @@ export function SazoCommercePage() {
     return () => {
       window.removeEventListener("scroll", updateHeader);
     };
-  }, []);
+  }, [state.view]);
 
   return (
     <div
@@ -252,9 +271,6 @@ export function SazoCommercePage() {
           ) : null}
           {state.view === "skincare-catalog" ? (
             <SkincareCatalogView dispatch={dispatch} />
-          ) : null}
-          {state.view === "catalog" ? (
-            <CatalogView dispatch={dispatch} state={state} />
           ) : null}
           {state.view === "cart" ? (
             <CartView

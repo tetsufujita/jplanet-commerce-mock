@@ -17,7 +17,10 @@ import {
   X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { sazoCountryOptions } from "@/sazo-commerce/fixtures";
+import {
+  sazoCountryOptions,
+  sazoGoogleAccountFixtures,
+} from "@/sazo-commerce/fixtures";
 import type { SazoAction, SazoAuthStep } from "@/sazo-commerce/model";
 import { JplanetLogo } from "@/sazo-commerce/JplanetLogo";
 
@@ -146,24 +149,17 @@ function GoogleChooser({ dispatch }: Pick<AuthFlowProps, "dispatch">) {
         <h1>アカウントを選択してください</h1>
         <p>「J-Planet」に移動</p>
         <div className="sazo-google-account-list">
-          <button onClick={continueToBirthday} type="button">
-            <span aria-hidden className="sazo-google-avatar">
-              T
-            </span>
-            <span>
-              <strong>Tetsu Fujita</strong>
-              <small>tetsu.fujita@andes.global</small>
-            </span>
-          </button>
-          <button onClick={continueToBirthday} type="button">
-            <span aria-hidden className="sazo-google-avatar">
-              徹
-            </span>
-            <span>
-              <strong>藤田徹</strong>
-              <small>tetsu.fujita@np.japan.1997@gmail.com</small>
-            </span>
-          </button>
+          {sazoGoogleAccountFixtures.map((account) => (
+            <button key={account.email} onClick={continueToBirthday} type="button">
+              <span aria-hidden className="sazo-google-avatar">
+                {account.avatar}
+              </span>
+              <span>
+                <strong>{account.displayName}</strong>
+                <small>{account.email}</small>
+              </span>
+            </button>
+          ))}
           <button onClick={continueToBirthday} type="button">
             <span aria-hidden className="sazo-google-avatar">
               ＋

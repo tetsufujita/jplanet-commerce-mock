@@ -153,8 +153,7 @@ describe("SazoCommercePage shell", () => {
       "ブランド",
       "AI検索",
       "カテゴリー",
-      "レビュー",
-      "J-Planet GRAM",
+      "人気商品",
       "配送・通関",
     ]) {
       expect(
@@ -168,9 +167,10 @@ describe("SazoCommercePage shell", () => {
       throw new Error("Desktop global actions not found");
     }
 
-    for (const label of ["カート", "通知", "チャット", "マイページ"]) {
+    for (const label of ["カート", "チャット", "マイページ"]) {
       expect(within(desktopActions).getByRole("button", { name: label })).toBeTruthy();
     }
+    expect(within(desktopActions).queryByRole("button", { name: "通知" })).toBeNull();
     expect(within(desktopActions).queryByRole("button", { name: "お気に入り" })).toBeNull();
 
     expect(
@@ -303,7 +303,68 @@ describe("SazoCommercePage shell", () => {
     expect(within(mobileNav).getByRole("button", { name: "ホーム" })).toBeTruthy();
   });
 
-  it("keeps the mobile header compact until the home hero is reached again", async () => {
+  it("changes the mobile home header only after the sticky search passes the hero", async () => {
+    installMobileHome();
+    Object.defineProperty(window, "scrollY", {
+      configurable: true,
+      value: 0,
+      writable: true,
+    });
+    let heroBottom = 220;
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      function getBoundingClientRect(this: HTMLElement) {
+        const bottom = this.matches("[data-testid='sazo-hero']")
+          ? heroBottom
+          : this.matches("[data-sazo-topbar='true']")
+            ? 56
+            : 0;
+
+        return {
+          bottom,
+          height: bottom,
+          left: 0,
+          right: 0,
+          toJSON: () => ({}),
+          top: 0,
+          width: 0,
+          x: 0,
+          y: 0,
+        };
+      },
+    );
+    const { container } = await renderSazoCommercePage();
+    const root = container.querySelector(".sazo-root");
+
+    window.scrollY = 160;
+    fireEvent.scroll(window);
+
+    await waitFor(() => {
+      expect(root?.getAttribute("data-header-collapsed")).toBe("false");
+    });
+
+    heroBottom = 55;
+    fireEvent.scroll(window);
+
+    await waitFor(() => {
+      expect(root?.getAttribute("data-header-collapsed")).toBe("true");
+    });
+
+    heroBottom = 56;
+    fireEvent.scroll(window);
+
+    await waitFor(() => {
+      expect(root?.getAttribute("data-header-collapsed")).toBe("true");
+    });
+
+    heroBottom = 57;
+    fireEvent.scroll(window);
+
+    await waitFor(() => {
+      expect(root?.getAttribute("data-header-collapsed")).toBe("false");
+    });
+  });
+
+  it("keeps the commerce header row after scrolling a non-home mobile view", async () => {
     installMobileHome();
     Object.defineProperty(window, "scrollY", {
       configurable: true,
@@ -312,27 +373,33 @@ describe("SazoCommercePage shell", () => {
     });
     const { container } = await renderSazoCommercePage();
     const root = container.querySelector(".sazo-root");
+    const mobileShell = getShell(container, "mobile");
+    const secondary = within(mobileShell).getByRole("navigation", {
+      name: "モバイルサブメニュー",
+    });
+
+    fireEvent.click(within(secondary).getByRole("button", { name: "レビュー" }));
+
+    await waitFor(() => {
+      expect(root?.getAttribute("data-view")).toBe("reviews");
+    });
 
     window.scrollY = 160;
     fireEvent.scroll(window);
 
     await waitFor(() => {
-      expect(root?.getAttribute("data-header-collapsed")).toBe("true");
-    });
-
-    window.scrollY = 120;
-    fireEvent.scroll(window);
-
-    await waitFor(() => {
-      expect(root?.getAttribute("data-header-collapsed")).toBe("true");
-    });
-
-    window.scrollY = 0;
-    fireEvent.scroll(window);
-
-    await waitFor(() => {
       expect(root?.getAttribute("data-header-collapsed")).toBe("false");
     });
+    expect(
+      within(mobileShell)
+        .getByRole("banner")
+        .querySelector(".sazo-mobile-header-primary"),
+    ).not.toBeNull();
+    expect(
+      within(mobileShell)
+        .getByRole("banner")
+        .querySelector("[data-shell-search-button]"),
+    ).not.toBeNull();
   });
 
   it("opens the mobile AI search state from the mobile header search bar", async () => {
@@ -387,13 +454,9 @@ describe("SazoCommercePage shell", () => {
 
   it("keeps the complete mobile secondary menu after opening support", async () => {
     installMobileHome();
+    window.history.replaceState({}, "", "/sazo-commerce-mock/?qa=1&view=support");
     const { container } = await renderSazoCommercePage();
     const mobileShell = getShell(container, "mobile");
-    const shortcutRail = screen.getByRole("group", {
-      name: "J-Planetショートカット",
-    });
-
-    fireEvent.click(within(shortcutRail).getByRole("button", { name: "ヘルプ" }));
 
     await waitFor(() => {
       expect(container.querySelector(".sazo-root")?.getAttribute("data-view")).toBe(
@@ -439,7 +502,7 @@ describe("SazoCommercePage shell", () => {
     expect(headerCard.contains(header)).toBe(true);
     expect(headerCard.contains(navigation)).toBe(true);
     expect(
-      search.querySelector(".sazo-desktop-agent-search-submit .lucide-search"),
+      search.querySelector(".sazo-desktop-agent-search-submit .lucide-arrow-right"),
     ).not.toBeNull();
     expect(cart.querySelector(".lucide-shopping-cart")).not.toBeNull();
   });

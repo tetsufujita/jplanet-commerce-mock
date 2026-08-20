@@ -91,6 +91,7 @@ export type HomeShortcutIconId =
   | "feature"
   | "limited"
   | "flea-market"
+  | "coupons"
   | "service"
   | "brands"
   | "categories"
@@ -370,7 +371,9 @@ export interface SazoAccountFixture {
   points: number;
 }
 
-export const sazoAccountFixture = {
+const isSazoPublicDemoBuild = import.meta.env.VITE_PUBLIC_DEMO === "1";
+
+const sazoLocalAccountFixture = {
   birthday: "2001-08-22",
   coupons: 1,
   displayName: "Tetsu Fujita",
@@ -380,6 +383,73 @@ export const sazoAccountFixture = {
   phone: "08039390822",
   points: 500,
 } satisfies SazoAccountFixture;
+
+const sazoPublicAccountFixture = {
+  birthday: "2000-01-01",
+  coupons: 1,
+  displayName: "J-Planet Demo",
+  email: "demo@jplanet.example",
+  expiringPoints: 500,
+  pendingPoints: 0,
+  phone: "00000000000",
+  points: 500,
+} satisfies SazoAccountFixture;
+
+export const sazoAccountFixture = isSazoPublicDemoBuild
+  ? sazoPublicAccountFixture
+  : sazoLocalAccountFixture;
+
+export const sazoGoogleAccountFixtures = isSazoPublicDemoBuild
+  ? [
+      {
+        avatar: "J",
+        displayName: "J-Planet デモユーザー",
+        email: "demo@jplanet.example",
+      },
+      {
+        avatar: "D",
+        displayName: "公開デモアカウント",
+        email: "demo-2@jplanet.example",
+      },
+    ]
+  : [
+      {
+        avatar: "T",
+        displayName: "Tetsu Fujita",
+        email: "tetsu.fujita@andes.global",
+      },
+      {
+        avatar: "徹",
+        displayName: "藤田徹",
+        email: "tetsu.fujita@np.japan.1997@gmail.com",
+      },
+    ];
+
+export const sazoCheckoutAddresses = isSazoPublicDemoBuild
+  ? ([
+      {
+        detail: "Avenida Paulista · São Paulo, SP",
+        id: "paulista",
+        name: "J-Planet Demo",
+      },
+      {
+        detail: "Pinheiros · São Paulo, SP",
+        id: "pinheiros",
+        name: "J-Planet Demo",
+      },
+    ] as const)
+  : ([
+      {
+        detail: "Av. Paulista 1000 · Bela Vista · São Paulo, SP",
+        id: "paulista",
+        name: "Tetsu Fujita",
+      },
+      {
+        detail: "Rua dos Pinheiros 540 · Pinheiros · São Paulo, SP",
+        id: "pinheiros",
+        name: "Tetsu Fujita",
+      },
+    ] as const);
 
 export const sazoCountryOptions = [
   { code: "JP", dialingCode: "81" },
@@ -422,7 +492,7 @@ export const heroSlides = [
     subtitle: "おすすめ商品",
     image: "/sazo-commerce/hero/jplanet-home-popular-v2.png",
     mobileHeight: 852,
-    mobileImage: "/sazo-commerce/hero/jplanet-home-popular-mobile-v4.png",
+    mobileImage: "/sazo-commerce/hero/jplanet-home-popular-mobile-v5.png",
     mobileTitleLines: ["いま、", "人気の商品を", "見つけよう。"],
     mobileWidth: 887,
   },
@@ -432,7 +502,7 @@ export const heroSlides = [
     subtitle: "サービス紹介",
     image: "/sazo-commerce/hero/jplanet-home-service-v2.png",
     mobileHeight: 852,
-    mobileImage: "/sazo-commerce/hero/jplanet-home-service-mobile-v4.png",
+    mobileImage: "/sazo-commerce/hero/jplanet-home-service-mobile-v5.png",
     mobileTitleLines: ["探す、確かめる、", "届けるまで。"],
     mobileWidth: 887,
   },
@@ -476,7 +546,6 @@ export const homeShortcutItems: readonly HomeShortcutItem[] = [
   { id: "feature", labelKey: "feature", icon: "feature" },
   { id: "limited", labelKey: "limited", icon: "limited" },
   { id: "flea-market", labelKey: "fleaMarket", icon: "flea-market" },
-  { id: "service", labelKey: "service", icon: "service", view: "service" },
   { id: "brands", labelKey: "brands", icon: "brands", view: "brands" },
   {
     id: "categories",
@@ -484,9 +553,15 @@ export const homeShortcutItems: readonly HomeShortcutItem[] = [
     icon: "categories",
     view: "categories",
   },
+  { id: "coupons", labelKey: "coupons", icon: "coupons", view: "coupons" },
   { id: "reviews", labelKey: "reviews", icon: "reviews", view: "reviews" },
-  { id: "help", labelKey: "help", icon: "help", view: "support" },
-  { id: "news", labelKey: "news", icon: "news" },
+  { id: "service", labelKey: "service", icon: "service", view: "service" },
+  {
+    id: "news",
+    labelKey: "news",
+    icon: "news",
+    view: "notifications",
+  },
 ] satisfies readonly HomeShortcutItem[];
 
 export const desktopHomeShortcutItems = [

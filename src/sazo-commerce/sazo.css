@@ -1114,9 +1114,7 @@
     box-shadow: 0 4px 12px rgb(31 56 100 / 5%);
   }
 
-  .sazo-root[data-view="home"]
-    [data-home-view][data-home-polish="option-two"]
-    .sazo-mobile-coupon-banner {
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-banner {
     padding: 8px 16px 2px;
   }
 
@@ -4330,7 +4328,7 @@
 
 .sazo-root[data-view="checkout"] .sazo-jplanet-checkout-choice-row b.is-sakura,
 .sazo-root[data-view="checkout"] .sazo-jplanet-checkout-breakdown .is-discount dd {
-  color: #c55268;
+  color: #b8354f;
 }
 
 .sazo-root[data-view="checkout"] .sazo-jplanet-checkout-breakdown > header {
@@ -4458,7 +4456,7 @@
   padding: 0 12px;
   border: 1px solid #fea2ac;
   border-radius: 8px;
-  background: #fea2ac;
+  background: #b8354f;
   color: #fff;
   font: inherit;
   font-size: 15px;
@@ -4737,6 +4735,20 @@
   font: inherit;
   font-size: 13px;
   font-weight: 700;
+}
+
+.sazo-root[data-view="cart"]
+  :is(
+    .sazo-jplanet-cart-mobile-title,
+    .sazo-jplanet-cart-mobile-count,
+    .sazo-jplanet-cart-mobile-source-name,
+    .sazo-jplanet-cart-mobile-group-count,
+    .sazo-jplanet-cart-mobile-coupon-label,
+    .sazo-jplanet-cart-mobile-shipping,
+    .sazo-jplanet-cart-purchase-note,
+    .sazo-jplanet-cart-mobile-summary-label
+  ) {
+  display: none;
 }
 
 .sazo-root[data-view="cart"] .sazo-jplanet-cart-selected-coupon {
@@ -15185,13 +15197,22 @@
   box-shadow: 0 3px 9px rgb(31 56 100 / 13%);
 }
 
+.sazo-root .sazo-home-dense-product-add > svg:first-of-type {
+  position: relative;
+  z-index: 1;
+}
+
 .sazo-root .sazo-home-dense-product-add-plus {
   position: absolute;
-  right: 5px;
-  bottom: 5px;
+  z-index: 2;
+  right: 3px;
+  bottom: 3px;
+  width: 11px;
+  height: 11px;
   padding: 1px;
   border-radius: 50%;
   background: #fff;
+  pointer-events: none;
 }
 
 .sazo-root .sazo-home-dense-product .sazo-home-dense-product-copy {
@@ -17721,7 +17742,7 @@
   }
 
   .sazo-root[data-header-collapsed="true"] .sazo-mobile-header-primary {
-    display: none;
+    display: flex;
   }
 
   .sazo-root[data-header-collapsed="true"] .sazo-mobile-secondary-nav,
@@ -23617,7 +23638,9 @@
     transform: none;
   }
 
-  .sazo-root[data-view="home"] .sazo-mobile-coupon-banner {
+  .sazo-root[data-view="home"]
+    [data-home-view][data-home-polish="option-two"]
+    .sazo-mobile-coupon-banner {
     width: 100%;
     max-width: 100%;
     padding: 28px 17px 36px;
@@ -23695,7 +23718,7 @@
   }
 
   .sazo-root .sazo-review-section {
-    padding: 34px 17px 48px;
+    padding: 34px 17px 45px;
     border-top: 8px solid #f5f6f8;
   }
 
@@ -23705,6 +23728,7 @@
 
   .sazo-root .sazo-section-heading h2 {
     font-size: 20px;
+    font-weight: 800;
     line-height: 1.35;
   }
 
@@ -27970,7 +27994,7 @@
     height: 56px !important;
     min-height: 56px !important;
     max-height: 56px !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     border: 0 !important;
     border-radius: 0 !important;
     background: var(--sazo-home-hero-surface) !important;
@@ -28062,24 +28086,99 @@
 
 /* Keep the commerce composition after legacy home-header overrides. */
 @media (max-width: 767px) {
+  .sazo-root[data-view="home"] {
+    --sazo-home-hero-ink: #fff;
+    --sazo-home-hero-surface: transparent;
+  }
+
+  .sazo-root[data-view="home"][data-header-collapsed="true"] {
+    --sazo-home-hero-ink: #172b57;
+    --sazo-home-hero-surface: #fff;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-header[data-sazo-topbar="true"] {
+    overflow: visible !important;
+  }
+
   .sazo-root[data-view="home"]
     .sazo-mobile-header-primary.sazo-mobile-header-primary--commerce[data-sazo-topbar-primary] {
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: 7px;
-    padding: 7px 12px !important;
+    flex: 0 0 56px !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    padding: 6px 12px !important;
   }
 
-  .sazo-root[data-view="home"] .sazo-mobile-agent-searchbar,
+  .sazo-root[data-view="home"] .sazo-mobile-agent-searchbar {
+    grid-template-columns: minmax(0, 1fr) 36px;
+    height: 44px;
+    border: 1px solid rgb(237 240 245 / 78%);
+    border-radius: 999px;
+    background: rgb(247 248 251 / 86%);
+    box-shadow: none;
+  }
+
   .sazo-root[data-view="home"] .sazo-mobile-agent-search-trigger,
   .sazo-root[data-view="home"] .sazo-mobile-header-camera {
-    height: 36px;
+    height: 42px;
+    color: #1f3864 !important;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-search-trigger {
+    gap: 6px;
+    padding: 0 6px 0 11px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-search-trigger svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-agent-search-trigger span {
+    color: #98a2b3 !important;
+    font-size: 13px !important;
+    font-weight: 400;
+    letter-spacing: -0.035em;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-header-camera {
+    width: 36px;
+    border-left: 0;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-header-camera svg {
+    width: 23px;
+    height: 23px;
   }
 
   .sazo-root[data-view="home"] .sazo-mobile-header-actions .sazo-mobile-header-action {
     width: 36px !important;
     height: 36px !important;
+  }
+
+  .sazo-root[data-view="home"][data-header-collapsed="true"]
+    .sazo-mobile-header[data-sazo-topbar="true"] {
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
+    overflow: visible !important;
+    background: var(--sazo-home-hero-surface) !important;
+    box-shadow: 0 5px 18px rgb(18 32 65 / 12%) !important;
+    color: var(--sazo-home-hero-ink) !important;
+  }
+
+  .sazo-root[data-view="home"][data-header-collapsed="true"]
+    .sazo-mobile-header-primary.sazo-mobile-header-primary--commerce[data-sazo-topbar-primary] {
+    display: grid !important;
+  }
+
+  .sazo-root[data-view="home"][data-header-collapsed="true"]
+    .sazo-mobile-agent-searchbar {
+    border-color: rgb(237 240 245 / 92%);
+    background: rgb(247 248 251 / 96%);
   }
 
   .sazo-root[data-view="home"][data-header-collapsed="false"]
@@ -29251,7 +29350,7 @@
 .sazo-root[data-view="home"]
   .sazo-mobile-home-uniqlo-discovery
   .sazo-home-dense-product-add
-  svg {
+  svg:not(.sazo-home-dense-product-add-plus) {
   width: 16px;
   height: 16px;
 }
@@ -29259,8 +29358,8 @@
 .sazo-root[data-view="home"]
   .sazo-mobile-home-uniqlo-discovery
   .sazo-home-dense-product-add-plus {
-  right: 3px;
-  bottom: 3px;
+  right: 2px;
+  bottom: 2px;
   width: 9px;
   height: 9px;
 }
@@ -30629,22 +30728,41 @@
 .sazo-root[data-view="reviews"]
   .sazo-review-agent-entry
   .sazo-mobile-agent-composer-input-shell {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 38px 42px;
+  display: flex;
   align-items: center;
-  min-height: 48px;
-  padding: 0 4px 0 13px;
+  min-height: 52px;
+  gap: 4px;
+  padding: 5px 6px 5px 8px;
   border: 1px solid #e5eaf1;
-  border-radius: 15px;
+  border-radius: 999px;
   background: #fff;
   box-shadow: 0 3px 10px rgb(31 56 100 / 7%);
 }
 
+.sazo-root[data-view="reviews"]
+  .sazo-review-agent-entry
+  .sazo-mobile-agent-composer-plus {
+  display: inline-grid;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #1f3864;
+}
+
 .sazo-root[data-view="reviews"] .sazo-review-agent-entry textarea {
   display: block;
-  width: 100%;
-  min-height: 46px;
-  padding: 12px 0 11px;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  min-height: 36px;
+  max-height: 72px;
+  padding: 7px 2px;
+  overflow: hidden;
   border: 0;
   outline: 0;
   background: transparent;
@@ -30666,16 +30784,23 @@
 .sazo-root[data-view="reviews"]
   .sazo-review-agent-entry
   .sazo-mobile-agent-composer-submit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-grid;
+  flex: 0 0 40px;
   width: 40px;
   height: 40px;
+  place-items: center;
   padding: 0;
   border: 0;
   background: transparent;
   color: #1f3864;
   cursor: pointer;
+}
+
+.sazo-root[data-view="reviews"]
+  .sazo-review-agent-entry
+  .sazo-mobile-agent-composer-camera {
+  flex-basis: 36px;
+  width: 36px;
 }
 
 .sazo-root[data-view="reviews"]
@@ -32125,6 +32250,141 @@
   .sazo-root[data-view="home"] .sazo-mobile-coupon-banner + .sazo-review-section {
     padding-top: 8px;
     border-top: 0;
+  }
+}
+
+/* Mobile home shortcut rail: keep five entrances in view while allowing
+ * additional existing destinations to continue horizontally. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="home"]
+    [data-home-view][data-home-polish="option-two"]
+    .sazo-shortcuts[data-mobile-shortcut-grid] {
+    grid-auto-columns: 64px;
+    grid-auto-flow: column;
+    grid-template-columns: none !important;
+    justify-content: start;
+    gap: 10px !important;
+    padding: 15px 13px 9px !important;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: 13px;
+    scroll-snap-type: inline proximity;
+    scrollbar-width: none;
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sazo-root[data-view="home"]
+    [data-home-view][data-home-polish="option-two"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut {
+    grid-template-rows: 52px minmax(2.4em, auto);
+    width: 64px;
+    min-width: 64px !important;
+    min-height: 80px !important;
+    gap: 5px;
+    padding-inline: 1px;
+    font-size: 11px;
+    letter-spacing: -0.06em;
+    line-height: 1.2;
+    scroll-snap-align: start;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    color: var(--jplanet-navy);
+    position: relative;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut-icon::after {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 7px;
+    height: 7px;
+    border: 2px solid #fff;
+    border-radius: 999px;
+    background: currentColor;
+    content: "";
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut-icon[data-icon="feature"],
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut-icon[data-icon="limited"],
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut-icon[data-icon="flea-market"],
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut-icon[data-icon="coupons"] {
+    background: #fff3f6;
+    color: var(--jplanet-sakura);
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut-icon[data-icon="brands"],
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut-icon[data-icon="news"] {
+    background: #eef6ff;
+    color: #2e79c6;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut-icon[data-icon="categories"] {
+    background: #f2f4fa;
+    color: var(--jplanet-navy);
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut-icon[data-icon="reviews"] {
+    background: #fff8e8;
+    color: #c58a16;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut-icon[data-icon="service"] {
+    background: #eefaf5;
+    color: #249b72;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut-icon
+    > svg {
+    width: 29px;
+    height: 29px;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-shortcuts[data-mobile-shortcut-grid]
+    .sazo-shortcut
+    > span:last-child {
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 }
 
@@ -37501,9 +37761,18 @@
   }
 
   .sazo-root[data-view="home"]
+    .sazo-hero-slide[data-hero-slide="jplanet-home-popular"]
+    .sazo-hero-copy {
+    right: clamp(6px, 2vw, 10px);
+    width: clamp(146px, 40vw, 176px);
+  }
+
+  .sazo-root[data-view="home"]
     .sazo-hero-slide:is(
       [data-hero-slide="jplanet-home-japan-brazil"],
-      [data-hero-slide="jplanet-home-chatgpt"]
+      [data-hero-slide="jplanet-home-chatgpt"],
+      [data-hero-slide="jplanet-home-popular"],
+      [data-hero-slide="jplanet-home-service"]
     )
     .sazo-hero-copy {
     color: #fff;
@@ -37523,5 +37792,223 @@
     .sazo-hero-slide[data-hero-slide]
     .sazo-hero-artwork {
     object-fit: cover !important;
+  }
+}
+
+/* Mobile home coupon rail: use the full campaign slot and keep the next
+ * Japanese product coupon visible as a horizontal-swipe affordance. */
+@media (max-width: 767px) {
+  .sazo-root[data-view="home"]
+    [data-home-view][data-home-polish="option-two"]
+    .sazo-mobile-coupon-banner {
+    width: 100%;
+    margin: 0 !important;
+    padding: 8px 0 4px !important;
+    overflow: hidden;
+    border: 0 !important;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc(100% - 8px);
+    gap: 12px;
+    width: 100%;
+    padding: 0 17px 5px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: 17px;
+    scroll-snap-type: inline mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-pagination {
+    display: flex;
+    min-height: 18px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-pagination > span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #d3d8e2;
+    transition:
+      background-color 160ms ease,
+      transform 160ms ease;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-coupon-pagination
+    > span[data-active="true"] {
+    background: var(--jplanet-navy);
+    transform: scale(1.18);
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-card {
+    min-width: 0;
+    height: 190px;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid #e6d7cd;
+    border-radius: 18px;
+    background: #f7f3ec;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-card[data-tone="indigo"] {
+    border-color: #d4dce7;
+    background: #f4f4f0;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-card[data-tone="matcha"] {
+    border-color: #d8ddd0;
+    background: #f5f4ed;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-card > button {
+    position: relative;
+    display: block;
+    isolation: isolate;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 14px 16px 13px;
+    overflow: hidden;
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+    color: var(--jplanet-navy);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-card > button:focus-visible {
+    outline: 3px solid var(--jplanet-sakura);
+    outline-offset: -4px;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-artwork {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    pointer-events: none;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-copy {
+    position: relative;
+    display: flex;
+    width: 55%;
+    height: 100%;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #a92d46;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-coupon-card[data-tone="indigo"]
+    .sazo-mobile-coupon-kicker {
+    color: #2e5d99;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-coupon-card[data-tone="matcha"]
+    .sazo-mobile-coupon-kicker {
+    color: #3d7548;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-kicker img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-copy > strong {
+    margin-top: 8px;
+    color: #9f2440;
+    font-size: clamp(27px, 8vw, 34px);
+    font-weight: 900;
+    letter-spacing: -0.065em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-coupon-card[data-tone="indigo"]
+    .sazo-mobile-coupon-copy
+    > strong {
+    color: #224f89;
+  }
+
+  .sazo-root[data-view="home"]
+    .sazo-mobile-coupon-card[data-tone="matcha"]
+    .sazo-mobile-coupon-copy
+    > strong {
+    color: #31683d;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-product {
+    display: -webkit-box;
+    max-width: 100%;
+    margin-top: 7px;
+    overflow: hidden;
+    color: var(--jplanet-deep-navy);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-condition {
+    margin-top: 4px;
+    color: #5f697b;
+    font-size: 10px;
+    font-weight: 650;
+    line-height: 1.2;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    margin-top: auto;
+    color: var(--jplanet-deep-navy);
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .sazo-root[data-view="home"] .sazo-mobile-coupon-banner + .sazo-review-section {
+    padding-top: 8px;
+    border-top: 0;
   }
 }

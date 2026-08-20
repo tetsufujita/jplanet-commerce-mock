@@ -561,11 +561,12 @@
       "shortcutLabel": "J-Planet shortcuts",
       "shortcuts": {
         "feature": "J-Planet features",
-        "limited": "Limited",
-        "fleaMarket": "Flea market",
+        "limited": "Japan exclusives",
+        "fleaMarket": "Pre-owned",
         "service": "How it works",
         "brands": "Popular brands",
         "categories": "Categories",
+        "coupons": "Coupons",
         "reviews": "Reviews",
         "help": "Help",
         "news": "News"

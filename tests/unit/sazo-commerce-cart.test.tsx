@@ -25,9 +25,29 @@ const cartItems = [
 
 afterEach(() => {
   cleanup();
+  window.history.replaceState({}, "", "/");
 });
 
 describe("J-Planet cart", () => {
+  it("marks the exact QA cart route for the approved quiet mobile treatment", () => {
+    window.history.replaceState({}, "", "/sazo-commerce-mock/?qa=1&view=cart");
+    render(<CartView dispatch={vi.fn()} items={cartItems} />);
+
+    const cart = screen.getByTestId("jplanet-cart");
+    expect(cart.getAttribute("data-cart-mobile-proposal")).toBe("figma-43-2");
+    expect(cart.getAttribute("data-cart-mobile-redesign")).toBe("figma-47-30");
+    expect(cart.querySelector(".sazo-jplanet-cart-mobile-count")?.textContent).toBe("3商品");
+    expect(
+      [...cart.querySelectorAll(".sazo-jplanet-cart-mobile-source-name")].map(
+        (element) => element.textContent,
+      ),
+    ).toEqual(["Rakuten Japan", "Sony Japan"]);
+    expect(cart.querySelectorAll(".sazo-jplanet-cart-mobile-shipping")).toHaveLength(2);
+    expect(cart.querySelector(".sazo-jplanet-cart-purchase-note")?.textContent).toContain(
+      "関税・州税・国際送料は購入手続きで表示します。",
+    );
+  });
+
   it("groups multiple selected products by purchase source and keeps the BRL summary live", () => {
     const dispatch = vi.fn();
 

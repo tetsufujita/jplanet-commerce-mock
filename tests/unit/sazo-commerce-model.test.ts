@@ -57,6 +57,13 @@ describe("sazoReducer", () => {
     expect(createInitialSazoState("?qa=1&view=beauty").view).toBe("skincare-catalog");
   });
 
+  it("redirects the retired cosmetics catalog route to the current category directory", () => {
+    expect(createInitialSazoState("?qa=1&view=catalog").view).toBe("categories");
+    expect(
+      sazoReducer(createInitialSazoState(), { type: "navigate", view: "catalog" }).view,
+    ).toBe("categories");
+  });
+
   it("accepts the deterministic checkout QA route", () => {
     expect(createInitialSazoState("?qa=1&view=checkout").view).toBe("checkout");
   });
@@ -506,15 +513,6 @@ describe("sazoReducer", () => {
     expect(ids("cold-first")).toEqual(expected);
     expect(ids("delivery-last")).toEqual(expected);
     expect(ids("large-first")).toEqual(expected);
-  });
-
-  it("navigates catalog and preserves its display mode", () => {
-    const state = createInitialSazoState();
-    const catalog = sazoReducer(state, { type: "navigate", view: "catalog" });
-    const grid = sazoReducer(catalog, { type: "set-catalog-mode", mode: "grid" });
-
-    expect(grid.view).toBe("catalog");
-    expect(grid.catalogMode).toBe("grid");
   });
 
   it.each(["login", "chat"] as const)(

@@ -493,6 +493,10 @@
   white-space: nowrap;
 }
 
+.sazo-coupon-ticket-ribbon {
+  display: none;
+}
+
 .sazo-coupon-ticket-footer {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
@@ -571,20 +575,21 @@
 
 .sazo-coupon-discover { padding: 16px 12px 28px; }
 .sazo-coupon-discover > p { margin: 0 0 10px; color: #1f3864; font-size: 15px; font-weight: 700; }
-.sazo-coupon-discover > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sazo-coupon-discover-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sazo-coupon-discover-ticket-list { display: none; }
 
-.sazo-coupon-discover article {
+.sazo-coupon-discover-grid article {
   min-width: 0;
   padding: 13px 11px;
   border: 1px solid #e5eaf1;
   background: #fff;
 }
 
-.sazo-coupon-discover article > span { color: #667085; font-size: 11px; }
-.sazo-coupon-discover article > h2 { font-size: 19px; }
-.sazo-coupon-discover article > button { width: 100%; min-height: 34px; margin-top: 10px; border: 1px solid #e5eaf1; background: #fff; color: #1f3864; font: inherit; font-size: 11px; cursor: pointer; }
-.sazo-coupon-discover article > button:last-child { border-color: #fea2ac; background: #fff4f5; font-weight: 700; }
-.sazo-coupon-discover article > button:disabled { border-color: #e5eaf1; background: #f4f5f7; color: #98a2b3; cursor: default; }
+.sazo-coupon-discover-grid article > span { color: #667085; font-size: 11px; }
+.sazo-coupon-discover-grid article > h2 { font-size: 19px; }
+.sazo-coupon-discover-grid article > button { width: 100%; min-height: 34px; margin-top: 10px; border: 1px solid #e5eaf1; background: #fff; color: #1f3864; font: inherit; font-size: 11px; cursor: pointer; }
+.sazo-coupon-discover-grid article > button:last-child { border-color: #fea2ac; background: #fff4f5; font-weight: 700; }
+.sazo-coupon-discover-grid article > button:disabled { border-color: #e5eaf1; background: #f4f5f7; color: #98a2b3; cursor: default; }
 
 .sazo-coupon-history { padding: 12px; }
 .sazo-coupon-history > div { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid #e5eaf1; background: #fff; }
@@ -649,4 +654,625 @@
 @media (max-width: 767px) {
   .sazo-root[data-view="coupons"] .sazo-mobile-shell > .sazo-footer { display: none; }
   .sazo-coupon-center { width: 100%; min-height: 100dvh; }
+}
+
+/* Approved coupon wallet V5. This is intentionally mobile-only: the desktop
+   coupon center keeps its existing two-column presentation. */
+@media (max-width: 767px) {
+  .sazo-coupon-center {
+    font-family: "Noto Sans JP Variable", "Noto Sans JP", "Hiragino Sans",
+      "Yu Gothic", Meiryo, sans-serif;
+  }
+
+  .sazo-coupon-center-header {
+    grid-template-columns: 72px minmax(0, 1fr) 72px;
+    width: 100%;
+    height: 60px;
+    min-height: 60px;
+    padding: 0;
+    border-bottom-color: #d9e0eb;
+  }
+
+  .sazo-coupon-center-header > button {
+    width: 72px;
+    min-width: 72px;
+    height: 60px;
+    min-height: 60px;
+  }
+
+  .sazo-coupon-center-header h1 {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 24px;
+    letter-spacing: -0.2px;
+  }
+
+  .sazo-coupon-center-header .sazo-coupon-history-link {
+    width: 72px;
+    min-width: 72px;
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 18px;
+  }
+
+  .sazo-coupon-center-main,
+  .sazo-coupon-discover,
+  .sazo-coupon-history {
+    min-height: calc(100dvh - 60px);
+  }
+
+  .sazo-coupon-tabs {
+    align-items: stretch;
+    width: 100%;
+    height: 52px;
+    min-height: 52px;
+    gap: 18px;
+    padding: 0 14px;
+    border-bottom-color: #d9e0eb;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-tabs button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 52px;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 20px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-tabs button[aria-selected="true"] {
+    border-bottom-color: #f26e87;
+    font-weight: 700;
+  }
+
+  .sazo-coupon-actions {
+    position: relative;
+    width: 100%;
+    height: 56px;
+    min-height: 56px;
+    border-top: 0;
+    border-bottom-color: #d9e0eb;
+  }
+
+  .sazo-coupon-actions::after {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    width: 1px;
+    height: 32px;
+    content: "";
+    background: #e2e6ed;
+    transform: translateX(-0.5px);
+    pointer-events: none;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-actions button {
+    min-height: 56px;
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 20px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-actions button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-actions button + button {
+    border-left: 0;
+  }
+
+  .sazo-coupon-ticket-list {
+    align-content: start;
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: max-content;
+    gap: 10px;
+    width: 100%;
+    min-height: calc(100dvh - 168px);
+    padding: 12px;
+    background: #f5f6f8;
+  }
+
+  .sazo-coupon-ticket {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    border-color: #d7dde7;
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  .sazo-coupon-ticket::before,
+  .sazo-coupon-ticket::after {
+    bottom: 49px;
+    width: 14px;
+    height: 14px;
+    background: #f5f6f8;
+  }
+
+  .sazo-coupon-ticket::before { left: -8px; }
+  .sazo-coupon-ticket::after { right: -8px; }
+
+  .sazo-coupon-ticket-body {
+    position: relative;
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 0;
+    width: 100%;
+    height: 124px;
+    min-height: 124px;
+    padding: 0;
+  }
+
+  .sazo-coupon-ticket-body::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    content: "";
+    background: #e4637b;
+  }
+
+  .sazo-coupon-ticket[data-category="shipping"] .sazo-coupon-ticket-body::before {
+    background: #1f3864;
+  }
+
+  .sazo-coupon-ticket-icon {
+    grid-column: 1;
+    align-self: start;
+    width: 48px;
+    height: 48px;
+    margin: 18px 20px 0;
+    border: 1px solid #dce2ea;
+    border-radius: 10px;
+    background: #f1f4f8;
+  }
+
+  .sazo-coupon-ticket-icon svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .sazo-coupon-ticket-main {
+    position: static;
+    display: flex;
+    grid-column: 2;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    height: 124px;
+    gap: 2px;
+    padding: 14px 16px 8px;
+  }
+
+  .sazo-coupon-kind {
+    position: absolute;
+    top: 78px;
+    left: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 18px;
+    color: #4b5565;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 16px;
+    text-align: center;
+  }
+
+  .sazo-coupon-ticket .sazo-coupon-ticket-main h2 {
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+    color: #1f3864;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 20px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-coupon-ticket-main > strong {
+    display: block;
+    width: 100%;
+    margin: 0;
+    color: #1f3864;
+    font-size: 27px;
+    font-weight: 700;
+    line-height: 32px;
+    letter-spacing: -0.3px;
+  }
+
+  .sazo-coupon-ticket .sazo-coupon-ticket-main > p {
+    width: 100%;
+    margin: 0;
+    color: #636e82;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 18px;
+  }
+
+  .sazo-coupon-ticket .sazo-coupon-ticket-main > p + p {
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .sazo-coupon-ticket-ribbon {
+    position: absolute;
+    z-index: 2;
+    top: 8px;
+    right: -22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 16px;
+    padding: 0;
+    background: #e4637b;
+    color: #fff;
+    font-size: 8.5px;
+    font-weight: 700;
+    line-height: 10px;
+    text-align: center;
+    white-space: nowrap;
+    transform: rotate(45deg);
+    transform-origin: center;
+  }
+
+  .sazo-coupon-ticket[data-category="shipping"] .sazo-coupon-ticket-ribbon {
+    background: #1f3864;
+  }
+
+  .sazo-coupon-ticket-ribbon.is-quantity {
+    font-size: 7.5px;
+    line-height: 9px;
+  }
+
+  .sazo-coupon-ticket-footer {
+    grid-template-columns: minmax(0, 1fr) 100px 100px;
+    gap: 0;
+    width: 100%;
+    height: 56px;
+    min-height: 56px;
+    padding: 0 14px;
+    border-top-color: #d7dde7;
+  }
+
+  .sazo-coupon-ticket-footer > span {
+    display: flex;
+    align-items: center;
+    width: auto;
+    height: 44px;
+    min-width: 0;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 16px;
+    overflow-wrap: anywhere;
+  }
+
+  .sazo-coupon-ticket-footer .is-urgent {
+    color: #c95269;
+    font-weight: 700;
+  }
+
+  .sazo-coupon-ticket-footer .is-urgent svg {
+    display: none;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-ticket-footer button {
+    width: 100px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 18px;
+    text-align: center;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-ticket-footer > button:last-child {
+    width: 100px;
+    min-width: 100px;
+    height: 44px;
+    min-height: 44px;
+    border-color: #e4637b;
+    border-radius: 7px;
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 20px;
+  }
+
+  .sazo-coupon-discover {
+    padding: 18px 0 28px;
+    background: #f5f6f8;
+  }
+
+  .sazo-coupon-discover > p {
+    margin: 0 16px 10px;
+    color: #1f3864;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 24px;
+  }
+
+  .sazo-coupon-discover-grid {
+    display: none;
+  }
+
+  .sazo-coupon-discover-ticket-list {
+    display: grid;
+    min-height: 0;
+    padding: 0 12px 28px;
+  }
+
+  .sazo-coupon-discover-ticket-list .sazo-coupon-ticket-footer > button:last-child:disabled {
+    border-color: #d7dde7;
+    background: #eef1f5;
+    color: #98a2b3;
+    cursor: default;
+  }
+
+  .sazo-coupon-code-layer {
+    align-items: end;
+    padding: 0;
+    background: rgb(16 24 40 / 34%);
+  }
+
+  .sazo-coupon-code-layer form {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 12px;
+    width: min(100%, 440px);
+    min-height: 238px;
+    padding: 24px 16px calc(18px + env(safe-area-inset-bottom));
+    border-top: 1px solid #d7dde7;
+    border-bottom: 0;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -8px 24px rgb(31 56 100 / 8%);
+  }
+
+  .sazo-coupon-code-layer form::before {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    content: "";
+    border-radius: 999px;
+    background: #c7ced8;
+    transform: translateX(-50%);
+  }
+
+  .sazo-coupon-code-layer form > div {
+    grid-column: 1;
+    min-height: 28px;
+  }
+
+  .sazo-coupon-code-layer h2 {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 24px;
+  }
+
+  .sazo-coupon-code-layer form > div button {
+    width: 44px;
+    height: 44px;
+    margin: -8px -10px -8px 0;
+  }
+
+  .sazo-coupon-code-layer input {
+    width: 100%;
+    height: 52px;
+    min-height: 52px;
+    padding: 0 16px;
+    border-color: #d7dde7;
+    border-radius: 7px;
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  .sazo-coupon-code-layer input:focus-visible {
+    border-color: #e4637b;
+    outline: 0;
+    box-shadow: inset 0 0 0 1px #e4637b;
+  }
+
+  .sazo-coupon-code-layer form > button {
+    width: 100%;
+    height: 48px;
+    min-height: 48px;
+    border-radius: 7px;
+  }
+
+  .sazo-coupon-code-layer form > p {
+    grid-column: 1;
+    margin: 0;
+  }
+
+  .sazo-coupon-history {
+    width: 100%;
+    padding: 0;
+    background: #f5f6f8;
+  }
+
+  .sazo-coupon-history > div {
+    width: 100%;
+    height: 56px;
+    min-height: 56px;
+    border-bottom-color: #d9e0eb;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-history > div button {
+    min-height: 56px;
+    padding: 0;
+    color: #667085;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 20px;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-history > div button[aria-selected="true"] {
+    border-bottom: 3px solid #f26e87;
+    color: #1f3864;
+    font-weight: 700;
+  }
+
+  .sazo-coupon-history article {
+    position: relative;
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    grid-template-rows: 124px 56px;
+    gap: 0;
+    box-sizing: border-box;
+    width: calc(100% - 24px);
+    height: 180px;
+    margin: 16px 12px 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #d7dde7;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: none;
+    color: #1f3864;
+  }
+
+  .sazo-coupon-history article::before {
+    position: absolute;
+    top: 0;
+    bottom: 56px;
+    left: 0;
+    width: 4px;
+    content: "";
+    background: #1f3864;
+  }
+
+  .sazo-coupon-history article::after {
+    position: absolute;
+    top: 123px;
+    right: 0;
+    left: 0;
+    content: "";
+    border-top: 1px dashed #d7dde7;
+    pointer-events: none;
+  }
+
+  .sazo-coupon-history-icon {
+    display: inline-flex;
+    grid-column: 1;
+    grid-row: 1;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin: 18px 20px 0;
+    border: 1px solid #dce2ea;
+    border-radius: 10px;
+    background: #f1f4f8;
+    color: #1f3864;
+  }
+
+  .sazo-coupon-history article > div {
+    position: static;
+    display: flex;
+    grid-column: 2;
+    grid-row: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    height: 124px;
+    padding: 14px 16px 8px 0;
+  }
+
+  .sazo-coupon-history article h2 {
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+    color: #1f3864;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 20px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-coupon-history article p {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 2px 0 0;
+  }
+
+  .sazo-coupon-history article p strong {
+    display: block;
+    color: #1f3864;
+    font-size: 27px;
+    font-weight: 700;
+    line-height: 32px;
+    letter-spacing: -0.3px;
+  }
+
+  .sazo-coupon-history article p span {
+    display: block;
+    color: #636e82;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 18px;
+  }
+
+  .sazo-coupon-history article small {
+    position: absolute;
+    bottom: 20px;
+    left: 14px;
+    display: block;
+    max-width: calc(100% - 138px);
+    margin: 0;
+    overflow: hidden;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 16px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sazo-root[data-view="coupons"] .sazo-coupon-history article > button {
+    position: absolute;
+    right: 14px;
+    bottom: 6px;
+    width: 100px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 1px solid #e4637b;
+    border-radius: 7px;
+    background: #fff;
+    color: #1f3864;
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+  }
+
+  .sazo-coupon-history[data-history-state="expired"] article::before {
+    background: #b2bbc9;
+  }
+
+  .sazo-coupon-history[data-history-state="expired"] .sazo-coupon-history-icon {
+    color: #98a2b3;
+    opacity: 0.68;
+  }
+
+  .sazo-coupon-history[data-history-state="expired"] article h2,
+  .sazo-coupon-history[data-history-state="expired"] article p strong {
+    color: #637086;
+  }
+
+  .sazo-coupon-history[data-history-state="expired"] article p span,
+  .sazo-coupon-history[data-history-state="expired"] article small {
+    color: #98a2b3;
+  }
 }

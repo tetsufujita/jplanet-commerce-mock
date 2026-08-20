@@ -584,7 +584,11 @@ describe("SAZO recorded account views", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "クーポンを探す" }));
     expect(screen.getByRole("heading", { name: "クーポンを探す" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "配布終了" }).hasAttribute("disabled")).toBe(true);
+    expect(
+      screen.getAllByRole("button", { name: "配布終了" }).every((button) =>
+        button.hasAttribute("disabled"),
+      ),
+    ).toBe(true);
 
     unmount();
     await renderWithI18n(

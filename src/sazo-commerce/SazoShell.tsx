@@ -49,6 +49,15 @@ const desktopNavigation = [
   { translationKey: "sazo.desktopHome.navigation.delivery", view: "service" },
 ] satisfies readonly NavigationItem[];
 
+const homeDesktopNavigation = [
+  { translationKey: "sazo.navigation.home", view: "home" },
+  { label: "ブランド", translationKey: "sazo.navigation.brands", view: "brands" },
+  { label: "AI検索", translationKey: "sazo.agent.navigation", view: "agent-hub" },
+  { translationKey: "sazo.navigation.categories", view: "categories" },
+  { label: "人気商品", translationKey: "sazo.navigation.reviews", view: "catalog" },
+  { translationKey: "sazo.desktopHome.navigation.delivery", view: "service" },
+] satisfies readonly NavigationItem[];
+
 const mobileSecondaryNavigation = [
   { translationKey: "sazo.navigation.home", view: "home" },
   { translationKey: "sazo.navigation.service", view: "service" },
@@ -191,8 +200,10 @@ interface DesktopAiSearchTrayProps {
   historyControls: string;
   historyExpanded: boolean;
   inputRef: RefObject<HTMLInputElement | null>;
+  label?: string;
   onEscape: () => void;
   onInputActivate: () => void;
+  submitIcon?: "arrow" | "search";
 }
 
 /**
@@ -204,14 +215,16 @@ function DesktopAiSearchTray({
   historyControls,
   historyExpanded,
   inputRef,
+  label = "AI検索",
   onEscape,
   onInputActivate,
+  submitIcon = "search",
 }: DesktopAiSearchTrayProps) {
   return (
     <div className="sazo-desktop-ai-search-tray" data-open="true">
       <div className="sazo-desktop-ai-search-tray-surface">
         <span aria-hidden="true" className="sazo-desktop-ai-search-tray-label">
-          AI検索
+          {label}
         </span>
         <DesktopAgentSearchForm
           className="sazo-desktop-ai-search-tray-form"
@@ -222,7 +235,7 @@ function DesktopAiSearchTray({
           mode="product"
           onEscape={onEscape}
           onInputActivate={onInputActivate}
-          submitIcon="search"
+          submitIcon={submitIcon}
           testId="desktop-header-ai-search-tray"
         />
       </div>
@@ -280,7 +293,7 @@ export function SazoShell({
     couponView ||
     brandDetailView;
   const hideFloatingChat = myPageView || postPurchaseView || state.view === "reviews";
-  const activeDesktopNavigation = desktopNavigation;
+  const activeDesktopNavigation = state.view === "home" ? homeDesktopNavigation : desktopNavigation;
 
   useEffect(() => {
     if (isMobileViewport) {
@@ -303,8 +316,10 @@ export function SazoShell({
                   historyControls="desktop-header-ai-search-history-popover"
                   historyExpanded={headerAiSearchHistoryOpen}
                   inputRef={headerAiSearchInputRef}
+                  label={state.view === "home" ? "AI商品検索" : undefined}
                   onEscape={() => setHeaderAiSearchHistoryOpen(false)}
                   onInputActivate={() => setHeaderAiSearchHistoryOpen(true)}
+                  submitIcon={state.view === "home" ? "arrow" : undefined}
                 />
               ) : null}
 
@@ -353,17 +368,21 @@ export function SazoShell({
                     dispatch({ type: "navigate", view: "cart" });
                   }}
                 />
-                <ControlButton
-                  className="sazo-top-action sazo-desktop-home-top-action"
-                  icon={Bell}
-                  label={t("sazo.navigation.notification")}
-                  onPress={() => {
-                    dispatch({ type: "navigate", view: "notifications" });
-                  }}
-                />
-                <span aria-label="未読の通知 1件" className="sazo-desktop-notification-badge">
-                  1
-                </span>
+                {state.view === "home" ? null : (
+                  <>
+                    <ControlButton
+                      className="sazo-top-action sazo-desktop-home-top-action"
+                      icon={Bell}
+                      label={t("sazo.navigation.notification")}
+                      onPress={() => {
+                        dispatch({ type: "navigate", view: "notifications" });
+                      }}
+                    />
+                    <span aria-label="未読の通知 1件" className="sazo-desktop-notification-badge">
+                      1
+                    </span>
+                  </>
+                )}
                 <ControlButton
                   className="sazo-top-action sazo-desktop-home-top-action"
                   icon={MessageCircle}

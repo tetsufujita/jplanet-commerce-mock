@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "generated_at": "2026-08-18",
+  "generator": "OpenAI built-in image_gen",
+  "purpose": "Mobile-only J-Planet home coupon carousel artwork",
+  "display_size_css_px": {
+    "max_width": 383,
+    "height": 190
+  },
+  "asset_size_px": {
+    "width": 887,
+    "height": 444
+  },
+  "safe_area": {
+    "html_copy": "left 52-54%",
+    "product": "right 40-42%"
+  },
+  "text_policy": "No text, price, discount, logo, or badge is baked into the generated raster. Coupon copy remains live HTML.",
+  "assets": [
+    {
+      "file": "jplanet-mobile-coupon-switch-v1.jpg",
+      "reference": "../reference/nintendo-switch-oled.png",
+      "direction": "Warm ivory washi, restrained sakura petals, muted vermilion folding-fan arc"
+    },
+    {
+      "file": "jplanet-mobile-coupon-camera-v1.jpg",
+      "reference": "../reference/mirrorless-camera.png",
+      "direction": "Off-white washi, indigo seigaiha waves, restrained cobalt paper accent"
+    },
+    {
+      "file": "jplanet-mobile-coupon-controller-v1.jpg",
+      "reference": "../reference/nintendo-pro-controller-v1.png",
+      "direction": "Warm white washi, matcha ichimatsu motif, muted gold mizuhiki curve"
+    }
+  ]
+}

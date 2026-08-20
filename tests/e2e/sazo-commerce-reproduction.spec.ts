@@ -32,8 +32,8 @@ async function expectLoadedDenseHomeProducts(page: Page) {
   const cards = grid.getByTestId("home-dense-product-card");
   const images = grid.locator("img");
 
-  await expect(cards).toHaveCount(48);
-  await expect(images).toHaveCount(48);
+  await expect(cards).toHaveCount(16);
+  await expect(images).toHaveCount(16);
   await expect
     .poll(() =>
       images.evaluateAll((elements) =>
@@ -174,12 +174,12 @@ test("fills every 440px mobile home hero with aligned artwork and real copy", as
     {
       copy: "いま、人気の商品を見つけよう。",
       id: "jplanet-home-popular",
-      image: "jplanet-home-popular-mobile-v4.png",
+      image: "jplanet-home-popular-mobile-v5.png",
     },
     {
       copy: "探す、確かめる、届けるまで。",
       id: "jplanet-home-service",
-      image: "jplanet-home-service-mobile-v4.png",
+      image: "jplanet-home-service-mobile-v5.png",
     },
   ] as const;
 
@@ -202,6 +202,7 @@ test("fills every 440px mobile home hero with aligned artwork and real copy", as
     );
     await expect(artwork).toHaveCSS("object-fit", "cover");
     await expect(copy).toHaveText(hero.copy);
+    await expect(copy).toHaveCSS("color", "rgb(255, 255, 255)");
 
     const geometry = await slide.evaluate((element) => {
       const artworkElement = element.querySelector(".sazo-hero-artwork");
@@ -225,10 +226,111 @@ test("fills every 440px mobile home hero with aligned artwork and real copy", as
     expect(geometry?.artwork).toEqual({ height: 320, width: 440 });
     expect(geometry?.slide).toEqual({ height: 320, width: 440 });
     expect(geometry?.copy.top).toBe(92);
-    expect(geometry?.copy.right).toBeCloseTo(422, 0);
-    expect(geometry?.copy.width).toBeCloseTo(194, 0);
+    if (hero.id === "jplanet-home-popular") {
+      expect(geometry?.copy.right).toBeCloseTo(431, 0);
+      expect(geometry?.copy.width).toBeCloseTo(176, 0);
+    } else {
+      expect(geometry?.copy.right).toBeCloseTo(422, 0);
+      expect(geometry?.copy.width).toBeCloseTo(194, 0);
+    }
     await expectNoHorizontalPageOverflow(page);
     await slide.screenshot({ path: testInfo.outputPath(`${hero.id}-440.png`) });
+  }
+});
+
+test("keeps the mobile home shortcut rail readable and horizontally scrollable", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "mobile",
+    "The compact shortcut grid is a mobile-only home surface.",
+  );
+
+  const expectedLabels = [
+    "J-Planet特集",
+    "日本限定",
+    "フリマ・中古",
+    "人気ブランド",
+    "カテゴリー",
+    "クーポン",
+    "レビュー",
+    "サービス紹介",
+    "お知らせ",
+  ];
+
+  for (const width of [341, 390, 440]) {
+    await page.setViewportSize({ height: 956, width });
+    await page.goto(`${routePath}&view=home`);
+
+    const rail = page.getByRole("group", {
+      exact: true,
+      name: "J-Planetショートカット",
+    });
+    const buttons = rail.getByRole("button");
+
+    await expect(rail).toBeVisible();
+    await expect(rail).toHaveAttribute("data-layout", "horizontal-rail");
+    await expect(rail).toHaveAttribute("data-page-size", "9");
+    await expect(buttons).toHaveCount(9);
+    expect(
+      await buttons.evaluateAll((elements) =>
+        elements.map((element) => element.getAttribute("aria-label")),
+      ),
+    ).toEqual(expectedLabels);
+
+    const geometry = await rail.evaluate((element) => {
+      const railRect = element.getBoundingClientRect();
+      const buttons = Array.from(element.querySelectorAll<HTMLElement>(".sazo-shortcut"));
+
+      return {
+        clientWidth: element.clientWidth,
+        fontSizes: buttons.map((button) => Number.parseFloat(getComputedStyle(button).fontSize)),
+        hasHorizontalContinuation: buttons.some((button) => {
+          const rect = button.getBoundingClientRect();
+          return rect.right > railRect.right + 0.5;
+        }),
+        labelsFullyVisible: buttons.every((button) => {
+          const label = button.querySelector<HTMLElement>(":scope > span:last-child");
+          return (
+            label !== null &&
+            label.scrollWidth <= label.clientWidth &&
+            label.scrollHeight <= label.clientHeight
+          );
+        }),
+        overflowX: getComputedStyle(element).overflowX,
+        scrollWidth: element.scrollWidth,
+      };
+    });
+
+    expect(geometry.scrollWidth).toBeGreaterThan(geometry.clientWidth);
+    expect(geometry.hasHorizontalContinuation).toBe(true);
+    expect(geometry.labelsFullyVisible).toBe(true);
+    expect(geometry.fontSizes.every((size) => size >= 11)).toBe(true);
+    expect(geometry.overflowX).toBe("auto");
+    await rail.evaluate((element) => element.scrollTo({ left: element.scrollWidth }));
+    await expect.poll(() => rail.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+    await expectNoHorizontalPageOverflow(page);
+  }
+
+  const destinations = [
+    ["J-Planet特集", "campaign"],
+    ["日本限定", "categories"],
+    ["フリマ・中古", "categories"],
+    ["人気ブランド", "brands"],
+    ["カテゴリー", "categories"],
+    ["クーポン", "coupons"],
+    ["レビュー", "reviews"],
+    ["サービス紹介", "service"],
+    ["お知らせ", "notifications"],
+  ] as const;
+
+  for (const [label, view] of destinations) {
+    await page.goto(`${routePath}&view=home`);
+    await page
+      .getByRole("group", { exact: true, name: "J-Planetショートカット" })
+      .getByRole("button", { exact: true, name: label })
+      .click();
+    await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", view);
   }
 });
 
@@ -253,6 +355,72 @@ test("keeps the 767px ChatGPT hero on its existing non-cropped artwork fit", asy
   });
   await expect(artwork).toHaveCSS("object-fit", "contain");
   await expectNoHorizontalPageOverflow(page);
+});
+
+test("renders mobile J-Planet GRAM as an aligned horizontal rail", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "mobile",
+    "The GRAM rail is a mobile-only presentation.",
+  );
+
+  for (const viewport of [
+    { height: 735, width: 341 },
+    { height: 844, width: 390 },
+    { height: 956, width: 440 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto(`${routePath}&view=home`);
+
+    const section = page.getByTestId("mobile-gram-section");
+    const rail = section.locator(".sazo-mobile-gram-grid");
+    const cards = rail.locator(".sazo-mobile-gram-card");
+    await section.scrollIntoViewIfNeeded();
+
+    await expect(cards).toHaveCount(3);
+    const layout = await rail.evaluate((element) => {
+      const cardElements = Array.from(
+        element.querySelectorAll<HTMLElement>(".sazo-mobile-gram-card"),
+      );
+      const productRows = cardElements.map((card) =>
+        Math.round(
+          card.querySelector<HTMLElement>(".sazo-mobile-gram-product")?.getBoundingClientRect()
+            .top ?? 0,
+        ),
+      );
+      const priceRows = cardElements.map((card) =>
+        Math.round(
+          card.querySelector<HTMLElement>(".sazo-mobile-gram-product p")?.getBoundingClientRect()
+            .top ?? 0,
+        ),
+      );
+      const style = getComputedStyle(element);
+
+      return {
+        cardWidths: cardElements.map((card) => Math.round(card.getBoundingClientRect().width)),
+        clientWidth: element.clientWidth,
+        overflowX: style.overflowX,
+        priceRows,
+        productRows,
+        scrollSnapType: style.scrollSnapType,
+        scrollWidth: element.scrollWidth,
+      };
+    });
+
+    expect(layout.scrollWidth).toBeGreaterThan(layout.clientWidth);
+    expect(layout.overflowX).toBe("auto");
+    expect(layout.scrollSnapType).toContain("mandatory");
+    expect(Math.max(...layout.cardWidths) - Math.min(...layout.cardWidths)).toBeLessThanOrEqual(1);
+    expect(Math.max(...layout.productRows) - Math.min(...layout.productRows)).toBeLessThanOrEqual(1);
+    expect(Math.max(...layout.priceRows) - Math.min(...layout.priceRows)).toBeLessThanOrEqual(1);
+
+    await rail.evaluate((element) => {
+      element.scrollTo({ behavior: "instant", left: element.scrollWidth });
+    });
+    await expect.poll(() => rail.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+    await expectNoHorizontalPageOverflow(page);
+  }
 });
 
 test("aligns the mobile Uniqlo discovery rail and identifies its source on every card", async ({
@@ -618,7 +786,7 @@ async function replayMobileScenario(page: Page) {
   await page.getByRole("button", { exact: true, name: "J-Planet ホーム" }).click();
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "home");
   await page.evaluate(() => {
-    window.scrollTo({ behavior: "instant", top: 32 });
+    window.scrollTo({ behavior: "instant", top: 96 });
   });
   await expect(page.locator(".sazo-root")).toHaveAttribute(
     "data-header-collapsed",
@@ -716,7 +884,7 @@ async function replayMobileScenario(page: Page) {
 
   const shortcutMenu = page.locator("[data-mobile-shortcut-grid]");
   await expect(shortcutMenu).toBeVisible();
-  await expect(shortcutMenu).toHaveAttribute("data-layout", "horizontal-menu");
+  await expect(shortcutMenu).toHaveAttribute("data-layout", "horizontal-rail");
   await expect(shortcutMenu).toHaveAttribute("data-page-size", "9");
   await expect(shortcutMenu.getByRole("button")).toHaveCount(9);
   await expect(
@@ -769,7 +937,7 @@ async function replayMobileScenario(page: Page) {
     name: "J-Planetショートカット",
   });
   await expect(shortcutRail).toBeVisible();
-  await expect(shortcutRail).toHaveAttribute("data-layout", "horizontal-menu");
+  await expect(shortcutRail).toHaveAttribute("data-layout", "horizontal-rail");
   await expect(shortcutRail).toHaveAttribute("data-page-size", "9");
   await expect(shortcutRail.getByRole("button")).toHaveCount(9);
   await expect(
@@ -1231,14 +1399,14 @@ test("shows a waterfall home grid with direct-Japan prices and returns each card
   await grid.evaluate((element) => {
     element.scrollIntoView({ block: "start" });
   });
-  await expect(cards).toHaveCount(48);
+  await expect(cards).toHaveCount(16);
   await expect(grid).toHaveAttribute("data-column-count", "2");
   await expect(grid.locator(".sazo-home-dense-product-column")).toHaveCount(2);
   expect(
     await cards.evaluateAll((elements) =>
       elements.map((element) => element.getAttribute("data-product-target")),
     ),
-  ).toEqual(Array.from({ length: 48 }, () => "jplanet-nintendo-pro-controller"));
+  ).toEqual(Array.from({ length: 16 }, () => "jplanet-nintendo-pro-controller"));
   expect(
     await cards.evaluateAll((elements) =>
       elements.map((card) => {
@@ -1256,10 +1424,10 @@ test("shows a waterfall home grid with direct-Japan prices and returns each card
       }),
     ),
   ).toEqual(
-    Array.from({ length: 48 }, () => ({
-      cardBorderTopWidth: "0px",
-      imageObjectFit: "cover",
-      imagePaddingTop: "0px",
+    Array.from({ length: 16 }, () => ({
+      cardBorderTopWidth: "1px",
+      imageObjectFit: "contain",
+      imagePaddingTop: "8px",
     })),
   );
   await expect(grid).not.toContainText("¥");
@@ -1271,7 +1439,7 @@ test("shows a waterfall home grid with direct-Japan prices and returns each card
   await expect(grid).not.toContainText("購入済み");
   await expect(grid.locator(".sazo-home-dense-product-rating")).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("home-sales-count-341.png") });
-  await expect(grid.locator(".sazo-home-dense-product-add")).toHaveCount(48);
+  await expect(grid.locator(".sazo-home-dense-product-add")).toHaveCount(16);
   await expect(grid.locator(".sazo-home-dense-product-copy").first()).toHaveCSS(
     "display",
     "grid",
@@ -1282,7 +1450,7 @@ test("shows a waterfall home grid with direct-Japan prices and returns each card
       .evaluateAll((elements) =>
         elements.map((element) => Math.round(element.getBoundingClientRect().height)),
       ),
-  ).not.toEqual(Array.from({ length: 48 }, () => 0));
+  ).not.toEqual(Array.from({ length: 16 }, () => 0));
   expect(
     new Set(
       await cards
@@ -1327,28 +1495,24 @@ test("shows a waterfall home grid with direct-Japan prices and returns each card
   ).toBeVisible();
 });
 
-test("keeps the waterfall grid legible on tablet and desktop", async ({
+test("keeps the current home product rail legible on tablet and desktop", async ({
   page,
 }, testInfo) => {
   test.skip(
     testInfo.project.name !== "desktop",
     "desktop project supplies the tablet-sized viewport",
   );
-
-  await page.goto(routePath);
-  const grid = page.locator(
-    ".sazo-desktop-home-product-rail [data-home-dense-product-grid]",
-  );
-
-  for (const { width, columns } of [
-    { width: 768, columns: 3 },
-    { width: 1_024, columns: 4 },
-    { width: 1_511, columns: 5 },
+  for (const { width, cards } of [
+    { width: 768, cards: 6 },
+    { width: 1_024, cards: 4 },
+    { width: 1_511, cards: 4 },
   ]) {
     await page.setViewportSize({ width, height: 900 });
-    await expect(grid).toHaveAttribute("data-column-count", String(columns));
-    await expect(grid.locator(".sazo-home-dense-product-column")).toHaveCount(1);
-    await expect(page.locator("html")).toHaveJSProperty("scrollWidth", width);
+    await page.goto(routePath);
+    const rail = page.getByTestId("desktop-home-product-rail");
+    await expect(rail).toBeVisible();
+    await expect(rail.getByTestId("home-dense-product-card")).toHaveCount(cards);
+    await expectNoHorizontalPageOverflow(page);
   }
 });
 
@@ -1792,7 +1956,13 @@ test("opens the dedicated mobile AI search with distinct text, URL, and image pa
       "environment",
     );
     await expect(search.getByText("最近の検索")).toBeVisible();
-    await expect(search.getByText("AI検索で商品を探してみよう！")).toBeVisible();
+    await expect(
+      search.getByRole("heading", { name: "欲しい商品を、J-Planetに相談" }),
+    ).toBeVisible();
+    await expect(
+      search.getByText("日本の商品を、ブラジルで買える条件まで確認します。"),
+    ).toBeVisible();
+    await expect(search.getByText("AI検索で商品を探してみよう！")).toHaveCount(0);
     await expect(search.getByText("今、人気の検索")).toBeVisible();
     await expectNoHorizontalPageOverflow(page);
     await page.screenshot({
@@ -1908,7 +2078,9 @@ test("keeps the mobile AI search available for an empty first-visit route", asyn
 
   await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "ai-search");
   await expect(search.locator("[data-ai-search-input]")).toBeVisible();
-  await expect(search.getByText("AI検索で商品を探してみよう！")).toBeVisible();
+  await expect(
+    search.getByRole("heading", { name: "欲しい商品を、J-Planetに相談" }),
+  ).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("agent-search-empty-390.png") });
   await expectNoHorizontalPageOverflow(page);
 });
@@ -2126,7 +2298,7 @@ test("opens one J-Planet brand directory from both entries and keeps NIKE browsi
     await expect(page.getByRole("tablist", { name: "ブランド一覧タブ" })).toHaveCount(0);
     await expect(page.getByRole("region", { name: "商品カテゴリー" })).toHaveCount(0);
     await expect(
-      page.getByRole("searchbox", { name: "AIでブランド・商品を探す" }),
+      page.getByRole("searchbox", { name: "ブランド・商品を検索" }),
     ).toHaveCount(1);
     await expect(page.getByText("全体 8件", { exact: true })).toBeVisible();
     await page.screenshot({
@@ -2151,11 +2323,11 @@ test("opens one J-Planet brand directory from both entries and keeps NIKE browsi
 
   await page.getByRole("button", { name: "家電" }).click();
   await expect(page.getByText("APPLE", { exact: true })).toBeVisible();
-  await page.getByRole("searchbox", { name: "AIでブランド・商品を探す" }).fill("ソニー");
+  await page.getByRole("searchbox", { name: "ブランド・商品を検索" }).fill("ソニー");
   await expect(page.getByText("SONY", { exact: true })).toBeVisible();
   await expect(page.getByText("APPLE", { exact: true })).toBeHidden();
   await page.screenshot({ path: testInfo.outputPath("brand-search-390.png") });
-  await page.getByRole("searchbox", { name: "AIでブランド・商品を探す" }).fill("");
+  await page.getByRole("searchbox", { name: "ブランド・商品を検索" }).fill("");
   await page.getByRole("button", { name: "全体" }).click();
 
   await page.getByRole("button", { name: "NIKEを開く" }).click();
@@ -2215,7 +2387,31 @@ test("renders mobile purchase experience reviews with working decision filters",
   await expect(reviewAgentComposer.getByRole("button", { name: "カメラ" })).toBeVisible();
   await expect(
     reviewAgentComposer.locator(".sazo-mobile-agent-composer-input-shell"),
-  ).toHaveCSS("min-height", "48px");
+  ).toHaveCSS("min-height", "52px");
+  const reviewComposerLayout = await reviewAgentComposer
+    .locator(".sazo-mobile-agent-composer-input-shell")
+    .evaluate((shell) => {
+      const rect = shell.getBoundingClientRect();
+      const textarea = shell.querySelector("textarea")?.getBoundingClientRect();
+      const controls = [
+        ".sazo-mobile-agent-composer-plus",
+        ".sazo-mobile-agent-composer-camera",
+        ".sazo-mobile-agent-composer-submit",
+      ].map((selector) => shell.querySelector(selector)?.getBoundingClientRect());
+
+      return {
+        controlCenterOffsets: controls.map((control) =>
+          control === undefined
+            ? null
+            : Math.round(control.top + control.height / 2 - (rect.top + rect.height / 2)),
+        ),
+        height: Math.round(rect.height),
+        textareaWidth: textarea === undefined ? 0 : Math.round(textarea.width),
+      };
+    });
+  expect(reviewComposerLayout.height).toBeLessThanOrEqual(60);
+  expect(reviewComposerLayout.textareaWidth).toBeGreaterThanOrEqual(120);
+  expect(reviewComposerLayout.controlCenterOffsets).toEqual([0, 0, 0]);
 
   const carousel = page.locator('[data-review-feature-carousel="true"]');
   await expect(carousel).toBeVisible();
@@ -2357,14 +2553,14 @@ test("replays the deterministic SAZO commerce journey", async ({ page }, testInf
       page
         .getByTestId("desktop-home-product-rail")
         .getByTestId("home-dense-product-card"),
-    ).toHaveCount(6);
+    ).toHaveCount(4);
     await expect(page.locator(".sazo-mobile-nav")).toBeHidden();
 
     const desktopNavigation = page.getByRole("navigation", {
       exact: true,
       name: "メインメニュー",
     });
-    await expect(desktopNavigation.getByRole("button")).toHaveCount(7);
+    await expect(desktopNavigation.getByRole("button")).toHaveCount(6);
     expect(
       await desktopNavigation
         .getByRole("button")
@@ -2374,8 +2570,7 @@ test("replays the deterministic SAZO commerce journey", async ({ page }, testInf
       "ブランド",
       "AI検索",
       "カテゴリー",
-      "レビュー",
-      "J-Planet GRAM",
+      "人気商品",
       "配送・通関",
     ]);
 
@@ -2395,7 +2590,7 @@ test("replays the deterministic SAZO commerce journey", async ({ page }, testInf
       page
         .getByTestId("desktop-home-product-rail")
         .getByTestId("home-dense-product-card"),
-    ).toHaveCount(6);
+    ).toHaveCount(4);
     await expectNoHorizontalPageOverflow(page);
 
     const desktopRoutes: readonly [string, string][] = [
@@ -2453,7 +2648,245 @@ test("replays the deterministic SAZO commerce journey", async ({ page }, testInf
   await expectNoHorizontalPageOverflow(page);
 });
 
-test("keeps the selected agentic-commerce home responsive and interactive on desktop", async ({
+test("keeps the mobile-aligned photo hero responsive and interactive on desktop", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "desktop",
+    "desktop project covers the tablet and desktop home composition",
+  );
+
+  for (const viewport of [
+    { height: 900, width: 768 },
+    { height: 900, width: 1024 },
+    { height: 900, width: 1280 },
+    { height: 1024, width: 1440 },
+    { height: 1024, width: 1536 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto(routePath);
+
+    const hero = page.getByTestId("desktop-aligned-home-hero");
+    const agentCard = page.getByTestId("desktop-aligned-agent-card");
+    const shortcuts = page.getByTestId("desktop-aligned-shortcuts");
+    const pixBanner = page.getByTestId("desktop-aligned-pix-banner");
+    const desktopHome = page.locator("[data-desktop-home-view]");
+
+    await expect(desktopHome).toBeVisible();
+    await expect(page.locator(".sazo-mobile-nav")).toBeHidden();
+    await expect(page.getByTestId("desktop-agent-lens")).toHaveCount(0);
+    await expect(hero).toBeVisible();
+    await expect(
+      hero.getByRole("heading", { name: /日本の買い物を、.*もっと確かに。/ }),
+    ).toBeVisible();
+    await expect(
+      agentCard.getByRole("heading", { name: "AIで商品を探す" }),
+    ).toBeVisible();
+    await expect(agentCard.getByRole("search", { name: "AI検索" })).toBeVisible();
+    const expectedShortcutLabels =
+      viewport.width < 1_024
+        ? ["J-Planet特集", "日本限定", "フリマ・中古", "人気ブランド", "カテゴリー"]
+        : [
+            "J-Planet特集",
+            "日本限定",
+            "フリマ・中古",
+            "人気ブランド",
+            "カテゴリー",
+            "クーポン",
+            "レビュー",
+            "サービス紹介",
+            "お知らせ",
+          ];
+    await expect(shortcuts.getByRole("button")).toHaveCount(expectedShortcutLabels.length);
+    expect(
+      await shortcuts
+        .getByRole("button")
+        .evaluateAll((buttons) => buttons.map((button) => button.getAttribute("aria-label"))),
+    ).toEqual(expectedShortcutLabels);
+    if (viewport.width < 1_024) {
+      await expect(pixBanner).toBeVisible();
+    } else {
+      await expect(pixBanner).toHaveCount(0);
+    }
+
+    const geometry = await page.evaluate(() => {
+      const rect = (selector: string) => {
+        const element = document.querySelector<HTMLElement>(selector);
+        if (element === null) throw new Error(`Missing ${selector}`);
+        const box = element.getBoundingClientRect();
+        return {
+          bottom: box.bottom,
+          centerX: box.left + box.width / 2,
+          height: box.height,
+          left: box.left,
+          right: box.right,
+          top: box.top,
+          width: box.width,
+        };
+      };
+
+      const pix = document.querySelector<HTMLElement>(
+        '[data-testid="desktop-aligned-pix-banner"]',
+      );
+
+      return {
+        agent: rect('[data-testid="desktop-aligned-agent-card"]'),
+        clientWidth: document.documentElement.clientWidth,
+        copy: rect(".sazo-desktop-aligned-home-copy"),
+        hero: rect('[data-testid="desktop-aligned-home-hero"]'),
+        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        pix: pix === null ? null : rect('[data-testid="desktop-aligned-pix-banner"]'),
+        shortcuts: rect('[data-testid="desktop-aligned-shortcuts"]'),
+      };
+    });
+
+    const viewportCenter = geometry.clientWidth / 2;
+    expect(Math.abs(geometry.hero.centerX - viewportCenter)).toBeLessThanOrEqual(1);
+    if (viewport.width < 1_024) {
+      expect(Math.abs(geometry.copy.centerX - viewportCenter)).toBeLessThanOrEqual(1);
+    } else {
+      expect(geometry.copy.left).toBeGreaterThan(geometry.hero.centerX);
+    }
+    expect(Math.abs(geometry.agent.centerX - viewportCenter)).toBeLessThanOrEqual(1);
+    expect(Math.abs(geometry.agent.left - (geometry.clientWidth - geometry.agent.right))).toBeLessThanOrEqual(1);
+    expect(geometry.hero.height).toBeGreaterThanOrEqual(419);
+    expect(geometry.hero.height).toBeLessThanOrEqual(459);
+    expect(geometry.agent.height).toBeGreaterThanOrEqual(150);
+    expect(geometry.agent.height).toBeLessThanOrEqual(175);
+    expect(geometry.agent.width).toBeLessThanOrEqual(780);
+    expect(geometry.hero.bottom).toBeLessThanOrEqual(620);
+    if (viewport.width < 1_024) {
+      expect(geometry.shortcuts.top).toBeCloseTo(geometry.hero.bottom, 0);
+      expect(geometry.pix?.top).toBeGreaterThan(geometry.shortcuts.bottom);
+    } else {
+      expect(geometry.shortcuts.top - geometry.hero.bottom).toBeCloseTo(64, 0);
+      expect(geometry.pix).toBeNull();
+    }
+    expect(geometry.overflow).toBeLessThanOrEqual(0);
+
+    await expect(
+      page
+        .getByTestId("desktop-home-product-rail")
+        .getByTestId("home-dense-product-card"),
+    ).toHaveCount(viewport.width < 1_024 ? 6 : 4);
+    await expect(page.getByTestId("desktop-home-reviews")).toBeVisible();
+    await expect(page.getByTestId("desktop-home-gram")).toBeVisible();
+    expect(
+      await desktopHome.evaluate((home) => {
+        const tablet = window.innerWidth < 1_024;
+        const selectors = tablet
+          ? [
+              '[data-testid="desktop-aligned-home-hero"]',
+              '[data-testid="desktop-aligned-shortcuts"]',
+              '[data-testid="desktop-aligned-pix-banner"]',
+              '[data-testid="desktop-home-community"]',
+              '[data-testid="desktop-home-product-rail"]',
+            ]
+          : [
+              '[data-testid="desktop-aligned-home-hero"]',
+              '[data-testid="desktop-aligned-shortcuts"]',
+              '[data-testid="desktop-home-search-trend"]',
+              '[data-testid="desktop-home-coupons"]',
+              '[data-testid="desktop-home-uniqlo-discovery"]',
+              '[data-testid="desktop-home-community"]',
+              '[data-testid="desktop-home-product-rail"]',
+            ];
+        const elements = selectors.map((selector) => home.querySelector(selector));
+        return elements.every(
+          (element, index) =>
+            element !== null &&
+            (index === 0 ||
+              Boolean(
+                (elements[index - 1]?.compareDocumentPosition(element) ?? 0) &
+                  Node.DOCUMENT_POSITION_FOLLOWING,
+              )),
+        );
+      }),
+    ).toBe(true);
+    await expectNoHorizontalPageOverflow(page);
+  }
+
+  await page.setViewportSize({ height: 900, width: 1024 });
+  await page.goto(routePath);
+  const agentCard = page.getByTestId("desktop-aligned-agent-card");
+  const agentSearch = agentCard.getByRole("search", { name: "AI検索" });
+  const agentInput = agentSearch.getByRole("textbox", {
+    name: "商品名・キーワード・画像・URLで検索",
+  });
+  await agentInput.click();
+  const searchHistoryPopover = page.getByRole("dialog", { name: "最近の検索" });
+  await expect(searchHistoryPopover).toBeVisible();
+  expect(await searchHistoryPopover.evaluate((panel) => panel.parentElement === document.body)).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(searchHistoryPopover).toHaveCount(0);
+
+  await agentInput.fill("New Balance 9060");
+  await agentSearch.getByRole("button", { name: "AI検索を実行" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-searching");
+
+  await page.goto(routePath);
+  await page
+    .getByTestId("desktop-aligned-agent-card")
+    .getByRole("button", { name: "カメラ" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "agent-hub");
+
+  await page.setViewportSize({ height: 900, width: 768 });
+  await page.goto(routePath);
+  await page
+    .getByTestId("desktop-aligned-pix-banner")
+    .getByRole("button", { name: "J-Planet PIX DAYセールを見る" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "coupons");
+
+  await page.setViewportSize({ height: 900, width: 1024 });
+  await page.goto(routePath);
+  await page
+    .getByTestId("desktop-aligned-shortcuts")
+    .getByRole("button", { name: "カテゴリー" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "categories");
+
+  await page.goto(routePath);
+  await page
+    .getByTestId("desktop-home-reviews")
+    .getByRole("button", { exact: true, name: "もっと見る" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "reviews");
+
+  await page.goto(routePath);
+  await page
+    .getByTestId("desktop-home-gram")
+    .getByRole("button", { exact: true, name: "もっと見る" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "gram");
+
+  await page.goto(routePath);
+  const header = page.locator(".sazo-desktop-header");
+  await header.getByRole("button", { name: "カート" }).click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "cart");
+
+  await page.goto(routePath);
+  await header.getByRole("button", { name: "チャット" }).click();
+  await expect(page.getByRole("dialog", { name: "J-Planetチャット" })).toBeVisible();
+
+  await page.goto(routePath);
+  await page
+    .getByTestId("desktop-home-category-grid")
+    .getByRole("button", { name: "すべてのカテゴリー" })
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "categories");
+
+  await page.goto(routePath);
+  await page
+    .getByTestId("desktop-home-product-rail")
+    .locator(".sazo-home-dense-product-copy")
+    .first()
+    .click();
+  await expect(page.locator(".sazo-root")).toHaveAttribute("data-view", "product");
+});
+
+test.skip("keeps the selected agentic-commerce home responsive and interactive on desktop", async ({
   page,
 }, testInfo) => {
   test.skip(

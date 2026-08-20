@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type Dispatch } from "react";
+import { useEffect, useState, type Dispatch } from "react";
 import {
   ArrowLeft,
   Bookmark,
@@ -27,7 +27,6 @@ import {
   type CategoryDirectoryEntry,
 } from "@/sazo-commerce/fixtures";
 import { MobileAgentComposer } from "@/sazo-commerce/MobileAgentComposer";
-import { ProductMediaHeader } from "@/sazo-commerce/ProductDetailView";
 import type { BrandFilterId, SazoAction, SazoState } from "@/sazo-commerce/model";
 
 export interface ViewDispatchProps {
@@ -237,7 +236,6 @@ export function BrandsView({ dispatch, state }: BrandsViewProps) {
 export function CategoriesView({ dispatch, state }: StatefulViewProps) {
   const { t } = useTranslation();
   const isMobileCategorySurface = useMobileCategorySurface();
-  const mobileTitleRef = useRef<HTMLElement>(null);
   const directoryEntries: readonly CategoryDirectoryEntry[] = [
     ...categoryDirectory,
     ...mobileCategoryDirectoryEntries,
@@ -256,15 +254,42 @@ export function CategoriesView({ dispatch, state }: StatefulViewProps) {
     <div className="sazo-directory-view" data-view-content="categories">
       {isMobileCategorySurface ? (
         <>
-          <ProductMediaHeader
-            dispatch={dispatch}
-            onBack={() => {
-              dispatch({ type: "navigate", view: "home" });
-            }}
-            productInfoRef={mobileTitleRef}
-            productName={t("sazo.views.categories.title")}
-          />
-          <section className="sazo-mobile-category-title" ref={mobileTitleRef}>
+          <header className="sazo-mobile-category-header sazo-unified-mobile-header">
+            <button
+              aria-label={t("sazo.views.common.back")}
+              className="sazo-unified-mobile-header-icon"
+              onClick={() => {
+                dispatch({ type: "navigate", view: "home" });
+              }}
+              type="button"
+            >
+              <ArrowLeft aria-hidden size={24} strokeWidth={2} />
+            </button>
+            <div className="sazo-unified-mobile-header-search" role="search">
+              <button
+                aria-label="商品・カテゴリーを検索"
+                onClick={() => {
+                  dispatch({ type: "navigate", view: "agent-hub" });
+                }}
+                type="button"
+              >
+                <Search aria-hidden size={19} strokeWidth={2} />
+                <span>商品・カテゴリーを検索</span>
+              </button>
+            </div>
+            <button
+              aria-label={t("sazo.views.common.cart")}
+              className="sazo-unified-mobile-header-icon sazo-unified-mobile-header-cart"
+              onClick={() => {
+                dispatch({ type: "navigate", view: "cart" });
+              }}
+              type="button"
+            >
+              <ShoppingCart aria-hidden size={24} strokeWidth={2} />
+              <span aria-hidden>{state.cartItems.length}</span>
+            </button>
+          </header>
+          <section className="sazo-mobile-category-title">
             <h1>{t("sazo.views.categories.title")}</h1>
           </section>
         </>

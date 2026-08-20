@@ -1,0 +1,30 @@
+{
+  "version": 5,
+  "purpose": "Mobile home carousel artwork for jplanet-home-popular on a dark J-Planet surface",
+  "canvasPx": {
+    "width": 887,
+    "height": 852
+  },
+  "viewportScopeCssPx": {
+    "maxWidth": 767,
+    "verifiedWidths": [341, 390, 440]
+  },
+  "sourceArtwork": "jplanet-home-popular-mobile-v4.png",
+  "generation": {
+    "method": "Built-in image generation background and composition edit, followed by deterministic resize",
+    "conditions": "Replace the white background with deep navy around #23365D, relight the preserved product cluster for contrast, keep the top and lower UI overlap zones free of meaningful artwork, reserve the right half for real HTML copy, and center the foreground cluster in the remaining left-middle safe band."
+  },
+  "safeAreaSourcePx": {
+    "topUiExclusionY": [0, 232],
+    "contentBandY": [232, 583],
+    "lowerUiExclusionY": [583, 852],
+    "htmlCopyStartsNearX": 450
+  },
+  "constraints": [
+    "No text, logo, wordmark, price or factual claim is baked into the artwork.",
+    "Hero copy is rendered as real HTML text.",
+    "Foreground products and decoration remain outside the measured top and lower UI overlap bands.",
+    "The existing v4 and desktop artwork remain unchanged."
+  ],
+  "assetSha256": "5d5ab9f2a976b8ac74599828c96722b44ae466bf03b2b6820c1eac78eaf1d2c5"
+}

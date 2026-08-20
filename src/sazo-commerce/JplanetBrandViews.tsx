@@ -4,11 +4,9 @@ import {
   ChevronRight,
   CircleHelp,
   Grid2X2,
-  Home,
   List,
   Search,
   ShoppingCart,
-  Sparkles,
 } from "lucide-react";
 import { useEffect, useState, type Dispatch } from "react";
 import {
@@ -56,7 +54,6 @@ function BrandCommerceHeader({
   searchLabel = "ブランド名・商品名を検索",
   searchPlaceholder = "ブランド名・商品名を検索",
   searchValue,
-  showAiSearch = false,
 }: {
   cartCount: number;
   dispatch: Dispatch<SazoAction>;
@@ -65,19 +62,14 @@ function BrandCommerceHeader({
   searchLabel?: string;
   searchPlaceholder?: string;
   searchValue?: string;
-  showAiSearch?: boolean;
 }) {
   return (
-    <header className="jplanet-brand-header">
+    <header className="jplanet-brand-header sazo-unified-mobile-header">
       <button aria-label="戻る" className="jplanet-brand-header-icon" onClick={onBack} type="button">
         <ArrowLeft aria-hidden size={24} strokeWidth={2} />
       </button>
       <label className="jplanet-brand-header-search">
-        {showAiSearch ? (
-          <Sparkles aria-hidden className="jplanet-brand-header-ai-mark" size={18} strokeWidth={2} />
-        ) : (
-          <Search aria-hidden size={19} strokeWidth={2} />
-        )}
+        <Search aria-hidden size={19} strokeWidth={2} />
         <input
           aria-label={searchLabel}
           defaultValue={onSearchChange === undefined ? searchValue : undefined}
@@ -87,14 +79,6 @@ function BrandCommerceHeader({
           value={onSearchChange === undefined ? undefined : searchValue}
         />
       </label>
-      <button
-        aria-label="ホーム"
-        className="jplanet-brand-header-icon"
-        onClick={() => dispatch({ type: "navigate", view: "home" })}
-        type="button"
-      >
-        <Home aria-hidden size={23} strokeWidth={2} />
-      </button>
       <button
         aria-label="カート"
         className="jplanet-brand-header-icon jplanet-brand-header-cart"
@@ -211,10 +195,9 @@ export function JplanetBrandsView({
         dispatch={dispatch}
         onBack={() => dispatch({ type: "navigate", view: "home" })}
         onSearchChange={setBrandQuery}
-        searchLabel="AIでブランド・商品を探す"
-        searchPlaceholder="AI検索"
+        searchLabel="ブランド・商品を検索"
+        searchPlaceholder="ブランド・商品を検索"
         searchValue={brandQuery}
-        showAiSearch
       />
       <main className="jplanet-brand-directory-content">
         <div aria-label="ブランドカテゴリ" className="jplanet-brand-category-rail">

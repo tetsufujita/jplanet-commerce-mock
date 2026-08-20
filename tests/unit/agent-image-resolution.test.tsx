@@ -83,7 +83,9 @@ describe("mobile image product identification", () => {
     expect(container.querySelector("[data-ai-search-view]")).not.toBeNull();
     expect(screen.getByRole("search", { name: "AI検索" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "最近の検索" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "AI検索で商品を探してみよう！" })).toBeTruthy();
+    expect(
+      screen.getByRole("heading", { name: "欲しい商品を、J-Planetに相談" }),
+    ).toBeTruthy();
     expect(screen.getByRole("heading", { name: "今、人気の検索" })).toBeTruthy();
     expect(container.querySelector("[data-mobile-agent-hub]")).toBeNull();
   });

@@ -561,11 +561,12 @@
       "shortcutLabel": "J-Planetショートカット",
       "shortcuts": {
         "feature": "J-Planet特集",
-        "limited": "限定",
-        "fleaMarket": "フリマ",
+        "limited": "日本限定",
+        "fleaMarket": "フリマ・中古",
         "service": "サービス紹介",
         "brands": "人気ブランド",
         "categories": "カテゴリー",
+        "coupons": "クーポン",
         "reviews": "レビュー",
         "help": "ヘルプ",
         "news": "お知らせ"

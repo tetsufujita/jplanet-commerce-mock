@@ -414,6 +414,10 @@ export function createInitialSazoState(search = ""): SazoState {
     // The standalone ranking screen was retired. Old QA links now open the
     // keyword-search surface that replaced it.
     state.view = "ai-search";
+  } else if (requestedView === "catalog") {
+    // The former generic catalog was a cosmetics-only screen. Keep old links
+    // usable by opening the current category directory instead.
+    state.view = "categories";
   } else if (view === "beauty") {
     // The dedicated BEAUTY landing was removed. Preserve old QA links by
     // opening the supported skincare catalog instead of rendering the former page.
@@ -465,7 +469,12 @@ export function sazoReducer(state: SazoState, action: SazoAction): SazoState {
       // A few historical fixtures can still issue this legacy action. Keep
       // those flows usable without allowing the retired BEAUTY landing back.
       {
-        const view = action.view === "beauty" ? "skincare-catalog" : action.view;
+        const view =
+          action.view === "beauty"
+            ? "skincare-catalog"
+            : action.view === "catalog"
+              ? "categories"
+              : action.view;
 
         return {
           ...state,

@@ -751,13 +751,13 @@ describe("SAZO captured view contracts", () => {
         .map((button) => button.textContent),
     ).toEqual([
       "J-Planet特集",
-      "限定",
-      "フリマ",
-      "サービス紹介",
+      "日本限定",
+      "フリマ・中古",
       "人気ブランド",
       "カテゴリー",
+      "クーポン",
       "レビュー",
-      "ヘルプ",
+      "サービス紹介",
       "お知らせ",
     ]);
     expect(
@@ -787,7 +787,7 @@ describe("SAZO captured view contracts", () => {
     );
 
     fireEvent.click(within(primary).getByRole("button", { name: "ホーム" }));
-    fireEvent.click(within(shortcuts).getByRole("button", { name: "サービス紹介" }));
+    fireEvent.click(within(shortcuts).getByRole("button", { name: "カテゴリー" }));
     expect(
       within(secondary)
         .getAllByRole("button")
@@ -912,14 +912,12 @@ describe("SAZO captured view contracts", () => {
 
     fireEvent.click(within(desktopNav).getByRole("button", { name: "カテゴリー" }));
     fireEvent.click(screen.getByRole("button", { name: "レディース" }));
-    fireEvent.click(within(desktopNav).getByRole("button", { name: "ホーム" }));
-    const reviewsShortcut = container.querySelector<HTMLButtonElement>(
-      '.sazo-shortcut[aria-label="レビュー"]',
+    fireEvent.click(
+      within(screen.getByRole("navigation", { name: "モバイルサブメニュー" })).getByRole(
+        "button",
+        { name: "レビュー" },
+      ),
     );
-    if (reviewsShortcut === null) {
-      throw new Error("Missing home review shortcut");
-    }
-    fireEvent.click(reviewsShortcut);
 
     expect(
       screen.getByRole("button", { name: "すべて" }).getAttribute("aria-pressed"),

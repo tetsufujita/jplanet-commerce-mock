@@ -561,11 +561,12 @@
       "shortcutLabel": "Atalhos da J-Planet",
       "shortcuts": {
         "feature": "Destaques da J-Planet",
-        "limited": "Limitados",
-        "fleaMarket": "Marketplace",
+        "limited": "Exclusivos do Japão",
+        "fleaMarket": "Usados",
         "service": "Como funciona",
         "brands": "Marcas populares",
         "categories": "Categorias",
+        "coupons": "Cupons",
         "reviews": "Avaliações",
         "help": "Ajuda",
         "news": "Notícias"
