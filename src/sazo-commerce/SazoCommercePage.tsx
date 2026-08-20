@@ -45,6 +45,7 @@ import "@/sazo-commerce/coupons.css";
 import "@/sazo-commerce/sazo.css";
 import "@/sazo-commerce/section-flow.css";
 import "@/sazo-commerce/responsive.css";
+import "@/sazo-commerce/ai-search-v110.css";
 
 function useMobileViewport() {
   const readMatch = () => {

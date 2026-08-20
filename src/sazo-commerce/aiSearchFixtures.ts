@@ -3,11 +3,6 @@ export interface AiSearchRecentItem {
   label: string;
 }
 
-export interface AiSearchGuideStep {
-  id: string;
-  label: string;
-}
-
 export interface AiSearchPopularItem {
   id: string;
   label: string;
@@ -20,7 +15,14 @@ export interface AiSearchResultProduct {
   image: `/${string}`;
   name: string;
   price: string;
+  source?: AiSearchResultSource;
   supportingText: string;
+}
+
+export interface AiSearchResultSource {
+  crop: "full" | "left" | "right";
+  logo: `/${string}`;
+  name: string;
 }
 
 export interface AiSearchResultGroup {
@@ -38,13 +40,6 @@ export interface AiSearchResultGroup {
 export const aiSearchInitialRecentItems: readonly AiSearchRecentItem[] = [
   { id: "new-balance-9060", label: "New Balance 9060" },
   { id: "sensitive-skin-lotion", label: "敏感肌 化粧水" },
-] as const;
-
-export const aiSearchGuideSteps: readonly AiSearchGuideStep[] = [
-  { id: "product", label: "商品名や型番を入力" },
-  { id: "keyword", label: "気になるキーワードで検索" },
-  { id: "image", label: "写真を送って近い商品を検索" },
-  { id: "url", label: "商品ページのURLを貼り付け" },
 ] as const;
 
 export const aiSearchPopularItems: readonly AiSearchPopularItem[] = [
@@ -94,6 +89,24 @@ export const newBalanceSearchTabs: readonly {
   { id: "flea", label: "フリマ" },
 ] as const;
 
+const newBalanceSearchSources = {
+  elevenStreet: {
+    crop: "full",
+    logo: "/sazo-commerce/interested-items/source-11st.png",
+    name: "11st",
+  },
+  gmarket: {
+    crop: "left",
+    logo: "/sazo-commerce/service-lp/logo-gmarket.png",
+    name: "Gmarket",
+  },
+  smile24: {
+    crop: "right",
+    logo: "/sazo-commerce/service-lp/logo-smile24.png",
+    name: "Smile24",
+  },
+} as const satisfies Record<string, AiSearchResultSource>;
+
 export const newBalanceSearchGroups: readonly AiSearchResultGroup[] = [
   {
     count: 84,
@@ -105,6 +118,7 @@ export const newBalanceSearchGroups: readonly AiSearchResultGroup[] = [
         image: "/sazo-commerce/reference/new-balance-9060.png",
         name: "New Balance 9060\nグリーン ホワイト",
         price: "R$ 748",
+        source: newBalanceSearchSources.elevenStreet,
         supportingText: "日本から直送",
       },
       {
@@ -112,6 +126,7 @@ export const newBalanceSearchGroups: readonly AiSearchResultGroup[] = [
         image: "/sazo-commerce/search-results/new-balance-9060-gray-silver.png",
         name: "New Balance 9060\nグレー シルバー",
         price: "R$ 789",
+        source: newBalanceSearchSources.gmarket,
         supportingText: "日本から直送",
       },
       {
@@ -119,6 +134,7 @@ export const newBalanceSearchGroups: readonly AiSearchResultGroup[] = [
         image: "/sazo-commerce/search-results/new-balance-9060-beige-cream.png",
         name: "New Balance 9060\nベージュ クリーム",
         price: "R$ 829",
+        source: newBalanceSearchSources.smile24,
         supportingText: "日本から直送",
       },
     ],
@@ -134,6 +150,7 @@ export const newBalanceSearchGroups: readonly AiSearchResultGroup[] = [
         image: "/sazo-commerce/search-results/new-balance-9060-black-gray.png",
         name: "New Balance 9060\n限定カラー ブラック",
         price: "R$ 1,295",
+        source: newBalanceSearchSources.gmarket,
         supportingText: "見積確認",
       },
       {
@@ -141,6 +158,7 @@ export const newBalanceSearchGroups: readonly AiSearchResultGroup[] = [
         image: "/sazo-commerce/search-results/new-balance-9060-pink-beige.png",
         name: "New Balance 9060\n限定カラー ピンク",
         price: "R$ 1,480",
+        source: newBalanceSearchSources.smile24,
         supportingText: "見積確認",
       },
       {
@@ -148,6 +166,7 @@ export const newBalanceSearchGroups: readonly AiSearchResultGroup[] = [
         image: "/sazo-commerce/search-results/new-balance-9060-blue-silver.png",
         name: "New Balance 9060\nコラボモデル ブルー",
         price: "R$ 1,690",
+        source: newBalanceSearchSources.elevenStreet,
         supportingText: "見積確認",
       },
     ],
@@ -163,6 +182,7 @@ export const newBalanceSearchGroups: readonly AiSearchResultGroup[] = [
         image: "/sazo-commerce/search-results/new-balance-9060-gray-silver.png",
         name: "New Balance 9060\nグレー 中古",
         price: "R$ 520",
+        source: newBalanceSearchSources.smile24,
         supportingText: "状態確認",
       },
       {
@@ -170,6 +190,7 @@ export const newBalanceSearchGroups: readonly AiSearchResultGroup[] = [
         image: "/sazo-commerce/reference/new-balance-9060.png",
         name: "New Balance 9060\nグリーン 中古",
         price: "R$ 689",
+        source: newBalanceSearchSources.elevenStreet,
         supportingText: "状態確認",
       },
       {
@@ -177,6 +198,7 @@ export const newBalanceSearchGroups: readonly AiSearchResultGroup[] = [
         image: "/sazo-commerce/search-results/new-balance-9060-black-gray.png",
         name: "New Balance 9060\nブラック 中古",
         price: "R$ 740",
+        source: newBalanceSearchSources.gmarket,
         supportingText: "状態確認",
       },
     ],

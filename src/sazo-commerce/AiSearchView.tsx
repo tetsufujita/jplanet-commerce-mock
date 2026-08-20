@@ -2,9 +2,9 @@ import {
   ArrowLeft,
   Bookmark,
   Camera,
+  ChevronRight,
   CircleHelp,
   Languages,
-  Minus,
   Search,
   ShoppingCart,
   X,
@@ -18,7 +18,6 @@ import {
   type FormEvent,
 } from "react";
 import {
-  aiSearchGuideSteps,
   aiSearchInitialRecentItems,
   aiSearchPopularItems,
   genericSearchGroups,
@@ -77,6 +76,13 @@ const readInitialQuery = () => {
   if (typeof window === "undefined") return "";
   return new URLSearchParams(window.location.search).get("query")?.trim() ?? "";
 };
+
+const aiSearchAgentCheckItems = [
+  "販売元",
+  "購入可否",
+  "関税・配送",
+  "BRL総額",
+] as const;
 
 export function AiSearchView({ dispatch, state }: AiSearchViewProps) {
   const initialQuery = readInitialQuery();
@@ -435,10 +441,22 @@ export function AiSearchView({ dispatch, state }: AiSearchViewProps) {
                           onClick={openSearchResultProduct}
                           type="button"
                         >
-                          <small>J-Planet</small>
-                          <strong>{product.name}</strong>
+                          {product.source === undefined ? <small>J-Planet</small> : null}
+                          <strong>
+                            {product.source === undefined ? null : (
+                              <span
+                                className="sazo-ai-search-source-logo"
+                                data-logo-crop={product.source.crop}
+                              >
+                                <img
+                                  alt={`販売サイト ${product.source.name}（モック）`}
+                                  src={product.source.logo}
+                                />
+                              </span>
+                            )}
+                            {product.name}
+                          </strong>
                           <b>{product.price}</b>
-                          <span>{product.supportingText}</span>
                         </button>
                       </li>
                     );
@@ -489,10 +507,10 @@ export function AiSearchView({ dispatch, state }: AiSearchViewProps) {
           ) : null}
 
           <section
-            aria-labelledby="ai-search-guide-title"
-            className="sazo-ai-search-guide"
+            aria-labelledby="ai-search-agent-bridge-title"
+            className="sazo-ai-search-agent-bridge"
           >
-            <header>
+            <div className="sazo-ai-search-agent-bridge-intro">
               <img
                 alt=""
                 aria-hidden="true"
@@ -501,16 +519,18 @@ export function AiSearchView({ dispatch, state }: AiSearchViewProps) {
                 src="/sazo-commerce/jplanet-sakura-mark.png"
                 width={44}
               />
-              <h2 id="ai-search-guide-title">AI検索で商品を探してみよう！</h2>
-            </header>
-            <ol>
-              {aiSearchGuideSteps.map((step, index) => (
-                <li key={step.id}>
-                  <span aria-hidden="true">{index + 1}</span>
-                  <p>{step.label}</p>
-                </li>
+              <div>
+                <h2 id="ai-search-agent-bridge-title">
+                  欲しい商品を、J-Planetに相談
+                </h2>
+                <p>日本の商品を、ブラジルで買える条件まで確認します。</p>
+              </div>
+            </div>
+            <ul aria-label="J-Planetが確認する条件">
+              {aiSearchAgentCheckItems.map((item) => (
+                <li key={item}>{item}</li>
               ))}
-            </ol>
+            </ul>
           </section>
 
           <section
@@ -519,12 +539,12 @@ export function AiSearchView({ dispatch, state }: AiSearchViewProps) {
           >
             <h2 id="ai-search-popular-title">今、人気の検索</h2>
             <ol>
-              {aiSearchPopularItems.map((item, index) => (
+              {aiSearchPopularItems.slice(0, 5).map((item, index) => (
                 <li key={item.id}>
                   <button onClick={() => searchText(item.label)} type="button">
                     <span aria-hidden="true">{index + 1}</span>
                     <strong>{item.label}</strong>
-                    <Minus aria-hidden size={19} strokeWidth={2} />
+                    <ChevronRight aria-hidden size={19} strokeWidth={2} />
                   </button>
                 </li>
               ))}
